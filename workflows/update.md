@@ -1,5 +1,5 @@
 <purpose>
-Check for GSD updates via npm, display changelog for versions between installed and latest, obtain user confirmation, and execute clean installation with cache clearing.
+Check for Redpill updates via npm, display changelog for versions between installed and latest, obtain user confirmation, and execute clean installation with cache clearing.
 </purpose>
 
 <required_reading>
@@ -9,7 +9,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 <process>
 
 <step name="get_installed_version">
-Detect whether GSD is installed locally or globally by checking both locations and validating install integrity.
+Detect whether Redpill is installed locally or globally by checking both locations and validating install integrity.
 
 First, derive `PREFERRED_RUNTIME` from the invoking prompt's `execution_context` path:
 - Path contains `/.codex/` -> `codex`
@@ -17,7 +17,7 @@ First, derive `PREFERRED_RUNTIME` from the invoking prompt's `execution_context`
 - Path contains `/.config/opencode/` or `/.opencode/` -> `opencode`
 - Otherwise -> `claude`
 
-Use `PREFERRED_RUNTIME` as the first runtime checked so `/gsd:update` targets the runtime that invoked it.
+Use `PREFERRED_RUNTIME` as the first runtime checked so `/redpill:update` targets the runtime that invoked it.
 
 ```bash
 # Runtime candidates: "<runtime>:<config-dir>" stored as an array.
@@ -62,10 +62,10 @@ LOCAL_VERSION_FILE="" LOCAL_MARKER_FILE="" LOCAL_DIR="" LOCAL_RUNTIME=""
 for entry in "${ORDERED_RUNTIME_DIRS[@]}"; do
   runtime="${entry%%:*}"
   dir="${entry#*:}"
-  if [ -f "./$dir/get-shit-done/VERSION" ] || [ -f "./$dir/get-shit-done/workflows/update.md" ]; then
+  if [ -f "./$dir/redpill/VERSION" ] || [ -f "./$dir/redpill/workflows/update.md" ]; then
     LOCAL_RUNTIME="$runtime"
-    LOCAL_VERSION_FILE="./$dir/get-shit-done/VERSION"
-    LOCAL_MARKER_FILE="./$dir/get-shit-done/workflows/update.md"
+    LOCAL_VERSION_FILE="./$dir/redpill/VERSION"
+    LOCAL_MARKER_FILE="./$dir/redpill/workflows/update.md"
     LOCAL_DIR="$(cd "./$dir" 2>/dev/null && pwd)"
     break
   fi
@@ -75,10 +75,10 @@ GLOBAL_VERSION_FILE="" GLOBAL_MARKER_FILE="" GLOBAL_DIR="" GLOBAL_RUNTIME=""
 for entry in "${ORDERED_RUNTIME_DIRS[@]}"; do
   runtime="${entry%%:*}"
   dir="${entry#*:}"
-  if [ -f "$HOME/$dir/get-shit-done/VERSION" ] || [ -f "$HOME/$dir/get-shit-done/workflows/update.md" ]; then
+  if [ -f "$HOME/$dir/redpill/VERSION" ] || [ -f "$HOME/$dir/redpill/workflows/update.md" ]; then
     GLOBAL_RUNTIME="$runtime"
-    GLOBAL_VERSION_FILE="$HOME/$dir/get-shit-done/VERSION"
-    GLOBAL_MARKER_FILE="$HOME/$dir/get-shit-done/workflows/update.md"
+    GLOBAL_VERSION_FILE="$HOME/$dir/redpill/VERSION"
+    GLOBAL_MARKER_FILE="$HOME/$dir/redpill/workflows/update.md"
     GLOBAL_DIR="$(cd "$HOME/$dir" 2>/dev/null && pwd)"
     break
   fi
@@ -130,7 +130,7 @@ If multiple runtime installs are detected and the invoking runtime cannot be det
 
 **If VERSION file missing:**
 ```
-## GSD Update
+## Redpill Update
 
 **Installed version:** Unknown
 
@@ -146,14 +146,14 @@ Proceed to install step (treat as version 0.0.0 for comparison).
 Check npm for latest version:
 
 ```bash
-npm view get-shit-done-cc version 2>/dev/null
+npm view redpill-cc version 2>/dev/null
 ```
 
 **If npm check fails:**
 ```
 Couldn't check for updates (offline or npm unavailable).
 
-To update manually: `npx get-shit-done-cc --global`
+To update manually: `npx redpill-cc --global`
 ```
 
 Exit.
@@ -164,7 +164,7 @@ Compare installed vs latest:
 
 **If installed == latest:**
 ```
-## GSD Update
+## Redpill Update
 
 **Installed:** X.Y.Z
 **Latest:** X.Y.Z
@@ -176,7 +176,7 @@ Exit.
 
 **If installed > latest:**
 ```
-## GSD Update
+## Redpill Update
 
 **Installed:** X.Y.Z
 **Latest:** A.B.C
@@ -195,7 +195,7 @@ Exit.
 3. Display preview and ask for confirmation:
 
 ```
-## GSD Update Available
+## Redpill Update Available
 
 **Installed:** 1.5.10
 **Latest:** 1.5.15
@@ -215,22 +215,22 @@ Exit.
 
 ────────────────────────────────────────────────────────────
 
-⚠️  **Note:** The installer performs a clean install of GSD folders:
-- `commands/gsd/` will be wiped and replaced
-- `get-shit-done/` will be wiped and replaced
-- `agents/gsd-*` files will be replaced
+⚠️  **Note:** The installer performs a clean install of Redpill folders:
+- `commands/redpill/` will be wiped and replaced
+- `redpill/` will be wiped and replaced
+- `agents/redpill-*` files will be replaced
 
 (Paths are relative to detected runtime install location:
 global: `~/.claude/`, `~/.config/opencode/`, `~/.opencode/`, `~/.gemini/`, or `~/.codex/`
 local: `./.claude/`, `./.config/opencode/`, `./.opencode/`, `./.gemini/`, or `./.codex/`)
 
 Your custom files in other locations are preserved:
-- Custom commands not in `commands/gsd/` ✓
-- Custom agents not prefixed with `gsd-` ✓
+- Custom commands not in `commands/redpill/` ✓
+- Custom agents not prefixed with `redpill-` ✓
 - Custom hooks ✓
 - Your CLAUDE.md files ✓
 
-If you've modified any GSD files directly, they'll be automatically backed up to `gsd-local-patches/` and can be reapplied with `/gsd:reapply-patches` after the update.
+If you've modified any Redpill files directly, they'll be automatically backed up to `redpill-local-patches/` and can be reapplied with `/redpill:reapply-patches` after the update.
 ```
 
 Use AskUserQuestion:
@@ -252,17 +252,17 @@ RUNTIME_FLAG="--$TARGET_RUNTIME"
 
 **If LOCAL install:**
 ```bash
-npx -y get-shit-done-cc@latest "$RUNTIME_FLAG" --local
+npx -y redpill-cc@latest "$RUNTIME_FLAG" --local
 ```
 
 **If GLOBAL install:**
 ```bash
-npx -y get-shit-done-cc@latest "$RUNTIME_FLAG" --global
+npx -y redpill-cc@latest "$RUNTIME_FLAG" --global
 ```
 
 **If UNKNOWN install:**
 ```bash
-npx -y get-shit-done-cc@latest --claude --global
+npx -y redpill-cc@latest --claude --global
 ```
 
 Capture output. If install fails, show error and exit.
@@ -272,12 +272,12 @@ Clear the update cache so statusline indicator disappears:
 ```bash
 # Clear update cache across all runtime directories
 for dir in .claude .config/opencode .opencode .gemini .codex; do
-  rm -f "./$dir/cache/gsd-update-check.json"
-  rm -f "$HOME/$dir/cache/gsd-update-check.json"
+  rm -f "./$dir/cache/redpill-update-check.json"
+  rm -f "$HOME/$dir/cache/redpill-update-check.json"
 done
 ```
 
-The SessionStart hook (`gsd-check-update.js`) writes to the detected runtime's cache directory, so all paths must be cleared to prevent stale update indicators.
+The SessionStart hook (`redpill-check-update.js`) writes to the detected runtime's cache directory, so all paths must be cleared to prevent stale update indicators.
 </step>
 
 <step name="display_result">
@@ -285,12 +285,12 @@ Format completion message (changelog was already shown in confirmation step):
 
 ```
 ╔═══════════════════════════════════════════════════════════╗
-║  GSD Updated: v1.5.10 → v1.5.15                           ║
+║  Redpill Updated: v1.5.10 → v1.5.15                           ║
 ╚═══════════════════════════════════════════════════════════╝
 
 ⚠️  Restart your runtime to pick up the new commands.
 
-[View full changelog](https://github.com/gsd-build/get-shit-done/blob/main/CHANGELOG.md)
+[View full changelog](https://github.com/redpill-build/redpill/blob/main/CHANGELOG.md)
 ```
 </step>
 
@@ -298,13 +298,13 @@ Format completion message (changelog was already shown in confirmation step):
 <step name="check_local_patches">
 After update completes, check if the installer detected and backed up any locally modified files:
 
-Check for gsd-local-patches/backup-meta.json in the config directory.
+Check for redpill-local-patches/backup-meta.json in the config directory.
 
 **If patches found:**
 
 ```
 Local patches were backed up before the update.
-Run /gsd:reapply-patches to merge your modifications into the new version.
+Run /redpill:reapply-patches to merge your modifications into the new version.
 ```
 
 **If no patches:** Continue normally.

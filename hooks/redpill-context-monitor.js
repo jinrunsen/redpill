@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
+// redpill-hook-version: {{Redpill_VERSION}}
 // Context Monitor - PostToolUse/AfterTool hook (Gemini uses AfterTool)
 // Reads context metrics from the statusline bridge file and injects
 // warnings when context usage is high. This makes the AGENT aware of
@@ -47,7 +47,7 @@ process.stdin.on('end', () => {
 
     // Check if context warnings are disabled via config
     const cwd = data.cwd || process.cwd();
-    const configPath = path.join(cwd, '.planning', 'config.json');
+    const configPath = path.join(cwd, '.redpill', 'config.json');
     if (fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -116,8 +116,8 @@ process.stdin.on('end', () => {
     warnData.lastLevel = currentLevel;
     fs.writeFileSync(warnPath, JSON.stringify(warnData));
 
-    // Detect if GSD is active (has .planning/STATE.md in working directory)
-    const isGsdActive = fs.existsSync(path.join(cwd, '.planning', 'STATE.md'));
+    // Detect if Redpill is active (has .redpill/STATE.md in working directory)
+    const isGsdActive = fs.existsSync(path.join(cwd, '.redpill', 'STATE.md'));
 
     // Build advisory warning message (never use imperative commands that
     // override user preferences — see #884)
@@ -126,8 +126,8 @@ process.stdin.on('end', () => {
       message = isGsdActive
         ? `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
           'Context is nearly exhausted. Do NOT start new complex work or write handoff files — ' +
-          'GSD state is already tracked in STATE.md. Inform the user so they can run ' +
-          '/gsd:pause-work at the next natural stopping point.'
+          'Redpill state is already tracked in STATE.md. Inform the user so they can run ' +
+          '/redpill:pause-work at the next natural stopping point.'
         : `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
           'Context is nearly exhausted. Inform the user that context is low and ask how they ' +
           'want to proceed. Do NOT autonomously save state or write handoff files unless the user asks.';

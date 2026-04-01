@@ -1,5 +1,5 @@
 <purpose>
-Create structured `.planning/HANDOFF.json` and `.continue-here.md` handoff files to preserve complete work state across sessions. The JSON provides machine-readable state for `/gsd:resume-work`; the markdown provides human-readable context.
+Create structured `.redpill/HANDOFF.json` and `.continue-here.md` handoff files to preserve complete work state across sessions. The JSON provides machine-readable state for `/redpill:resume-work`; the markdown provides human-readable context.
 </purpose>
 
 <required_reading>
@@ -13,7 +13,7 @@ Find current phase directory from most recently modified files:
 
 ```bash
 # Find most recent phase directory with work
-(ls -lt .planning/phases/*/PLAN.md 2>/dev/null || true) | head -1 | grep -oP 'phases/\K[^/]+' || true
+(ls -lt .redpill/phases/*/PLAN.md 2>/dev/null || true) | head -1 | grep -oP 'phases/\K[^/]+' || true
 ```
 
 If no active phase detected, ask user which phase they're pausing work on.
@@ -36,16 +36,16 @@ Ask user for clarifications if needed via conversational questions.
 **Also inspect SUMMARY.md files for false completions:**
 ```bash
 # Check for placeholder content in existing summaries
-grep -l "To be filled\|placeholder\|TBD" .planning/phases/*/*.md 2>/dev/null || true
+grep -l "To be filled\|placeholder\|TBD" .redpill/phases/*/*.md 2>/dev/null || true
 ```
 Report any summaries with placeholder content as incomplete items.
 </step>
 
 <step name="write_structured">
-**Write structured handoff to `.planning/HANDOFF.json`:**
+**Write structured handoff to `.redpill/HANDOFF.json`:**
 
 ```bash
-timestamp=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" current-timestamp full --raw)
+timestamp=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" current-timestamp full --raw)
 ```
 
 ```json
@@ -85,7 +85,7 @@ timestamp=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" current-timesta
 </step>
 
 <step name="write">
-**Write handoff to `.planning/phases/XX-name/.continue-here.md`:**
+**Write handoff to `.redpill/phases/XX-name/.continue-here.md`:**
 
 ```markdown
 ---
@@ -137,21 +137,21 @@ Be specific enough for a fresh Claude to understand immediately.
 
 Use `current-timestamp` for last_updated field. You can use init todos (which provides timestamps) or call directly:
 ```bash
-timestamp=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" current-timestamp full --raw)
+timestamp=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" current-timestamp full --raw)
 ```
 </step>
 
 <step name="commit">
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "wip: [phase-name] paused at task [X]/[Y]" --files .planning/phases/*/.continue-here.md .planning/HANDOFF.json
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "wip: [phase-name] paused at task [X]/[Y]" --files .redpill/phases/*/.continue-here.md .redpill/HANDOFF.json
 ```
 </step>
 
 <step name="confirm">
 ```
 ✓ Handoff created:
-  - .planning/HANDOFF.json (structured, machine-readable)
-  - .planning/phases/[XX-name]/.continue-here.md (human-readable)
+  - .redpill/HANDOFF.json (structured, machine-readable)
+  - .redpill/phases/[XX-name]/.continue-here.md (human-readable)
 
 Current state:
 
@@ -161,7 +161,7 @@ Current state:
 - Blockers: [count] ({human_actions_pending count} need human action)
 - Committed as WIP
 
-To resume: /gsd:resume-work
+To resume: /redpill:resume-work
 
 ```
 </step>

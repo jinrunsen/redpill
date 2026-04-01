@@ -1,31 +1,31 @@
 /**
- * Mapping of GSD agent to model for each profile.
+ * Mapping of Redpill agent to model for each profile.
  *
- * Should be in sync with the profiles table in `get-shit-done/references/model-profiles.md`. But
+ * Should be in sync with the profiles table in `redpill/references/model-profiles.md`. But
  * possibly worth making this the single source of truth at some point, and removing the markdown
  * reference table in favor of programmatically determining the model to use for an agent (which
  * would be faster, use fewer tokens, and be less error-prone).
  */
 const MODEL_PROFILES = {
-  'gsd-planner': { quality: 'opus', balanced: 'opus', budget: 'sonnet' },
-  'gsd-roadmapper': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-executor': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-phase-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-project-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-debugger': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-codebase-mapper': { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
-  'gsd-verifier': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-plan-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-integration-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-nyquist-auditor': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-ui-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-ui-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-ui-auditor': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-doc-writer': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-doc-verifier': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-planner': { quality: 'opus', balanced: 'opus', budget: 'sonnet' },
+  'redpill-roadmapper': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'redpill-executor': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'redpill-phase-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-project-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-debugger': { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'redpill-codebase-mapper': { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
+  'redpill-verifier': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-plan-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-integration-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-nyquist-auditor': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-ui-researcher': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-ui-checker': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-ui-auditor': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-doc-writer': { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'redpill-doc-verifier': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
 };
-const VALID_PROFILES = Object.keys(MODEL_PROFILES['gsd-planner']);
+const VALID_PROFILES = Object.keys(MODEL_PROFILES['redpill-planner']);
 
 /**
  * Formats the agent-to-model mapping as a human-readable table (in string format).

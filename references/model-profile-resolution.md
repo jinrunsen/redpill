@@ -5,21 +5,21 @@ Resolve model profile once at the start of orchestration, then use it for all Ta
 ## Resolution Pattern
 
 ```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
+MODEL_PROFILE=$(cat .redpill/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
 ```
 
 Default: `balanced` if not set or config missing.
 
 ## Lookup Table
 
-@~/.claude/get-shit-done/references/model-profiles.md
+@~/.claude/redpill/references/model-profiles.md
 
 Look up the agent in the table for the resolved profile. Pass the model parameter to Task calls:
 
 ```
 Task(
   prompt="...",
-  subagent_type="gsd-planner",
+  subagent_type="redpill-planner",
   model="{resolved_model}"  # "inherit", "sonnet", or "haiku"
 )
 ```

@@ -26,7 +26,7 @@ function stateExtractField(content, fieldName) {
 
 function cmdStateLoad(cwd, raw) {
   const config = loadConfig(cwd);
-  const planDir = planningPaths(cwd).planning;
+  const planDir = planningPaths(cwd).redpill;
 
   let stateRaw = '';
   try {
@@ -724,7 +724,7 @@ function buildStateFrontmatter(bodyContent, cwd) {
     normalizedStatus = 'executing';
   }
 
-  const fm = { gsd_state_version: '1.0' };
+  const fm = { redpill_state_version: '1.0' };
 
   if (milestone) fm.milestone = milestone;
   if (milestoneName) fm.milestone_name = milestoneName;
@@ -961,14 +961,14 @@ function cmdStateBeginPhase(cwd, phaseNumber, phaseName, planCount, raw) {
 }
 
 /**
- * Write a WAITING.json signal file when GSD hits a decision point.
+ * Write a WAITING.json signal file when Redpill hits a decision point.
  * External watchers (fswatch, polling, orchestrators) can detect this.
- * File is written to .planning/WAITING.json (or .gsd/WAITING.json if .gsd exists).
+ * File is written to .redpill/WAITING.json (or .redpill/WAITING.json if .redpill exists).
  * Fixes #1034.
  */
 function cmdSignalWaiting(cwd, type, question, options, phase, raw) {
-  const gsdDir = fs.existsSync(path.join(cwd, '.gsd')) ? path.join(cwd, '.gsd') : planningDir(cwd);
-  const waitingPath = path.join(gsdDir, 'WAITING.json');
+  const redpillDir = fs.existsSync(path.join(cwd, '.redpill')) ? path.join(cwd, '.redpill') : planningDir(cwd);
+  const waitingPath = path.join(redpillDir, 'WAITING.json');
 
   const signal = {
     status: 'waiting',
@@ -980,7 +980,7 @@ function cmdSignalWaiting(cwd, type, question, options, phase, raw) {
   };
 
   try {
-    fs.mkdirSync(gsdDir, { recursive: true });
+    fs.mkdirSync(redpillDir, { recursive: true });
     fs.writeFileSync(waitingPath, JSON.stringify(signal, null, 2), 'utf-8');
     output({ signaled: true, path: waitingPath }, raw, 'true');
   } catch (e) {
@@ -993,7 +993,7 @@ function cmdSignalWaiting(cwd, type, question, options, phase, raw) {
  */
 function cmdSignalResume(cwd, raw) {
   const paths = [
-    path.join(cwd, '.gsd', 'WAITING.json'),
+    path.join(cwd, '.redpill', 'WAITING.json'),
     path.join(planningDir(cwd), 'WAITING.json'),
   ];
 

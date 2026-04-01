@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * GSD Tools — CLI utility for GSD workflow operations
+ * Redpill Tools — CLI utility for Redpill workflow operations
  *
- * Replaces repetitive inline bash patterns across ~50 GSD command/workflow/agent files.
+ * Replaces repetitive inline bash patterns across ~50 Redpill command/workflow/agent files.
  * Centralizes: config parsing, model resolution, phase lookup, git commits, summary verification.
  *
- * Usage: node gsd-tools.cjs <command> [args] [--raw] [--pick <field>]
+ * Usage: node redpill-tools.cjs <command> [args] [--raw] [--pick <field>]
  *
  * Atomic Commands:
  *   state load                         Load project config + state
@@ -26,7 +26,7 @@
  *   current-timestamp [format]         Get timestamp (full|date|filename)
  *   list-todos [area]                  Count and enumerate pending todos
  *   verify-path-exists <path>          Check file/directory existence
- *   config-ensure-section              Initialize .planning/config.json
+ *   config-ensure-section              Initialize .redpill/config.json
  *   history-digest                     Aggregate all SUMMARY.md data
  *   summary-extract <path> [--fields]  Extract structured data from SUMMARY.md
  *   state-snapshot                     Structured parse of STATE.md
@@ -57,8 +57,8 @@
  *
  * Validation:
  *   validate consistency               Check phase numbering, disk/roadmap sync
- *   validate health [--repair]         Check .planning/ integrity, optionally repair
- *   validate agents                    Check GSD agent installation status
+ *   validate health [--repair]         Check .redpill/ integrity, optionally repair
+ *   validate agents                    Check Redpill agent installation status
  *
  * Progress:
  *   progress [json|table|bar]          Render progress in various formats
@@ -140,22 +140,31 @@
 
 const fs = require('fs');
 const path = require('path');
-const core = require('./lib/core.cjs');
+const core = require('./bin/lib/core.cjs');
 const { error, findProjectRoot, getActiveWorkstream } = core;
-const state = require('./lib/state.cjs');
-const phase = require('./lib/phase.cjs');
-const roadmap = require('./lib/roadmap.cjs');
-const verify = require('./lib/verify.cjs');
-const config = require('./lib/config.cjs');
-const template = require('./lib/template.cjs');
-const milestone = require('./lib/milestone.cjs');
-const commands = require('./lib/commands.cjs');
-const init = require('./lib/init.cjs');
-const frontmatter = require('./lib/frontmatter.cjs');
-const profilePipeline = require('./lib/profile-pipeline.cjs');
-const profileOutput = require('./lib/profile-output.cjs');
-const workstream = require('./lib/workstream.cjs');
-const docs = require('./lib/docs.cjs');
+const state = require('./bin/lib/state.cjs');
+const config = require('./bin/lib/config.cjs');
+const template = require('./bin/lib/template.cjs');
+const commands = require('./bin/lib/commands.cjs');
+const init = require('./bin/lib/init.cjs');
+const frontmatter = require('./bin/lib/frontmatter.cjs');
+
+// Lazy-load modules that may not exist yet (added in later tasks)
+function lazyRequire(modulePath) {
+  let mod;
+  return new Proxy({}, { get(_, prop) {
+    if (!mod) mod = require(modulePath);
+    return mod[prop];
+  }});
+}
+const phase = lazyRequire('./bin/lib/phase.cjs');
+const roadmap = lazyRequire('./bin/lib/roadmap.cjs');
+const verify = lazyRequire('./bin/lib/verify.cjs');
+const milestone = lazyRequire('./bin/lib/milestone.cjs');
+const profilePipeline = lazyRequire('./bin/lib/profile-pipeline.cjs');
+const profileOutput = lazyRequire('./bin/lib/profile-output.cjs');
+const workstream = lazyRequire('./bin/lib/workstream.cjs');
+const docs = lazyRequire('./bin/lib/docs.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -222,11 +231,11 @@ async function main() {
     error(`Invalid --cwd: ${cwd}`);
   }
 
-  // Resolve worktree root: in a linked worktree, .planning/ lives in the main worktree.
-  // However, in monorepo worktrees where the subdirectory itself owns .planning/,
+  // Resolve worktree root: in a linked worktree, .redpill/ lives in the main worktree.
+  // However, in monorepo worktrees where the subdirectory itself owns .redpill/,
   // skip worktree resolution — the CWD is already the correct project root.
-  const { resolveWorktreeRoot } = require('./lib/core.cjs');
-  if (!fs.existsSync(path.join(cwd, '.planning'))) {
+  const { resolveWorktreeRoot } = require('./bin/lib/core.cjs');
+  if (!fs.existsSync(path.join(cwd, '.redpill'))) {
     const worktreeRoot = resolveWorktreeRoot(cwd);
     if (worktreeRoot !== cwd) {
       cwd = worktreeRoot;
@@ -234,7 +243,7 @@ async function main() {
   }
 
   // Optional workstream override for parallel milestone work.
-  // Priority: --ws flag > GSD_WORKSTREAM env var > active-workstream file > null (flat mode)
+  // Priority: --ws flag > REDPILL_WORKSTREAM env var > active-workstream file > null (flat mode)
   const wsEqArg = args.find(arg => arg.startsWith('--ws='));
   const wsIdx = args.indexOf('--ws');
   let ws = null;
@@ -246,8 +255,8 @@ async function main() {
     ws = args[wsIdx + 1];
     if (!ws || ws.startsWith('--')) error('Missing value for --ws');
     args.splice(wsIdx, 2);
-  } else if (process.env.GSD_WORKSTREAM) {
-    ws = process.env.GSD_WORKSTREAM.trim();
+  } else if (process.env.REDPILL_WORKSTREAM) {
+    ws = process.env.REDPILL_WORKSTREAM.trim();
   } else {
     ws = getActiveWorkstream(cwd);
   }
@@ -257,7 +266,7 @@ async function main() {
   }
   // Set env var so all modules (planningDir, planningPaths) auto-resolve workstream paths
   if (ws) {
-    process.env.GSD_WORKSTREAM = ws;
+    process.env.REDPILL_WORKSTREAM = ws;
   }
 
   const rawIndex = args.indexOf('--raw');
@@ -278,11 +287,11 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: gsd-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, config-new-project, init, workstream, docs-init');
+    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, config-new-project, init, workstream, docs-init');
   }
 
-  // Multi-repo guard: resolve project root for commands that read/write .planning/.
-  // Skip for pure-utility commands that don't touch .planning/ to avoid unnecessary
+  // Multi-repo guard: resolve project root for commands that read/write .redpill/.
+  // Skip for pure-utility commands that don't touch .redpill/ to avoid unnecessary
   // filesystem traversal on every invocation.
   const SKIP_ROOT_RESOLUTION = new Set([
     'generate-slug', 'current-timestamp', 'verify-path-exists',
@@ -454,7 +463,7 @@ async function runCommand(command, args, cwd, raw) {
         const { phase, plan, name, type, wave, fields: fieldsRaw } = parseNamedArgs(args, ['phase', 'plan', 'name', 'type', 'wave', 'fields']);
         let fields = {};
         if (fieldsRaw) {
-          const { safeJsonParse } = require('./lib/security.cjs');
+          const { safeJsonParse } = require('./bin/lib/security.cjs');
           const result = safeJsonParse(fieldsRaw, { label: '--fields' });
           if (!result.ok) error(result.error);
           fields = result.value;
@@ -668,14 +677,14 @@ async function runCommand(command, args, cwd, raw) {
     }
 
     case 'audit-uat': {
-      const uat = require('./lib/uat.cjs');
+      const uat = require('./bin/lib/uat.cjs');
       uat.cmdAuditUat(cwd, raw);
       break;
     }
 
     case 'uat': {
       const subcommand = args[1];
-      const uat = require('./lib/uat.cjs');
+      const uat = require('./bin/lib/uat.cjs');
       if (subcommand === 'render-checkpoint') {
         const options = parseNamedArgs(args, ['file']);
         uat.cmdRenderCheckpoint(cwd, options, raw);
@@ -819,7 +828,7 @@ async function runCommand(command, args, cwd, raw) {
       const sessionsPath = pathIdx !== -1 ? args[pathIdx + 1] : null;
       const projectArg = args[1];
       if (!projectArg || projectArg.startsWith('--')) {
-        error('Usage: gsd-tools extract-messages <project> [--session <id>] [--limit N] [--path <dir>]\nRun scan-sessions first to see available projects.');
+        error('Usage: redpill-tools extract-messages <project> [--session <id>] [--limit N] [--path <dir>]\nRun scan-sessions first to see available projects.');
       }
       await profilePipeline.cmdExtractMessages(projectArg, { sessionId, limit }, raw, sessionsPath);
       break;

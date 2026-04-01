@@ -1,7 +1,7 @@
 /**
  * Security — Input validation, path traversal prevention, and prompt injection guards
  *
- * This module centralizes security checks for GSD tooling. Because GSD generates
+ * This module centralizes security checks for Redpill tooling. Because Redpill generates
  * markdown files that become LLM system prompts (agent instructions, workflow state,
  * phase plans), any user-controlled text that flows into these files is a potential
  * indirect prompt injection vector.
@@ -137,7 +137,7 @@ const INJECTION_PATTERNS = [
   /what\s+(?:are|is)\s+your\s+(?:system\s+)?(?:prompt|instructions)/i,
 
   // Hidden instruction markers (XML/HTML tags that mimic system messages)
-  // Note: <instructions> is excluded — GSD uses it as legitimate prompt structure
+  // Note: <instructions> is excluded — Redpill uses it as legitimate prompt structure
   // Requires > to close the tag (not just whitespace) to avoid matching generic types like Promise<User | null>
   /<\/?(?:system|assistant|human)>/i,
   /\[SYSTEM\]/i,
@@ -210,7 +210,7 @@ function sanitizeForPrompt(text) {
 
   // Neutralize XML/HTML tags that mimic system boundaries
   // Replace < > with full-width equivalents to prevent tag interpretation
-  // Note: <instructions> is excluded — GSD uses it as legitimate prompt structure
+  // Note: <instructions> is excluded — Redpill uses it as legitimate prompt structure
   sanitized = sanitized.replace(/<(\/?)(?:system|assistant|human)>/gi,
     (_, slash) => `＜${slash || ''}system-text＞`);
 
