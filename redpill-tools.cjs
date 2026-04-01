@@ -1,141 +1,39 @@
 #!/usr/bin/env node
 
 /**
- * Redpill Tools — CLI utility for Redpill workflow operations
- *
- * Replaces repetitive inline bash patterns across ~50 Redpill command/workflow/agent files.
- * Centralizes: config parsing, model resolution, phase lookup, git commits, summary verification.
+ * Redpill Tools — CLI utility for Redpill (BDD) workflow operations
  *
  * Usage: node redpill-tools.cjs <command> [args] [--raw] [--pick <field>]
  *
- * Atomic Commands:
+ * State Commands:
  *   state load                         Load project config + state
  *   state json                         Output STATE.md frontmatter as JSON
  *   state update <field> <value>       Update a STATE.md field
  *   state get [section]                Get STATE.md content or section
  *   state patch --field val ...        Batch update STATE.md fields
- *   state begin-phase --phase N --name S --plans C  Update STATE.md for new phase start
- *   state signal-waiting --type T --question Q --options "A|B" --phase P  Write WAITING.json signal
- *   state signal-resume                Remove WAITING.json signal
+ *
+ * Utility Commands:
  *   resolve-model <agent-type>         Get model for agent based on profile
- *   find-phase <phase>                 Find phase directory by number
- *   commit <message> [--files f1 f2] [--no-verify]   Commit planning docs
- *   commit-to-subrepo <msg> --files f1 f2  Route commits to sub-repos
- *   verify-summary <path>              Verify a SUMMARY.md file
+ *   commit <message> [--files f1 f2]   Commit planning docs
  *   generate-slug <text>               Convert text to URL-safe slug
  *   current-timestamp [format]         Get timestamp (full|date|filename)
  *   list-todos [area]                  Count and enumerate pending todos
  *   verify-path-exists <path>          Check file/directory existence
  *   config-ensure-section              Initialize .redpill/config.json
- *   history-digest                     Aggregate all SUMMARY.md data
- *   summary-extract <path> [--fields]  Extract structured data from SUMMARY.md
- *   state-snapshot                     Structured parse of STATE.md
- *   phase-plan-index <phase>           Index plans with waves and status
- *   websearch <query>                  Search web via Brave API (if configured)
- *     [--limit N] [--freshness day|week|month]
- *
- * Phase Operations:
- *   phase next-decimal <phase>         Calculate next decimal phase number
- *   phase add <description> [--id ID]   Append new phase to roadmap + create dir
- *   phase insert <after> <description> Insert decimal phase after existing
- *   phase remove <phase> [--force]     Remove phase, renumber all subsequent
- *   phase complete <phase>             Mark phase done, update state + roadmap
- *
- * Roadmap Operations:
- *   roadmap get-phase <phase>          Extract phase section from ROADMAP.md
- *   roadmap analyze                    Full roadmap parse with disk status
- *   roadmap update-plan-progress <N>   Update progress table row from disk (PLAN vs SUMMARY counts)
- *
- * Requirements Operations:
- *   requirements mark-complete <ids>   Mark requirement IDs as complete in REQUIREMENTS.md
- *                                      Accepts: REQ-01,REQ-02 or REQ-01 REQ-02 or [REQ-01, REQ-02]
- *
- * Milestone Operations:
- *   milestone complete <version>       Archive milestone, create MILESTONES.md
- *     [--name <name>]
- *     [--archive-phases]               Move phase dirs to milestones/vX.Y-phases/
- *
- * Validation:
- *   validate consistency               Check phase numbering, disk/roadmap sync
- *   validate health [--repair]         Check .redpill/ integrity, optionally repair
- *   validate agents                    Check Redpill agent installation status
- *
- * Progress:
- *   progress [json|table|bar]          Render progress in various formats
- *
- * Todos:
- *   todo complete <filename>           Move todo from pending to completed
- *
- * UAT Audit:
- *   audit-uat                           Scan all phases for unresolved UAT/verification items
- *   uat render-checkpoint --file <path> Render the current UAT checkpoint block
- *
- * Scaffolding:
- *   scaffold context --phase <N>       Create CONTEXT.md template
- *   scaffold uat --phase <N>           Create UAT.md template
- *   scaffold verification --phase <N>  Create VERIFICATION.md template
- *   scaffold phase-dir --phase <N>     Create phase directory
- *     --name <name>
  *
  * Frontmatter CRUD:
  *   frontmatter get <file> [--field k] Extract frontmatter as JSON
  *   frontmatter set <file> --field k   Update single frontmatter field
- *     --value jsonVal
  *   frontmatter merge <file>           Merge JSON into frontmatter
- *     --data '{json}'
  *   frontmatter validate <file>        Validate required fields
- *     --schema plan|summary|verification
  *
- * Verification Suite:
- *   verify plan-structure <file>       Check PLAN.md structure + tasks
- *   verify phase-completeness <phase>  Check all plans have summaries
- *   verify references <file>           Check @-refs + paths resolve
- *   verify commits <h1> [h2] ...      Batch verify commit hashes
- *   verify artifacts <plan-file>       Check must_haves.artifacts
- *   verify key-links <plan-file>       Check must_haves.key_links
+ * Template:
+ *   template select <type>             Select template
+ *   template fill <type> [--options]   Fill template
  *
- * Template Fill:
- *   template fill summary --phase N    Create pre-filled SUMMARY.md
- *     [--plan M] [--name "..."]
- *     [--fields '{json}']
- *   template fill plan --phase N       Create pre-filled PLAN.md
- *     [--plan M] [--type execute|tdd]
- *     [--wave N] [--fields '{json}']
- *   template fill verification         Create pre-filled VERIFICATION.md
- *     --phase N [--fields '{json}']
- *
- * State Progression:
- *   state advance-plan                 Increment plan counter
- *   state record-metric --phase N      Record execution metrics
- *     --plan M --duration Xmin
- *     [--tasks N] [--files N]
- *   state update-progress              Recalculate progress bar
- *   state add-decision --summary "..."  Add decision to STATE.md
- *     [--phase N] [--rationale "..."]
- *     [--summary-file path] [--rationale-file path]
- *   state add-blocker --text "..."     Add blocker
- *     [--text-file path]
- *   state resolve-blocker --text "..." Remove blocker
- *   state record-session               Update session continuity
- *     --stopped-at "..."
- *     [--resume-file path]
- *
- * Compound Commands (workflow-specific initialization):
- *   init execute-phase <phase>         All context for execute-phase workflow
- *   init plan-phase <phase>            All context for plan-phase workflow
- *   init new-project                   All context for new-project workflow
- *   init new-milestone                 All context for new-milestone workflow
- *   init quick <description>           All context for quick workflow
+ * Init:
  *   init resume                        All context for resume-project workflow
- *   init verify-work <phase>           All context for verify-work workflow
- *   init phase-op <phase>              Generic phase operation context
  *   init todos [area]                  All context for todo workflows
- *   init milestone-op                  All context for milestone operations
- *   init map-codebase                  All context for map-codebase workflow
- *   init progress                      All context for progress workflow
- *
- * Documentation:
- *   docs-init                            Project context for docs-update workflow
  */
 
 const fs = require('fs');
@@ -148,23 +46,6 @@ const template = require('./bin/lib/template.cjs');
 const commands = require('./bin/lib/commands.cjs');
 const init = require('./bin/lib/init.cjs');
 const frontmatter = require('./bin/lib/frontmatter.cjs');
-
-// Lazy-load modules that may not exist yet (added in later tasks)
-function lazyRequire(modulePath) {
-  let mod;
-  return new Proxy({}, { get(_, prop) {
-    if (!mod) mod = require(modulePath);
-    return mod[prop];
-  }});
-}
-const phase = lazyRequire('./bin/lib/phase.cjs');
-const roadmap = lazyRequire('./bin/lib/roadmap.cjs');
-const verify = lazyRequire('./bin/lib/verify.cjs');
-const milestone = lazyRequire('./bin/lib/milestone.cjs');
-const profilePipeline = lazyRequire('./bin/lib/profile-pipeline.cjs');
-const profileOutput = lazyRequire('./bin/lib/profile-output.cjs');
-const workstream = lazyRequire('./bin/lib/workstream.cjs');
-const docs = lazyRequire('./bin/lib/docs.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -287,7 +168,7 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, config-new-project, init, workstream, docs-init');
+    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, commit, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
   }
 
   // Multi-repo guard: resolve project root for commands that read/write .redpill/.
@@ -381,32 +262,6 @@ async function runCommand(command, args, cwd, raw) {
           }
         }
         state.cmdStatePatch(cwd, patches, raw);
-      } else if (subcommand === 'advance-plan') {
-        state.cmdStateAdvancePlan(cwd, raw);
-      } else if (subcommand === 'record-metric') {
-        const { phase: p, plan, duration, tasks, files } = parseNamedArgs(args, ['phase', 'plan', 'duration', 'tasks', 'files']);
-        state.cmdStateRecordMetric(cwd, { phase: p, plan, duration, tasks, files }, raw);
-      } else if (subcommand === 'update-progress') {
-        state.cmdStateUpdateProgress(cwd, raw);
-      } else if (subcommand === 'add-decision') {
-        const { phase: p, summary, 'summary-file': summary_file, rationale, 'rationale-file': rationale_file } = parseNamedArgs(args, ['phase', 'summary', 'summary-file', 'rationale', 'rationale-file']);
-        state.cmdStateAddDecision(cwd, { phase: p, summary, summary_file, rationale: rationale || '', rationale_file }, raw);
-      } else if (subcommand === 'add-blocker') {
-        const { text, 'text-file': text_file } = parseNamedArgs(args, ['text', 'text-file']);
-        state.cmdStateAddBlocker(cwd, { text, text_file }, raw);
-      } else if (subcommand === 'resolve-blocker') {
-        state.cmdStateResolveBlocker(cwd, parseNamedArgs(args, ['text']).text, raw);
-      } else if (subcommand === 'record-session') {
-        const { 'stopped-at': stopped_at, 'resume-file': resume_file } = parseNamedArgs(args, ['stopped-at', 'resume-file']);
-        state.cmdStateRecordSession(cwd, { stopped_at, resume_file: resume_file || 'None' }, raw);
-      } else if (subcommand === 'begin-phase') {
-        const { phase: p, name, plans } = parseNamedArgs(args, ['phase', 'name', 'plans']);
-        state.cmdStateBeginPhase(cwd, p, name, plans !== null ? parseInt(plans, 10) : null, raw);
-      } else if (subcommand === 'signal-waiting') {
-        const { type, question, options, phase: p } = parseNamedArgs(args, ['type', 'question', 'options', 'phase']);
-        state.cmdSignalWaiting(cwd, type, question, options, p, raw);
-      } else if (subcommand === 'signal-resume') {
-        state.cmdSignalResume(cwd, raw);
       } else {
         state.cmdStateLoad(cwd, raw);
       }
@@ -418,39 +273,15 @@ async function runCommand(command, args, cwd, raw) {
       break;
     }
 
-    case 'find-phase': {
-      phase.cmdFindPhase(cwd, args[1], raw);
-      break;
-    }
-
     case 'commit': {
       const amend = args.includes('--amend');
       const noVerify = args.includes('--no-verify');
       const filesIndex = args.indexOf('--files');
-      // Collect all positional args between command name and first flag,
-      // then join them — handles both quoted ("multi word msg") and
-      // unquoted (multi word msg) invocations from different shells
       const endIndex = filesIndex !== -1 ? filesIndex : args.length;
       const messageArgs = args.slice(1, endIndex).filter(a => !a.startsWith('--'));
       const message = messageArgs.join(' ') || undefined;
       const files = filesIndex !== -1 ? args.slice(filesIndex + 1).filter(a => !a.startsWith('--')) : [];
       commands.cmdCommit(cwd, message, files, raw, amend, noVerify);
-      break;
-    }
-
-    case 'commit-to-subrepo': {
-      const message = args[1];
-      const filesIndex = args.indexOf('--files');
-      const files = filesIndex !== -1 ? args.slice(filesIndex + 1).filter(a => !a.startsWith('--')) : [];
-      commands.cmdCommitToSubrepo(cwd, message, files, raw);
-      break;
-    }
-
-    case 'verify-summary': {
-      const summaryPath = args[1];
-      const countIndex = args.indexOf('--check-count');
-      const checkCount = countIndex !== -1 ? parseInt(args[countIndex + 1], 10) : 2;
-      verify.cmdVerifySummary(cwd, summaryPath, checkCount, raw);
       break;
     }
 
@@ -493,26 +324,6 @@ async function runCommand(command, args, cwd, raw) {
         frontmatter.cmdFrontmatterValidate(cwd, file, parseNamedArgs(args, ['schema']).schema, raw);
       } else {
         error('Unknown frontmatter subcommand. Available: get, set, merge, validate');
-      }
-      break;
-    }
-
-    case 'verify': {
-      const subcommand = args[1];
-      if (subcommand === 'plan-structure') {
-        verify.cmdVerifyPlanStructure(cwd, args[2], raw);
-      } else if (subcommand === 'phase-completeness') {
-        verify.cmdVerifyPhaseCompleteness(cwd, args[2], raw);
-      } else if (subcommand === 'references') {
-        verify.cmdVerifyReferences(cwd, args[2], raw);
-      } else if (subcommand === 'commits') {
-        verify.cmdVerifyCommits(cwd, args.slice(2), raw);
-      } else if (subcommand === 'artifacts') {
-        verify.cmdVerifyArtifacts(cwd, args[2], raw);
-      } else if (subcommand === 'key-links') {
-        verify.cmdVerifyKeyLinks(cwd, args[2], raw);
-      } else {
-        error('Unknown verify subcommand. Available: plan-structure, phase-completeness, references, commits, artifacts, key-links');
       }
       break;
     }
@@ -567,366 +378,28 @@ async function runCommand(command, args, cwd, raw) {
       break;
     }
 
-    case 'history-digest': {
-      commands.cmdHistoryDigest(cwd, raw);
-      break;
-    }
-
-    case 'phases': {
-      const subcommand = args[1];
-      if (subcommand === 'list') {
-        const typeIndex = args.indexOf('--type');
-        const phaseIndex = args.indexOf('--phase');
-        const options = {
-          type: typeIndex !== -1 ? args[typeIndex + 1] : null,
-          phase: phaseIndex !== -1 ? args[phaseIndex + 1] : null,
-          includeArchived: args.includes('--include-archived'),
-        };
-        phase.cmdPhasesList(cwd, options, raw);
-      } else {
-        error('Unknown phases subcommand. Available: list');
-      }
-      break;
-    }
-
-    case 'roadmap': {
-      const subcommand = args[1];
-      if (subcommand === 'get-phase') {
-        roadmap.cmdRoadmapGetPhase(cwd, args[2], raw);
-      } else if (subcommand === 'analyze') {
-        roadmap.cmdRoadmapAnalyze(cwd, raw);
-      } else if (subcommand === 'update-plan-progress') {
-        roadmap.cmdRoadmapUpdatePlanProgress(cwd, args[2], raw);
-      } else {
-        error('Unknown roadmap subcommand. Available: get-phase, analyze, update-plan-progress');
-      }
-      break;
-    }
-
-    case 'requirements': {
-      const subcommand = args[1];
-      if (subcommand === 'mark-complete') {
-        milestone.cmdRequirementsMarkComplete(cwd, args.slice(2), raw);
-      } else {
-        error('Unknown requirements subcommand. Available: mark-complete');
-      }
-      break;
-    }
-
-    case 'phase': {
-      const subcommand = args[1];
-      if (subcommand === 'next-decimal') {
-        phase.cmdPhaseNextDecimal(cwd, args[2], raw);
-      } else if (subcommand === 'add') {
-        const idIdx = args.indexOf('--id');
-        let customId = null;
-        const descArgs = [];
-        for (let i = 2; i < args.length; i++) {
-          if (args[i] === '--id' && i + 1 < args.length) {
-            customId = args[i + 1];
-            i++; // skip value
-          } else {
-            descArgs.push(args[i]);
-          }
-        }
-        phase.cmdPhaseAdd(cwd, descArgs.join(' '), raw, customId);
-      } else if (subcommand === 'insert') {
-        phase.cmdPhaseInsert(cwd, args[2], args.slice(3).join(' '), raw);
-      } else if (subcommand === 'remove') {
-        const forceFlag = args.includes('--force');
-        phase.cmdPhaseRemove(cwd, args[2], { force: forceFlag }, raw);
-      } else if (subcommand === 'complete') {
-        phase.cmdPhaseComplete(cwd, args[2], raw);
-      } else {
-        error('Unknown phase subcommand. Available: next-decimal, add, insert, remove, complete');
-      }
-      break;
-    }
-
-    case 'milestone': {
-      const subcommand = args[1];
-      if (subcommand === 'complete') {
-        const milestoneName = parseMultiwordArg(args, 'name');
-        const archivePhases = args.includes('--archive-phases');
-        milestone.cmdMilestoneComplete(cwd, args[2], { name: milestoneName, archivePhases }, raw);
-      } else {
-        error('Unknown milestone subcommand. Available: complete');
-      }
-      break;
-    }
-
-    case 'validate': {
-      const subcommand = args[1];
-      if (subcommand === 'consistency') {
-        verify.cmdValidateConsistency(cwd, raw);
-      } else if (subcommand === 'health') {
-        const repairFlag = args.includes('--repair');
-        verify.cmdValidateHealth(cwd, { repair: repairFlag }, raw);
-      } else if (subcommand === 'agents') {
-        verify.cmdValidateAgents(cwd, raw);
-      } else {
-        error('Unknown validate subcommand. Available: consistency, health, agents');
-      }
-      break;
-    }
-
-    case 'progress': {
-      const subcommand = args[1] || 'json';
-      commands.cmdProgressRender(cwd, subcommand, raw);
-      break;
-    }
-
-    case 'audit-uat': {
-      const uat = require('./bin/lib/uat.cjs');
-      uat.cmdAuditUat(cwd, raw);
-      break;
-    }
-
-    case 'uat': {
-      const subcommand = args[1];
-      const uat = require('./bin/lib/uat.cjs');
-      if (subcommand === 'render-checkpoint') {
-        const options = parseNamedArgs(args, ['file']);
-        uat.cmdRenderCheckpoint(cwd, options, raw);
-      } else {
-        error('Unknown uat subcommand. Available: render-checkpoint');
-      }
-      break;
-    }
-
-    case 'stats': {
-      const subcommand = args[1] || 'json';
-      commands.cmdStats(cwd, subcommand, raw);
-      break;
-    }
-
     case 'todo': {
       const subcommand = args[1];
       if (subcommand === 'complete') {
         commands.cmdTodoComplete(cwd, args[2], raw);
-      } else if (subcommand === 'match-phase') {
-        commands.cmdTodoMatchPhase(cwd, args[2], raw);
       } else {
-        error('Unknown todo subcommand. Available: complete, match-phase');
+        error('Unknown todo subcommand. Available: complete');
       }
-      break;
-    }
-
-    case 'scaffold': {
-      const scaffoldType = args[1];
-      const scaffoldOptions = {
-        phase: parseNamedArgs(args, ['phase']).phase,
-        name: parseMultiwordArg(args, 'name'),
-      };
-      commands.cmdScaffold(cwd, scaffoldType, scaffoldOptions, raw);
       break;
     }
 
     case 'init': {
       const workflow = args[1];
       switch (workflow) {
-        case 'execute-phase':
-          init.cmdInitExecutePhase(cwd, args[2], raw);
-          break;
-        case 'plan-phase':
-          init.cmdInitPlanPhase(cwd, args[2], raw);
-          break;
-        case 'new-project':
-          init.cmdInitNewProject(cwd, raw);
-          break;
-        case 'new-milestone':
-          init.cmdInitNewMilestone(cwd, raw);
-          break;
-        case 'quick':
-          init.cmdInitQuick(cwd, args.slice(2).join(' '), raw);
-          break;
         case 'resume':
           init.cmdInitResume(cwd, raw);
-          break;
-        case 'verify-work':
-          init.cmdInitVerifyWork(cwd, args[2], raw);
-          break;
-        case 'phase-op':
-          init.cmdInitPhaseOp(cwd, args[2], raw);
           break;
         case 'todos':
           init.cmdInitTodos(cwd, args[2], raw);
           break;
-        case 'milestone-op':
-          init.cmdInitMilestoneOp(cwd, raw);
-          break;
-        case 'map-codebase':
-          init.cmdInitMapCodebase(cwd, raw);
-          break;
-        case 'progress':
-          init.cmdInitProgress(cwd, raw);
-          break;
-        case 'manager':
-          init.cmdInitManager(cwd, raw);
-          break;
-        case 'new-workspace':
-          init.cmdInitNewWorkspace(cwd, raw);
-          break;
-        case 'list-workspaces':
-          init.cmdInitListWorkspaces(cwd, raw);
-          break;
-        case 'remove-workspace':
-          init.cmdInitRemoveWorkspace(cwd, args[2], raw);
-          break;
         default:
-          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress, manager, new-workspace, list-workspaces, remove-workspace`);
+          error(`Unknown init workflow: ${workflow}\nAvailable: resume, todos`);
       }
-      break;
-    }
-
-    case 'phase-plan-index': {
-      phase.cmdPhasePlanIndex(cwd, args[1], raw);
-      break;
-    }
-
-    case 'state-snapshot': {
-      state.cmdStateSnapshot(cwd, raw);
-      break;
-    }
-
-    case 'summary-extract': {
-      const summaryPath = args[1];
-      const fieldsIndex = args.indexOf('--fields');
-      const fields = fieldsIndex !== -1 ? args[fieldsIndex + 1].split(',') : null;
-      commands.cmdSummaryExtract(cwd, summaryPath, fields, raw);
-      break;
-    }
-
-    case 'websearch': {
-      const query = args[1];
-      const limitIdx = args.indexOf('--limit');
-      const freshnessIdx = args.indexOf('--freshness');
-      await commands.cmdWebsearch(query, {
-        limit: limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 10,
-        freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
-      }, raw);
-      break;
-    }
-
-    // ─── Profiling Pipeline ────────────────────────────────────────────────
-
-    case 'scan-sessions': {
-      const pathIdx = args.indexOf('--path');
-      const sessionsPath = pathIdx !== -1 ? args[pathIdx + 1] : null;
-      const verboseFlag = args.includes('--verbose');
-      const jsonFlag = args.includes('--json');
-      await profilePipeline.cmdScanSessions(sessionsPath, { verbose: verboseFlag, json: jsonFlag }, raw);
-      break;
-    }
-
-    case 'extract-messages': {
-      const sessionIdx = args.indexOf('--session');
-      const sessionId = sessionIdx !== -1 ? args[sessionIdx + 1] : null;
-      const limitIdx = args.indexOf('--limit');
-      const limit = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : null;
-      const pathIdx = args.indexOf('--path');
-      const sessionsPath = pathIdx !== -1 ? args[pathIdx + 1] : null;
-      const projectArg = args[1];
-      if (!projectArg || projectArg.startsWith('--')) {
-        error('Usage: redpill-tools extract-messages <project> [--session <id>] [--limit N] [--path <dir>]\nRun scan-sessions first to see available projects.');
-      }
-      await profilePipeline.cmdExtractMessages(projectArg, { sessionId, limit }, raw, sessionsPath);
-      break;
-    }
-
-    case 'profile-sample': {
-      const pathIdx = args.indexOf('--path');
-      const sessionsPath = pathIdx !== -1 ? args[pathIdx + 1] : null;
-      const limitIdx = args.indexOf('--limit');
-      const limit = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 150;
-      const maxPerIdx = args.indexOf('--max-per-project');
-      const maxPerProject = maxPerIdx !== -1 ? parseInt(args[maxPerIdx + 1], 10) : null;
-      const maxCharsIdx = args.indexOf('--max-chars');
-      const maxChars = maxCharsIdx !== -1 ? parseInt(args[maxCharsIdx + 1], 10) : 500;
-      await profilePipeline.cmdProfileSample(sessionsPath, { limit, maxPerProject, maxChars }, raw);
-      break;
-    }
-
-    // ─── Profile Output ──────────────────────────────────────────────────
-
-    case 'write-profile': {
-      const inputIdx = args.indexOf('--input');
-      const inputPath = inputIdx !== -1 ? args[inputIdx + 1] : null;
-      if (!inputPath) error('--input <analysis-json-path> is required');
-      const outputIdx = args.indexOf('--output');
-      const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
-      profileOutput.cmdWriteProfile(cwd, { input: inputPath, output: outputPath }, raw);
-      break;
-    }
-
-    case 'profile-questionnaire': {
-      const answersIdx = args.indexOf('--answers');
-      const answers = answersIdx !== -1 ? args[answersIdx + 1] : null;
-      profileOutput.cmdProfileQuestionnaire({ answers }, raw);
-      break;
-    }
-
-    case 'generate-dev-preferences': {
-      const analysisIdx = args.indexOf('--analysis');
-      const analysisPath = analysisIdx !== -1 ? args[analysisIdx + 1] : null;
-      const outputIdx = args.indexOf('--output');
-      const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
-      const stackIdx = args.indexOf('--stack');
-      const stack = stackIdx !== -1 ? args[stackIdx + 1] : null;
-      profileOutput.cmdGenerateDevPreferences(cwd, { analysis: analysisPath, output: outputPath, stack }, raw);
-      break;
-    }
-
-    case 'generate-claude-profile': {
-      const analysisIdx = args.indexOf('--analysis');
-      const analysisPath = analysisIdx !== -1 ? args[analysisIdx + 1] : null;
-      const outputIdx = args.indexOf('--output');
-      const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
-      const globalFlag = args.includes('--global');
-      profileOutput.cmdGenerateClaudeProfile(cwd, { analysis: analysisPath, output: outputPath, global: globalFlag }, raw);
-      break;
-    }
-
-    case 'generate-claude-md': {
-      const outputIdx = args.indexOf('--output');
-      const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
-      const autoFlag = args.includes('--auto');
-      const forceFlag = args.includes('--force');
-      profileOutput.cmdGenerateClaudeMd(cwd, { output: outputPath, auto: autoFlag, force: forceFlag }, raw);
-      break;
-    }
-
-    case 'workstream': {
-      const subcommand = args[1];
-      if (subcommand === 'create') {
-        const migrateNameIdx = args.indexOf('--migrate-name');
-        const noMigrate = args.includes('--no-migrate');
-        workstream.cmdWorkstreamCreate(cwd, args[2], {
-          migrate: !noMigrate,
-          migrateName: migrateNameIdx !== -1 ? args[migrateNameIdx + 1] : null,
-        }, raw);
-      } else if (subcommand === 'list') {
-        workstream.cmdWorkstreamList(cwd, raw);
-      } else if (subcommand === 'status') {
-        workstream.cmdWorkstreamStatus(cwd, args[2], raw);
-      } else if (subcommand === 'complete') {
-        workstream.cmdWorkstreamComplete(cwd, args[2], {}, raw);
-      } else if (subcommand === 'set') {
-        workstream.cmdWorkstreamSet(cwd, args[2], raw);
-      } else if (subcommand === 'get') {
-        workstream.cmdWorkstreamGet(cwd, raw);
-      } else if (subcommand === 'progress') {
-        workstream.cmdWorkstreamProgress(cwd, raw);
-      } else {
-        error('Unknown workstream subcommand. Available: create, list, status, complete, set, get, progress');
-      }
-      break;
-    }
-
-    // ─── Documentation ────────────────────────────────────────────────────
-
-    case 'docs-init': {
-      docs.cmdDocsInit(cwd, raw);
       break;
     }
 
