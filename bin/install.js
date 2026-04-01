@@ -17,9 +17,6 @@ const reset = '\x1b[0m';
 const REDPILL_CODEX_MARKER = '# Redpill Agent Configuration \u2014 managed by redpill installer';
 const REDPILL_CODEX_HOOKS_OWNERSHIP_PREFIX = '# Redpill codex_hooks ownership: ';
 
-// Copilot instructions marker constants
-const REDPILL_COPILOT_INSTRUCTIONS_MARKER = '<!-- Redpill Configuration \u2014 managed by redpill installer -->';
-const REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER = '<!-- /Redpill Configuration -->';
 
 const CODEX_AGENT_SANDBOX = {
   'redpill-executor': 'workspace-write',
@@ -35,22 +32,6 @@ const CODEX_AGENT_SANDBOX = {
   'redpill-integration-checker': 'read-only',
 };
 
-// Copilot tool name mapping — Claude Code tools to GitHub Copilot tools
-// Tool mapping applies ONLY to agents, NOT to skills (per CONTEXT.md decision)
-const claudeToCopilotTools = {
-  Read: 'read',
-  Write: 'edit',
-  Edit: 'edit',
-  Bash: 'execute',
-  Grep: 'search',
-  Glob: 'search',
-  Task: 'agent',
-  WebSearch: 'web',
-  WebFetch: 'web',
-  TodoWrite: 'todo',
-  AskUserQuestion: 'ask_user',
-  SlashCommand: 'skill',
-};
 
 // Get version from package.json
 const pkg = require('../package.json');
@@ -61,12 +42,7 @@ const hasGlobal = args.includes('--global') || args.includes('-g');
 const hasLocal = args.includes('--local') || args.includes('-l');
 const hasOpencode = args.includes('--opencode');
 const hasClaude = args.includes('--claude');
-const hasGemini = args.includes('--gemini');
 const hasCodex = args.includes('--codex');
-const hasCopilot = args.includes('--copilot');
-const hasAntigravity = args.includes('--antigravity');
-const hasCursor = args.includes('--cursor');
-const hasWindsurf = args.includes('--windsurf');
 const hasSdk = args.includes('--sdk');
 const hasBoth = args.includes('--both'); // Legacy flag, keeps working
 const hasAll = args.includes('--all');
@@ -75,18 +51,13 @@ const hasUninstall = args.includes('--uninstall') || args.includes('-u');
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
 if (hasAll) {
-  selectedRuntimes = ['claude', 'opencode', 'gemini', 'codex', 'copilot', 'antigravity', 'cursor', 'windsurf'];
+  selectedRuntimes = ['claude', 'opencode', 'codex'];
 } else if (hasBoth) {
   selectedRuntimes = ['claude', 'opencode'];
 } else {
   if (hasOpencode) selectedRuntimes.push('opencode');
   if (hasClaude) selectedRuntimes.push('claude');
-  if (hasGemini) selectedRuntimes.push('gemini');
   if (hasCodex) selectedRuntimes.push('codex');
-  if (hasCopilot) selectedRuntimes.push('copilot');
-  if (hasAntigravity) selectedRuntimes.push('antigravity');
-  if (hasCursor) selectedRuntimes.push('cursor');
-  if (hasWindsurf) selectedRuntimes.push('windsurf');
 }
 
 // WSL + Windows Node.js detection
@@ -125,20 +96,15 @@ Then re-run: npx redpill-cc@latest
 
 // Helper to get directory name for a runtime (used for local/project installs)
 function getDirName(runtime) {
-  if (runtime === 'copilot') return '.github';
   if (runtime === 'opencode') return '.opencode';
-  if (runtime === 'gemini') return '.gemini';
   if (runtime === 'codex') return '.codex';
-  if (runtime === 'antigravity') return '.agent';
-  if (runtime === 'cursor') return '.cursor';
-  if (runtime === 'windsurf') return '.windsurf';
   return '.claude';
 }
 
 /**
  * Get the config directory path relative to home directory for a runtime
  * Used for templating hooks that use path.join(homeDir, '<configDir>', ...)
- * @param {string} runtime - 'claude', 'opencode', 'gemini', 'codex', or 'copilot'
+ * @param {string} runtime - 'claude', 'opencode', or 'codex'
  * @param {boolean} isGlobal - Whether this is a global install
  */
 function getConfigDirFromHome(runtime, isGlobal) {
@@ -147,20 +113,12 @@ function getConfigDirFromHome(runtime, isGlobal) {
     return `'${getDirName(runtime)}'`;
   }
   // Global installs - OpenCode uses XDG path structure
-  if (runtime === 'copilot') return "'.copilot'";
   if (runtime === 'opencode') {
     // OpenCode: ~/.config/opencode -> '.config', 'opencode'
     // Return as comma-separated for path.join() replacement
     return "'.config', 'opencode'";
   }
-  if (runtime === 'gemini') return "'.gemini'";
   if (runtime === 'codex') return "'.codex'";
-  if (runtime === 'antigravity') {
-    if (!isGlobal) return "'.agent'";
-    return "'.gemini', 'antigravity'";
-  }
-  if (runtime === 'cursor') return "'.cursor'";
-  if (runtime === 'windsurf') return "'.windsurf'";
   return "'.claude'";
 }
 
@@ -191,7 +149,7 @@ function getOpencodeGlobalDir() {
 
 /**
  * Get the global config directory for a runtime
- * @param {string} runtime - 'claude', 'opencode', 'gemini', 'codex', or 'copilot'
+ * @param {string} runtime - 'claude', 'opencode', or 'codex'
  * @param {string|null} explicitDir - Explicit directory from --config-dir flag
  */
 function getGlobalDir(runtime, explicitDir = null) {
@@ -203,17 +161,6 @@ function getGlobalDir(runtime, explicitDir = null) {
     return getOpencodeGlobalDir();
   }
   
-  if (runtime === 'gemini') {
-    // Gemini: --config-dir > GEMINI_CONFIG_DIR > ~/.gemini
-    if (explicitDir) {
-      return expandTilde(explicitDir);
-    }
-    if (process.env.GEMINI_CONFIG_DIR) {
-      return expandTilde(process.env.GEMINI_CONFIG_DIR);
-    }
-    return path.join(os.homedir(), '.gemini');
-  }
-
   if (runtime === 'codex') {
     // Codex: --config-dir > CODEX_HOME > ~/.codex
     if (explicitDir) {
@@ -224,51 +171,6 @@ function getGlobalDir(runtime, explicitDir = null) {
     }
     return path.join(os.homedir(), '.codex');
   }
-
-  if (runtime === 'copilot') {
-    // Copilot: --config-dir > COPILOT_CONFIG_DIR > ~/.copilot
-    if (explicitDir) {
-      return expandTilde(explicitDir);
-    }
-    if (process.env.COPILOT_CONFIG_DIR) {
-      return expandTilde(process.env.COPILOT_CONFIG_DIR);
-    }
-    return path.join(os.homedir(), '.copilot');
-  }
-
-  if (runtime === 'antigravity') {
-    // Antigravity: --config-dir > ANTIGRAVITY_CONFIG_DIR > ~/.gemini/antigravity
-    if (explicitDir) {
-      return expandTilde(explicitDir);
-    }
-    if (process.env.ANTIGRAVITY_CONFIG_DIR) {
-      return expandTilde(process.env.ANTIGRAVITY_CONFIG_DIR);
-    }
-    return path.join(os.homedir(), '.gemini', 'antigravity');
-  }
-
-  if (runtime === 'cursor') {
-    // Cursor: --config-dir > CURSOR_CONFIG_DIR > ~/.cursor
-    if (explicitDir) {
-      return expandTilde(explicitDir);
-    }
-    if (process.env.CURSOR_CONFIG_DIR) {
-      return expandTilde(process.env.CURSOR_CONFIG_DIR);
-    }
-    return path.join(os.homedir(), '.cursor');
-  }
-
-  if (runtime === 'windsurf') {
-    // Windsurf: --config-dir > WINDSURF_CONFIG_DIR > ~/.windsurf
-    if (explicitDir) {
-      return expandTilde(explicitDir);
-    }
-    if (process.env.WINDSURF_CONFIG_DIR) {
-      return expandTilde(process.env.WINDSURF_CONFIG_DIR);
-    }
-    return path.join(os.homedir(), '.windsurf');
-  }
-
 
   // Claude Code: --config-dir > CLAUDE_CONFIG_DIR > ~/.claude
   if (explicitDir) {
@@ -289,8 +191,8 @@ const banner = '\n' +
   '   ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
   '  Redpill ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  A meta-prompting, context engineering and spec-driven\n' +
-  '  development system for Claude Code, OpenCode, Gemini, Codex, Copilot, Antigravity, Cursor, and Windsurf by TÂCHES.\n';
+  '  A BDD framework for AI-assisted development\n' +
+  '  supporting Claude Code, Codex, and OpenCode.\n';
 
 // Parse --config-dir argument
 function parseConfigDirArg() {
@@ -328,7 +230,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx redpill-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--antigravity${reset}             Install for Antigravity only\n    ${cyan}--cursor${reset}                  Install for Cursor only\n    ${cyan}--windsurf${reset}                Install for Windsurf only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install Redpill SDK CLI (redpill-sdk)\n    ${cyan}-u, --uninstall${reset}           Uninstall Redpill (remove all Redpill files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx redpill-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx redpill-cc --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx redpill-cc --gemini --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx redpill-cc --codex --global\n\n    ${dim}# Install for Copilot globally${reset}\n    npx redpill-cc --copilot --global\n\n    ${dim}# Install for Copilot locally${reset}\n    npx redpill-cc --copilot --local\n\n    ${dim}# Install for Antigravity globally${reset}\n    npx redpill-cc --antigravity --global\n\n    ${dim}# Install for Antigravity locally${reset}\n    npx redpill-cc --antigravity --local\n\n    ${dim}# Install for Cursor globally${reset}\n    npx redpill-cc --cursor --global\n\n    ${dim}# Install for Cursor locally${reset}\n    npx redpill-cc --cursor --local\n\n    ${dim}# Install for Windsurf globally${reset}\n    npx redpill-cc --windsurf --global\n\n    ${dim}# Install for Windsurf locally${reset}\n    npx redpill-cc --windsurf --local\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx redpill-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx redpill-cc --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Install to current project only${reset}\n    npx redpill-cc --claude --local\n\n    ${dim}# Uninstall Redpill from Cursor globally${reset}\n    npx redpill-cc --cursor --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR / ANTIGRAVITY_CONFIG_DIR / CURSOR_CONFIG_DIR / WINDSURF_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx redpill-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install Redpill SDK CLI (redpill-sdk)\n    ${cyan}-u, --uninstall${reset}           Uninstall Redpill (remove all Redpill files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx redpill-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx redpill-cc --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx redpill-cc --codex --global\n\n    ${dim}# Install for OpenCode globally${reset}\n    npx redpill-cc --opencode --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx redpill-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx redpill-cc --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Install to current project only${reset}\n    npx redpill-cc --claude --local\n\n    ${dim}# Uninstall Redpill from Codex globally${reset}\n    npx redpill-cc --codex --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / CODEX_HOME environment variables.\n`);
   process.exit(0);
 }
 
@@ -389,7 +291,7 @@ const attributionCache = new Map();
 
 /**
  * Get commit attribution setting for a runtime
- * @param {string} runtime - 'claude', 'opencode', 'gemini', 'codex', or 'copilot'
+ * @param {string} runtime - 'claude', 'opencode', or 'codex'
  * @returns {null|undefined|string} null = remove, undefined = keep default, string = custom
  */
 function getCommitAttribution(runtime) {
@@ -403,16 +305,6 @@ function getCommitAttribution(runtime) {
   if (runtime === 'opencode') {
     const config = readSettings(resolveOpencodeConfigPath(getGlobalDir('opencode', null)));
     result = config.disable_ai_attribution === true ? null : undefined;
-  } else if (runtime === 'gemini') {
-    // Gemini: check gemini settings.json for attribution config
-    const settings = readSettings(path.join(getGlobalDir('gemini', explicitConfigDir), 'settings.json'));
-    if (!settings.attribution || settings.attribution.commit === undefined) {
-      result = undefined;
-    } else if (settings.attribution.commit === '') {
-      result = null;
-    } else {
-      result = settings.attribution.commit;
-    }
   } else if (runtime === 'claude') {
     // Claude Code
     const settings = readSettings(path.join(getGlobalDir('claude', explicitConfigDir), 'settings.json'));
@@ -424,7 +316,7 @@ function getCommitAttribution(runtime) {
       result = settings.attribution.commit;
     }
   } else {
-    // Codex and Copilot currently have no attribution setting equivalent
+    // Codex currently has no attribution setting equivalent
     result = undefined;
   }
 
@@ -485,20 +377,6 @@ const claudeToOpencodeTools = {
   WebSearch: 'websearch',  // Plugin/MCP - keep for compatibility
 };
 
-// Tool name mapping from Claude Code to Gemini CLI
-// Gemini CLI uses snake_case built-in tool names
-const claudeToGeminiTools = {
-  Read: 'read_file',
-  Write: 'write_file',
-  Edit: 'replace',
-  Bash: 'run_shell_command',
-  Glob: 'glob',
-  Grep: 'search_file_content',
-  WebSearch: 'google_web_search',
-  WebFetch: 'web_fetch',
-  TodoWrite: 'write_todos',
-  AskUserQuestion: 'ask_user',
-};
 
 /**
  * Convert a Claude Code tool name to OpenCode format
@@ -518,211 +396,8 @@ function convertToolName(claudeTool) {
   return claudeTool.toLowerCase();
 }
 
-/**
- * Convert a Claude Code tool name to Gemini CLI format
- * - Applies Claude→Gemini mapping (Read→read_file, Bash→run_shell_command, etc.)
- * - Filters out MCP tools (mcp__*) — they are auto-discovered at runtime in Gemini
- * - Filters out Task — agents are auto-registered as tools in Gemini
- * @returns {string|null} Gemini tool name, or null if tool should be excluded
- */
-function convertGeminiToolName(claudeTool) {
-  // MCP tools: exclude — auto-discovered from mcpServers config at runtime
-  if (claudeTool.startsWith('mcp__')) {
-    return null;
-  }
-  // Task: exclude — agents are auto-registered as callable tools
-  if (claudeTool === 'Task') {
-    return null;
-  }
-  // Check for explicit mapping
-  if (claudeToGeminiTools[claudeTool]) {
-    return claudeToGeminiTools[claudeTool];
-  }
-  // Default: lowercase
-  return claudeTool.toLowerCase();
-}
 
-/**
- * Convert a Claude Code tool name to GitHub Copilot format.
- * - Applies explicit mapping from claudeToCopilotTools
- * - Handles mcp__context7__* prefix → io.github.upstash/context7/*
- * - Falls back to lowercase for unknown tools
- */
-function convertCopilotToolName(claudeTool) {
-  // mcp__context7__* wildcard → io.github.upstash/context7/*
-  if (claudeTool.startsWith('mcp__context7__')) {
-    return 'io.github.upstash/context7/' + claudeTool.slice('mcp__context7__'.length);
-  }
-  // Check explicit mapping
-  if (claudeToCopilotTools[claudeTool]) {
-    return claudeToCopilotTools[claudeTool];
-  }
-  // Default: lowercase
-  return claudeTool.toLowerCase();
-}
 
-/**
- * Apply Copilot-specific content conversion — CONV-06 (paths) + CONV-07 (command names).
- * Path mappings depend on install mode:
- *   Global: ~/.claude/ → ~/.copilot/, ./.claude/ → ./.github/
- *   Local:  ~/.claude/ → ./.github/, ./.claude/ → ./.github/
- * Applied to ALL Copilot content (skills, agents, engine files).
- * @param {string} content - Source content to convert
- * @param {boolean} [isGlobal=false] - Whether this is a global install
- */
-function convertClaudeToCopilotContent(content, isGlobal = false) {
-  let c = content;
-  // CONV-06: Path replacement — most specific first to avoid substring matches
-  if (isGlobal) {
-    c = c.replace(/\$HOME\/\.claude\//g, '$HOME/.copilot/');
-    c = c.replace(/~\/\.claude\//g, '~/.copilot/');
-  } else {
-    c = c.replace(/\$HOME\/\.claude\//g, '.github/');
-    c = c.replace(/~\/\.claude\//g, '.github/');
-    c = c.replace(/~\/\.claude\n/g, '.github/');
-  }
-  c = c.replace(/\.\/\.claude\//g, './.github/');
-  c = c.replace(/\.claude\//g, '.github/');
-  // CONV-07: Command name conversion (all redpill: references → redpill-)
-  c = c.replace(/redpill:/g, 'redpill-');
-  // Runtime-neutral agent name replacement (#766)
-  c = neutralizeAgentReferences(c, 'copilot-instructions.md');
-  return c;
-}
-
-/**
- * Convert a Claude command (.md) to a Copilot skill (SKILL.md).
- * Transforms frontmatter only — body passes through with CONV-06/07 applied.
- * Skills keep original tool names (no mapping) per CONTEXT.md decision.
- */
-function convertClaudeCommandToCopilotSkill(content, skillName, isGlobal = false) {
-  const converted = convertClaudeToCopilotContent(content, isGlobal);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-  const argumentHint = extractFrontmatterField(frontmatter, 'argument-hint');
-  const agent = extractFrontmatterField(frontmatter, 'agent');
-
-  // CONV-02: Extract allowed-tools YAML multiline list → comma-separated string
-  const toolsMatch = frontmatter.match(/^allowed-tools:\s*\n((?:\s+-\s+.+\n?)*)/m);
-  let toolsLine = '';
-  if (toolsMatch) {
-    const tools = toolsMatch[1].match(/^\s+-\s+(.+)/gm);
-    if (tools) {
-      toolsLine = tools.map(t => t.replace(/^\s+-\s+/, '').trim()).join(', ');
-    }
-  }
-
-  // Reconstruct frontmatter in Copilot format
-  let fm = `---\nname: ${skillName}\ndescription: ${description}\n`;
-  if (argumentHint) fm += `argument-hint: ${yamlQuote(argumentHint)}\n`;
-  if (agent) fm += `agent: ${agent}\n`;
-  if (toolsLine) fm += `allowed-tools: ${toolsLine}\n`;
-  fm += '---';
-
-  return `${fm}\n${body}`;
-}
-
-/**
- * Convert a Claude agent (.md) to a Copilot agent (.agent.md).
- * Applies tool mapping + deduplication, formats tools as JSON array.
- * CONV-04: JSON array format. CONV-05: Tool name mapping.
- */
-function convertClaudeAgentToCopilotAgent(content, isGlobal = false) {
-  const converted = convertClaudeToCopilotContent(content, isGlobal);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const name = extractFrontmatterField(frontmatter, 'name') || 'unknown';
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-  const color = extractFrontmatterField(frontmatter, 'color');
-  const toolsRaw = extractFrontmatterField(frontmatter, 'tools') || '';
-
-  // CONV-04 + CONV-05: Map tools, deduplicate, format as JSON array
-  const claudeTools = toolsRaw.split(',').map(t => t.trim()).filter(Boolean);
-  const mappedTools = claudeTools.map(t => convertCopilotToolName(t));
-  const uniqueTools = [...new Set(mappedTools)];
-  const toolsArray = uniqueTools.length > 0
-    ? "['" + uniqueTools.join("', '") + "']"
-    : '[]';
-
-  // Reconstruct frontmatter in Copilot format
-  let fm = `---\nname: ${name}\ndescription: ${description}\ntools: ${toolsArray}\n`;
-  if (color) fm += `color: ${color}\n`;
-  fm += '---';
-
-  return `${fm}\n${body}`;
-}
-
-/**
- * Apply Antigravity-specific content conversion — path replacement + command name conversion.
- * Path mappings depend on install mode:
- *   Global: ~/.claude/ → ~/.gemini/antigravity/, ./.claude/ → ./.agent/
- *   Local:  ~/.claude/ → .agent/, ./.claude/ → ./.agent/
- * Applied to ALL Antigravity content (skills, agents, engine files).
- * @param {string} content - Source content to convert
- * @param {boolean} [isGlobal=false] - Whether this is a global install
- */
-function convertClaudeToAntigravityContent(content, isGlobal = false) {
-  let c = content;
-  if (isGlobal) {
-    c = c.replace(/\$HOME\/\.claude\//g, '$HOME/.gemini/antigravity/');
-    c = c.replace(/~\/\.claude\//g, '~/.gemini/antigravity/');
-  } else {
-    c = c.replace(/\$HOME\/\.claude\//g, '.agent/');
-    c = c.replace(/~\/\.claude\//g, '.agent/');
-  }
-  c = c.replace(/\.\/\.claude\//g, './.agent/');
-  c = c.replace(/\.claude\//g, '.agent/');
-  // Command name conversion (all redpill: references → redpill-)
-  c = c.replace(/redpill:/g, 'redpill-');
-  // Runtime-neutral agent name replacement (#766)
-  c = neutralizeAgentReferences(c, 'GEMINI.md');
-  return c;
-}
-
-/**
- * Convert a Claude command (.md) to an Antigravity skill (SKILL.md).
- * Transforms frontmatter to minimal name + description only.
- * Body passes through with path/command conversions applied.
- */
-function convertClaudeCommandToAntigravitySkill(content, skillName, isGlobal = false) {
-  const converted = convertClaudeToAntigravityContent(content, isGlobal);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const name = skillName || extractFrontmatterField(frontmatter, 'name') || 'unknown';
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-
-  const fm = `---\nname: ${name}\ndescription: ${description}\n---`;
-  return `${fm}\n${body}`;
-}
-
-/**
- * Convert a Claude agent (.md) to an Antigravity agent.
- * Uses Gemini tool names since Antigravity runs on Gemini 3 backend.
- */
-function convertClaudeAgentToAntigravityAgent(content, isGlobal = false) {
-  const converted = convertClaudeToAntigravityContent(content, isGlobal);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const name = extractFrontmatterField(frontmatter, 'name') || 'unknown';
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-  const color = extractFrontmatterField(frontmatter, 'color');
-  const toolsRaw = extractFrontmatterField(frontmatter, 'tools') || '';
-
-  // Map tools to Gemini equivalents (reuse existing convertGeminiToolName)
-  const claudeTools = toolsRaw.split(',').map(t => t.trim()).filter(Boolean);
-  const mappedTools = claudeTools.map(t => convertGeminiToolName(t)).filter(Boolean);
-
-  let fm = `---\nname: ${name}\ndescription: ${description}\ntools: ${mappedTools.join(', ')}\n`;
-  if (color) fm += `color: ${color}\n`;
-  fm += '---';
-
-  return `${fm}\n${body}`;
-}
 
 function toSingleLine(value) {
   return value.replace(/\s+/g, ' ').trim();
@@ -763,238 +438,7 @@ function extractFrontmatterField(frontmatter, fieldName) {
   return match[1].trim().replace(/^['"]|['"]$/g, '');
 }
 
-// Tool name mapping from Claude Code to Cursor CLI
-const claudeToCursorTools = {
-  Bash: 'Shell',
-  Edit: 'StrReplace',
-  AskUserQuestion: null, // No direct equivalent — use conversational prompting
-  SlashCommand: null,    // No equivalent — skills are auto-discovered
-};
 
-/**
- * Convert a Claude Code tool name to Cursor CLI format
- * @returns {string|null} Cursor tool name, or null if tool should be excluded
- */
-function convertCursorToolName(claudeTool) {
-  if (claudeTool in claudeToCursorTools) {
-    return claudeToCursorTools[claudeTool];
-  }
-  // MCP tools keep their format (Cursor supports MCP)
-  if (claudeTool.startsWith('mcp__')) {
-    return claudeTool;
-  }
-  // Most tools share the same name (Read, Write, Glob, Grep, Task, WebSearch, WebFetch, TodoWrite)
-  return claudeTool;
-}
-
-function convertSlashCommandsToCursorSkillMentions(content) {
-  // Keep leading "/" for slash commands; only normalize redpill: -> redpill-.
-  // This preserves rendered "next step" commands like "/redpill-execute-phase 17".
-  return content.replace(/redpill:/gi, 'redpill-');
-}
-
-function convertClaudeToCursorMarkdown(content) {
-  let converted = convertSlashCommandsToCursorSkillMentions(content);
-  // Replace tool name references in body text
-  converted = converted.replace(/\bBash\(/g, 'Shell(');
-  converted = converted.replace(/\bEdit\(/g, 'StrReplace(');
-  converted = converted.replace(/\bAskUserQuestion\b/g, 'conversational prompting');
-  // Replace subagent_type from Claude to Cursor format
-  converted = converted.replace(/subagent_type="general-purpose"/g, 'subagent_type="generalPurpose"');
-  converted = converted.replace(/\$ARGUMENTS\b/g, '{{REDPILL_ARGS}}');
-  // Replace project-level Claude conventions with Cursor equivalents
-  converted = converted.replace(/`\.\/CLAUDE\.md`/g, '`.cursor/rules/`');
-  converted = converted.replace(/\.\/CLAUDE\.md/g, '.cursor/rules/');
-  converted = converted.replace(/`CLAUDE\.md`/g, '`.cursor/rules/`');
-  converted = converted.replace(/\bCLAUDE\.md\b/g, '.cursor/rules/');
-  converted = converted.replace(/\.claude\/skills\//g, '.cursor/skills/');
-  // Remove Claude Code-specific bug workarounds before brand replacement
-  converted = converted.replace(/\*\*Known Claude Code bug \(classifyHandoffIfNeeded\):\*\*[^\n]*\n/g, '');
-  converted = converted.replace(/- \*\*classifyHandoffIfNeeded false failure:\*\*[^\n]*\n/g, '');
-  // Replace "Claude Code" brand references with "Cursor"
-  converted = converted.replace(/\bClaude Code\b/g, 'Cursor');
-  return converted;
-}
-
-function getCursorSkillAdapterHeader(skillName) {
-  return `<cursor_skill_adapter>
-## A. Skill Invocation
-- This skill is invoked when the user mentions \`${skillName}\` or describes a task matching this skill.
-- Treat all user text after the skill mention as \`{{REDPILL_ARGS}}\`.
-- If no arguments are present, treat \`{{REDPILL_ARGS}}\` as empty.
-
-## B. User Prompting
-When the workflow needs user input, prompt the user conversationally:
-- Present options as a numbered list in your response text
-- Ask the user to reply with their choice
-- For multi-select, ask for comma-separated numbers
-
-## C. Tool Usage
-Use these Cursor tools when executing Redpill workflows:
-- \`Shell\` for running commands (terminal operations)
-- \`StrReplace\` for editing existing files
-- \`Read\`, \`Write\`, \`Glob\`, \`Grep\`, \`Task\`, \`WebSearch\`, \`WebFetch\`, \`TodoWrite\` as needed
-
-## D. Subagent Spawning
-When the workflow needs to spawn a subagent:
-- Use \`Task(subagent_type="generalPurpose", ...)\`
-- The \`model\` parameter maps to Cursor's model options (e.g., "fast")
-</cursor_skill_adapter>`;
-}
-
-function convertClaudeCommandToCursorSkill(content, skillName) {
-  const converted = convertClaudeToCursorMarkdown(content);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  let description = `Run Redpill workflow ${skillName}.`;
-  if (frontmatter) {
-    const maybeDescription = extractFrontmatterField(frontmatter, 'description');
-    if (maybeDescription) {
-      description = maybeDescription;
-    }
-  }
-  description = toSingleLine(description);
-  const shortDescription = description.length > 180 ? `${description.slice(0, 177)}...` : description;
-  const adapter = getCursorSkillAdapterHeader(skillName);
-
-  return `---\nname: ${yamlIdentifier(skillName)}\ndescription: ${yamlQuote(shortDescription)}\n---\n\n${adapter}\n\n${body.trimStart()}`;
-}
-
-/**
- * Convert Claude Code agent markdown to Cursor agent format.
- * Strips frontmatter fields Cursor doesn't support (color, skills),
- * converts tool references, and adds a role context header.
- */
-function convertClaudeAgentToCursorAgent(content) {
-  let converted = convertClaudeToCursorMarkdown(content);
-
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const name = extractFrontmatterField(frontmatter, 'name') || 'unknown';
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-
-  const cleanFrontmatter = `---\nname: ${yamlIdentifier(name)}\ndescription: ${yamlQuote(toSingleLine(description))}\n---`;
-
-  return `${cleanFrontmatter}\n${body}`;
-}
-
-// --- Windsurf converters ---
-// Windsurf (by Codeium) uses a tool set similar to Cursor (both VS Code-based).
-// Config lives in .windsurf/ (local) and ~/.windsurf/ (global).
-
-// Tool name mapping from Claude Code to Windsurf Cascade
-const claudeToWindsurfTools = {
-  Bash: 'Shell',
-  Edit: 'StrReplace',
-  AskUserQuestion: null, // No direct equivalent — use conversational prompting
-  SlashCommand: null,    // No equivalent — skills are auto-discovered
-};
-
-/**
- * Convert a Claude Code tool name to Windsurf Cascade format
- * @returns {string|null} Windsurf tool name, or null if tool should be excluded
- */
-function convertWindsurfToolName(claudeTool) {
-  if (claudeTool in claudeToWindsurfTools) {
-    return claudeToWindsurfTools[claudeTool];
-  }
-  // MCP tools keep their format (Windsurf supports MCP)
-  if (claudeTool.startsWith('mcp__')) {
-    return claudeTool;
-  }
-  // Most tools share the same name (Read, Write, Glob, Grep, Task, WebSearch, WebFetch, TodoWrite)
-  return claudeTool;
-}
-
-function convertSlashCommandsToWindsurfSkillMentions(content) {
-  // Keep leading "/" for slash commands; only normalize redpill: -> redpill-.
-  return content.replace(/redpill:/gi, 'redpill-');
-}
-
-function convertClaudeToWindsurfMarkdown(content) {
-  let converted = convertSlashCommandsToWindsurfSkillMentions(content);
-  // Replace tool name references in body text
-  converted = converted.replace(/\bBash\(/g, 'Shell(');
-  converted = converted.replace(/\bEdit\(/g, 'StrReplace(');
-  converted = converted.replace(/\bAskUserQuestion\b/g, 'conversational prompting');
-  // Replace subagent_type from Claude to Windsurf format
-  converted = converted.replace(/subagent_type="general-purpose"/g, 'subagent_type="generalPurpose"');
-  converted = converted.replace(/\$ARGUMENTS\b/g, '{{REDPILL_ARGS}}');
-  // Replace project-level Claude conventions with Windsurf equivalents
-  converted = converted.replace(/`\.\/CLAUDE\.md`/g, '`.windsurf/rules`');
-  converted = converted.replace(/\.\/CLAUDE\.md/g, '.windsurf/rules');
-  converted = converted.replace(/`CLAUDE\.md`/g, '`.windsurf/rules`');
-  converted = converted.replace(/\bCLAUDE\.md\b/g, '.windsurf/rules');
-  converted = converted.replace(/\.claude\/skills\//g, '.windsurf/skills/');
-  // Remove Claude Code-specific bug workarounds before brand replacement
-  converted = converted.replace(/\*\*Known Claude Code bug \(classifyHandoffIfNeeded\):\*\*[^\n]*\n/g, '');
-  converted = converted.replace(/- \*\*classifyHandoffIfNeeded false failure:\*\*[^\n]*\n/g, '');
-  // Replace "Claude Code" brand references with "Windsurf"
-  converted = converted.replace(/\bClaude Code\b/g, 'Windsurf');
-  return converted;
-}
-
-function getWindsurfSkillAdapterHeader(skillName) {
-  return `<windsurf_skill_adapter>
-## A. Skill Invocation
-- This skill is invoked when the user mentions \`${skillName}\` or describes a task matching this skill.
-- Treat all user text after the skill mention as \`{{REDPILL_ARGS}}\`.
-- If no arguments are present, treat \`{{REDPILL_ARGS}}\` as empty.
-
-## B. User Prompting
-When the workflow needs user input, prompt the user conversationally:
-- Present options as a numbered list in your response text
-- Ask the user to reply with their choice
-- For multi-select, ask for comma-separated numbers
-
-## C. Tool Usage
-Use these Windsurf tools when executing Redpill workflows:
-- \`Shell\` for running commands (terminal operations)
-- \`StrReplace\` for editing existing files
-- \`Read\`, \`Write\`, \`Glob\`, \`Grep\`, \`Task\`, \`WebSearch\`, \`WebFetch\`, \`TodoWrite\` as needed
-
-## D. Subagent Spawning
-When the workflow needs to spawn a subagent:
-- Use \`Task(subagent_type="generalPurpose", ...)\`
-- The \`model\` parameter maps to Windsurf's model options (e.g., "fast")
-</windsurf_skill_adapter>`;
-}
-
-function convertClaudeCommandToWindsurfSkill(content, skillName) {
-  const converted = convertClaudeToWindsurfMarkdown(content);
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  let description = `Run Redpill workflow ${skillName}.`;
-  if (frontmatter) {
-    const maybeDescription = extractFrontmatterField(frontmatter, 'description');
-    if (maybeDescription) {
-      description = maybeDescription;
-    }
-  }
-  description = toSingleLine(description);
-  const shortDescription = description.length > 180 ? `${description.slice(0, 177)}...` : description;
-  const adapter = getWindsurfSkillAdapterHeader(skillName);
-
-  return `---\nname: ${yamlIdentifier(skillName)}\ndescription: ${yamlQuote(shortDescription)}\n---\n\n${adapter}\n\n${body.trimStart()}`;
-}
-
-/**
- * Convert Claude Code agent markdown to Windsurf agent format.
- * Strips frontmatter fields Windsurf doesn't support (color, skills),
- * converts tool references, and adds a role context header.
- */
-function convertClaudeAgentToWindsurfAgent(content) {
-  let converted = convertClaudeToWindsurfMarkdown(content);
-
-  const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  if (!frontmatter) return converted;
-
-  const name = extractFrontmatterField(frontmatter, 'name') || 'unknown';
-  const description = extractFrontmatterField(frontmatter, 'description') || '';
-
-  const cleanFrontmatter = `---\nname: ${yamlIdentifier(name)}\ndescription: ${yamlQuote(toSingleLine(description))}\n---`;
-
-  return `${cleanFrontmatter}\n${body}`;
-}
 
 function convertSlashCommandsToCodexSkillMentions(content) {
   let converted = content.replace(/\/redpill:([a-z0-9-]+)/gi, (_, commandName) => {
@@ -2259,66 +1703,6 @@ function hasEnabledCodexHooksFeature(configContent) {
   });
 }
 
-/**
- * Merge Redpill instructions into copilot-instructions.md.
- * Three cases: new file, existing with markers, existing without markers.
- * @param {string} filePath - Full path to copilot-instructions.md
- * @param {string} redpillContent - Template content (without markers)
- */
-function mergeCopilotInstructions(filePath, redpillContent) {
-  const redpillBlock = REDPILL_COPILOT_INSTRUCTIONS_MARKER + '\n' +
-    redpillContent.trim() + '\n' +
-    REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER;
-
-  // Case 1: No file — create fresh
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, redpillBlock + '\n');
-    return;
-  }
-
-  const existing = fs.readFileSync(filePath, 'utf8');
-  const openIndex = existing.indexOf(REDPILL_COPILOT_INSTRUCTIONS_MARKER);
-  const closeIndex = existing.indexOf(REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER);
-
-  // Case 2: Has Redpill markers — replace between markers
-  if (openIndex !== -1 && closeIndex !== -1) {
-    const before = existing.substring(0, openIndex).trimEnd();
-    const after = existing.substring(closeIndex + REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER.length).trimStart();
-    let newContent = '';
-    if (before) newContent += before + '\n\n';
-    newContent += redpillBlock;
-    if (after) newContent += '\n\n' + after;
-    newContent += '\n';
-    fs.writeFileSync(filePath, newContent);
-    return;
-  }
-
-  // Case 3: No markers — append at end
-  const content = existing.trimEnd() + '\n\n' + redpillBlock + '\n';
-  fs.writeFileSync(filePath, content);
-}
-
-/**
- * Strip Redpill section from copilot-instructions.md content.
- * Returns cleaned content, or null if file should be deleted (was Redpill-only).
- * @param {string} content - File content
- * @returns {string|null} - Cleaned content or null if empty
- */
-function stripGsdFromCopilotInstructions(content) {
-  const openIndex = content.indexOf(REDPILL_COPILOT_INSTRUCTIONS_MARKER);
-  const closeIndex = content.indexOf(REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER);
-
-  if (openIndex !== -1 && closeIndex !== -1) {
-    const before = content.substring(0, openIndex).trimEnd();
-    const after = content.substring(closeIndex + REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER.length).trimStart();
-    const cleaned = (before + (before && after ? '\n\n' : '') + after).trim();
-    if (!cleaned) return null;
-    return cleaned + '\n';
-  }
-
-  // No markers found — nothing to strip
-  return content;
-}
 
 /**
  * Generate config.toml and per-agent .toml files for Codex.
@@ -2357,11 +1741,6 @@ function installCodexConfig(targetDir, agentsSrc) {
 }
 
 /**
- * Strip HTML <sub> tags for Gemini CLI output
- * Terminals don't support subscript — Gemini renders these as raw HTML.
- * Converts <sub>text</sub> to italic *(text)* for readable terminal output.
- */
-/**
  * Runtime-neutral agent name and instruction file replacement.
  * Used by ALL non-Claude runtime converters to avoid Claude-specific
  * references in workflow prompts, agent definitions, and documentation.
@@ -2391,114 +1770,6 @@ function neutralizeAgentReferences(content, instructionFile) {
   return c;
 }
 
-function stripSubTags(content) {
-  return content.replace(/<sub>(.*?)<\/sub>/g, '*($1)*');
-}
-
-/**
- * Convert Claude Code agent frontmatter to Gemini CLI format
- * Gemini agents use .md files with YAML frontmatter, same as Claude,
- * but with different field names and formats:
- * - tools: must be a YAML array (not comma-separated string)
- * - tool names: must use Gemini built-in names (read_file, not Read)
- * - color: must be removed (causes validation error)
- * - skills: must be removed (causes validation error)
- * - mcp__* tools: must be excluded (auto-discovered at runtime)
- */
-function convertClaudeToGeminiAgent(content) {
-  if (!content.startsWith('---')) return content;
-
-  const endIndex = content.indexOf('---', 3);
-  if (endIndex === -1) return content;
-
-  const frontmatter = content.substring(3, endIndex).trim();
-  const body = content.substring(endIndex + 3);
-
-  const lines = frontmatter.split('\n');
-  const newLines = [];
-  let inAllowedTools = false;
-  let inSkippedArrayField = false;
-  const tools = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    if (inSkippedArrayField) {
-      if (!trimmed || trimmed.startsWith('- ')) {
-        continue;
-      }
-      inSkippedArrayField = false;
-    }
-
-    // Convert allowed-tools YAML array to tools list
-    if (trimmed.startsWith('allowed-tools:')) {
-      inAllowedTools = true;
-      continue;
-    }
-
-    // Handle inline tools: field (comma-separated string)
-    if (trimmed.startsWith('tools:')) {
-      const toolsValue = trimmed.substring(6).trim();
-      if (toolsValue) {
-        const parsed = toolsValue.split(',').map(t => t.trim()).filter(t => t);
-        for (const t of parsed) {
-          const mapped = convertGeminiToolName(t);
-          if (mapped) tools.push(mapped);
-        }
-      } else {
-        // tools: with no value means YAML array follows
-        inAllowedTools = true;
-      }
-      continue;
-    }
-
-    // Strip color field (not supported by Gemini CLI, causes validation error)
-    if (trimmed.startsWith('color:')) continue;
-
-    // Strip skills field (not supported by Gemini CLI, causes validation error)
-    if (trimmed.startsWith('skills:')) {
-      inSkippedArrayField = true;
-      continue;
-    }
-
-    // Collect allowed-tools/tools array items
-    if (inAllowedTools) {
-      if (trimmed.startsWith('- ')) {
-        const mapped = convertGeminiToolName(trimmed.substring(2).trim());
-        if (mapped) tools.push(mapped);
-        continue;
-      } else if (trimmed && !trimmed.startsWith('-')) {
-        inAllowedTools = false;
-      }
-    }
-
-    if (!inAllowedTools) {
-      newLines.push(line);
-    }
-  }
-
-  // Add tools as YAML array (Gemini requires array format)
-  if (tools.length > 0) {
-    newLines.push('tools:');
-    for (const tool of tools) {
-      newLines.push(`  - ${tool}`);
-    }
-  }
-
-  const newFrontmatter = newLines.join('\n').trim();
-
-  // Escape ${VAR} patterns in agent body for Gemini CLI compatibility.
-  // Gemini's templateString() treats all ${word} patterns as template variables
-  // and throws "Template validation failed: Missing required input parameters"
-  // when they can't be resolved. Redpill agents use ${PHASE}, ${PLAN}, etc. as
-  // shell variables in bash code blocks — convert to $VAR (no braces) which
-  // is equivalent bash and invisible to Gemini's /\$\{(\w+)\}/g regex.
-  const escapedBody = body.replace(/\$\{(\w+)\}/g, '$$$1');
-
-  // Runtime-neutral agent name replacement (#766)
-  const neutralBody = neutralizeAgentReferences(escapedBody, 'GEMINI.md');
-  return `---\n${newFrontmatter}\n---${stripSubTags(neutralBody)}`;
-}
 
 function convertClaudeToOpencodeFrontmatter(content, { isAgent = false } = {}) {
   // Replace tool name references in content (applies to all files)
@@ -2650,46 +1921,6 @@ function convertClaudeToOpencodeFrontmatter(content, { isAgent = false } = {}) {
   return `---\n${newFrontmatter}\n---${body}`;
 }
 
-/**
- * Convert Claude Code markdown command to Gemini TOML format
- * @param {string} content - Markdown file content with YAML frontmatter
- * @returns {string} - TOML content
- */
-function convertClaudeToGeminiToml(content) {
-  // Check if content has frontmatter
-  if (!content.startsWith('---')) {
-    return `prompt = ${JSON.stringify(content)}\n`;
-  }
-
-  const endIndex = content.indexOf('---', 3);
-  if (endIndex === -1) {
-    return `prompt = ${JSON.stringify(content)}\n`;
-  }
-
-  const frontmatter = content.substring(3, endIndex).trim();
-  const body = content.substring(endIndex + 3).trim();
-  
-  // Extract description from frontmatter
-  let description = '';
-  const lines = frontmatter.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('description:')) {
-      description = trimmed.substring(12).trim();
-      break;
-    }
-  }
-
-  // Construct TOML
-  let toml = '';
-  if (description) {
-    toml += `description = ${JSON.stringify(description)}\n`;
-  }
-  
-  toml += `prompt = ${JSON.stringify(body)}\n`;
-  
-  return toml;
-}
 
 /**
  * Copy commands to a flat structure for OpenCode
@@ -2813,218 +2044,6 @@ function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, pathPrefix, runtim
   recurse(srcDir, prefix);
 }
 
-function copyCommandsAsCursorSkills(srcDir, skillsDir, prefix, pathPrefix, runtime) {
-  if (!fs.existsSync(srcDir)) {
-    return;
-  }
-
-  fs.mkdirSync(skillsDir, { recursive: true });
-
-  // Remove previous Redpill Cursor skills to avoid stale command skills
-  const existing = fs.readdirSync(skillsDir, { withFileTypes: true });
-  for (const entry of existing) {
-    if (entry.isDirectory() && entry.name.startsWith(`${prefix}-`)) {
-      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-    }
-  }
-
-  function recurse(currentSrcDir, currentPrefix) {
-    const entries = fs.readdirSync(currentSrcDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const srcPath = path.join(currentSrcDir, entry.name);
-      if (entry.isDirectory()) {
-        recurse(srcPath, `${currentPrefix}-${entry.name}`);
-        continue;
-      }
-
-      if (!entry.name.endsWith('.md')) {
-        continue;
-      }
-
-      const baseName = entry.name.replace('.md', '');
-      const skillName = `${currentPrefix}-${baseName}`;
-      const skillDir = path.join(skillsDir, skillName);
-      fs.mkdirSync(skillDir, { recursive: true });
-
-      let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
-      const cursorDirRegex = /~\/\.cursor\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(cursorDirRegex, pathPrefix);
-      content = processAttribution(content, getCommitAttribution(runtime));
-      content = convertClaudeCommandToCursorSkill(content, skillName);
-
-      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
-    }
-  }
-
-  recurse(srcDir, prefix);
-}
-
-/**
- * Copy Claude commands as Windsurf skills — one folder per skill with SKILL.md.
- * Mirrors copyCommandsAsCursorSkills but uses Windsurf converters.
- */
-function copyCommandsAsWindsurfSkills(srcDir, skillsDir, prefix, pathPrefix, runtime) {
-  if (!fs.existsSync(srcDir)) {
-    return;
-  }
-
-  fs.mkdirSync(skillsDir, { recursive: true });
-
-  // Remove previous Redpill Windsurf skills to avoid stale command skills
-  const existing = fs.readdirSync(skillsDir, { withFileTypes: true });
-  for (const entry of existing) {
-    if (entry.isDirectory() && entry.name.startsWith(`${prefix}-`)) {
-      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-    }
-  }
-
-  function recurse(currentSrcDir, currentPrefix) {
-    const entries = fs.readdirSync(currentSrcDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const srcPath = path.join(currentSrcDir, entry.name);
-      if (entry.isDirectory()) {
-        recurse(srcPath, `${currentPrefix}-${entry.name}`);
-        continue;
-      }
-
-      if (!entry.name.endsWith('.md')) {
-        continue;
-      }
-
-      const baseName = entry.name.replace('.md', '');
-      const skillName = `${currentPrefix}-${baseName}`;
-      const skillDir = path.join(skillsDir, skillName);
-      fs.mkdirSync(skillDir, { recursive: true });
-
-      let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
-      const windsurfDirRegex = /~\/\.windsurf\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(windsurfDirRegex, pathPrefix);
-      content = processAttribution(content, getCommitAttribution(runtime));
-      content = convertClaudeCommandToWindsurfSkill(content, skillName);
-
-      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
-    }
-  }
-
-  recurse(srcDir, prefix);
-}
-
-/**
- * Copy Claude commands as Copilot skills — one folder per skill with SKILL.md.
- * Applies CONV-01 (structure), CONV-02 (allowed-tools), CONV-06 (paths), CONV-07 (command names).
- */
-function copyCommandsAsCopilotSkills(srcDir, skillsDir, prefix, isGlobal = false) {
-  if (!fs.existsSync(srcDir)) {
-    return;
-  }
-
-  fs.mkdirSync(skillsDir, { recursive: true });
-
-  // Remove previous Redpill Copilot skills
-  const existing = fs.readdirSync(skillsDir, { withFileTypes: true });
-  for (const entry of existing) {
-    if (entry.isDirectory() && entry.name.startsWith(`${prefix}-`)) {
-      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-    }
-  }
-
-  function recurse(currentSrcDir, currentPrefix) {
-    const entries = fs.readdirSync(currentSrcDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const srcPath = path.join(currentSrcDir, entry.name);
-      if (entry.isDirectory()) {
-        recurse(srcPath, `${currentPrefix}-${entry.name}`);
-        continue;
-      }
-
-      if (!entry.name.endsWith('.md')) {
-        continue;
-      }
-
-      const baseName = entry.name.replace('.md', '');
-      const skillName = `${currentPrefix}-${baseName}`;
-      const skillDir = path.join(skillsDir, skillName);
-      fs.mkdirSync(skillDir, { recursive: true });
-
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = convertClaudeCommandToCopilotSkill(content, skillName, isGlobal);
-      content = processAttribution(content, getCommitAttribution('copilot'));
-
-      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
-    }
-  }
-
-  recurse(srcDir, prefix);
-}
-
-/**
- * Recursively install Redpill commands as Antigravity skills.
- * Each command becomes a skill-name/ folder containing SKILL.md.
- * Mirrors copyCommandsAsCopilotSkills but uses Antigravity converters.
- * @param {string} srcDir - Source commands directory
- * @param {string} skillsDir - Target skills directory
- * @param {string} prefix - Skill name prefix (e.g. 'redpill')
- * @param {boolean} isGlobal - Whether this is a global install
- */
-function copyCommandsAsAntigravitySkills(srcDir, skillsDir, prefix, isGlobal = false) {
-  if (!fs.existsSync(srcDir)) {
-    return;
-  }
-
-  fs.mkdirSync(skillsDir, { recursive: true });
-
-  // Remove previous Redpill Antigravity skills
-  const existing = fs.readdirSync(skillsDir, { withFileTypes: true });
-  for (const entry of existing) {
-    if (entry.isDirectory() && entry.name.startsWith(`${prefix}-`)) {
-      fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-    }
-  }
-
-  function recurse(currentSrcDir, currentPrefix) {
-    const entries = fs.readdirSync(currentSrcDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const srcPath = path.join(currentSrcDir, entry.name);
-      if (entry.isDirectory()) {
-        recurse(srcPath, `${currentPrefix}-${entry.name}`);
-        continue;
-      }
-
-      if (!entry.name.endsWith('.md')) {
-        continue;
-      }
-
-      const baseName = entry.name.replace('.md', '');
-      const skillName = `${currentPrefix}-${baseName}`;
-      const skillDir = path.join(skillsDir, skillName);
-      fs.mkdirSync(skillDir, { recursive: true });
-
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = convertClaudeCommandToAntigravitySkill(content, skillName, isGlobal);
-      content = processAttribution(content, getCommitAttribution('antigravity'));
-
-      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content);
-    }
-  }
-
-  recurse(srcDir, prefix);
-}
 
 /**
  * Recursively copy directory, replacing paths in .md files
@@ -3032,15 +2051,11 @@ function copyCommandsAsAntigravitySkills(srcDir, skillsDir, prefix, isGlobal = f
  * @param {string} srcDir - Source directory
  * @param {string} destDir - Destination directory
  * @param {string} pathPrefix - Path prefix for file references
- * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini', 'codex')
+ * @param {string} runtime - Target runtime ('claude', 'opencode', 'codex')
  */
 function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand = false, isGlobal = false) {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isAntigravity = runtime === 'antigravity';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
   const dirName = getDirName(runtime);
 
   // Clean install: remove existing destination to prevent orphaned files
@@ -3058,80 +2073,25 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
     if (entry.isDirectory()) {
       copyWithPathReplacement(srcPath, destPath, pathPrefix, runtime, isCommand, isGlobal);
     } else if (entry.name.endsWith('.md')) {
-      // Replace ~/.claude/ and $HOME/.claude/ and ./.claude/ with runtime-appropriate paths
-      // Skip generic replacement for Copilot — convertClaudeToCopilotContent handles all paths
       let content = fs.readFileSync(srcPath, 'utf8');
-      if (!isCopilot && !isAntigravity) {
-        const globalClaudeRegex = /~\/\.claude\//g;
-        const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-        const localClaudeRegex = /\.\/\.claude\//g;
-        content = content.replace(globalClaudeRegex, pathPrefix);
-        content = content.replace(globalClaudeHomeRegex, pathPrefix);
-        content = content.replace(localClaudeRegex, `./${dirName}/`);
-      }
+      const globalClaudeRegex = /~\/\.claude\//g;
+      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
+      const localClaudeRegex = /\.\/\.claude\//g;
+      content = content.replace(globalClaudeRegex, pathPrefix);
+      content = content.replace(globalClaudeHomeRegex, pathPrefix);
+      content = content.replace(localClaudeRegex, `./${dirName}/`);
       content = processAttribution(content, getCommitAttribution(runtime));
 
       // Convert frontmatter for opencode compatibility
       if (isOpencode) {
         content = convertClaudeToOpencodeFrontmatter(content);
         fs.writeFileSync(destPath, content);
-      } else if (runtime === 'gemini') {
-        if (isCommand) {
-          // Convert to TOML for Gemini (strip <sub> tags — terminals can't render subscript)
-          content = stripSubTags(content);
-          const tomlContent = convertClaudeToGeminiToml(content);
-          // Replace extension with .toml
-          const tomlPath = destPath.replace(/\.md$/, '.toml');
-          fs.writeFileSync(tomlPath, tomlContent);
-        } else {
-          fs.writeFileSync(destPath, content);
-        }
       } else if (isCodex) {
         content = convertClaudeToCodexMarkdown(content);
-        fs.writeFileSync(destPath, content);
-      } else if (isCopilot) {
-        content = convertClaudeToCopilotContent(content, isGlobal);
-        content = processAttribution(content, getCommitAttribution(runtime));
-        fs.writeFileSync(destPath, content);
-      } else if (isAntigravity) {
-        content = convertClaudeToAntigravityContent(content, isGlobal);
-        content = processAttribution(content, getCommitAttribution(runtime));
-        fs.writeFileSync(destPath, content);
-      } else if (isCursor) {
-        content = convertClaudeToCursorMarkdown(content);
-        fs.writeFileSync(destPath, content);
-      } else if (isWindsurf) {
-        content = convertClaudeToWindsurfMarkdown(content);
         fs.writeFileSync(destPath, content);
       } else {
         fs.writeFileSync(destPath, content);
       }
-    } else if (isCopilot && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
-      // Copilot: also transform .cjs/.js files for CONV-06 and CONV-07
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = convertClaudeToCopilotContent(content, isGlobal);
-      fs.writeFileSync(destPath, content);
-    } else if (isAntigravity && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
-      // Antigravity: also transform .cjs/.js files for path/command conversions
-      let content = fs.readFileSync(srcPath, 'utf8');
-      content = convertClaudeToAntigravityContent(content, isGlobal);
-      fs.writeFileSync(destPath, content);
-    } else if (isCursor && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
-      // For Cursor, also convert Claude references in JS/CJS utility scripts
-      let jsContent = fs.readFileSync(srcPath, 'utf8');
-      jsContent = jsContent.replace(/redpill:/gi, 'redpill-');
-      jsContent = jsContent.replace(/\.claude\/skills\//g, '.cursor/skills/');
-      jsContent = jsContent.replace(/CLAUDE\.md/g, '.cursor/rules/');
-      jsContent = jsContent.replace(/\bClaude Code\b/g, 'Cursor');
-      fs.writeFileSync(destPath, jsContent);
-    } else if (isWindsurf && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
-      // For Windsurf, also convert Claude references in JS/CJS utility scripts
-      let jsContent = fs.readFileSync(srcPath, 'utf8');
-      jsContent = jsContent.replace(/redpill:/gi, 'redpill-');
-      jsContent = jsContent.replace(/\.claude\/skills\//g, '.windsurf/skills/');
-      jsContent = jsContent.replace(/CLAUDE\.md/g, '.windsurf/rules');
-      jsContent = jsContent.replace(/\bClaude Code\b/g, 'Windsurf');
-      fs.writeFileSync(destPath, jsContent);
     } else {
       fs.copyFileSync(srcPath, destPath);
     }
@@ -3296,15 +2256,11 @@ function validateHookFields(settings) {
  * Uninstall Redpill from the specified directory for a specific runtime
  * Removes only Redpill-specific files/directories, preserves user content
  * @param {boolean} isGlobal - Whether to uninstall from global or local
- * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini', 'codex', 'copilot')
+ * @param {string} runtime - Target runtime ('claude', 'opencode', 'codex')
  */
 function uninstall(isGlobal, runtime = 'claude') {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isAntigravity = runtime === 'antigravity';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
   const dirName = getDirName(runtime);
 
   // Get the target directory based on runtime and install type
@@ -3318,12 +2274,7 @@ function uninstall(isGlobal, runtime = 'claude') {
 
   let runtimeLabel = 'Claude Code';
   if (runtime === 'opencode') runtimeLabel = 'OpenCode';
-  if (runtime === 'gemini') runtimeLabel = 'Gemini';
   if (runtime === 'codex') runtimeLabel = 'Codex';
-  if (runtime === 'copilot') runtimeLabel = 'Copilot';
-  if (runtime === 'antigravity') runtimeLabel = 'Antigravity';
-  if (runtime === 'cursor') runtimeLabel = 'Cursor';
-  if (runtime === 'windsurf') runtimeLabel = 'Windsurf';
 
   console.log(`  Uninstalling Redpill from ${cyan}${runtimeLabel}${reset} at ${cyan}${locationLabel}${reset}\n`);
 
@@ -3350,8 +2301,8 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
       console.log(`  ${green}✓${reset} Removed Redpill commands from command/`);
     }
-  } else if (isCodex || isCursor || isWindsurf) {
-    // Codex/Cursor/Windsurf: remove skills/redpill-*/SKILL.md skill directories
+  } else if (isCodex) {
+    // Codex: remove skills/redpill-*/SKILL.md skill directories
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
@@ -3368,8 +2319,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
 
-    // Codex-only: remove Redpill agent .toml config files and config.toml sections
-    if (isCodex) {
+    // Codex: remove Redpill agent .toml config files and config.toml sections
     const codexAgentsDir = path.join(targetDir, 'agents');
     if (fs.existsSync(codexAgentsDir)) {
       const tomlFiles = fs.readdirSync(codexAgentsDir);
@@ -3392,7 +2342,6 @@ function uninstall(isGlobal, runtime = 'claude') {
       const content = fs.readFileSync(configPath, 'utf8');
       const cleaned = stripGsdFromCodexConfig(content);
       if (cleaned === null) {
-        // File is empty after stripping — delete it
         fs.unlinkSync(configPath);
         removedCount++;
         console.log(`  ${green}✓${reset} Removed config.toml (was Redpill-only)`);
@@ -3400,91 +2349,6 @@ function uninstall(isGlobal, runtime = 'claude') {
         fs.writeFileSync(configPath, cleaned);
         removedCount++;
         console.log(`  ${green}✓${reset} Cleaned Redpill sections from config.toml`);
-      }
-    }
-    }
-  } else if (isCopilot) {
-    // Copilot: remove skills/redpill-*/ directories (same layout as Codex skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('redpill-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Copilot skills`);
-      }
-    }
-
-    // Copilot: clean Redpill section from copilot-instructions.md
-    const instructionsPath = path.join(targetDir, 'copilot-instructions.md');
-    if (fs.existsSync(instructionsPath)) {
-      const content = fs.readFileSync(instructionsPath, 'utf8');
-      const cleaned = stripGsdFromCopilotInstructions(content);
-      if (cleaned === null) {
-        fs.unlinkSync(instructionsPath);
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed copilot-instructions.md (was Redpill-only)`);
-      } else if (cleaned !== content) {
-        fs.writeFileSync(instructionsPath, cleaned);
-        removedCount++;
-        console.log(`  ${green}✓${reset} Cleaned Redpill section from copilot-instructions.md`);
-      }
-    }
-  } else if (isAntigravity) {
-    // Antigravity: remove skills/redpill-*/ directories (same layout as Copilot skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('redpill-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Antigravity skills`);
-      }
-    }
-  } else if (isCursor) {
-    // Cursor: remove skills/redpill-*/ directories (same layout as Codex skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('redpill-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Cursor skills`);
-      }
-    }
-  } else if (isWindsurf) {
-    // Windsurf: remove skills/redpill-*/ directories (same layout as Cursor skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('redpill-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Windsurf skills`);
       }
     }
   } else {
@@ -3592,7 +2456,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
 
-    // Remove Redpill hooks from PostToolUse and AfterTool (Gemini uses AfterTool)
+    // Remove Redpill hooks from PostToolUse
     for (const eventName of ['PostToolUse', 'AfterTool']) {
       if (settings.hooks && settings.hooks[eventName]) {
         const before = settings.hooks[eventName].length;
@@ -3615,7 +2479,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
 
-    // Remove Redpill hooks from PreToolUse and BeforeTool (Gemini uses BeforeTool)
+    // Remove Redpill hooks from PreToolUse
     for (const eventName of ['PreToolUse', 'BeforeTool']) {
       if (settings.hooks && settings.hooks[eventName]) {
         const before = settings.hooks[eventName].length;
@@ -3872,7 +2736,7 @@ function verifyFileInstalled(filePath, description) {
 /**
  * Install to the specified directory for a specific runtime
  * @param {boolean} isGlobal - Whether to install globally or locally
- * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini', 'codex')
+ * @param {string} runtime - Target runtime ('claude', 'opencode', 'codex')
  */
 
 // ──────────────────────────────────────────────────────
@@ -3916,10 +2780,6 @@ function generateManifest(dir, baseDir) {
 function writeManifest(configDir, runtime = 'claude') {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isAntigravity = runtime === 'antigravity';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
   const redpillDir = path.join(configDir, 'redpill');
   const commandsDir = path.join(configDir, 'commands', 'redpill');
   const opencodeCommandDir = path.join(configDir, 'command');
@@ -3931,7 +2791,7 @@ function writeManifest(configDir, runtime = 'claude') {
   for (const [rel, hash] of Object.entries(redpillHashes)) {
     manifest.files['redpill/' + rel] = hash;
   }
-  if (!isOpencode && !isCodex && !isCopilot && !isAntigravity && !isCursor && !isWindsurf && fs.existsSync(commandsDir)) {
+  if (!isOpencode && !isCodex && fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
     for (const [rel, hash] of Object.entries(cmdHashes)) {
       manifest.files['commands/redpill/' + rel] = hash;
@@ -3944,13 +2804,21 @@ function writeManifest(configDir, runtime = 'claude') {
       }
     }
   }
-  if ((isCodex || isCopilot || isAntigravity || isCursor || isWindsurf) && fs.existsSync(codexSkillsDir)) {
+  if (isCodex && fs.existsSync(codexSkillsDir)) {
     for (const skillName of listCodexSkillNames(codexSkillsDir)) {
       const skillRoot = path.join(codexSkillsDir, skillName);
       const skillHashes = generateManifest(skillRoot);
       for (const [rel, hash] of Object.entries(skillHashes)) {
         manifest.files[`skills/${skillName}/${rel}`] = hash;
       }
+    }
+  }
+  // Track BDD skills directory (skills/ at top level of install)
+  const bddSkillsDir = path.join(configDir, 'skills');
+  if (!isCodex && fs.existsSync(bddSkillsDir)) {
+    const bddSkillHashes = generateManifest(bddSkillsDir);
+    for (const [rel, hash] of Object.entries(bddSkillHashes)) {
+      manifest.files['skills/' + rel] = hash;
     }
   }
   if (fs.existsSync(agentsDir)) {
@@ -3961,8 +2829,8 @@ function writeManifest(configDir, runtime = 'claude') {
     }
   }
   // Track hook files so saveLocalPatches() can detect user modifications
-  // Hooks are only installed for runtimes that use settings.json (not Codex/Copilot)
-  if (!isCodex && !isCopilot) {
+  // Hooks are only installed for runtimes that use settings.json (not Codex)
+  if (!isCodex) {
     const hooksDir = path.join(configDir, 'hooks');
     if (fs.existsSync(hooksDir)) {
       for (const file of fs.readdirSync(hooksDir)) {
@@ -4030,13 +2898,11 @@ function reportLocalPatches(configDir, runtime = 'claude') {
   try { meta = JSON.parse(fs.readFileSync(metaPath, 'utf8')); } catch { return []; }
 
   if (meta.files && meta.files.length > 0) {
-    const reapplyCommand = (runtime === 'opencode' || runtime === 'copilot')
+    const reapplyCommand = runtime === 'opencode'
       ? '/redpill-reapply-patches'
       : runtime === 'codex'
         ? '$redpill-reapply-patches'
-        : runtime === 'cursor'
-          ? 'redpill-reapply-patches (mention the skill name)'
-          : '/redpill:reapply-patches';
+        : '/redpill:reapply-patches';
     console.log('');
     console.log('  ' + yellow + 'Local patches detected' + reset + ' (from v' + meta.from_version + '):');
     for (const f of meta.files) {
@@ -4053,12 +2919,7 @@ function reportLocalPatches(configDir, runtime = 'claude') {
 
 function install(isGlobal, runtime = 'claude') {
   const isOpencode = runtime === 'opencode';
-  const isGemini = runtime === 'gemini';
   const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isAntigravity = runtime === 'antigravity';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
   const dirName = getDirName(runtime);
   const src = path.join(__dirname, '..');
 
@@ -4084,12 +2945,7 @@ function install(isGlobal, runtime = 'claude') {
 
   let runtimeLabel = 'Claude Code';
   if (isOpencode) runtimeLabel = 'OpenCode';
-  if (isGemini) runtimeLabel = 'Gemini';
   if (isCodex) runtimeLabel = 'Codex';
-  if (isCopilot) runtimeLabel = 'Copilot';
-  if (isAntigravity) runtimeLabel = 'Antigravity';
-  if (isCursor) runtimeLabel = 'Cursor';
-  if (isWindsurf) runtimeLabel = 'Windsurf';
 
   console.log(`  Installing for ${cyan}${runtimeLabel}${reset} to ${cyan}${locationLabel}${reset}\n`);
 
@@ -4102,7 +2958,7 @@ function install(isGlobal, runtime = 'claude') {
   // Clean up orphaned files from previous versions
   cleanupOrphanedFiles(targetDir);
 
-  // OpenCode uses command/ (flat), Codex uses skills/, Claude/Gemini use commands/redpill/
+  // OpenCode uses command/ (flat), Codex uses skills/, Claude uses commands/redpill/
   if (isOpencode) {
     // OpenCode: flat structure in command/ directory
     const commandDir = path.join(targetDir, 'command');
@@ -4127,58 +2983,8 @@ function install(isGlobal, runtime = 'claude') {
     } else {
       failures.push('skills/redpill-*');
     }
-  } else if (isCopilot) {
-    const skillsDir = path.join(targetDir, 'skills');
-    const redpillSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsCopilotSkills(redpillSrc, skillsDir, 'redpill', isGlobal);
-    if (fs.existsSync(skillsDir)) {
-      const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
-      if (count > 0) {
-        console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
-      } else {
-        failures.push('skills/redpill-*');
-      }
-    } else {
-      failures.push('skills/redpill-*');
-    }
-  } else if (isAntigravity) {
-    const skillsDir = path.join(targetDir, 'skills');
-    const redpillSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsAntigravitySkills(redpillSrc, skillsDir, 'redpill', isGlobal);
-    if (fs.existsSync(skillsDir)) {
-      const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
-      if (count > 0) {
-        console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
-      } else {
-        failures.push('skills/redpill-*');
-      }
-    } else {
-      failures.push('skills/redpill-*');
-    }
-  } else if (isCursor) {
-    const skillsDir = path.join(targetDir, 'skills');
-    const redpillSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsCursorSkills(redpillSrc, skillsDir, 'redpill', pathPrefix, runtime);
-    const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
-    if (installedSkillNames.length > 0) {
-      console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
-    } else {
-      failures.push('skills/redpill-*');
-    }
-  } else if (isWindsurf) {
-    const skillsDir = path.join(targetDir, 'skills');
-    const redpillSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsWindsurfSkills(redpillSrc, skillsDir, 'redpill', pathPrefix, runtime);
-    const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
-    if (installedSkillNames.length > 0) {
-      console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
-    } else {
-      failures.push('skills/redpill-*');
-    }
   } else {
-    // Claude Code & Gemini: nested structure in commands/ directory
+    // Claude Code: nested structure in commands/ directory
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
     
@@ -4200,6 +3006,18 @@ function install(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Installed redpill`);
   } else {
     failures.push('redpill');
+  }
+
+  // Copy skills/ directory with path replacement
+  const bddSkillsSrc = path.join(src, 'skills');
+  if (fs.existsSync(bddSkillsSrc)) {
+    const bddSkillsDest = path.join(targetDir, 'skills');
+    copyWithPathReplacement(bddSkillsSrc, bddSkillsDest, pathPrefix, runtime, false, isGlobal);
+    if (verifyInstalled(bddSkillsDest, 'skills')) {
+      console.log(`  ${green}✓${reset} Installed skills`);
+    } else {
+      failures.push('skills');
+    }
   }
 
   // Copy agents to agents directory
@@ -4225,28 +3043,16 @@ function install(isGlobal, runtime = 'claude') {
         // Replace ~/.claude/ and $HOME/.claude/ as they are the source of truth in the repo
         const dirRegex = /~\/\.claude\//g;
         const homeDirRegex = /\$HOME\/\.claude\//g;
-        if (!isCopilot && !isAntigravity) {
-          content = content.replace(dirRegex, pathPrefix);
-          content = content.replace(homeDirRegex, pathPrefix);
-        }
+        content = content.replace(dirRegex, pathPrefix);
+        content = content.replace(homeDirRegex, pathPrefix);
         content = processAttribution(content, getCommitAttribution(runtime));
         // Convert frontmatter for runtime compatibility (agents need different handling)
         if (isOpencode) {
           content = convertClaudeToOpencodeFrontmatter(content, { isAgent: true });
-        } else if (isGemini) {
-          content = convertClaudeToGeminiAgent(content);
         } else if (isCodex) {
           content = convertClaudeAgentToCodexAgent(content);
-        } else if (isCopilot) {
-          content = convertClaudeAgentToCopilotAgent(content, isGlobal);
-        } else if (isAntigravity) {
-          content = convertClaudeAgentToAntigravityAgent(content, isGlobal);
-        } else if (isCursor) {
-          content = convertClaudeAgentToCursorAgent(content);
-        } else if (isWindsurf) {
-          content = convertClaudeAgentToWindsurfAgent(content);
         }
-        const destName = isCopilot ? entry.name.replace('.md', '.agent.md') : entry.name;
+        const destName = entry.name;
         fs.writeFileSync(path.join(agentsDest, destName), content);
       }
     }
@@ -4278,7 +3084,7 @@ function install(isGlobal, runtime = 'claude') {
     failures.push('VERSION');
   }
 
-  if (!isCodex && !isCopilot && !isCursor && !isWindsurf) {
+  if (!isCodex) {
     // Write package.json to force CommonJS mode for Redpill scripts
     // Prevents "require is not defined" errors when project has "type": "module"
     // Node.js walks up looking for package.json - this stops inheritance from project
@@ -4421,32 +3227,8 @@ function install(isGlobal, runtime = 'claude') {
     return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
   }
 
-  if (isCopilot) {
-    // Generate copilot-instructions.md
-    const templatePath = path.join(targetDir, 'redpill', 'templates', 'copilot-instructions.md');
-    const instructionsPath = path.join(targetDir, 'copilot-instructions.md');
-    if (fs.existsSync(templatePath)) {
-      const template = fs.readFileSync(templatePath, 'utf8');
-      mergeCopilotInstructions(instructionsPath, template);
-      console.log(`  ${green}✓${reset} Generated copilot-instructions.md`);
-    }
-    // Copilot: no settings.json, no hooks, no statusline (like Codex)
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
-  }
-
-  if (isCursor) {
-    // Cursor uses skills — no config.toml, no settings.json hooks needed
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
-  }
-
-  if (isWindsurf) {
-    // Windsurf uses skills — no config.toml, no settings.json hooks needed
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
-  }
-
   // Configure statusline and hooks in settings.json
-  // Gemini and Antigravity use AfterTool instead of PostToolUse for post-tool hooks
-  const postToolEvent = (runtime === 'gemini' || runtime === 'antigravity') ? 'AfterTool' : 'PostToolUse';
+  const postToolEvent = 'PostToolUse';
   const settingsPath = path.join(targetDir, 'settings.json');
   const settings = validateHookFields(cleanupOrphanedHooks(readSettings(settingsPath)));
   const statuslineCommand = isGlobal
@@ -4461,17 +3243,6 @@ function install(isGlobal, runtime = 'claude') {
   const promptGuardCommand = isGlobal
     ? buildHookCommand(targetDir, 'redpill-prompt-guard.js')
     : 'node ' + dirName + '/hooks/redpill-prompt-guard.js';
-
-  // Enable experimental agents for Gemini CLI (required for custom sub-agents)
-  if (isGemini) {
-    if (!settings.experimental) {
-      settings.experimental = {};
-    }
-    if (!settings.experimental.enableAgents) {
-      settings.experimental.enableAgents = true;
-      console.log(`  ${green}✓${reset} Enabled experimental agents`);
-    }
-  }
 
   // Configure SessionStart hook for update checking (skip for opencode)
   if (!isOpencode) {
@@ -4542,8 +3313,7 @@ function install(isGlobal, runtime = 'claude') {
     }
 
     // Configure PreToolUse hook for prompt injection detection
-    // Gemini and Antigravity use BeforeTool instead of PreToolUse for pre-tool hooks
-    const preToolEvent = (runtime === 'gemini' || runtime === 'antigravity') ? 'BeforeTool' : 'PreToolUse';
+    const preToolEvent = 'PreToolUse';
     if (!settings.hooks[preToolEvent]) {
       settings.hooks[preToolEvent] = [];
     }
@@ -4576,11 +3346,8 @@ function install(isGlobal, runtime = 'claude') {
 function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline, runtime = 'claude', isGlobal = true) {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
 
-  if (shouldInstallStatusline && !isOpencode && !isCodex && !isCopilot && !isCursor && !isWindsurf) {
+  if (shouldInstallStatusline && !isOpencode && !isCodex) {
     settings.statusLine = {
       type: 'command',
       command: statuslineCommand
@@ -4589,7 +3356,7 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   }
 
   // Write settings when runtime supports settings.json
-  if (!isCodex && !isCopilot && !isCursor && !isWindsurf) {
+  if (!isCodex) {
     writeSettings(settingsPath, settings);
   }
 
@@ -4621,18 +3388,11 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
 
   let program = 'Claude Code';
   if (runtime === 'opencode') program = 'OpenCode';
-  if (runtime === 'gemini') program = 'Gemini';
   if (runtime === 'codex') program = 'Codex';
-  if (runtime === 'copilot') program = 'Copilot';
-  if (runtime === 'antigravity') program = 'Antigravity';
-  if (runtime === 'cursor') program = 'Cursor';
 
   let command = '/redpill:new-project';
   if (runtime === 'opencode') command = '/redpill-new-project';
   if (runtime === 'codex') command = '$redpill-new-project';
-  if (runtime === 'copilot') command = '/redpill-new-project';
-  if (runtime === 'antigravity') command = '/redpill-new-project';
-  if (runtime === 'cursor') command = 'redpill-new-project (mention the skill name)';
   console.log(`
   ${green}Done!${reset} Open a blank directory in ${program} and run ${cyan}${command}${reset}.
 
@@ -4777,27 +3537,17 @@ function promptRuntime(callback) {
 
   const runtimeMap = {
     '1': 'claude',
-    '2': 'opencode',
-    '3': 'gemini',
-    '4': 'codex',
-    '5': 'copilot',
-    '6': 'antigravity',
-    '7': 'cursor',
-    '8': 'windsurf'
+    '2': 'codex',
+    '3': 'opencode'
   };
-  const allRuntimes = ['claude', 'opencode', 'gemini', 'codex', 'copilot', 'antigravity', 'cursor', 'windsurf'];
+  const allRuntimes = ['claude', 'codex', 'opencode'];
 
   console.log(`  ${yellow}Which runtime(s) would you like to install for?${reset}\n\n  ${cyan}1${reset}) Claude Code  ${dim}(~/.claude)${reset}
-  ${cyan}2${reset}) OpenCode     ${dim}(~/.config/opencode)${reset} - open source, free models
-  ${cyan}3${reset}) Gemini       ${dim}(~/.gemini)${reset}
-  ${cyan}4${reset}) Codex        ${dim}(~/.codex)${reset}
-  ${cyan}5${reset}) Copilot      ${dim}(~/.copilot)${reset}
-  ${cyan}6${reset}) Antigravity  ${dim}(~/.gemini/antigravity)${reset}
-  ${cyan}7${reset}) Cursor       ${dim}(~/.cursor)${reset}
-  ${cyan}8${reset}) Windsurf     ${dim}(~/.windsurf)${reset}
-  ${cyan}9${reset}) All
+  ${cyan}2${reset}) Codex        ${dim}(~/.codex)${reset}
+  ${cyan}3${reset}) OpenCode     ${dim}(~/.config/opencode)${reset} - open source, free models
+  ${cyan}4${reset}) All
 
-  ${dim}Select multiple: 1,4,6 or 1 4 6${reset}
+  ${dim}Select multiple: 1,2 or 1 2${reset}
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
@@ -4806,7 +3556,7 @@ function promptRuntime(callback) {
     const input = answer.trim() || '1';
 
     // "All" shortcut
-    if (input === '9') {
+    if (input === '4') {
       callback(allRuntimes);
       return;
     }
@@ -4881,7 +3631,7 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
     results.push(result);
   }
 
-  const statuslineRuntimes = ['claude', 'gemini'];
+  const statuslineRuntimes = ['claude'];
   const primaryStatuslineResult = results.find(r => statuslineRuntimes.includes(r.runtime));
 
   const finalize = (shouldInstallStatusline) => {
@@ -4926,9 +3676,6 @@ if (process.env.Redpill_TEST_MODE) {
   module.exports = {
     yamlIdentifier,
     getCodexSkillAdapterHeader,
-    convertClaudeCommandToCursorSkill,
-    convertClaudeAgentToCursorAgent,
-    convertClaudeToGeminiAgent,
     convertClaudeAgentToCodexAgent,
     generateCodexAgentToml,
     generateCodexConfigBlock,
@@ -4944,24 +3691,6 @@ if (process.env.Redpill_TEST_MODE) {
     getDirName,
     getGlobalDir,
     getConfigDirFromHome,
-    claudeToCopilotTools,
-    convertCopilotToolName,
-    convertClaudeToCopilotContent,
-    convertClaudeCommandToCopilotSkill,
-    convertClaudeAgentToCopilotAgent,
-    copyCommandsAsCopilotSkills,
-    REDPILL_COPILOT_INSTRUCTIONS_MARKER,
-    REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER,
-    mergeCopilotInstructions,
-    stripGsdFromCopilotInstructions,
-    convertClaudeToAntigravityContent,
-    convertClaudeCommandToAntigravitySkill,
-    convertClaudeAgentToAntigravityAgent,
-    copyCommandsAsAntigravitySkills,
-    convertClaudeToWindsurfMarkdown,
-    convertClaudeCommandToWindsurfSkill,
-    convertClaudeAgentToWindsurfAgent,
-    copyCommandsAsWindsurfSkills,
     writeManifest,
     reportLocalPatches,
     validateHookFields,
