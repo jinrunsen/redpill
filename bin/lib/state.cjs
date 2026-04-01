@@ -1,420 +1,532 @@
 /**
- * State — STATE.md operations and progression engine
+ * State -- 场景驱动的项目状态管理
+ *
+ * 管理 .redpill/ 目录结构、STATE.md 状态文件的读写与聚合更新。
  */
+
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
-const { escapeRegex, loadConfig, getMilestoneInfo, getMilestonePhaseFilter, normalizeMd, planningPaths, output, error } = require('./core.cjs');
-const { extractFrontmatter, reconstructFrontmatter } = require('./frontmatter.cjs');
 
-/** Shorthand — every state command needs this path */
-function getStatePath(cwd) {
-  return planningPaths(cwd).state;
+// ─── 常量 ───────────────────────────────────────────────────────────────────
+
+const REDPILL_DIR = '.redpill';
+
+const STATE_MD_TEMPLATE = `# Redpill 项目状态
+
+## 当前位置
+
+- **当前功能**: (无)
+- **工作分支**: (无)
+- **工作树**: (无)
+- **上次命令**: (无)
+- **更新时间**: {{updatedAt}}
+
+## 进度
+
+| 功能文件 | 总计 | 完成 | 待做 | 进行中 | 阻塞 |
+|----------|------|------|------|--------|------|
+| **合计** | **0** | **0** | **0** | **0** | **0** |
+
+## 关键决策
+
+(无)
+
+## 上下文指针
+
+- 技术栈: .redpill/context/STACK.md
+- 架构: .redpill/context/ARCHITECTURE.md
+- 约定: .redpill/context/CONVENTIONS.md
+
+## 未解决信号
+
+(无)
+
+## 待办事项: 0
+
+## 最近活动
+
+(无)
+`;
+
+const SIGNALS_MD_INITIAL = `# 变更信号
+
+## 未解决
+
+## 已解决
+`;
+
+const PROGRESS_MD_INITIAL = `# BDD 进度
+
+## 历史
+
+| 时间 | 总计 | 完成 | 待做 | 进行中 | 阻塞 | 完成率 |
+|------|------|------|------|--------|------|--------|
+`;
+
+const CONFIG_JSON_TEMPLATE = {
+  mode: 'interactive',
+  workflow: {
+    auto_design: false,
+    auto_feature: false,
+    step_review: true,
+    quality_review: true,
+    scenario_review: true,
+  },
+  bdd: {
+    runner: 'behave',
+    features_dir: 'features',
+    fail_focus: true,
+    regression_check: true,
+  },
+  git: {
+    branching_strategy: 'feature',
+    commit_docs: true,
+  },
+  parallelization: {
+    enabled: true,
+    max_concurrent_agents: 3,
+  },
+  decisions: {
+    auto_record: true,
+  },
+  model_profile: 'balanced',
+  hooks: {
+    context_warnings: true,
+  },
+};
+
+// ─── 内部工具 ────────────────────────────────────────────────────────────────
+
+/**
+ * 格式化时间戳为 YYYY-MM-DD HH:mm
+ */
+function formatTimestamp(date) {
+  const y = date.getFullYear();
+  const mo = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  return `${y}-${mo}-${d} ${hh}:${mm}`;
 }
 
-// Shared helper: extract a field value from STATE.md content.
-// Supports both **Field:** bold and plain Field: format.
-function stateExtractField(content, fieldName) {
-  const escaped = escapeRegex(fieldName);
-  const boldPattern = new RegExp(`\\*\\*${escaped}:\\*\\*\\s*(.+)`, 'i');
-  const boldMatch = content.match(boldPattern);
-  if (boldMatch) return boldMatch[1].trim();
-  const plainPattern = new RegExp(`^${escaped}:\\s*(.+)`, 'im');
-  const plainMatch = content.match(plainPattern);
-  return plainMatch ? plainMatch[1].trim() : null;
+function redpillPath(projectRoot) {
+  return path.join(projectRoot, REDPILL_DIR);
 }
 
-function cmdStateLoad(cwd, raw) {
-  const config = loadConfig(cwd);
-  const planDir = planningPaths(cwd).redpill;
+function statePath(projectRoot) {
+  return path.join(projectRoot, REDPILL_DIR, 'STATE.md');
+}
 
-  let stateRaw = '';
-  try {
-    stateRaw = fs.readFileSync(path.join(planDir, 'STATE.md'), 'utf-8');
-  } catch { /* intentionally empty */ }
+// ─── 导出函数 ────────────────────────────────────────────────────────────────
 
-  const configExists = fs.existsSync(path.join(planDir, 'config.json'));
-  const roadmapExists = fs.existsSync(path.join(planDir, 'ROADMAP.md'));
-  const stateExists = stateRaw.length > 0;
+/**
+ * 初始化 .redpill/ 完整目录结构
+ *
+ * 创建目录树和初始文件（STATE.md, config.json, signals.md, progress.md）
+ */
+function stateInit(projectRoot) {
+  const base = redpillPath(projectRoot);
 
-  const result = {
-    config,
-    state_raw: stateRaw,
-    state_exists: stateExists,
-    roadmap_exists: roadmapExists,
-    config_exists: configExists,
+  // 创建目录结构
+  const dirs = [
+    '',
+    'context',
+    'research',
+    'codebase',
+    'decisions',
+    'wip/designs',
+    'wip/api',
+    'archive/designs',
+    'archive/api',
+    'todos/pending',
+    'todos/done',
+    'notes',
+  ];
+
+  for (const dir of dirs) {
+    fs.mkdirSync(path.join(base, dir), { recursive: true });
+  }
+
+  // 创建 context 占位文件
+  const contextFiles = ['STACK.md', 'ARCHITECTURE.md', 'CONVENTIONS.md'];
+  for (const file of contextFiles) {
+    const filePath = path.join(base, 'context', file);
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, '', 'utf-8');
+    }
+  }
+
+  // 创建 STATE.md
+  const now = formatTimestamp(new Date());
+  const stateContent = STATE_MD_TEMPLATE.replace('{{updatedAt}}', now);
+  fs.writeFileSync(path.join(base, 'STATE.md'), stateContent, 'utf-8');
+
+  // 创建 config.json
+  fs.writeFileSync(
+    path.join(base, 'config.json'),
+    JSON.stringify(CONFIG_JSON_TEMPLATE, null, 2),
+    'utf-8'
+  );
+
+  // 创建 signals.md
+  fs.writeFileSync(path.join(base, 'signals.md'), SIGNALS_MD_INITIAL, 'utf-8');
+
+  // 创建 progress.md
+  fs.writeFileSync(path.join(base, 'progress.md'), PROGRESS_MD_INITIAL, 'utf-8');
+
+  return { initialized: true, path: REDPILL_DIR };
+}
+
+/**
+ * 解析 STATE.md 为 JSON 结构
+ */
+function stateRead(projectRoot) {
+  const sp = statePath(projectRoot);
+  if (!fs.existsSync(sp)) {
+    return null;
+  }
+
+  const content = fs.readFileSync(sp, 'utf-8');
+
+  // 解析"当前位置"段
+  const position = {
+    feature: extractBoldField(content, '当前功能') || '(无)',
+    branch: extractBoldField(content, '工作分支') || '(无)',
+    worktree: extractBoldField(content, '工作树') || '(无)',
+    lastCommand: extractBoldField(content, '上次命令') || '(无)',
+    updatedAt: extractBoldField(content, '更新时间') || '',
   };
 
-  // For --raw, output a condensed key=value format
-  if (raw) {
-    const c = config;
-    const lines = [
-      `model_profile=${c.model_profile}`,
-      `commit_docs=${c.commit_docs}`,
-      `branching_strategy=${c.branching_strategy}`,
-      `phase_branch_template=${c.phase_branch_template}`,
-      `milestone_branch_template=${c.milestone_branch_template}`,
-      `parallelization=${c.parallelization}`,
-      `research=${c.research}`,
-      `plan_checker=${c.plan_checker}`,
-      `verifier=${c.verifier}`,
-      `config_exists=${configExists}`,
-      `roadmap_exists=${roadmapExists}`,
-      `state_exists=${stateExists}`,
-    ];
-    process.stdout.write(lines.join('\n'));
-    process.exit(0);
+  // 解析"进度"段的合计行
+  const progress = { total: 0, done: 0, todo: 0, active: 0, blocked: 0 };
+  const totalRowMatch = content.match(
+    /\|\s*\*\*合计\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|/
+  );
+  if (totalRowMatch) {
+    progress.total = parseInt(totalRowMatch[1], 10);
+    progress.done = parseInt(totalRowMatch[2], 10);
+    progress.todo = parseInt(totalRowMatch[3], 10);
+    progress.active = parseInt(totalRowMatch[4], 10);
+    progress.blocked = parseInt(totalRowMatch[5], 10);
   }
 
-  output(result);
-}
-
-function cmdStateGet(cwd, section, raw) {
-  const statePath = planningPaths(cwd).state;
-  try {
-    const content = fs.readFileSync(statePath, 'utf-8');
-
-    if (!section) {
-      output({ content }, raw, content);
-      return;
-    }
-
-    // Try to find markdown section or field
-    const fieldEscaped = escapeRegex(section);
-
-    // Check for **field:** value (bold format)
-    const boldPattern = new RegExp(`\\*\\*${fieldEscaped}:\\*\\*\\s*(.*)`, 'i');
-    const boldMatch = content.match(boldPattern);
-    if (boldMatch) {
-      output({ [section]: boldMatch[1].trim() }, raw, boldMatch[1].trim());
-      return;
-    }
-
-    // Check for field: value (plain format)
-    const plainPattern = new RegExp(`^${fieldEscaped}:\\s*(.*)`, 'im');
-    const plainMatch = content.match(plainPattern);
-    if (plainMatch) {
-      output({ [section]: plainMatch[1].trim() }, raw, plainMatch[1].trim());
-      return;
-    }
-
-    // Check for ## Section
-    const sectionPattern = new RegExp(`##\\s*${fieldEscaped}\\s*\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
-    const sectionMatch = content.match(sectionPattern);
-    if (sectionMatch) {
-      output({ [section]: sectionMatch[1].trim() }, raw, sectionMatch[1].trim());
-      return;
-    }
-
-    output({ error: `Section or field "${section}" not found` }, raw, '');
-  } catch {
-    error('STATE.md not found');
-  }
-}
-
-function cmdStatePatch(cwd, patches, raw) {
-  // Validate all field names before processing
-  const { validateFieldName } = require('./security.cjs');
-  for (const field of Object.keys(patches)) {
-    const fieldCheck = validateFieldName(field);
-    if (!fieldCheck.valid) {
-      error(`state patch: ${fieldCheck.error}`);
-    }
-  }
-
-  const statePath = planningPaths(cwd).state;
-  try {
-    let content = fs.readFileSync(statePath, 'utf-8');
-    const results = { updated: [], failed: [] };
-
-    for (const [field, value] of Object.entries(patches)) {
-      const fieldEscaped = escapeRegex(field);
-      // Try **Field:** bold format first, then plain Field: format
-      const boldPattern = new RegExp(`(\\*\\*${fieldEscaped}:\\*\\*\\s*)(.*)`, 'i');
-      const plainPattern = new RegExp(`(^${fieldEscaped}:\\s*)(.*)`, 'im');
-
-      if (boldPattern.test(content)) {
-        content = content.replace(boldPattern, (_match, prefix) => `${prefix}${value}`);
-        results.updated.push(field);
-      } else if (plainPattern.test(content)) {
-        content = content.replace(plainPattern, (_match, prefix) => `${prefix}${value}`);
-        results.updated.push(field);
-      } else {
-        results.failed.push(field);
+  // 解析"关键决策"段
+  const decisions = [];
+  const decisionsSection = extractSection(content, '关键决策');
+  if (decisionsSection && decisionsSection.trim() !== '(无)') {
+    const lines = decisionsSection.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- ')) {
+        decisions.push(trimmed.slice(2));
       }
     }
-
-    if (results.updated.length > 0) {
-      writeStateMd(statePath, content, cwd);
-    }
-
-    output(results, raw, results.updated.length > 0 ? 'true' : 'false');
-  } catch {
-    error('STATE.md not found');
-  }
-}
-
-function cmdStateUpdate(cwd, field, value) {
-  if (!field || value === undefined) {
-    error('field and value required for state update');
   }
 
-  // Validate field name to prevent regex injection via crafted field names
-  const { validateFieldName } = require('./security.cjs');
-  const fieldCheck = validateFieldName(field);
-  if (!fieldCheck.valid) {
-    error(`state update: ${fieldCheck.error}`);
+  // 解析"未解决信号"段
+  const signalsSection = extractSection(content, '未解决信号');
+  let unresolvedSignals = 0;
+  if (signalsSection && signalsSection.trim() !== '(无)') {
+    const lines = signalsSection.split('\n').filter(l => l.trim().startsWith('- '));
+    unresolvedSignals = lines.length;
   }
 
-  const statePath = planningPaths(cwd).state;
-  try {
-    let content = fs.readFileSync(statePath, 'utf-8');
-    const fieldEscaped = escapeRegex(field);
-    // Try **Field:** bold format first, then plain Field: format
-    const boldPattern = new RegExp(`(\\*\\*${fieldEscaped}:\\*\\*\\s*)(.*)`, 'i');
-    const plainPattern = new RegExp(`(^${fieldEscaped}:\\s*)(.*)`, 'im');
-    if (boldPattern.test(content)) {
-      content = content.replace(boldPattern, (_match, prefix) => `${prefix}${value}`);
-      writeStateMd(statePath, content, cwd);
-      output({ updated: true });
-    } else if (plainPattern.test(content)) {
-      content = content.replace(plainPattern, (_match, prefix) => `${prefix}${value}`);
-      writeStateMd(statePath, content, cwd);
-      output({ updated: true });
-    } else {
-      output({ updated: false, reason: `Field "${field}" not found in STATE.md` });
-    }
-  } catch {
-    output({ updated: false, reason: 'STATE.md not found' });
-  }
-}
+  // 解析"待办事项"段标题中的数字
+  const todosMatch = content.match(/## 待办事项:\s*(\d+)/);
+  const pendingTodos = todosMatch ? parseInt(todosMatch[1], 10) : 0;
 
-// ─── State helpers (retained for frontmatter sync) ──────────────────────────
-
-// ─── State Frontmatter Sync ──────────────────────────────────────────────────
-
-/**
- * Extract machine-readable fields from STATE.md markdown body and build
- * a YAML frontmatter object. Allows hooks and scripts to read state
- * reliably via `state json` instead of fragile regex parsing.
- */
-function buildStateFrontmatter(bodyContent, cwd) {
-  const currentPhase = stateExtractField(bodyContent, 'Current Phase');
-  const currentPhaseName = stateExtractField(bodyContent, 'Current Phase Name');
-  const currentPlan = stateExtractField(bodyContent, 'Current Plan');
-  const totalPhasesRaw = stateExtractField(bodyContent, 'Total Phases');
-  const totalPlansRaw = stateExtractField(bodyContent, 'Total Plans in Phase');
-  const status = stateExtractField(bodyContent, 'Status');
-  const progressRaw = stateExtractField(bodyContent, 'Progress');
-  const lastActivity = stateExtractField(bodyContent, 'Last Activity');
-  const stoppedAt = stateExtractField(bodyContent, 'Stopped At') || stateExtractField(bodyContent, 'Stopped at');
-  const pausedAt = stateExtractField(bodyContent, 'Paused At');
-
-  let milestone = null;
-  let milestoneName = null;
-  if (cwd) {
-    try {
-      const info = getMilestoneInfo(cwd);
-      milestone = info.version;
-      milestoneName = info.name;
-    } catch { /* intentionally empty */ }
-  }
-
-  let totalPhases = totalPhasesRaw ? parseInt(totalPhasesRaw, 10) : null;
-  let completedPhases = null;
-  let totalPlans = totalPlansRaw ? parseInt(totalPlansRaw, 10) : null;
-  let completedPlans = null;
-
-  if (cwd) {
-    try {
-      const phasesDir = planningPaths(cwd).phases;
-      if (fs.existsSync(phasesDir)) {
-        const isDirInMilestone = getMilestonePhaseFilter(cwd);
-        const phaseDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
-          .filter(e => e.isDirectory()).map(e => e.name)
-          .filter(isDirInMilestone);
-        let diskTotalPlans = 0;
-        let diskTotalSummaries = 0;
-        let diskCompletedPhases = 0;
-
-        for (const dir of phaseDirs) {
-          const files = fs.readdirSync(path.join(phasesDir, dir));
-          const plans = files.filter(f => f.match(/-PLAN\.md$/i)).length;
-          const summaries = files.filter(f => f.match(/-SUMMARY\.md$/i)).length;
-          diskTotalPlans += plans;
-          diskTotalSummaries += summaries;
-          if (plans > 0 && summaries >= plans) diskCompletedPhases++;
-        }
-        totalPhases = isDirInMilestone.phaseCount > 0
-          ? Math.max(phaseDirs.length, isDirInMilestone.phaseCount)
-          : phaseDirs.length;
-        completedPhases = diskCompletedPhases;
-        totalPlans = diskTotalPlans;
-        completedPlans = diskTotalSummaries;
+  // 解析"最近活动"段
+  const recentActivity = [];
+  const activitySection = extractSection(content, '最近活动');
+  if (activitySection && activitySection.trim() !== '(无)') {
+    const lines = activitySection.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- ')) {
+        recentActivity.push(trimmed.slice(2));
       }
-    } catch { /* intentionally empty */ }
+    }
   }
 
-  let progressPercent = null;
-  if (progressRaw) {
-    const pctMatch = progressRaw.match(/(\d+)%/);
-    if (pctMatch) progressPercent = parseInt(pctMatch[1], 10);
-  }
-
-  // Normalize status to one of: planning, discussing, executing, verifying, paused, completed, unknown
-  let normalizedStatus = status || 'unknown';
-  const statusLower = (status || '').toLowerCase();
-  if (statusLower.includes('paused') || statusLower.includes('stopped') || pausedAt) {
-    normalizedStatus = 'paused';
-  } else if (statusLower.includes('executing') || statusLower.includes('in progress')) {
-    normalizedStatus = 'executing';
-  } else if (statusLower.includes('planning') || statusLower.includes('ready to plan')) {
-    normalizedStatus = 'planning';
-  } else if (statusLower.includes('discussing')) {
-    normalizedStatus = 'discussing';
-  } else if (statusLower.includes('verif')) {
-    normalizedStatus = 'verifying';
-  } else if (statusLower.includes('complete') || statusLower.includes('done')) {
-    normalizedStatus = 'completed';
-  } else if (statusLower.includes('ready to execute')) {
-    normalizedStatus = 'executing';
-  }
-
-  const fm = { redpill_state_version: '1.0' };
-
-  if (milestone) fm.milestone = milestone;
-  if (milestoneName) fm.milestone_name = milestoneName;
-  if (currentPhase) fm.current_phase = currentPhase;
-  if (currentPhaseName) fm.current_phase_name = currentPhaseName;
-  if (currentPlan) fm.current_plan = currentPlan;
-  fm.status = normalizedStatus;
-  if (stoppedAt) fm.stopped_at = stoppedAt;
-  if (pausedAt) fm.paused_at = pausedAt;
-  fm.last_updated = new Date().toISOString();
-  if (lastActivity) fm.last_activity = lastActivity;
-
-  const progress = {};
-  if (totalPhases !== null) progress.total_phases = totalPhases;
-  if (completedPhases !== null) progress.completed_phases = completedPhases;
-  if (totalPlans !== null) progress.total_plans = totalPlans;
-  if (completedPlans !== null) progress.completed_plans = completedPlans;
-  if (progressPercent !== null) progress.percent = progressPercent;
-  if (Object.keys(progress).length > 0) fm.progress = progress;
-
-  return fm;
-}
-
-function stripFrontmatter(content) {
-  // Strip ALL frontmatter blocks at the start of the file.
-  // Handles CRLF line endings and multiple stacked blocks (corruption recovery).
-  // Greedy: keeps stripping ---...--- blocks separated by optional whitespace.
-  let result = content;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const stripped = result.replace(/^\s*---\r?\n[\s\S]*?\r?\n---\s*/, '');
-    if (stripped === result) break;
-    result = stripped;
-  }
-  return result;
-}
-
-function syncStateFrontmatter(content, cwd) {
-  // Read existing frontmatter BEFORE stripping — it may contain values
-  // that the body no longer has (e.g., Status field removed by an agent).
-  const existingFm = extractFrontmatter(content);
-  const body = stripFrontmatter(content);
-  const derivedFm = buildStateFrontmatter(body, cwd);
-
-  // Preserve existing frontmatter status when body-derived status is 'unknown'.
-  // This prevents a missing Status: field in the body from overwriting a
-  // previously valid status (e.g., 'executing' → 'unknown').
-  if (derivedFm.status === 'unknown' && existingFm.status && existingFm.status !== 'unknown') {
-    derivedFm.status = existingFm.status;
-  }
-
-  const yamlStr = reconstructFrontmatter(derivedFm);
-  return `---\n${yamlStr}\n---\n\n${body}`;
+  return {
+    position,
+    progress,
+    decisions,
+    signals: { unresolved: unresolvedSignals },
+    todos: { pending: pendingTodos },
+    recentActivity,
+  };
 }
 
 /**
- * Write STATE.md with synchronized YAML frontmatter.
- * All STATE.md writes should use this instead of raw writeFileSync.
- * Uses a simple lockfile to prevent parallel agents from overwriting
- * each other's changes (race condition with read-modify-write cycle).
+ * 聚合数据源重新生成 STATE.md
+ *
+ * 从 bdd, decisions, signals, todos 收集数据并重写 STATE.md。
  */
-function writeStateMd(statePath, content, cwd) {
-  const synced = syncStateFrontmatter(content, cwd);
-  const lockPath = statePath + '.lock';
-  const maxRetries = 10;
-  const retryDelay = 200; // ms
+function stateUpdate(projectRoot) {
+  const sp = statePath(projectRoot);
 
-  // Acquire lock (spin with backoff)
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      // O_EXCL fails if file already exists — atomic lock
-      const fd = fs.openSync(lockPath, fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_WRONLY);
-      fs.writeSync(fd, String(process.pid));
-      fs.closeSync(fd);
-      break;
-    } catch (err) {
-      if (err.code === 'EEXIST') {
-        // Check for stale lock (> 10s old)
-        try {
-          const stat = fs.statSync(lockPath);
-          if (Date.now() - stat.mtimeMs > 10000) {
-            fs.unlinkSync(lockPath);
-            continue; // retry immediately after clearing stale lock
-          }
-        } catch { /* lock was released between check — retry */ }
-
-        if (i === maxRetries - 1) {
-          // Last resort: write anyway rather than losing data
-          try { fs.unlinkSync(lockPath); } catch {}
-          break;
-        }
-        // Spin-wait with small jitter
-        const jitter = Math.floor(Math.random() * 50);
-        const start = Date.now();
-        while (Date.now() - start < retryDelay + jitter) { /* busy wait */ }
-        continue;
-      }
-      break; // non-EEXIST error — proceed without lock
-    }
+  // 读取现有 STATE.md 以保留 position 信息
+  let existingState = null;
+  if (fs.existsSync(sp)) {
+    existingState = stateRead(projectRoot);
   }
 
+  // Lazy require 各模块，避免模块不存在时崩溃
+  let bddData = { total: 0, done: 0, todo: 0, active: 0, blocked: 0, per_feature: [] };
   try {
-    fs.writeFileSync(statePath, normalizeMd(synced), 'utf-8');
-  } finally {
-    try { fs.unlinkSync(lockPath); } catch { /* lock already gone */ }
+    const bdd = require('./bdd.cjs');
+    const configPath = path.join(projectRoot, REDPILL_DIR, 'config.json');
+    let featuresDir = 'features';
+    try {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      if (config.bdd && config.bdd.features_dir) {
+        featuresDir = config.bdd.features_dir;
+      }
+    } catch { /* use default */ }
+    bddData = bdd.bddSummary(projectRoot, featuresDir);
+  } catch { /* module not found or error */ }
+
+  let decisionData = [];
+  try {
+    const decisions = require('./decisions.cjs');
+    decisionData = decisions.decisionsList(projectRoot);
+  } catch { /* module not found or error */ }
+
+  let signalData = [];
+  try {
+    const signals = require('./signals.cjs');
+    signalData = signals.signalsList(projectRoot);
+  } catch { /* module not found or error */ }
+
+  // 扫描 todos/pending/ 计数
+  let pendingTodos = 0;
+  try {
+    const todosDir = path.join(projectRoot, REDPILL_DIR, 'todos', 'pending');
+    if (fs.existsSync(todosDir)) {
+      pendingTodos = fs.readdirSync(todosDir).filter(f => f.endsWith('.md')).length;
+    }
+  } catch { /* ignore */ }
+
+  // 构建位置段（保留现有值）
+  const pos = existingState ? existingState.position : {
+    feature: '(无)',
+    branch: '(无)',
+    worktree: '(无)',
+    lastCommand: '(无)',
+  };
+  const now = formatTimestamp(new Date());
+
+  // 构建进度表
+  let progressTable = '| 功能文件 | 总计 | 完成 | 待做 | 进行中 | 阻塞 |\n';
+  progressTable += '|----------|------|------|------|--------|------|\n';
+  for (const pf of bddData.per_feature) {
+    progressTable += `| ${pf.file} | ${pf.total} | ${pf.done} | ${pf.todo} | ${pf.active} | ${pf.blocked} |\n`;
   }
+  progressTable += `| **合计** | **${bddData.total}** | **${bddData.done}** | **${bddData.todo}** | **${bddData.active}** | **${bddData.blocked}** |`;
+
+  // 构建决策段
+  let decisionsText = '(无)';
+  if (decisionData.length > 0) {
+    decisionsText = decisionData
+      .map(d => `- ${d.id}: ${d.title} (${d.status})`)
+      .join('\n');
+  }
+
+  // 构建信号段
+  let signalsText = '(无)';
+  if (signalData.length > 0) {
+    signalsText = signalData
+      .map(s => `- ${s.id}: [${s.severity}] ${s.description}`)
+      .join('\n');
+  }
+
+  // 构建最近活动段（保留现有）
+  let activityText = '(无)';
+  if (existingState && existingState.recentActivity.length > 0) {
+    activityText = existingState.recentActivity
+      .map(a => `- ${a}`)
+      .join('\n');
+  }
+
+  const newContent = `# Redpill 项目状态
+
+## 当前位置
+
+- **当前功能**: ${pos.feature}
+- **工作分支**: ${pos.branch}
+- **工作树**: ${pos.worktree}
+- **上次命令**: ${pos.lastCommand}
+- **更新时间**: ${now}
+
+## 进度
+
+${progressTable}
+
+## 关键决策
+
+${decisionsText}
+
+## 上下文指针
+
+- 技术栈: .redpill/context/STACK.md
+- 架构: .redpill/context/ARCHITECTURE.md
+- 约定: .redpill/context/CONVENTIONS.md
+
+## 未解决信号
+
+${signalsText}
+
+## 待办事项: ${pendingTodos}
+
+## 最近活动
+
+${activityText}
+`;
+
+  fs.writeFileSync(sp, newContent, 'utf-8');
+  return {
+    progress: {
+      total: bddData.total,
+      done: bddData.done,
+      todo: bddData.todo,
+      active: bddData.active,
+      blocked: bddData.blocked,
+    },
+    decisions: decisionData.length,
+    signals: signalData.length,
+    todos: pendingTodos,
+  };
 }
 
-function cmdStateJson(cwd, raw) {
-  const statePath = planningPaths(cwd).state;
-  if (!fs.existsSync(statePath)) {
-    output({ error: 'STATE.md not found' }, raw, 'STATE.md not found');
-    return;
+/**
+ * 更新 STATE.md 中的"当前位置"段
+ *
+ * @param {string} projectRoot
+ * @param {object} opts - { feature, branch, worktree, lastCommand }
+ */
+function statePosition(projectRoot, opts) {
+  const sp = statePath(projectRoot);
+  if (!fs.existsSync(sp)) {
+    return { updated: false, reason: 'STATE.md not found' };
   }
 
-  const content = fs.readFileSync(statePath, 'utf-8');
-  const fm = extractFrontmatter(content);
+  let content = fs.readFileSync(sp, 'utf-8');
 
-  if (!fm || Object.keys(fm).length === 0) {
-    const body = stripFrontmatter(content);
-    const built = buildStateFrontmatter(body, cwd);
-    output(built, raw, JSON.stringify(built, null, 2));
-    return;
+  if (opts.feature !== undefined) {
+    content = replaceBoldField(content, '当前功能', opts.feature);
+  }
+  if (opts.branch !== undefined) {
+    content = replaceBoldField(content, '工作分支', opts.branch);
+  }
+  if (opts.worktree !== undefined) {
+    content = replaceBoldField(content, '工作树', opts.worktree);
+  }
+  if (opts.lastCommand !== undefined) {
+    content = replaceBoldField(content, '上次命令', opts.lastCommand);
   }
 
-  output(fm, raw, JSON.stringify(fm, null, 2));
+  // 总是更新时间戳
+  const now = formatTimestamp(new Date());
+  content = replaceBoldField(content, '更新时间', now);
+
+  fs.writeFileSync(sp, content, 'utf-8');
+  return { updated: true };
+}
+
+/**
+ * 追加一行到"最近活动"段
+ *
+ * 格式: - [YYYY-MM-DD HH:mm] message
+ * 最多保留 20 行
+ */
+function stateActivity(projectRoot, message) {
+  const sp = statePath(projectRoot);
+  if (!fs.existsSync(sp)) {
+    return { added: false, reason: 'STATE.md not found' };
+  }
+
+  let content = fs.readFileSync(sp, 'utf-8');
+  const timestamp = formatTimestamp(new Date());
+  const entry = `- [${timestamp}] ${message}`;
+
+  // 找到"最近活动"段并替换
+  const sectionStart = content.indexOf('## 最近活动');
+  if (sectionStart === -1) {
+    return { added: false, reason: 'Section not found' };
+  }
+
+  // 提取段尾（下一个 ## 或文件末尾）
+  const afterHeader = content.indexOf('\n', sectionStart);
+  const rest = content.slice(afterHeader + 1);
+  const nextSectionIdx = rest.search(/^## /m);
+  const sectionBody = nextSectionIdx === -1 ? rest : rest.slice(0, nextSectionIdx);
+  const afterSection = nextSectionIdx === -1 ? '' : rest.slice(nextSectionIdx);
+
+  // 解析现有活动行
+  const existingLines = sectionBody
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.startsWith('- ['));
+
+  // 如果现有内容是"(无)"则清空
+  const lines = [...existingLines];
+
+  // 在头部插入新条目
+  lines.unshift(entry);
+
+  // 保留最多 20 行
+  const trimmed = lines.slice(0, 20);
+
+  // 重建该段
+  const newSectionBody = '\n' + trimmed.join('\n') + '\n';
+
+  content = content.slice(0, afterHeader) + newSectionBody + afterSection;
+  fs.writeFileSync(sp, content, 'utf-8');
+
+  return { added: true, entry };
+}
+
+// ─── 内部解析工具 ────────────────────────────────────────────────────────────
+
+/**
+ * 从 STATE.md 中提取 **字段名**: 值 格式的字段
+ */
+function extractBoldField(content, fieldName) {
+  const pattern = new RegExp(`\\*\\*${escapeRegex(fieldName)}\\*\\*:\\s*(.+)`);
+  const match = content.match(pattern);
+  return match ? match[1].trim() : null;
+}
+
+/**
+ * 替换 STATE.md 中 **字段名**: 值 格式的字段
+ */
+function replaceBoldField(content, fieldName, newValue) {
+  const pattern = new RegExp(`(\\*\\*${escapeRegex(fieldName)}\\*\\*:\\s*).+`);
+  return content.replace(pattern, `$1${newValue}`);
+}
+
+/**
+ * 提取 ## 标题 到下一个 ## 标题之间的内容
+ */
+function extractSection(content, sectionName) {
+  const escaped = escapeRegex(sectionName);
+  // 标题可能包含附加信息（如 "待办事项: 0"）
+  const pattern = new RegExp(`## ${escaped}[^\\n]*\\n([\\s\\S]*?)(?=\\n## |$)`);
+  const match = content.match(pattern);
+  return match ? match[1].trim() : null;
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 module.exports = {
-  stateExtractField,
-  writeStateMd,
-  cmdStateLoad,
-  cmdStateGet,
-  cmdStatePatch,
-  cmdStateUpdate,
-  cmdStateJson,
+  stateInit,
+  stateRead,
+  stateUpdate,
+  statePosition,
+  stateActivity,
 };
