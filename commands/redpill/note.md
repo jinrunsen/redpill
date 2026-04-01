@@ -20,8 +20,7 @@ Runs inline — no Task, no AskUserQuestion, no Bash.
 </objective>
 
 <execution_context>
-@~/.claude/redpill/workflows/note.md
-@~/.claude/redpill/references/ui-brand.md
+@workflows/note.md
 </execution_context>
 
 <context>
@@ -29,6 +28,6 @@ $ARGUMENTS
 </context>
 
 <process>
-Execute the note workflow from @~/.claude/redpill/workflows/note.md end-to-end.
+Execute the note workflow from @workflows/note.md end-to-end.
 Capture the note, list notes, or promote to todo — depending on arguments.
 </process>

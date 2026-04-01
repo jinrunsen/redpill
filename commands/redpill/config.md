@@ -1,5 +1,5 @@
 ---
-name: redpill:settings
+name: redpill:config
 description: Configure Redpill workflow toggles and model profile
 allowed-tools:
   - Read
@@ -20,11 +20,11 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@~/.claude/redpill/workflows/settings.md
+@workflows/config.md
 </execution_context>
 
 <process>
-**Follow the settings workflow** from `@~/.claude/redpill/workflows/settings.md`.
+**Follow the settings workflow** from `@workflows/config.md`.
 
 The workflow handles all logic including:
 1. Config file creation with defaults if missing
