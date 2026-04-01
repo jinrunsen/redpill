@@ -6,11 +6,32 @@
  * Usage: node redpill-tools.cjs <command> [args] [--raw] [--pick <field>]
  *
  * State Commands:
- *   state load                         Load project config + state
- *   state json                         Output STATE.md frontmatter as JSON
- *   state update <field> <value>       Update a STATE.md field
- *   state get [section]                Get STATE.md content or section
- *   state patch --field val ...        Batch update STATE.md fields
+ *   state init                         Initialize .redpill/ directory structure
+ *   state update                       Aggregate data and regenerate STATE.md
+ *   state read                         Parse STATE.md as JSON
+ *   state position --feature --branch  Update current position in STATE.md
+ *   state activity --message <msg>     Append activity entry to STATE.md
+ *
+ * BDD Commands:
+ *   bdd next-failing                   Find first todo/active scenario
+ *   bdd regression-check               List all done scenarios
+ *   bdd summary                        Aggregate BDD scenario progress
+ *   bdd mark-done <feature> <scenario> Mark scenario as done
+ *
+ * Decisions Commands:
+ *   decisions add --title --context ... Add a decision record
+ *   decisions list                      List all decisions
+ *   decisions get <id>                  Get decision by ID
+ *
+ * Signals Commands:
+ *   signals emit --type --severity ...  Emit a change signal
+ *   signals list                        List unresolved signals
+ *   signals resolve <id> <resolution>   Resolve a signal
+ *   signals collect                     Collect signals from stdin
+ *
+ * Progress Commands:
+ *   progress update                     Update progress with BDD summary
+ *   progress history                    Show progress history
  *
  * Utility Commands:
  *   resolve-model <agent-type>         Get model for agent based on profile
@@ -40,12 +61,19 @@ const fs = require('fs');
 const path = require('path');
 const core = require('./bin/lib/core.cjs');
 const { error, findProjectRoot, getActiveWorkstream } = core;
-const state = require('./bin/lib/state.cjs');
 const config = require('./bin/lib/config.cjs');
 const template = require('./bin/lib/template.cjs');
 const commands = require('./bin/lib/commands.cjs');
 const init = require('./bin/lib/init.cjs');
 const frontmatter = require('./bin/lib/frontmatter.cjs');
+
+// Lazy-loaded modules — loaded on first use to avoid startup overhead
+let _state, _bdd, _decisions, _signals, _progress;
+function getState() { return _state || (_state = require('./bin/lib/state.cjs')); }
+function getBdd() { return _bdd || (_bdd = require('./bin/lib/bdd.cjs')); }
+function getDecisions() { return _decisions || (_decisions = require('./bin/lib/decisions.cjs')); }
+function getSignals() { return _signals || (_signals = require('./bin/lib/signals.cjs')); }
+function getProgress() { return _progress || (_progress = require('./bin/lib/progress.cjs')); }
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -85,6 +113,32 @@ function parseMultiwordArg(args, flag) {
     tokens.push(args[i]);
   }
   return tokens.length > 0 ? tokens.join(' ') : null;
+}
+
+// ─── Output helper for new-style commands ────────────────────────────────────
+
+/**
+ * Output a result object as JSON (or raw stringify for --raw).
+ */
+function outputResult(result, raw) {
+  if (raw) {
+    fs.writeSync(1, JSON.stringify(result));
+  } else {
+    fs.writeSync(1, JSON.stringify(result, null, 2));
+  }
+}
+
+/**
+ * Load bdd.features_dir from config.json (default: 'features')
+ */
+function loadBddFeaturesDir(cwd) {
+  try {
+    const configPath = path.join(cwd, '.redpill', 'config.json');
+    const cfg = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    return (cfg.bdd && cfg.bdd.features_dir) || 'features';
+  } catch {
+    return 'features';
+  }
 }
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
@@ -168,7 +222,7 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, commit, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
+    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, bdd, decisions, signals, progress, resolve-model, commit, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
   }
 
   // Multi-repo guard: resolve project root for commands that read/write .redpill/.
@@ -246,24 +300,123 @@ async function runCommand(command, args, cwd, raw) {
   switch (command) {
     case 'state': {
       const subcommand = args[1];
-      if (subcommand === 'json') {
-        state.cmdStateJson(cwd, raw);
+      const state = getState();
+      if (subcommand === 'init') {
+        const result = state.stateInit(cwd);
+        outputResult(result, raw);
       } else if (subcommand === 'update') {
-        state.cmdStateUpdate(cwd, args[2], args[3]);
-      } else if (subcommand === 'get') {
-        state.cmdStateGet(cwd, args[2], raw);
-      } else if (subcommand === 'patch') {
-        const patches = {};
-        for (let i = 2; i < args.length; i += 2) {
-          const key = args[i].replace(/^--/, '');
-          const value = args[i + 1];
-          if (key && value !== undefined) {
-            patches[key] = value;
-          }
-        }
-        state.cmdStatePatch(cwd, patches, raw);
+        const result = state.stateUpdate(cwd);
+        outputResult(result, raw);
+      } else if (subcommand === 'read') {
+        const result = state.stateRead(cwd);
+        outputResult(result, raw);
+      } else if (subcommand === 'position') {
+        const parsedArgs = parseNamedArgs(args, ['feature', 'branch', 'worktree', 'lastCommand']);
+        const result = state.statePosition(cwd, parsedArgs);
+        outputResult(result, raw);
+      } else if (subcommand === 'activity') {
+        const message = parseMultiwordArg(args, 'message') || args.slice(2).filter(a => !a.startsWith('--')).join(' ');
+        const result = state.stateActivity(cwd, message);
+        outputResult(result, raw);
       } else {
-        state.cmdStateLoad(cwd, raw);
+        error('Unknown state subcommand. Available: init, update, read, position, activity');
+      }
+      break;
+    }
+
+    case 'bdd': {
+      const subcommand = args[1];
+      const bdd = getBdd();
+      const bddFeaturesDir = loadBddFeaturesDir(cwd);
+      if (subcommand === 'next-failing') {
+        const result = bdd.bddNextFailing(cwd, bddFeaturesDir);
+        outputResult(result, raw);
+      } else if (subcommand === 'regression-check') {
+        const result = bdd.bddRegressionCheck(cwd, bddFeaturesDir);
+        outputResult(result, raw);
+      } else if (subcommand === 'summary') {
+        const result = bdd.bddSummary(cwd, bddFeaturesDir);
+        outputResult(result, raw);
+      } else if (subcommand === 'mark-done') {
+        const featurePath = args[2];
+        const scenarioName = parseMultiwordArg(args, 'scenario') || args.slice(3).filter(a => !a.startsWith('--')).join(' ');
+        if (!featurePath) error('bdd mark-done: feature path required');
+        if (!scenarioName) error('bdd mark-done: scenario name required');
+        const fullPath = path.isAbsolute(featurePath) ? featurePath : path.join(cwd, featurePath);
+        const result = bdd.bddMarkDone(fullPath, scenarioName);
+        outputResult({ modified: result }, raw);
+      } else {
+        error('Unknown bdd subcommand. Available: next-failing, regression-check, summary, mark-done');
+      }
+      break;
+    }
+
+    case 'decisions': {
+      const subcommand = args[1];
+      const decisions = getDecisions();
+      if (subcommand === 'add') {
+        const parsedArgs = parseNamedArgs(args, ['source', 'scenario', 'title', 'context', 'decision', 'consequences']);
+        const result = decisions.decisionsAdd(cwd, parsedArgs);
+        outputResult(result, raw);
+      } else if (subcommand === 'list') {
+        const result = decisions.decisionsList(cwd);
+        outputResult(result, raw);
+      } else if (subcommand === 'get') {
+        const id = args[2];
+        if (!id) error('decisions get: id required');
+        const result = decisions.decisionsGet(cwd, id);
+        outputResult(result, raw);
+      } else {
+        error('Unknown decisions subcommand. Available: add, list, get');
+      }
+      break;
+    }
+
+    case 'signals': {
+      const subcommand = args[1];
+      const signals = getSignals();
+      if (subcommand === 'emit') {
+        const parsedArgs = parseNamedArgs(args, ['type', 'severity', 'source', 'affects', 'description']);
+        const result = signals.signalsEmit(cwd, parsedArgs);
+        outputResult(result, raw);
+      } else if (subcommand === 'list') {
+        const result = signals.signalsList(cwd);
+        outputResult(result, raw);
+      } else if (subcommand === 'resolve') {
+        const id = args[2];
+        const resolution = parseMultiwordArg(args, 'resolution') || args.slice(3).filter(a => !a.startsWith('--')).join(' ');
+        if (!id) error('signals resolve: id required');
+        if (!resolution) error('signals resolve: resolution required');
+        signals.signalsResolve(cwd, id, resolution);
+        outputResult({ resolved: id }, raw);
+      } else if (subcommand === 'collect') {
+        // Read from stdin
+        let stdinText = '';
+        try {
+          stdinText = fs.readFileSync(0, 'utf-8');
+        } catch { /* no stdin */ }
+        const result = signals.signalsCollect(cwd, stdinText);
+        outputResult(result, raw);
+      } else {
+        error('Unknown signals subcommand. Available: emit, list, resolve, collect');
+      }
+      break;
+    }
+
+    case 'progress': {
+      const subcommand = args[1];
+      const progress = getProgress();
+      if (subcommand === 'update') {
+        const bdd = getBdd();
+        const bddFeaturesDir = loadBddFeaturesDir(cwd);
+        const bddSummary = bdd.bddSummary(cwd, bddFeaturesDir);
+        const result = progress.progressUpdate(cwd, bddSummary);
+        outputResult(result, raw);
+      } else if (subcommand === 'history') {
+        const result = progress.progressHistory(cwd);
+        outputResult(result, raw);
+      } else {
+        error('Unknown progress subcommand. Available: update, history');
       }
       break;
     }
