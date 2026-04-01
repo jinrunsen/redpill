@@ -1,0 +1,4 @@
+node_modules/
+hooks/dist/
+*.log
+.claude/worktrees/
