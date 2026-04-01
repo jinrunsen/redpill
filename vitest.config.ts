@@ -19,6 +19,13 @@ export default defineConfig({
           testTimeout: 120_000,
         },
       },
+      {
+        test: {
+          name: 'lib',
+          include: ['tests/**/*.test.cjs'],
+          globals: true,
+        },
+      },
     ],
   },
 });
