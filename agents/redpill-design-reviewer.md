@@ -28,7 +28,7 @@ allowed-tools: [Read, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/auto-feature/design-reviewer-prompt.md** — 完整的 design reviewer prompt 模板
+- **@skills/redpill/auto-feature/design-reviewer-prompt.md** — 完整的 design reviewer prompt 模板
 
 ---
 

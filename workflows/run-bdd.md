@@ -76,15 +76,15 @@ loop:
   # 阶段 2: WORK — 检查 undefined steps
   if result 中有 undefined steps:
     spawn Agent(redpill-step-writer)
-      注入: @skills/bdd-step-writer/SKILL.md
+      注入: @skills/redpill/bdd-step-writer/SKILL.md
       上下文: { scenario, feature, existing_steps, design_doc }
 
     等待 agent 完成，收集输出。
 
   # 阶段 3: 实现场景
   spawn Agent(redpill-implementer)
-    注入: @skills/subagent-driven-development/implementer-prompt.md
-           + @skills/test-driven-development/SKILL.md
+    注入: @skills/redpill/subagent-driven-development/implementer-prompt.md
+           + @skills/redpill/test-driven-development/SKILL.md
     上下文: {
       scenario,       # 当前场景的 Gherkin 文本
       steps,          # step 定义文件
@@ -97,11 +97,11 @@ loop:
 
   # 阶段 4: 审查
   spawn Agent(redpill-scenario-reviewer)
-    注入: @skills/subagent-driven-development/scenario-reviewer-prompt.md
+    注入: @skills/redpill/subagent-driven-development/scenario-reviewer-prompt.md
     上下文: { scenario, code_changes }
 
   spawn Agent(redpill-quality-reviewer)
-    注入: @skills/subagent-driven-development/quality-reviewer-prompt.md
+    注入: @skills/redpill/subagent-driven-development/quality-reviewer-prompt.md
     上下文: { code_changes, design, conventions }
 
     收集审查结果。如果有 BLOCKING 级别反馈，回到阶段 3 修复。

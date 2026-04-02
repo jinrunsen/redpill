@@ -2834,12 +2834,12 @@ function writeManifest(configDir, runtime = 'claude') {
       }
     }
   }
-  // Track BDD skills directory (skills/ at top level of install)
-  const bddSkillsDir = path.join(configDir, 'skills');
+  // Track BDD skills directory (skills/redpill/ to avoid clobbering user skills)
+  const bddSkillsDir = path.join(configDir, 'skills', 'redpill');
   if (!isCodex && fs.existsSync(bddSkillsDir)) {
     const bddSkillHashes = generateManifest(bddSkillsDir);
     for (const [rel, hash] of Object.entries(bddSkillHashes)) {
-      manifest.files['skills/' + rel] = hash;
+      manifest.files['skills/redpill/' + rel] = hash;
     }
   }
   if (fs.existsSync(agentsDir)) {
@@ -3060,10 +3060,10 @@ function install(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Installed CLI tools to ~/.claude/redpill/bin/`);
   }
 
-  // Copy skills/ directory with path replacement
+  // Copy skills/ directory — into skills/redpill/ to avoid clobbering user's existing skills
   const bddSkillsSrc = path.join(src, 'skills');
   if (fs.existsSync(bddSkillsSrc)) {
-    const bddSkillsDest = path.join(targetDir, 'skills');
+    const bddSkillsDest = path.join(targetDir, 'skills', 'redpill');
     copyWithPathReplacement(bddSkillsSrc, bddSkillsDest, pathPrefix, runtime, false, isGlobal);
     if (verifyInstalled(bddSkillsDest, 'skills')) {
       console.log(`  ${green}✓${reset} Installed skills`);

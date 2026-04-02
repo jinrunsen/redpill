@@ -2,7 +2,7 @@
 
 系统化调试工作流，用于诊断测试失败和意外行为。
 
-引用 @skills/systematic-debugging/SKILL.md 的逻辑。
+引用 @skills/redpill/systematic-debugging/SKILL.md 的逻辑。
 
 ## 步骤
 
@@ -21,7 +21,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 
 ### 2. 启动系统化调试
 
-Spawn Agent(redpill-debugger)，注入 @skills/systematic-debugging/SKILL.md。
+Spawn Agent(redpill-debugger)，注入 @skills/redpill/systematic-debugging/SKILL.md。
 
 Agent 上下文包含：
 - 错误信息和堆栈跟踪

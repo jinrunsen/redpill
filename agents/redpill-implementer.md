@@ -22,8 +22,8 @@ allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/test-driven-development/SKILL.md** — 内层 TDD 循环纪律
-- **@skills/subagent-driven-development/implementer-prompt.md** — 完整的 implementer 子代理 prompt 模板
+- **@skills/redpill/test-driven-development/SKILL.md** — 内层 TDD 循环纪律
+- **@skills/redpill/subagent-driven-development/implementer-prompt.md** — 完整的 implementer 子代理 prompt 模板
 
 ---
 

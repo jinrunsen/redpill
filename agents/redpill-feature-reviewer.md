@@ -27,7 +27,7 @@ allowed-tools: [Read, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/clarify-feature/feature-reviewer-prompt.md** — 完整的 feature reviewer prompt 模板
+- **@skills/redpill/clarify-feature/feature-reviewer-prompt.md** — 完整的 feature reviewer prompt 模板
 
 ---
 

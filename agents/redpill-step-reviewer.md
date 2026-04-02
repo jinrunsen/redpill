@@ -21,7 +21,7 @@ allowed-tools: [Read, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/bdd-step-writer/step-reviewer-prompt.md** — 完整的 step reviewer prompt 模板
+- **@skills/redpill/bdd-step-writer/step-reviewer-prompt.md** — 完整的 step reviewer prompt 模板
 
 ---
 

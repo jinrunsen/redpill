@@ -2,7 +2,7 @@
 
 完成分支工作，归档设计文档，合并或创建 PR。
 
-引用 @skills/finishing-branch/SKILL.md 的逻辑。
+引用 @skills/redpill/finishing-branch/SKILL.md 的逻辑。
 
 ## 步骤
 
