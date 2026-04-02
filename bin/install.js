@@ -3081,10 +3081,15 @@ function install(isGlobal, runtime = 'claude') {
       if (entry.isFile() && entry.name.endsWith('.md')) {
         let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
         // Replace ~/.claude/ and $HOME/.claude/ as they are the source of truth in the repo
+        // Protect CLI tool paths — they always live at ~/.claude/
+        const CLI_PH_AGENT = '___REDPILL_CLI_PATH___';
+        content = content.replace(/\$HOME\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH_AGENT);
+        content = content.replace(/~\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH_AGENT);
         const dirRegex = /~\/\.claude\//g;
         const homeDirRegex = /\$HOME\/\.claude\//g;
         content = content.replace(dirRegex, pathPrefix);
         content = content.replace(homeDirRegex, pathPrefix);
+        content = content.replace(new RegExp(CLI_PH_AGENT, 'g'), '$HOME/.claude/redpill/bin/redpill-tools.cjs');
         content = processAttribution(content, getCommitAttribution(runtime));
         // Convert frontmatter for runtime compatibility (agents need different handling)
         if (isOpencode) {
