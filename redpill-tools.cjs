@@ -59,21 +59,27 @@
 
 const fs = require('fs');
 const path = require('path');
-const core = require('./bin/lib/core.cjs');
+
+// Resolve lib path relative to this file's location, works both in repo root and installed location
+const LIB = fs.existsSync(path.join(__dirname, 'bin', 'lib'))
+  ? path.join(__dirname, 'bin', 'lib')   // repo root: ./bin/lib/
+  : path.join(__dirname, 'lib');          // installed:  ./lib/ (same dir as this file)
+
+const core = require(path.join(LIB, 'core.cjs'));
 const { error, findProjectRoot, getActiveWorkstream } = core;
-const config = require('./bin/lib/config.cjs');
-const template = require('./bin/lib/template.cjs');
-const commands = require('./bin/lib/commands.cjs');
-const init = require('./bin/lib/init.cjs');
-const frontmatter = require('./bin/lib/frontmatter.cjs');
+const config = require(path.join(LIB, 'config.cjs'));
+const template = require(path.join(LIB, 'template.cjs'));
+const commands = require(path.join(LIB, 'commands.cjs'));
+const init = require(path.join(LIB, 'init.cjs'));
+const frontmatter = require(path.join(LIB, 'frontmatter.cjs'));
 
 // Lazy-loaded modules — loaded on first use to avoid startup overhead
 let _state, _bdd, _decisions, _signals, _progress;
-function getState() { return _state || (_state = require('./bin/lib/state.cjs')); }
-function getBdd() { return _bdd || (_bdd = require('./bin/lib/bdd.cjs')); }
-function getDecisions() { return _decisions || (_decisions = require('./bin/lib/decisions.cjs')); }
-function getSignals() { return _signals || (_signals = require('./bin/lib/signals.cjs')); }
-function getProgress() { return _progress || (_progress = require('./bin/lib/progress.cjs')); }
+function getState() { return _state || (_state = require(path.join(LIB, 'state.cjs'))); }
+function getBdd() { return _bdd || (_bdd = require(path.join(LIB, 'bdd.cjs'))); }
+function getDecisions() { return _decisions || (_decisions = require(path.join(LIB, 'decisions.cjs'))); }
+function getSignals() { return _signals || (_signals = require(path.join(LIB, 'signals.cjs'))); }
+function getProgress() { return _progress || (_progress = require(path.join(LIB, 'progress.cjs'))); }
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -169,7 +175,7 @@ async function main() {
   // Resolve worktree root: in a linked worktree, .redpill/ lives in the main worktree.
   // However, in monorepo worktrees where the subdirectory itself owns .redpill/,
   // skip worktree resolution — the CWD is already the correct project root.
-  const { resolveWorktreeRoot } = require('./bin/lib/core.cjs');
+  const { resolveWorktreeRoot } = require(path.join(LIB, 'core.cjs'));
   if (!fs.existsSync(path.join(cwd, '.redpill'))) {
     const worktreeRoot = resolveWorktreeRoot(cwd);
     if (worktreeRoot !== cwd) {
@@ -447,7 +453,7 @@ async function runCommand(command, args, cwd, raw) {
         const { phase, plan, name, type, wave, fields: fieldsRaw } = parseNamedArgs(args, ['phase', 'plan', 'name', 'type', 'wave', 'fields']);
         let fields = {};
         if (fieldsRaw) {
-          const { safeJsonParse } = require('./bin/lib/security.cjs');
+          const { safeJsonParse } = require(path.join(LIB, 'security.cjs'));
           const result = safeJsonParse(fieldsRaw, { label: '--fields' });
           if (!result.ok) error(result.error);
           fields = result.value;
