@@ -75,7 +75,8 @@ const CONFIG_JSON_TEMPLATE = {
     scenario_review: true,
   },
   bdd: {
-    runner: 'behave',
+    runner: 'behave',          // 宪法约束：永远是 behave，不可根据项目语言更改
+    runner_locked: true,       // 锁定 runner，禁止修改
     features_dir: 'features',
     fail_focus: true,
     regression_check: true,

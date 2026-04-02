@@ -2,6 +2,10 @@
 
 初始化 .redpill/ 项目目录并生成上下文文件。
 
+> **宪法约束**：无论项目使用什么语言，BDD runner 永远是 behave（Python）。
+> 禁止根据项目语言将 config.json 中的 bdd.runner 改为 GoConvey/Cucumber-JVM/Jest 等。
+> behave 从外部黑盒测试服务，与项目内部语言无关。
+
 ## 步骤
 
 ### 1. 检查是否已初始化
