@@ -3005,22 +3005,30 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy CLI tools (redpill-tools.cjs + bin/lib/)
+  // Copy CLI tools (redpill-tools.cjs + bin/lib/) — ALWAYS to ~/.claude/
+  // CLI tools live at a fixed global location so prompts can use a stable path:
+  //   node "$HOME/.claude/redpill/bin/redpill-tools.cjs"
+  // This path never needs replacement regardless of --local or --global.
   const cliToolsSrc = path.join(src, 'redpill-tools.cjs');
   if (fs.existsSync(cliToolsSrc)) {
-    const binDest = path.join(targetDir, 'redpill', 'bin');
+    const globalClaudeDir = path.join(os.homedir(), '.claude');
+    const binDest = path.join(globalClaudeDir, 'redpill', 'bin');
     fs.mkdirSync(binDest, { recursive: true });
     const libSrc = path.join(src, 'bin', 'lib');
     const libDest = path.join(binDest, 'lib');
     if (fs.existsSync(libSrc)) {
-      copyWithPathReplacement(libSrc, libDest, pathPrefix, runtime, false, isGlobal);
+      // CLI lib modules don't need path replacement — they don't contain prompt paths
+      const libEntries = fs.readdirSync(libSrc, { withFileTypes: true });
+      fs.mkdirSync(libDest, { recursive: true });
+      for (const entry of libEntries) {
+        if (entry.isFile()) {
+          fs.copyFileSync(path.join(libSrc, entry.name), path.join(libDest, entry.name));
+        }
+      }
     }
-    // Copy the CLI entry point
-    let toolsContent = fs.readFileSync(cliToolsSrc, 'utf8');
-    toolsContent = toolsContent.replace(/~\/\.claude\//g, pathPrefix);
-    toolsContent = toolsContent.replace(/\$HOME\/\.claude\//g, pathPrefix);
-    fs.writeFileSync(path.join(targetDir, 'redpill', 'bin', 'redpill-tools.cjs'), toolsContent);
-    console.log(`  ${green}✓${reset} Installed redpill/bin (CLI tools)`);
+    // Copy the CLI entry point (no path replacement needed — lib path resolved via __dirname)
+    fs.copyFileSync(cliToolsSrc, path.join(binDest, 'redpill-tools.cjs'));
+    console.log(`  ${green}✓${reset} Installed CLI tools to ~/.claude/redpill/bin/`);
   }
 
   // Copy skills/ directory with path replacement
@@ -3099,12 +3107,13 @@ function install(isGlobal, runtime = 'claude') {
     failures.push('VERSION');
   }
 
-  // Install redpill-tools as global CLI command via symlink
-  if (isGlobal) {
-    const toolsCjs = path.join(targetDir, 'redpill', 'bin', 'redpill-tools.cjs');
+  // Install redpill-tools as global CLI command via symlink (always, since CLI is always at ~/.claude/)
+  {
+    const globalClaudeDir = path.join(os.homedir(), '.claude');
+    const toolsCjs = path.join(globalClaudeDir, 'redpill', 'bin', 'redpill-tools.cjs');
     if (fs.existsSync(toolsCjs)) {
       // Create a shell wrapper script
-      const wrapperPath = path.join(targetDir, 'redpill', 'bin', 'redpill-tools');
+      const wrapperPath = path.join(globalClaudeDir, 'redpill', 'bin', 'redpill-tools');
       fs.writeFileSync(wrapperPath, `#!/usr/bin/env node\nrequire('./redpill-tools.cjs');\n`);
       fs.chmodSync(wrapperPath, 0o755);
 
