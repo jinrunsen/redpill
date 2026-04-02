@@ -24,7 +24,7 @@ allowed-tools: [Read, Write, Edit, Bash, Glob, Grep, Agent, Task]
 
 ## 参考的 Skill
 
-- **@skills/redpill/subagent-driven-development/SKILL.md** — 单场景执行引擎的完整流程
+- **@redpill/skills/subagent-driven-development/SKILL.md** — 单场景执行引擎的完整流程
 
 ---
 

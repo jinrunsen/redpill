@@ -22,7 +22,7 @@ allowed-tools: [Read, Glob, Grep, Bash]
 
 ## 参考的 Skill
 
-- **@skills/redpill/subagent-driven-development/quality-reviewer-prompt.md** — 完整的 quality reviewer prompt 模板
+- **@redpill/skills/subagent-driven-development/quality-reviewer-prompt.md** — 完整的 quality reviewer prompt 模板
 
 ---
 

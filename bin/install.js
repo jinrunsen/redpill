@@ -2834,12 +2834,12 @@ function writeManifest(configDir, runtime = 'claude') {
       }
     }
   }
-  // Track BDD skills directory (skills/redpill/ to avoid clobbering user skills)
-  const bddSkillsDir = path.join(configDir, 'skills', 'redpill');
+  // Track skills directory inside redpill/ (NOT ~/.claude/skills/)
+  const bddSkillsDir = path.join(configDir, 'redpill', 'skills');
   if (!isCodex && fs.existsSync(bddSkillsDir)) {
     const bddSkillHashes = generateManifest(bddSkillsDir);
     for (const [rel, hash] of Object.entries(bddSkillHashes)) {
-      manifest.files['skills/redpill/' + rel] = hash;
+      manifest.files['redpill/skills/' + rel] = hash;
     }
   }
   if (fs.existsSync(agentsDir)) {
@@ -3060,15 +3060,17 @@ function install(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Installed CLI tools to ~/.claude/redpill/bin/`);
   }
 
-  // Copy skills/ directory — into skills/redpill/ to avoid clobbering user's existing skills
+  // Copy skills/ into redpill/skills/ (alongside workflows, references, templates)
+  // NOT into ~/.claude/skills/ — that would register them as standalone skills
+  // and cause duplicates. Skills are agent prompt material, referenced via @.
   const bddSkillsSrc = path.join(src, 'skills');
   if (fs.existsSync(bddSkillsSrc)) {
-    const bddSkillsDest = path.join(targetDir, 'skills', 'redpill');
+    const bddSkillsDest = path.join(targetDir, 'redpill', 'skills');
     copyWithPathReplacement(bddSkillsSrc, bddSkillsDest, pathPrefix, runtime, false, isGlobal);
-    if (verifyInstalled(bddSkillsDest, 'skills')) {
-      console.log(`  ${green}✓${reset} Installed skills`);
+    if (verifyInstalled(bddSkillsDest, 'redpill/skills')) {
+      console.log(`  ${green}✓${reset} Installed redpill/skills`);
     } else {
-      failures.push('skills');
+      failures.push('redpill/skills');
     }
   }
 

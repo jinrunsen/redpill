@@ -19,7 +19,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 
 ### 2. 启动交互式设计
 
-Spawn Agent(redpill-coordinator)，注入 @skills/redpill/clarify-feature/SKILL.md。
+Spawn Agent(redpill-coordinator)，注入 @redpill/skills/clarify-feature/SKILL.md。
 
 Agent 上下文包含：
 - 项目技术栈和架构

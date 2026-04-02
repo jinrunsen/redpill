@@ -23,7 +23,7 @@ allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/redpill/bdd-step-writer/SKILL.md** — 完整的 step 编写指南和决策规则
+- **@redpill/skills/bdd-step-writer/SKILL.md** — 完整的 step 编写指南和决策规则
 
 ---
 

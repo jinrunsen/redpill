@@ -22,7 +22,7 @@ allowed-tools: [Read, Glob, Grep, Bash]
 
 ## 参考的 Skill
 
-- **@skills/redpill/subagent-driven-development/scenario-reviewer-prompt.md** — 完整的 scenario reviewer prompt 模板
+- **@redpill/skills/subagent-driven-development/scenario-reviewer-prompt.md** — 完整的 scenario reviewer prompt 模板
 
 ---
 

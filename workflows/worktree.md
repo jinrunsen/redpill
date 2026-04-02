@@ -2,7 +2,7 @@
 
 创建隔离的 git worktree 用于功能开发。
 
-引用 @skills/redpill/git-worktree/SKILL.md 的逻辑。
+引用 @redpill/skills/git-worktree/SKILL.md 的逻辑。
 
 ## 步骤
 

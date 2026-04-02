@@ -28,7 +28,7 @@ allowed-tools: [Read, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/redpill/auto-tech-design/auto-tech-reviewer-prompt.md** — 完整的 auto tech reviewer prompt 模板
+- **@redpill/skills/auto-tech-design/auto-tech-reviewer-prompt.md** — 完整的 auto tech reviewer prompt 模板
 
 ---
 

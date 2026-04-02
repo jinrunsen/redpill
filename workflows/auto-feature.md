@@ -20,7 +20,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 
 ### 2. 自主生成 Feature
 
-Spawn Agent(redpill-coordinator)，注入 @skills/redpill/auto-feature/SKILL.md。
+Spawn Agent(redpill-coordinator)，注入 @redpill/skills/auto-feature/SKILL.md。
 
 Agent 上下文包含：
 - 项目技术栈和架构

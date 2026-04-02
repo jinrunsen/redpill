@@ -21,7 +21,7 @@ allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 
 ## 参考的 Skill
 
-- **@skills/redpill/systematic-debugging/SKILL.md** — 完整的系统化调试方法论
+- **@redpill/skills/systematic-debugging/SKILL.md** — 完整的系统化调试方法论
 
 ---
 
