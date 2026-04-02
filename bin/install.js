@@ -3327,6 +3327,9 @@ function install(isGlobal, runtime = 'claude') {
   const promptGuardCommand = isGlobal
     ? buildHookCommand(targetDir, 'redpill-prompt-guard.js')
     : 'node ' + dirName + '/hooks/redpill-prompt-guard.js';
+  const bddGuardCommand = isGlobal
+    ? buildHookCommand(targetDir, 'redpill-bdd-guard.js')
+    : 'node ' + dirName + '/hooks/redpill-bdd-guard.js';
 
   // Configure SessionStart hook for update checking (skip for opencode)
   if (!isOpencode) {
@@ -3418,6 +3421,25 @@ function install(isGlobal, runtime = 'claude') {
         ]
       });
       console.log(`  ${green}✓${reset} Configured prompt injection guard hook`);
+    }
+
+    // Configure PreToolUse hook for BDD guard (constitution enforcement)
+    const hasBddGuardHook = settings.hooks[preToolEvent].some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('redpill-bdd-guard'))
+    );
+
+    if (!hasBddGuardHook) {
+      settings.hooks[preToolEvent].push({
+        matcher: 'Write|Edit',
+        hooks: [
+          {
+            type: 'command',
+            command: bddGuardCommand,
+            timeout: 5
+          }
+        ]
+      });
+      console.log(`  ${green}✓${reset} Configured BDD guard hook`);
     }
   }
 
