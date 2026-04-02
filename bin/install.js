@@ -2135,6 +2135,13 @@ function cleanupOrphanedHooks(settings) {
     'redpill-intel-index.js',  // Removed in v1.9.2
     'redpill-intel-session.js',  // Removed in v1.9.2
     'redpill-intel-prune.js',  // Removed in v1.9.2
+    // Clean up old GSD hooks (from get-shit-done installation)
+    'gsd-context-monitor',
+    'gsd-statusline',
+    'gsd-check-update',
+    'gsd-prompt-guard',
+    'gsd-workflow-guard',
+    'gsd-tools',
   ];
 
   let cleanedHooks = false;
@@ -2167,16 +2174,21 @@ function cleanupOrphanedHooks(settings) {
     console.log(`  ${green}✓${reset} Removed orphaned hook registrations`);
   }
 
-  // Fix #330: Update statusLine if it points to old Redpill statusline.js path
-  // Only match the specific old Redpill path pattern (hooks/statusline.js),
-  // not third-party statusline scripts that happen to contain 'statusline.js'
-  if (settings.statusLine && settings.statusLine.command &&
-      /hooks[\/\\]statusline\.js/.test(settings.statusLine.command)) {
-    settings.statusLine.command = settings.statusLine.command.replace(
-      /hooks([\/\\])statusline\.js/,
-      'hooks$1redpill-statusline.js'
-    );
-    console.log(`  ${green}✓${reset} Updated statusline path (hooks/statusline.js → hooks/redpill-statusline.js)`);
+  // Fix old statusline paths
+  if (settings.statusLine && settings.statusLine.command) {
+    const cmd = settings.statusLine.command;
+    if (/hooks[\/\\]statusline\.js/.test(cmd)) {
+      settings.statusLine.command = cmd.replace(
+        /hooks([\/\\])statusline\.js/,
+        'hooks$1redpill-statusline.js'
+      );
+      console.log(`  ${green}✓${reset} Updated statusline path (hooks/statusline.js → hooks/redpill-statusline.js)`);
+    } else if (cmd.includes('gsd-statusline')) {
+      // Replace old GSD statusline with redpill
+      settings.statusLine.command = cmd.replace(/gsd-statusline/g, 'redpill-statusline')
+                                       .replace(/get-shit-done/g, 'redpill');
+      console.log(`  ${green}✓${reset} Replaced GSD statusline with Redpill statusline`);
+    }
   }
 
   return settings;
@@ -3164,9 +3176,9 @@ function install(isGlobal, runtime = 'claude') {
     fs.writeFileSync(pkgJsonDest, '{"type":"commonjs"}\n');
     console.log(`  ${green}✓${reset} Wrote package.json (CommonJS mode)`);
 
-    // Copy hooks from dist/ (bundled with dependencies)
-    // Template paths for the target runtime (replaces '.claude' with correct config dir)
-    const hooksSrc = path.join(src, 'hooks', 'dist');
+    // Copy hooks — prefer dist/ (bundled) but fallback to hooks/ (source)
+    const hooksDistSrc = path.join(src, 'hooks', 'dist');
+    const hooksSrc = fs.existsSync(hooksDistSrc) ? hooksDistSrc : path.join(src, 'hooks');
     if (fs.existsSync(hooksSrc)) {
       const hooksDest = path.join(targetDir, 'hooks');
       fs.mkdirSync(hooksDest, { recursive: true });
