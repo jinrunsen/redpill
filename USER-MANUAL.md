@@ -59,9 +59,9 @@ pip install behave
   │           └── 否 → /redpill:auto-feature（自主生成，≤8场景）
   │
   └── 有 → 都实现了吗（@status-done）？
-            ├── 有 @status-todo → /redpill:run（继续实现）
+            ├── 有 @status-todo → /redpill:run-bdd（继续实现）
             ├── 全部 @status-done → /redpill:finish-branch（收尾合并）
-            └── 有 @status-blocked → 先解决 blocked，再 /redpill:run
+            └── 有 @status-blocked → 先解决 blocked，再 /redpill:run-bdd
 ```
 
 ### 一键查看状态
@@ -82,7 +82,7 @@ pip install behave
 | 做技术设计（交互） | `/redpill:design` |
 | AI 自主技术设计 | `/redpill:auto-design` |
 | 创建隔离工作环境 | `/redpill:worktree` |
-| 开始实现（BDD 主循环） | `/redpill:run` |
+| 开始实现（BDD 主循环） | `/redpill:run-bdd` |
 | 查看项目状态 | `/redpill:status` |
 | 查看场景详情 | `/redpill:feature-scan` |
 | 调试问题 | `/redpill:debug` |
@@ -138,7 +138,7 @@ AI 创建 worktree + 分支 → 安装依赖 → 验证基线全绿。
 ### 阶段 3：执行（AI 自主，你监控）
 
 ```
-/redpill:run
+/redpill:run-bdd
 ```
 
 AI 自动迭代 BDD 循环：
@@ -181,7 +181,7 @@ AI 会：
 
 ```
 /redpill:clarify-feature   # 补充覆盖 bug 的场景
-/redpill:run               # 让新场景通过
+/redpill:run-bdd               # 让新场景通过
 ```
 
 ---
@@ -202,7 +202,7 @@ AI 会：
 ### 启动
 
 ```
-/redpill:run
+/redpill:run-bdd
 ```
 
 ### BDD Loop 自主迭代流

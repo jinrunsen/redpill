@@ -56,7 +56,7 @@ Phase 2: 环境隔离
   └── /redpill:worktree               — 创建 worktree + 分支 + 基线验证
 
 Phase 3: 执行 (DO)
-  └── /redpill:run                    — BDD 主循环:
+  └── /redpill:run-bdd                    — BDD 主循环:
       ├── behave --fail-focus 找失败场景
       ├── redpill-step-writer 写 step 胶水代码
       ├── redpill-implementer 用 TDD 实现 (RED → GREEN → REFACTOR)
@@ -88,7 +88,7 @@ Phase 4: 收尾
 | `/redpill:design` | 技术设计 | 交互式技术设计 |
 | `/redpill:auto-design` | 技术设计 | 自主技术设计 |
 | `/redpill:worktree` | 环境 | 创建隔离工作树 |
-| `/redpill:run` | 执行 | BDD 主循环 |
+| `/redpill:run-bdd` | 执行 | BDD 主循环 |
 | `/redpill:finish-branch` | 收尾 | 完成分支，归档，合并/PR |
 | `/redpill:status` | 状态 | 场景进度仪表盘 |
 | `/redpill:feature-scan` | 状态 | 静态场景状态报告 |
@@ -213,7 +213,7 @@ redpill-tools progress history        # 查看进度历史
 ## Redpill 工作流
 
 <!-- redpill:workflow-start -->
-使用 /redpill:run 执行 BDD 循环，/redpill:debug 调试问题，
+使用 /redpill:run-bdd 执行 BDD 循环，/redpill:debug 调试问题，
 /redpill:add-todo 记录想法。除非用户明确要求，
 否则不要在 Redpill 工作流之外修改文件。
 <!-- redpill:workflow-end -->
@@ -416,10 +416,10 @@ skills/
 |---------|-----------|
 | 全新项目 | `/redpill:init` → `/redpill:clarify-feature` |
 | 有 .feature，无技术设计 | `/redpill:design` 或 `/redpill:auto-design` |
-| 有 .feature + 设计，未开始 | `/redpill:worktree` → `/redpill:run` |
-| 部分实现 | `/redpill:run` (继续) |
+| 有 .feature + 设计，未开始 | `/redpill:worktree` → `/redpill:run-bdd` |
+| 部分实现 | `/redpill:run-bdd` (继续) |
 | 有代码，无 .feature | `/redpill:clarify-feature` (retrofit) |
-| 中途需求变更 | 编辑 .feature + @status-todo → `/redpill:run` |
+| 中途需求变更 | 编辑 .feature + @status-todo → `/redpill:run-bdd` |
 | 查看当前状态 | `/redpill:status` |
 | 修 Bug | `/redpill:debug` |
 | 新会话恢复 | `/redpill:resume` |

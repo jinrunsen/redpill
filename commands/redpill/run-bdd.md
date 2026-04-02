@@ -1,5 +1,5 @@
 ---
-name: redpill:run
+name: redpill:run-bdd
 description: Execute the BDD main loop, iterating through failing scenarios
 allowed-tools:
   - Read
@@ -26,7 +26,7 @@ Routes to the run workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/run.md
+@workflows/run-bdd.md
 </execution_context>
 
 <context>
@@ -36,7 +36,7 @@ State is loaded in-workflow via `redpill-tools state read` and `redpill-tools bd
 </context>
 
 <process>
-**Follow the run workflow** from `@workflows/run.md`.
+**Follow the run workflow** from `@workflows/run-bdd.md`.
 
 The workflow handles all logic including:
 1. Initialization and pre-flight checks

@@ -182,15 +182,7 @@ function getGlobalDir(runtime, explicitDir = null) {
   return path.join(os.homedir(), '.claude');
 }
 
-const banner = '\n' +
-  cyan + '   ██████╗ ███████╗██████╗\n' +
-  '  ██╔════╝ ██╔════╝██╔══██╗\n' +
-  '  ██║  ███╗███████╗██║  ██║\n' +
-  '  ██║   ██║╚════██║██║  ██║\n' +
-  '  ╚██████╔╝███████║██████╔╝\n' +
-  '   ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
-  '\n' +
-  '  Redpill ' + dim + 'v' + pkg.version + reset + '\n' +
+const banner = '\n' + '  Redpill ' + dim + 'v' + pkg.version + reset + '\n' +
   '  A BDD framework for AI-assisted development\n' +
   '  supporting Claude Code, Codex, and OpenCode.\n';
 
