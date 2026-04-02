@@ -9,7 +9,7 @@
 ### 1. 准备上下文
 
 ```bash
-redpill-tools state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 ```
 
 收集调试上下文：
@@ -52,7 +52,7 @@ Agent 任务：
 修复完成后，运行回归测试：
 
 ```bash
-redpill-tools bdd run-done
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd run-done
 ```
 
 确认修复没有引入新问题。
@@ -60,12 +60,12 @@ redpill-tools bdd run-done
 ### 4. 收尾
 
 ```bash
-redpill-tools state update
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update
 ```
 
 如果修复涉及信号：
 ```bash
-redpill-tools signals resolve [signal-id]
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals resolve [signal-id]
 ```
 
 输出摘要：

@@ -7,7 +7,7 @@
 ### 1. 准备上下文
 
 ```bash
-redpill-tools state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 ```
 
 加载项目上下文：
@@ -70,13 +70,13 @@ Agent 任务：
 
 记录设计决策：
 ```bash
-redpill-tools decisions add "[决策内容]" --rationale "[理由]"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions add "[决策内容]" --rationale "[理由]"
 ```
 
 ### 4. 收尾
 
 ```bash
-redpill-tools state update
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update
 ```
 
 提示下一步：

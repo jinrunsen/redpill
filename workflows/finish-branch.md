@@ -11,7 +11,7 @@
 运行所有测试确认通过：
 
 ```bash
-redpill-tools bdd run-all
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd run-all
 ```
 
 如果有失败的场景：
@@ -43,15 +43,15 @@ rm -f .redpill/phases/*/.continue-here*.md 2>/dev/null || true
 ### 4. 更新状态
 
 ```bash
-redpill-tools state update
-redpill-tools progress update --milestone "branch-complete"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" progress update --milestone "branch-complete"
 ```
 
 ### 5. 提交归档
 
 ```bash
 git add .redpill/
-redpill-tools commit "docs: 归档设计文档，完成分支"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: 归档设计文档，完成分支"
 ```
 
 ### 6. 合并或创建 PR

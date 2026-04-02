@@ -126,7 +126,7 @@ Available for reasoning + output     ~remaining
 cat .redpill/signals.md
 
 # 写入新信号
-redpill-tools signals emit --type DESIGN_GAP --severity BLOCKING --description "..."
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals emit --type DESIGN_GAP --severity BLOCKING --description "..."
 ```
 
 | 时机 | 操作 |
@@ -161,7 +161,7 @@ reviewer REJECTED → 将 feedback 传给 implementer → 修复 → 重审
 ## 决策记录
 
 ```bash
-redpill-tools decisions add \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions add \
   --source coordinator \
   --title "决策标题" \
   --context "决策背景" \

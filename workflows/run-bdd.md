@@ -7,9 +7,9 @@
 手动读取状态：
 
 ```bash
-redpill-tools state read
-redpill-tools bdd summary
-redpill-tools signals list
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals list
 ```
 
 解析返回的 JSON，获取：
@@ -50,7 +50,7 @@ git worktree list
 
 ### 4. 有未解决的 BLOCKING 信号？
 
-从 `redpill-tools signals list` 输出中检查。
+从 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals list` 输出中检查。
 
 如果有 BLOCKING 信号：
 → 展示信号内容，要求先处理
@@ -61,7 +61,7 @@ git worktree list
 ```
 loop:
   # 阶段 1: RED — 找到下一个失败场景
-  result = redpill-tools bdd next-failing
+  result = node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd next-failing
 
   if result.status == "ALL_DONE":
     → 所有场景已通过！调用 /redpill:finish-branch
@@ -107,7 +107,7 @@ loop:
     收集审查结果。如果有 BLOCKING 级别反馈，回到阶段 3 修复。
 
   # 阶段 5: 处理信号
-  redpill-tools signals collect
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals collect
     从 agent 输出中解析信号。
 
   BLOCKING 信号 → 暂停循环，处理后继续
@@ -117,7 +117,7 @@ loop:
   运行 behave 对所有 @status-done 场景：
 
   ```bash
-  redpill-tools bdd run-done
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd run-done
   ```
 
   如果有回归（之前通过的场景现在失败）：
@@ -126,13 +126,13 @@ loop:
     → 修复回归后继续
 
   # 阶段 7: 持久化
-  redpill-tools bdd mark-done    # 标记当前场景为 done
-  redpill-tools state update     # 更新项目状态
-  redpill-tools progress update  # 更新进度历史
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd mark-done    # 标记当前场景为 done
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update     # 更新项目状态
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" progress update  # 更新进度历史
 
   ```bash
   git add -A
-  redpill-tools commit "feat: 通过场景 - [scenario_name]"
+  node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "feat: 通过场景 - [scenario_name]"
   ```
 
   # 退出检查
@@ -150,8 +150,8 @@ end loop
 显示进度摘要：
 
 ```bash
-redpill-tools bdd summary
-redpill-tools progress history
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" progress history
 ```
 
 输出格式：

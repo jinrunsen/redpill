@@ -15,7 +15,7 @@ Initialize the .redpill/ project directory structure and generate context files 
 
 Routes to the init workflow which handles:
 - Checking if already initialized
-- Creating .redpill/ directory structure via redpill-tools
+- Creating .redpill/ directory structure via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs"`
 - Scanning project to generate STACK.md, ARCHITECTURE.md, CONVENTIONS.md
 - Generating codebase mapping for brownfield projects
 - Generating CLAUDE.md
@@ -29,7 +29,7 @@ Routes to the init workflow which handles:
 <context>
 Arguments: $ARGUMENTS
 
-State is initialized in-workflow via `redpill-tools state init`.
+State is initialized in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state init`.
 </context>
 
 <process>

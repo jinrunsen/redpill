@@ -6,10 +6,10 @@
 
 ### 1. 获取场景进度
 
-运行 `redpill-tools bdd summary` 获取场景进度数据。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary` 获取场景进度数据。
 
 ```bash
-redpill-tools bdd summary
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary
 ```
 
 解析输出，获取：
@@ -21,10 +21,10 @@ redpill-tools bdd summary
 
 ### 2. 获取未解决信号
 
-运行 `redpill-tools signals list` 获取未解决信号。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals list` 获取未解决信号。
 
 ```bash
-redpill-tools signals list
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals list
 ```
 
 分类展示：
@@ -33,10 +33,10 @@ redpill-tools signals list
 
 ### 3. 获取决策列表
 
-运行 `redpill-tools decisions list` 获取已记录的设计决策。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions list` 获取已记录的设计决策。
 
 ```bash
-redpill-tools decisions list
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions list
 ```
 
 ### 4. 获取进度历史

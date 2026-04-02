@@ -29,7 +29,7 @@ Routes to the auto-feature workflow which handles:
 <context>
 Arguments: $ARGUMENTS (feature description or requirements)
 
-State is loaded in-workflow via `redpill-tools state read`.
+State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read`.
 </context>
 
 <process>

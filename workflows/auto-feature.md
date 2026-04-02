@@ -7,7 +7,7 @@
 ### 1. 准备上下文
 
 ```bash
-redpill-tools state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 ```
 
 加载项目上下文：
@@ -58,7 +58,7 @@ Spawn Agent(redpill-feature-reviewer) 审查 feature 质量：
 ### 5. 收尾
 
 ```bash
-redpill-tools state update
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update
 ```
 
 输出摘要：

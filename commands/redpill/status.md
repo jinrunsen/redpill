@@ -26,14 +26,14 @@ Routes to the status workflow which handles:
 <context>
 Arguments: $ARGUMENTS
 
-State is loaded in-workflow via `redpill-tools bdd summary`.
+State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary`.
 </context>
 
 <process>
 **Follow the status workflow** from `@workflows/status.md`.
 
 The workflow handles all logic including:
-1. Gathering scenario progress via redpill-tools
+1. Gathering scenario progress via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs"`
 2. Listing unresolved signals
 3. Listing decisions
 4. Reading progress history

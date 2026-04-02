@@ -55,7 +55,7 @@ allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 当你做出影响架构、技术选型、接口设计的决策时，必须记录：
 
 ```bash
-redpill-tools decisions add \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions add \
   --source implementer \
   --scenario "{{scenario}}" \
   --title "决策标题" \
@@ -71,7 +71,7 @@ redpill-tools decisions add \
 发现设计缺口或场景矛盾时，发出信号：
 
 ```bash
-redpill-tools signals emit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals emit \
   --type DESIGN_GAP \
   --severity BLOCKING \
   --description "技术设计缺少对 X 的定义"

@@ -32,7 +32,7 @@ Routes to the run workflow which handles:
 <context>
 Arguments: $ARGUMENTS
 
-State is loaded in-workflow via `redpill-tools state read` and `redpill-tools bdd summary`.
+State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read` and `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary`.
 </context>
 
 <process>

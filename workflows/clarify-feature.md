@@ -7,7 +7,7 @@
 ### 1. 准备上下文
 
 ```bash
-redpill-tools state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 ```
 
 加载项目上下文：
@@ -58,7 +58,7 @@ Feature: [Feature Name]
 ### 4. 收尾
 
 ```bash
-redpill-tools state update
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state update
 ```
 
 提示下一步：

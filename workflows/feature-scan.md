@@ -6,10 +6,10 @@
 
 ### 1. 扫描 Feature 文件
 
-运行 `redpill-tools bdd summary` 获取所有 feature 文件的场景状态。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary` 获取所有 feature 文件的场景状态。
 
 ```bash
-redpill-tools bdd summary
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary
 ```
 
 如果没有 .feature 文件：

@@ -6,10 +6,10 @@
 
 ### 1. 检查是否已初始化
 
-运行 `redpill-tools state read` 检查 .redpill/ 是否存在。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read` 检查 .redpill/ 是否存在。
 
 ```bash
-redpill-tools state read
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 ```
 
 如果 .redpill/ 已存在且包含上下文文件，提示用户：
@@ -18,10 +18,10 @@ redpill-tools state read
 
 ### 2. 初始化目录结构
 
-运行 `redpill-tools state init` 创建标准目录结构。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state init` 创建标准目录结构。
 
 ```bash
-redpill-tools state init
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state init
 ```
 
 创建的目录结构：
@@ -70,10 +70,10 @@ redpill-tools state init
 
 ### 4. 生成 CLAUDE.md
 
-运行 `redpill-tools generate-claude-md` 生成项目级 CLAUDE.md。
+运行 `node "$HOME/.claude/redpill/bin/redpill-tools.cjs" generate-claude-md` 生成项目级 CLAUDE.md。
 
 ```bash
-redpill-tools generate-claude-md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" generate-claude-md
 ```
 
 CLAUDE.md 包含：
@@ -85,7 +85,7 @@ CLAUDE.md 包含：
 
 ```bash
 git add .redpill/ CLAUDE.md
-redpill-tools commit "docs: 初始化 Redpill 项目"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: 初始化 Redpill 项目"
 ```
 
 ### 6. 输出摘要

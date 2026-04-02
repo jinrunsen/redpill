@@ -122,13 +122,13 @@ STOP — 质疑架构
 
 ```bash
 # 发现设计级别的问题时
-redpill-tools signals emit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals emit \
   --type DESIGN_GAP \
   --severity BLOCKING \
   --description "调试发现根因在架构层面：..."
 
 # 发现需要新场景覆盖的行为
-redpill-tools signals emit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" signals emit \
   --type MISSING_SCENARIO \
   --severity ADVISORY \
   --description "此 bug 说明缺少对 X 情况的场景覆盖"
