@@ -3099,6 +3099,32 @@ function install(isGlobal, runtime = 'claude') {
     failures.push('VERSION');
   }
 
+  // Install redpill-tools as global CLI command via symlink
+  if (isGlobal) {
+    const toolsCjs = path.join(targetDir, 'redpill', 'bin', 'redpill-tools.cjs');
+    if (fs.existsSync(toolsCjs)) {
+      // Create a shell wrapper script
+      const wrapperPath = path.join(targetDir, 'redpill', 'bin', 'redpill-tools');
+      fs.writeFileSync(wrapperPath, `#!/usr/bin/env node\nrequire('./redpill-tools.cjs');\n`);
+      fs.chmodSync(wrapperPath, 0o755);
+
+      // Symlink to /usr/local/bin
+      const symlinkTarget = '/usr/local/bin/redpill-tools';
+      try {
+        if (fs.existsSync(symlinkTarget) || fs.lstatSync(symlinkTarget).isSymbolicLink()) {
+          fs.unlinkSync(symlinkTarget);
+        }
+      } catch (e) { /* doesn't exist, fine */ }
+      try {
+        fs.symlinkSync(wrapperPath, symlinkTarget);
+        console.log(`  ${green}✓${reset} Installed redpill-tools to /usr/local/bin/`);
+      } catch (e) {
+        console.log(`  ${yellow}⚠${reset} Could not symlink to /usr/local/bin/: ${e.message}`);
+        console.log(`    Run manually: sudo ln -sf ${wrapperPath} /usr/local/bin/redpill-tools`);
+      }
+    }
+  }
+
   if (!isCodex) {
     // Write package.json to force CommonJS mode for Redpill scripts
     // Prevents "require is not defined" errors when project has "type": "module"
