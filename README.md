@@ -45,6 +45,17 @@ node -v               # >= 20.0.0
 
 ## 快速开始
 
+### 一键自动（无人值守）
+
+```bash
+/redpill:auto-run-bdd 实现用户登录功能，支持邮箱密码登录和 OAuth 登录
+/redpill:auto-run-bdd @docs/prd/user-auth.md
+```
+
+全流程自动：需求分析 → 行为设计 → 技术设计 → 隔离环境 → BDD 实现循环 → 完成收尾。
+
+### 分步执行（人工参与）
+
 ```bash
 # 1. 初始化项目
 /redpill:init
@@ -69,6 +80,7 @@ node -v               # >= 20.0.0
 
 | 命令 | 说明 |
 |------|------|
+| `/redpill:auto-run-bdd` | **一键全自动**（需求→代码→PR，无人值守） |
 | `/redpill:init` | 初始化 .redpill/ 目录 + 生成上下文 |
 | `/redpill:clarify-feature` | 交互式行为设计 → .feature |
 | `/redpill:auto-feature` | AI 自主生成 .feature（≤8 场景） |

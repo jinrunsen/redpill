@@ -82,6 +82,7 @@ Phase 4: 收尾
 
 | 命令 | 类型 | 说明 |
 |------|------|------|
+| `/redpill:auto-run-bdd` | **全自动** | **一键无人值守：需求→代码→PR** |
 | `/redpill:init` | 框架 | 初始化 .redpill/ 目录 + 生成上下文 |
 | `/redpill:clarify-feature` | 行为设计 | 交互式 Example Mapping → .feature |
 | `/redpill:auto-feature` | 行为设计 | 自主生成 .feature（≤8 场景） |

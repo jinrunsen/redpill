@@ -49,9 +49,24 @@ pip install behave
 
 这会创建 `.redpill/` 目录（含 STATE.md、config.json、上下文文件等），扫描项目生成 CLAUDE.md。
 
+### 最快的方式：一键全自动
+
+```
+/redpill:auto-run-bdd 实现用户登录功能，支持邮箱密码登录和 OAuth 登录
+/redpill:auto-run-bdd @docs/prd/user-auth.md
+```
+
+全流程无人值守：需求分析 → 行为设计 → 技术设计 → 隔离环境 → BDD 实现 → 创建 PR。
+只需提供需求描述或 PRD 文档路径。如果需求太模糊会自动停下请你介入。
+
 ### 30 秒判断：我该用哪个命令？
 
 ```
+想要全自动？
+  → /redpill:auto-run-bdd [需求描述或 @文档路径]
+
+想要分步控制？
+  │
 你有 .feature 文件吗？
   │
   ├── 没有 → 你在电脑前吗？
@@ -76,6 +91,7 @@ pip install behave
 
 | 你想做的事 | 命令 |
 |-----------|------|
+| **一键全自动（需求→PR）** | **`/redpill:auto-run-bdd [需求或@文档]`** |
 | 初始化项目 | `/redpill:init` |
 | 从零设计新功能 | `/redpill:clarify-feature` |
 | AI 自主生成 .feature | `/redpill:auto-feature` |
@@ -188,8 +204,21 @@ AI 会：
 
 ## 6. 场景 D：让 AI 自主跑（BDD Loop）
 
-### 准备清单
+### 方式 1：一键全自动（推荐）
 
+什么都不用准备，只需一条需求：
+
+```
+/redpill:auto-run-bdd 实现用户登录功能，支持邮箱密码登录和 OAuth 登录
+/redpill:auto-run-bdd @docs/prd/user-auth.md
+```
+
+自动完成全部流程：初始化 → 行为设计 → 技术设计 → 环境隔离 → BDD 循环 → 创建 PR。
+如果需求太模糊或太大，会自动停下请你介入。
+
+### 方式 2：已有制品，只跑 BDD 循环
+
+准备清单：
 ```
 □ features/*.feature  — 行为规格（@status-todo）
 □ .redpill/wip/designs/ — 技术设计
@@ -199,8 +228,7 @@ AI 会：
 □ 已在 worktree 中（/redpill:worktree）
 ```
 
-### 启动
-
+启动：
 ```
 /redpill:run-bdd
 ```
