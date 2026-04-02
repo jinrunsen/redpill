@@ -227,8 +227,51 @@ async function main() {
 
   const command = args[0];
 
-  if (!command) {
-    error('Usage: redpill-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, bdd, decisions, signals, progress, resolve-model, commit, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
+  const HELP_TEXT = `Redpill Tools — BDD 驱动开发框架 CLI 工具
+
+用法: node redpill-tools.cjs <command> [subcommand] [args] [--raw] [--pick <field>] [--cwd <path>]
+
+命令:
+  state init              创建 .redpill/ 目录结构
+  state update            聚合数据源重新生成 STATE.md
+  state read              解析 STATE.md 为 JSON
+  state position          更新当前位置（--feature, --branch, --worktree, --lastCommand）
+  state activity          追加活动记录（--message "..."）
+
+  bdd summary             扫描 .feature 文件，统计 @status 分布
+  bdd next-failing        找到下一个 @status-todo 场景
+  bdd regression-check    列出所有 @status-done 场景（用于回归检查）
+  bdd mark-done           标记场景为 @status-done
+
+  decisions add           创建决策记录（--source, --title, --context, --decision, --consequences）
+  decisions list          列出所有决策
+  decisions get           读取单条决策（--id DEC-NNN）
+
+  signals emit            发出变更信号（--type, --severity, --source, --affects, --description）
+  signals list            列出未解决信号
+  signals resolve         解决信号（--id sig-NNN, --resolution "..."）
+
+  progress update         更新进度快照
+  progress history        查看进度历史
+
+  resolve-model <agent>   获取 agent 的 model 配置
+  commit <message>        提交规划文档
+  generate-slug <text>    生成 URL 安全 slug
+  current-timestamp       获取当前时间戳
+  list-todos [area]       列出待办事项
+  init resume             恢复上次会话上下文
+  init todos [area]       获取待办列表上下文
+
+全局参数:
+  --raw                   JSON 原始输出
+  --pick <field>          提取 JSON 中的指定字段（支持 a.b.c 和 arr[-1] 语法）
+  --cwd <path>            指定项目根目录
+`;
+
+  if (!command || command === '--help' || command === '-h' || command === 'help') {
+    process.stdout.write(HELP_TEXT);
+    if (!command) process.exit(1);
+    process.exit(0);
   }
 
   // Multi-repo guard: resolve project root for commands that read/write .redpill/.
