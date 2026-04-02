@@ -1961,10 +1961,15 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
       const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
       const localClaudeRegex = /\.\/\.claude\//g;
       const opencodeDirRegex = /~\/\.opencode\//g;
+      // Protect CLI tool paths from replacement
+      const CLI_PH = '___REDPILL_CLI_PATH___';
+      content = content.replace(/\$HOME\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH);
+      content = content.replace(/~\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH);
       content = content.replace(globalClaudeRegex, pathPrefix);
       content = content.replace(globalClaudeHomeRegex, pathPrefix);
       content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
       content = content.replace(opencodeDirRegex, pathPrefix);
+      content = content.replace(new RegExp(CLI_PH, 'g'), '$HOME/.claude/redpill/bin/redpill-tools.cjs');
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeToOpencodeFrontmatter(content);
 
@@ -2022,10 +2027,15 @@ function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, pathPrefix, runtim
       const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
       const localClaudeRegex = /\.\/\.claude\//g;
       const codexDirRegex = /~\/\.codex\//g;
+      // Protect CLI tool paths from replacement
+      const CLI_PH2 = '___REDPILL_CLI_PATH___';
+      content = content.replace(/\$HOME\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH2);
+      content = content.replace(/~\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PH2);
       content = content.replace(globalClaudeRegex, pathPrefix);
       content = content.replace(globalClaudeHomeRegex, pathPrefix);
       content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
       content = content.replace(codexDirRegex, pathPrefix);
+      content = content.replace(new RegExp(CLI_PH2, 'g'), '$HOME/.claude/redpill/bin/redpill-tools.cjs');
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeCommandToCodexSkill(content, skillName);
 
@@ -2069,9 +2079,16 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
       const globalClaudeRegex = /~\/\.claude\//g;
       const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
       const localClaudeRegex = /\.\/\.claude\//g;
+      // Replace paths, but preserve CLI tool references — they always live at ~/.claude/
+      // Use a placeholder to protect CLI tool paths from replacement
+      const CLI_PLACEHOLDER = '___REDPILL_CLI_PATH___';
+      content = content.replace(/\$HOME\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PLACEHOLDER);
+      content = content.replace(/~\/\.claude\/redpill\/bin\/redpill-tools\.cjs/g, CLI_PLACEHOLDER);
       content = content.replace(globalClaudeRegex, pathPrefix);
       content = content.replace(globalClaudeHomeRegex, pathPrefix);
       content = content.replace(localClaudeRegex, `./${dirName}/`);
+      // Restore CLI tool paths to canonical $HOME form
+      content = content.replace(new RegExp(CLI_PLACEHOLDER, 'g'), '$HOME/.claude/redpill/bin/redpill-tools.cjs');
       content = processAttribution(content, getCommitAttribution(runtime));
 
       // Convert frontmatter for opencode compatibility
