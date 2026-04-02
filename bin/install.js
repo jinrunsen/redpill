@@ -2990,14 +2990,37 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy redpill skill with path replacement
-  const skillSrc = path.join(src, 'redpill');
-  const skillDest = path.join(targetDir, 'redpill');
-  copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime, false, isGlobal);
-  if (verifyInstalled(skillDest, 'redpill')) {
-    console.log(`  ${green}✓${reset} Installed redpill`);
-  } else {
-    failures.push('redpill');
+  // Copy framework directories (workflows, references, templates, CLI tools)
+  const frameworkDirs = ['workflows', 'references', 'templates'];
+  for (const dir of frameworkDirs) {
+    const dirSrc = path.join(src, dir);
+    if (fs.existsSync(dirSrc)) {
+      const dirDest = path.join(targetDir, 'redpill', dir);
+      copyWithPathReplacement(dirSrc, dirDest, pathPrefix, runtime, false, isGlobal);
+      if (verifyInstalled(dirDest, `redpill/${dir}`)) {
+        console.log(`  ${green}✓${reset} Installed redpill/${dir}`);
+      } else {
+        failures.push(`redpill/${dir}`);
+      }
+    }
+  }
+
+  // Copy CLI tools (redpill-tools.cjs + bin/lib/)
+  const cliToolsSrc = path.join(src, 'redpill-tools.cjs');
+  if (fs.existsSync(cliToolsSrc)) {
+    const binDest = path.join(targetDir, 'redpill', 'bin');
+    fs.mkdirSync(binDest, { recursive: true });
+    const libSrc = path.join(src, 'bin', 'lib');
+    const libDest = path.join(binDest, 'lib');
+    if (fs.existsSync(libSrc)) {
+      copyWithPathReplacement(libSrc, libDest, pathPrefix, runtime, false, isGlobal);
+    }
+    // Copy the CLI entry point
+    let toolsContent = fs.readFileSync(cliToolsSrc, 'utf8');
+    toolsContent = toolsContent.replace(/~\/\.claude\//g, pathPrefix);
+    toolsContent = toolsContent.replace(/\$HOME\/\.claude\//g, pathPrefix);
+    fs.writeFileSync(path.join(targetDir, 'redpill', 'bin', 'redpill-tools.cjs'), toolsContent);
+    console.log(`  ${green}✓${reset} Installed redpill/bin (CLI tools)`);
   }
 
   // Copy skills/ directory with path replacement
