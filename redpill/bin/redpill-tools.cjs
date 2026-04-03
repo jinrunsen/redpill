@@ -61,9 +61,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Resolve lib path relative to this file's location, works both in repo root and installed location
-const LIB = fs.existsSync(path.join(__dirname, 'bin', 'lib'))
-  ? path.join(__dirname, 'bin', 'lib')   // repo root: ./bin/lib/
-  : path.join(__dirname, 'lib');          // installed:  ./lib/ (same dir as this file)
+const LIB = path.join(__dirname, 'lib');  // both repo and installed: ./lib/ (same dir)
 
 const core = require(path.join(LIB, 'core.cjs'));
 const { error, findProjectRoot, getActiveWorkstream } = core;
