@@ -3012,10 +3012,10 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy framework directories (workflows, references, templates, CLI tools)
+  // Copy framework directories from redpill/ (workflows, references, templates)
   const frameworkDirs = ['workflows', 'references', 'templates'];
   for (const dir of frameworkDirs) {
-    const dirSrc = path.join(src, dir);
+    const dirSrc = path.join(src, 'redpill', dir);
     if (fs.existsSync(dirSrc)) {
       const dirDest = path.join(targetDir, 'redpill', dir);
       copyWithPathReplacement(dirSrc, dirDest, pathPrefix, runtime, false, isGlobal);
@@ -3031,12 +3031,12 @@ function install(isGlobal, runtime = 'claude') {
   // CLI tools live at a fixed global location so prompts can use a stable path:
   //   node "$HOME/.claude/redpill/bin/redpill-tools.cjs"
   // This path never needs replacement regardless of --local or --global.
-  const cliToolsSrc = path.join(src, 'redpill-tools.cjs');
+  const cliToolsSrc = path.join(src, 'redpill', 'bin', 'redpill-tools.cjs');
   if (fs.existsSync(cliToolsSrc)) {
     const globalClaudeDir = path.join(os.homedir(), '.claude');
     const binDest = path.join(globalClaudeDir, 'redpill', 'bin');
     fs.mkdirSync(binDest, { recursive: true });
-    const libSrc = path.join(src, 'bin', 'lib');
+    const libSrc = path.join(src, 'redpill', 'bin', 'lib');
     const libDest = path.join(binDest, 'lib');
     if (fs.existsSync(libSrc)) {
       // CLI lib modules don't need path replacement — they don't contain prompt paths
