@@ -23,7 +23,7 @@ Routes to the debug workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/debug.md
+@redpill/workflows/debug.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is loaded in-workflow.
 </context>
 
 <process>
-**Follow the debug workflow** from `@workflows/debug.md`.
+**Follow the debug workflow** from `@redpill/workflows/debug.md`.
 
 The workflow handles all logic including:
 1. Preparing context (errors, traces, recent changes)

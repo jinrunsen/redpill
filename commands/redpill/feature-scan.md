@@ -17,7 +17,7 @@ Routes to the feature-scan workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/feature-scan.md
+@redpill/workflows/feature-scan.md
 </execution_context>
 
 <context>
@@ -27,7 +27,7 @@ Scans feature files directly without requiring state initialization.
 </context>
 
 <process>
-**Follow the feature-scan workflow** from `@workflows/feature-scan.md`.
+**Follow the feature-scan workflow** from `@redpill/workflows/feature-scan.md`.
 
 The workflow handles all logic including:
 1. Scanning all .feature files

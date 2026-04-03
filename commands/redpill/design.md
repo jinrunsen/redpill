@@ -23,7 +23,7 @@ Routes to the design workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/design.md
+@redpill/workflows/design.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the design workflow** from `@workflows/design.md`.
+**Follow the design workflow** from `@redpill/workflows/design.md`.
 
 The workflow handles all logic including:
 1. Preparing project context

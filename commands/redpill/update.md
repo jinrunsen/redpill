@@ -19,11 +19,11 @@ Routes to the update workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/update.md
+@redpill/workflows/update.md
 </execution_context>
 
 <process>
-**Follow the update workflow** from `@workflows/update.md`.
+**Follow the update workflow** from `@redpill/workflows/update.md`.
 
 The workflow handles all logic including:
 1. Installed version detection (local/global)

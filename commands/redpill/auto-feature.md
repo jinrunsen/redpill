@@ -23,7 +23,7 @@ Routes to the auto-feature workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/auto-feature.md
+@redpill/workflows/auto-feature.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the auto-feature workflow** from `@workflows/auto-feature.md`.
+**Follow the auto-feature workflow** from `@redpill/workflows/auto-feature.md`.
 
 The workflow handles all logic including:
 1. Preparing project context

@@ -23,7 +23,7 @@ Routes to the init workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/init.md
+@redpill/workflows/init.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is initialized in-workflow via `node "$HOME/.claude/redpill/bin/redpill-to
 </context>
 
 <process>
-**Follow the init workflow** from `@workflows/init.md`.
+**Follow the init workflow** from `@redpill/workflows/init.md`.
 
 The workflow handles all logic including:
 1. Checking if .redpill/ already exists

@@ -26,7 +26,7 @@ Routes to the run workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/run-bdd.md
+@redpill/workflows/run-bdd.md
 </execution_context>
 
 <context>
@@ -36,7 +36,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the run workflow** from `@workflows/run-bdd.md`.
+**Follow the run workflow** from `@redpill/workflows/run-bdd.md`.
 
 The workflow handles all logic including:
 1. Initialization and pre-flight checks

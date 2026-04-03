@@ -22,11 +22,11 @@ Routes to the resume-project workflow which handles:
   </objective>
 
 <execution_context>
-@workflows/resume.md
+@redpill/workflows/resume.md
 </execution_context>
 
 <process>
-**Follow the resume-project workflow** from `@workflows/resume.md`.
+**Follow the resume-project workflow** from `@redpill/workflows/resume.md`.
 
 The workflow handles all resumption logic including:
 

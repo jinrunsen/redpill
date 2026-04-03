@@ -23,7 +23,7 @@ Routes to the auto-design workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/auto-design.md
+@redpill/workflows/auto-design.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the auto-design workflow** from `@workflows/auto-design.md`.
+**Follow the auto-design workflow** from `@redpill/workflows/auto-design.md`.
 
 The workflow handles all logic including:
 1. Preparing project context

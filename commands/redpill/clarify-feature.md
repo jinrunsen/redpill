@@ -23,7 +23,7 @@ Routes to the clarify-feature workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/clarify-feature.md
+@redpill/workflows/clarify-feature.md
 </execution_context>
 
 <context>
@@ -33,7 +33,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the clarify-feature workflow** from `@workflows/clarify-feature.md`.
+**Follow the clarify-feature workflow** from `@redpill/workflows/clarify-feature.md`.
 
 The workflow handles all logic including:
 1. Preparing project context

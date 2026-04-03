@@ -13,7 +13,7 @@ allowed-tools:
 ---
 
 <execution_context>
-@workflows/auto-run-bdd.md
+@redpill/workflows/auto-run-bdd.md
 </execution_context>
 
 <context>
@@ -32,5 +32,5 @@ Arguments: $ARGUMENTS
 
 全流程自动执行：需求分析 → 行为设计 → 技术设计 → 隔离环境 → BDD 实现循环 → 完成收尾。
 
-**Follow the auto-run-bdd workflow** from `@workflows/auto-run-bdd.md`.
+**Follow the auto-run-bdd workflow** from `@redpill/workflows/auto-run-bdd.md`.
 </process>

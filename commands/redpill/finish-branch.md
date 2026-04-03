@@ -22,7 +22,7 @@ Routes to the finish-branch workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/finish-branch.md
+@redpill/workflows/finish-branch.md
 </execution_context>
 
 <context>
@@ -32,7 +32,7 @@ State is loaded in-workflow.
 </context>
 
 <process>
-**Follow the finish-branch workflow** from `@workflows/finish-branch.md`.
+**Follow the finish-branch workflow** from `@redpill/workflows/finish-branch.md`.
 
 The workflow handles all logic including:
 1. Running final verification

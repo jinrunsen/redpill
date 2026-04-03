@@ -20,11 +20,11 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/config.md
+@redpill/workflows/config.md
 </execution_context>
 
 <process>
-**Follow the settings workflow** from `@workflows/config.md`.
+**Follow the settings workflow** from `@redpill/workflows/config.md`.
 
 The workflow handles all logic including:
 1. Config file creation with defaults if missing

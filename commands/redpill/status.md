@@ -20,7 +20,7 @@ Routes to the status workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/status.md
+@redpill/workflows/status.md
 </execution_context>
 
 <context>
@@ -30,7 +30,7 @@ State is loaded in-workflow via `node "$HOME/.claude/redpill/bin/redpill-tools.c
 </context>
 
 <process>
-**Follow the status workflow** from `@workflows/status.md`.
+**Follow the status workflow** from `@redpill/workflows/status.md`.
 
 The workflow handles all logic including:
 1. Gathering scenario progress via `node "$HOME/.claude/redpill/bin/redpill-tools.cjs"`

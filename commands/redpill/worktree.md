@@ -19,7 +19,7 @@ Routes to the worktree workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/worktree.md
+@redpill/workflows/worktree.md
 </execution_context>
 
 <context>
@@ -29,7 +29,7 @@ Project state is loaded in-workflow.
 </context>
 
 <process>
-**Follow the worktree workflow** from `@workflows/worktree.md`.
+**Follow the worktree workflow** from `@redpill/workflows/worktree.md`.
 
 The workflow handles all logic including:
 1. Determining branch name from feature context

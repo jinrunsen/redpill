@@ -19,7 +19,7 @@ Routes to the pause-work workflow which handles:
 </objective>
 
 <execution_context>
-@workflows/pause.md
+@redpill/workflows/pause.md
 </execution_context>
 
 <context>
@@ -27,7 +27,7 @@ State and phase progress are gathered in-workflow with targeted reads.
 </context>
 
 <process>
-**Follow the pause-work workflow** from `@workflows/pause.md`.
+**Follow the pause-work workflow** from `@redpill/workflows/pause.md`.
 
 The workflow handles all logic including:
 1. Phase directory detection
