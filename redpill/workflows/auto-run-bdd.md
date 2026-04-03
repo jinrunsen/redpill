@@ -88,7 +88,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
 
 ## 步骤 5：BDD 主循环（run-bdd）
 
-进入 BDD 主循环，逐个通过失败场景。执行 `@workflows/run-bdd.md` 的完整逻辑：
+进入 BDD 主循环，逐个通过失败场景。执行 `@redpill/workflows/run-bdd.md` 的完整逻辑：
 
 ```
 loop:

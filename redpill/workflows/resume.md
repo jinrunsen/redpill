@@ -11,7 +11,7 @@ Instantly restore full project context so "Where were we?" has an immediate, com
 </purpose>
 
 <required_reading>
-@references/continuation-format.md
+@redpill/references/continuation-format.md
 </required_reading>
 
 <process>
