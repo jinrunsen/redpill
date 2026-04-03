@@ -103,7 +103,7 @@ function getNextNumber(decisionsDir) {
  * 读取决策模板并填充变量。
  */
 function renderTemplate(vars) {
-  // 内联模板，与 templates/decision.md 保持一致
+  // 内联模板，与 redpill/templates/decision.md 保持一致
   const template = [
     '---',
     'id: {{id}}',

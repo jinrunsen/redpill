@@ -34,14 +34,14 @@ function cmdTemplateSelect(cwd, planPath, raw) {
     }
     const fileCount = fileMentions.size;
 
-    let template = 'templates/summary-standard.md';
+    let template = 'redpill/templates/summary-standard.md';
     let type = 'standard';
 
     if (taskCount <= 2 && fileCount <= 3 && !hasDecisions) {
-      template = 'templates/summary-minimal.md';
+      template = 'redpill/templates/summary-minimal.md';
       type = 'minimal';
     } else if (hasDecisions || fileCount > 6 || taskCount > 5) {
-      template = 'templates/summary-complex.md';
+      template = 'redpill/templates/summary-complex.md';
       type = 'complex';
     }
 
@@ -49,7 +49,7 @@ function cmdTemplateSelect(cwd, planPath, raw) {
     output(result, raw, template);
   } catch (e) {
     // Fallback to standard
-    output({ template: 'templates/summary-standard.md', type: 'standard', error: e.message }, raw, 'templates/summary-standard.md');
+    output({ template: 'redpill/templates/summary-standard.md', type: 'standard', error: e.message }, raw, 'redpill/templates/summary-standard.md');
   }
 }
 
