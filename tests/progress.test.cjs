@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { progressUpdate, progressHistory } = require('../bin/lib/progress.cjs');
+const { progressUpdate, progressHistory } = require('../redpill/bin/lib/progress.cjs');
 
 describe('progress 模块', () => {
   let tmpDir;

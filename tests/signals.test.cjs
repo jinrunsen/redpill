@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { signalsEmit, signalsList, signalsResolve, signalsCollect } = require('../bin/lib/signals.cjs');
+const { signalsEmit, signalsList, signalsResolve, signalsCollect } = require('../redpill/bin/lib/signals.cjs');
 
 const INITIAL_SIGNALS_MD = `# 变更信号
 

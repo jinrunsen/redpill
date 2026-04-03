@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { stateInit, stateRead, stateUpdate, statePosition, stateActivity } = require('../bin/lib/state.cjs');
+const { stateInit, stateRead, stateUpdate, statePosition, stateActivity } = require('../redpill/bin/lib/state.cjs');
 
 let tmpDir;
 

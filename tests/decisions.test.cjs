@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { decisionsAdd, decisionsList, decisionsGet, generateSlug } = require('../bin/lib/decisions.cjs');
+const { decisionsAdd, decisionsList, decisionsGet, generateSlug } = require('../redpill/bin/lib/decisions.cjs');
 
 describe('decisions 模块', () => {
   let tmpDir;

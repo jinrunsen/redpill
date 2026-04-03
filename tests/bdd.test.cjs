@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { bddSummary, bddNextFailing, bddMarkDone, bddRegressionCheck } = require('../bin/lib/bdd.cjs');
+const { bddSummary, bddNextFailing, bddMarkDone, bddRegressionCheck } = require('../redpill/bin/lib/bdd.cjs');
 
 let tmpDir;
 
