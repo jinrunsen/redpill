@@ -1,6 +1,6 @@
 {
   "name": "redpill-cc",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "description": "BDD 驱动的 AI 辅助开发框架，基于场景测试管理项目进度",
   "bin": {
     "redpill-cc": "bin/install.js"
