@@ -32,6 +32,7 @@ These are the valid GSD subagent types registered in .claude/agents/ (or equival
 Always use the exact name from this list — do not fall back to 'general-purpose' or other built-in types:
 
 - gsd-executor — Executes plan tasks, commits, creates SUMMARY.md
+- gsd-step-writer — Writes BDD step definitions (Python/behave), never writes production code
 - gsd-verifier — Verifies phase completion, checks quality gates
 - gsd-planner — Creates detailed plans from phase scope
 - gsd-phase-researcher — Researches technical approaches for a phase
@@ -236,7 +237,21 @@ Execute each selected wave in sequence. Within a wave: parallel if `PARALLELIZAT
    - Bad: "Executing terrain generation plan"
    - Good: "Procedural terrain generator using Perlin noise — creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
 
-2. **Spawn executor agents:**
+2. **Check plan type and spawn appropriate agents:**
+
+   Read plan frontmatter `type:` field for each plan in the wave.
+
+   **If plan type is `bdd`:** Spawn two agents sequentially per plan (NOT parallel):
+   1. First: `Task(subagent_type="gsd-step-writer", ...)` — writes step definitions, commits RED phase
+   2. Verify: `behave {feature_file} --dry-run` has no undefined steps AND `behave {feature_file}` fails (all scenarios RED)
+   3. Then: `Task(subagent_type="gsd-executor", ...)` — implements backend code, commits GREEN phase
+   4. Verify: `behave {feature_file}` passes (all scenarios GREEN)
+
+   BDD plans within the same wave can still run in parallel (each plan's step-writer→executor sequence is independent). But step-writer and executor for the SAME plan are always sequential.
+
+   See `execute-plan.md` `<bdd_execution>` section for detailed agent prompts.
+
+   **If plan type is `execute`:** Spawn executor agents as below.
 
    Pass paths only — executors read files themselves with their fresh context window.
    For 200k models, this keeps orchestrator context lean (~10-15%).
@@ -268,7 +283,7 @@ Execute each selected wave in sequence. Within a wave: parallel if `PARALLELIZAT
        @~/.claude/get-shit-done/workflows/execute-plan.md
        @~/.claude/get-shit-done/templates/summary.md
        @~/.claude/get-shit-done/references/checkpoints.md
-       @~/.claude/get-shit-done/references/tdd.md
+       
        </execution_context>
 
        <files_to_read>

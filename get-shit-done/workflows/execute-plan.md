@@ -12,6 +12,7 @@ Read config.json for planning behavior settings.
 <available_agent_types>
 Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
 - gsd-executor — Executes plan tasks, commits, creates SUMMARY.md
+- gsd-step-writer — Writes BDD step definitions (Python/behave), never writes production code
 </available_agent_types>
 
 <process>
@@ -64,7 +65,17 @@ PLAN_START_EPOCH=$(date +%s)
 grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
 ```
 
-**Routing by checkpoint type:**
+**First: Check plan type from frontmatter:**
+
+```bash
+PLAN_TYPE=$(grep "^type:" .planning/phases/XX-name/{phase}-{plan}-PLAN.md | head -1 | awk '{print $2}')
+```
+
+**If `PLAN_TYPE` is `bdd`:** Route to **Pattern D** (BDD two-agent flow). Skip checkpoint routing.
+
+**If `PLAN_TYPE` is `execute`:** Route by checkpoint type below.
+
+**Routing by checkpoint type (execute plans only):**
 
 | Checkpoints | Pattern | Execution |
 |-------------|---------|-----------|
@@ -77,6 +88,8 @@ grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
 **Pattern B:** Execute segment-by-segment. Autonomous segments: spawn subagent for assigned tasks only (no SUMMARY/commit). Checkpoints: main context. After all segments: aggregate, create SUMMARY, commit. See segment_execution.
 
 **Pattern C:** Execute in main using standard flow (step name="execute").
+
+**Pattern D (BDD):** Two-agent sequential flow. See `<bdd_execution>` section.
 
 Fresh context per subagent preserves peak quality. Main context stays lean.
 </step>
@@ -143,7 +156,7 @@ Deviations are normal — handle via rules below.
 2. **MCP tools:** If CLAUDE.md or project instructions reference MCP tools (e.g. jCodeMunch for code navigation), prefer them over Grep/Glob when available. Fall back to Grep/Glob if MCP tools are not accessible.
 3. Per task:
    - **MANDATORY read_first gate:** If the task has a `<read_first>` field, you MUST read every listed file BEFORE making any edits. This is not optional. Do not skip files because you "already know" what's in them — read them. The read_first files establish ground truth for the task.
-   - `type="auto"`: if `tdd="true"` → TDD execution. Implement with deviation rules + auth gates. Verify done criteria. Commit (see task_commit). Track hash for Summary.
+   - `type="auto"`: Implement with deviation rules + auth gates. Verify done criteria. Commit (see task_commit). Track hash for Summary.
    - `type="checkpoint:*"`: STOP → checkpoint_protocol → wait for user → continue only after confirmation.
    - **MANDATORY acceptance_criteria check:** After completing each task, if it has `<acceptance_criteria>`, verify EVERY criterion before moving to the next task. Use grep, file reads, or CLI commands to confirm each criterion. If any criterion fails, fix the implementation before proceeding. Do not skip criteria or mark them as "will verify later".
 3. Run `<verification>` checks
@@ -219,20 +232,150 @@ End with: **Total deviations:** N auto-fixed (breakdown). **Impact:** assessment
 
 </deviation_documentation>
 
-<tdd_plan_execution>
-## TDD Execution
+<bdd_execution>
+## BDD Execution (Pattern D)
 
-For `type: tdd` plans — RED-GREEN-REFACTOR:
+For `type: bdd` plans — two-agent sequential flow. Step-writer and executor are ALWAYS separate agents.
 
-1. **Infrastructure** (first TDD plan only): detect project, install framework, config, verify empty suite
-2. **RED:** Read `<behavior>` → failing test(s) → run (MUST fail) → commit: `test({phase}-{plan}): add failing test for [feature]`
-3. **GREEN:** Read `<implementation>` → minimal code → run (MUST pass) → commit: `feat({phase}-{plan}): implement [feature]`
-4. **REFACTOR:** Clean up → tests MUST pass → commit: `refactor({phase}-{plan}): clean up [feature]`
+### Flow
 
-Errors: RED doesn't fail → investigate test/existing feature. GREEN doesn't pass → debug, iterate. REFACTOR breaks → undo.
+```
+1. behave --dry-run → identify undefined steps
+2. gsd-step-writer → write step definitions (Python, requests library)
+3. behave → confirm ALL scenarios FAIL (RED)
+4. gsd-executor → implement backend service code (GREEN)
+5. behave → confirm ALL scenarios PASS
+6. [optional] gsd-executor → refactor production code, re-verify
+```
 
-See `~/.claude/get-shit-done/references/tdd.md` for structure.
-</tdd_plan_execution>
+### Step 1: Spawn gsd-step-writer (RED phase)
+
+Extract feature file and scenario list from PLAN.md frontmatter.
+
+```
+Task(
+  subagent_type="gsd-step-writer",
+  description="Write BDD steps for {plan_number} of phase {phase_number}",
+  model="{executor_model}",
+  prompt="
+    <objective>
+    Write Python step definitions (behave) for scenarios in plan {plan_number}.
+    Steps MUST call backend API via real HTTP requests (requests library).
+    All scenarios MUST FAIL after step definitions are written.
+    You MUST NOT write any production/service code.
+    </objective>
+
+    <files_to_read>
+    - {phase_dir}/{plan_file} (Plan — read <step_writer_tasks> section)
+    - {feature_file} (Feature scenarios to implement)
+    - features/steps/ (Existing step definitions to reuse)
+    - features/environment.py (Existing environment setup)
+    - .planning/PROJECT.md (Project context)
+    - ./CLAUDE.md (Project instructions, if exists)
+    </files_to_read>
+
+    <success_criteria>
+    - [ ] All steps defined: `behave {feature_file} --dry-run` has no undefined steps
+    - [ ] All scenarios fail: `behave {feature_file}` exits non-zero
+    - [ ] Failures are HTTP errors (connection refused, 404, 500), not Python exceptions
+    - [ ] Step code committed: test({phase}-{plan}): add BDD step definitions
+    </success_criteria>
+  "
+)
+```
+
+### Step 2: Verify RED phase
+
+After step-writer returns, verify:
+
+```bash
+# Dry-run: no undefined steps
+behave {feature_file} --dry-run 2>&1 | grep -c "undefined"
+# Should be 0
+
+# Full run: all scenarios fail
+behave {feature_file} 2>&1 | tail -5
+# Should show failures, exit code non-zero
+```
+
+**If undefined steps remain:** Report failure — step-writer did not complete.
+**If any scenario passes:** Something is wrong — backend should not exist yet. Investigate.
+**If Python exceptions in step code:** Step definitions have bugs. Report for fix.
+
+### Step 3: Spawn gsd-executor (GREEN phase)
+
+Pass step-writer's output (which endpoints need implementing) to executor.
+
+```
+Task(
+  subagent_type="gsd-executor",
+  description="Implement backend for {plan_number} of phase {phase_number}",
+  model="{executor_model}",
+  prompt="
+    <objective>
+    Implement backend service code to make all BDD scenarios pass.
+    Step definitions already exist in features/steps/ — do NOT modify them.
+    Use `behave {feature_file}` as your verification command after each task.
+    Fix one scenario at a time, in order.
+    </objective>
+
+    <files_to_read>
+    - {phase_dir}/{plan_file} (Plan — read <executor_tasks> section)
+    - {feature_file} (Feature scenarios — understand expected behavior)
+    - features/steps/ (Read step definitions to understand what API calls are made)
+    - .planning/PROJECT.md (Project context)
+    - .planning/STATE.md (State)
+    - ./CLAUDE.md (Project instructions, if exists)
+    </files_to_read>
+
+    <constraints>
+    - Do NOT modify files in features/ directory (owned by step-writer)
+    - Use `behave {feature_file}` to verify after each implementation task
+    - Commit each task atomically
+    - Create SUMMARY.md after all scenarios pass
+    </constraints>
+
+    <success_criteria>
+    - [ ] ALL scenarios pass: `behave {feature_file}` exits 0
+    - [ ] No modifications to features/steps/ files
+    - [ ] Each task committed individually
+    - [ ] SUMMARY.md created
+    </success_criteria>
+  "
+)
+```
+
+### Step 4: Verify GREEN phase
+
+```bash
+# All scenarios must pass
+behave {feature_file} --format progress
+# Exit code 0 = all pass
+```
+
+**If scenarios still fail:** Executor did not complete. Report which scenarios fail.
+
+### Commit Pattern for BDD
+
+BDD plans produce commits from two agents:
+
+```
+# From gsd-step-writer (RED):
+test({phase}-{plan}): add BDD step definitions for {scenario_group}
+
+# From gsd-executor (GREEN):
+feat({phase}-{plan}): implement {endpoint} for {scenario}
+feat({phase}-{plan}): implement {endpoint} for {scenario}
+
+# From gsd-executor (REFACTOR, optional):
+refactor({phase}-{plan}): clean up {component}
+```
+
+### Context Budget
+
+BDD plans target ~45% context per agent. Since two agents run sequentially, total context is not a concern — each gets a fresh window.
+
+</bdd_execution>
 
 <precommit_failure_handling>
 ## Pre-commit Hook Failure Handling
@@ -272,8 +415,8 @@ git add src/types/user.ts
 |------|------|---------|
 | `feat` | New functionality | feat(08-02): create user registration endpoint |
 | `fix` | Bug fix | fix(08-02): correct email validation regex |
-| `test` | Test-only (TDD RED) | test(08-02): add failing test for password hashing |
-| `refactor` | No behavior change (TDD REFACTOR) | refactor(08-02): extract validation to helper |
+| `test` | Test-only (BDD step definitions) | test(08-02): add BDD step definitions for auth |
+| `refactor` | No behavior change | refactor(08-02): extract validation to helper |
 | `perf` | Performance | perf(08-02): add database index |
 | `docs` | Documentation | docs(08-02): add API docs |
 | `style` | Formatting | style(08-02): format auth module |

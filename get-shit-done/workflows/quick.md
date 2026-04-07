@@ -22,6 +22,7 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 - gsd-planner — Creates detailed plans from phase scope
 - gsd-plan-checker — Reviews plan quality before execution
 - gsd-executor — Executes plan tasks, commits, creates SUMMARY.md
+- gsd-step-writer — Writes BDD step definitions (Python/behave), never writes production code
 - gsd-verifier — Verifies phase completion, checks quality gates
 </available_agent_types>
 

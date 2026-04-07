@@ -270,37 +270,21 @@ This prevents the "scavenger hunt" anti-pattern where executors explore the code
 
 **Test:** Could a different Claude instance execute without asking clarifying questions? If not, add specificity.
 
-## TDD Detection
+## BDD Detection
 
-**Heuristic:** Can you write `expect(fn(input)).toBe(output)` before writing `fn`?
-- Yes → Create a dedicated TDD plan (type: tdd)
-- No → Standard task in standard plan
+**Heuristic:** Does the phase have `.feature` files (Gherkin scenarios) defining acceptance criteria, or does the phase describe API behavior with clear Given/When/Then patterns?
+- Yes → Use BDD-driven planning (type: bdd)
+- No → Use standard planning (type: execute)
 
-**TDD candidates (dedicated TDD plans):** Business logic with defined I/O, API endpoints with request/response contracts, data transformations, validation rules, algorithms, state machines.
+**BDD indicators:**
+- `.feature` files exist in phase directory, `features/`, or `tests/features/`
+- CONTEXT.md references Gherkin scenarios or behave
+- User explicitly requests BDD/scenario-driven development
+- Phase describes API behavior with clear request/response contracts
 
-**Standard tasks:** UI layout/styling, configuration, glue code, one-off scripts, simple CRUD with no business logic.
+**BDD plan structure:** Feature files ARE the specification. Plans map scenarios to implementation tasks. Step definitions (Python + `requests`) are written first (RED — all scenarios fail), then service code is implemented to make them pass (GREEN).
 
-**Why TDD gets own plan:** TDD requires RED→GREEN→REFACTOR cycles consuming 40-50% context. Embedding in multi-task plans degrades quality.
-
-**Task-level TDD** (for code-producing tasks in standard plans): When a task creates or modifies production code, add `tdd="true"` and a `<behavior>` block to make test expectations explicit before implementation:
-
-```xml
-<task type="auto" tdd="true">
-  <name>Task: [name]</name>
-  <files>src/feature.ts, src/feature.test.ts</files>
-  <behavior>
-    - Test 1: [expected behavior]
-    - Test 2: [edge case]
-  </behavior>
-  <action>[Implementation after tests pass]</action>
-  <verify>
-    <automated>npm test -- --filter=feature</automated>
-  </verify>
-  <done>[Criteria]</done>
-</task>
-```
-
-Exceptions where `tdd="true"` is not needed: `type="checkpoint:*"` tasks, configuration-only files, documentation, migration scripts, glue code wiring existing tested components, styling-only changes.
+**When BDD gets own plan type:** When `.feature` files exist and scenarios define the acceptance criteria. Each plan addresses a scenario group (related scenarios that share step infrastructure and API surface).
 
 ## User Setup Detection
 
@@ -527,7 +511,7 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 |-------|----------|---------|
 | `phase` | Yes | Phase identifier (e.g., `01-foundation`) |
 | `plan` | Yes | Plan number within phase |
-| `type` | Yes | `execute` or `tdd` |
+| `type` | Yes | `execute` or `bdd` |
 | `wave` | Yes | Execution wave number |
 | `depends_on` | Yes | Plan IDs this plan requires |
 | `files_modified` | Yes | Files this plan touches |
@@ -820,51 +804,279 @@ Why bad: Verification fatigue. Combine into one checkpoint at end.
 
 </checkpoints>
 
-<tdd_integration>
+<bdd_integration>
 
-## TDD Plan Structure
+## BDD-Driven Planning
 
-TDD candidates identified in task_breakdown get dedicated plans (type: tdd). One feature per TDD plan.
+When `.feature` files exist for the phase, switch to BDD-driven planning. Feature scenarios ARE the plan specification — plans implement scenarios, not the other way around.
+
+### Detection
+
+During `gather_phase_context`, check for feature files:
+
+```bash
+# Check phase directory, project features dir, and tests dir
+FEATURE_FILES=$(find "$phase_dir" features/ tests/features/ -name "*.feature" 2>/dev/null)
+```
+
+If feature files found → activate BDD mode. Read all `.feature` files to extract scenarios.
+
+### Scenario-to-Plan Mapping
+
+Group related scenarios into plans. Each plan should address scenarios that share step infrastructure and API surface.
+
+```
+Feature: User Authentication (auth.feature)
+  Scenario: Successful login          ─┐
+  Scenario: Wrong password             ├→ Plan 01 (wave 1): Login endpoint
+  Scenario: Account locked             ─┘
+  Scenario: Token refresh              ─┐
+  Scenario: Token expired              ├→ Plan 02 (wave 2): Token management
+  Scenario: Invalid refresh token      ─┘
+```
+
+**Grouping rules:**
+- Scenarios sharing the same API endpoint → same plan
+- Scenarios with dependency (token refresh needs login) → later wave
+- Max 3-5 scenarios per plan (context budget)
+- Scenarios requiring different infrastructure → separate plans
+
+### BDD Plan Structure
+
+BDD plans use **two separate agents** in sequence:
+1. **gsd-step-writer** — writes step definitions (test code only, NEVER production code)
+2. **gsd-executor** — implements backend service code to make scenarios pass
+
+This separation enforces the BDD discipline: tests are written by one agent who cannot "cheat" by also writing the implementation.
 
 ```markdown
 ---
 phase: XX-name
 plan: NN
-type: tdd
+type: bdd
+wave: N
+depends_on: []
+files_modified: []
+autonomous: true
+requirements: []
+feature_file: features/auth.feature
+scenarios:
+  - "Successful login"
+  - "Wrong password"
+  - "Account locked"
+
+must_haves:
+  truths: []       # Derived directly from scenario names
+  artifacts: []
+  key_links: []
 ---
 
 <objective>
-[What feature and why]
-Purpose: [Design benefit of TDD for this feature]
-Output: [Working, tested feature]
+Implement scenarios: Successful login, Wrong password, Account locked
+from features/auth.feature
+
+Purpose: [Why these scenarios matter]
+Output: Working API endpoints passing all listed scenarios
 </objective>
 
-<feature>
-  <name>[Feature name]</name>
-  <files>[source file, test file]</files>
-  <behavior>
-    [Expected behavior in testable terms]
-    Cases: input -> expected output
-  </behavior>
-  <implementation>[How to implement once tests pass]</implementation>
-</feature>
+<execution_context>
+@~/.claude/get-shit-done/workflows/execute-plan.md
+@~/.claude/get-shit-done/templates/summary.md
+</execution_context>
+
+<context>
+@.planning/PROJECT.md
+@.planning/ROADMAP.md
+@features/auth.feature
+@features/steps/  (if exists)
+</context>
+
+<bdd_agents>
+## Agent Execution Order
+
+### Agent 1: gsd-step-writer (RED phase)
+Writes step definitions that call backend API via HTTP requests.
+All scenarios MUST FAIL after this agent completes.
+
+**Scope:** Only files in `features/` directory.
+**Verify:** `behave --dry-run` has no undefined steps; `behave` runs and all scenarios fail.
+
+### Agent 2: gsd-executor (GREEN phase)
+Implements backend service code to make all scenarios pass.
+Uses `behave` as the verification command after each task.
+
+**Scope:** Production code files (src/, app/, etc.)
+**Verify:** `behave features/auth.feature` exits 0 — all scenarios pass.
+</bdd_agents>
+
+<step_writer_tasks>
+## Step Writer Tasks (gsd-step-writer)
+
+<task type="auto">
+  <name>Task 1: Write step definitions</name>
+  <files>features/steps/test_auth.py, features/environment.py</files>
+  <action>
+    Implement Given/When/Then step definitions for scenarios:
+    - Successful login
+    - Wrong password
+    - Account locked
+
+    Steps MUST use `requests` library to call API endpoints via HTTP.
+    All steps must be concrete (real HTTP calls), not mocked.
+    Steps that depend on unimplemented endpoints WILL fail — this is expected.
+  </action>
+  <verify>
+    <automated>behave features/auth.feature --dry-run</automated>
+  </verify>
+  <done>
+    - All steps defined (no undefined steps in dry-run)
+    - `behave features/auth.feature` runs and ALL scenarios FAIL
+    - Failures are connection errors or HTTP 404/500 (backend not implemented)
+  </done>
+</task>
+</step_writer_tasks>
+
+<executor_tasks>
+## Executor Tasks (gsd-executor)
+
+<task type="auto">
+  <name>Task 1: Implement service code (GREEN)</name>
+  <files>src/api/auth.py, src/models/user.py</files>
+  <action>
+    Implement the backend code to make all scenarios pass:
+    - POST /auth/login endpoint
+    - Password verification logic
+    - Account lockout after N failed attempts
+
+    Drive implementation by running `behave` after each change.
+    Fix one scenario at a time, in order.
+  </action>
+  <verify>
+    <automated>behave features/auth.feature</automated>
+  </verify>
+  <done>
+    - ALL listed scenarios pass: `behave features/auth.feature` exits 0
+    - No hardcoded test data in production code
+  </done>
+</task>
+
+<task type="auto">
+  <name>Task 2: Refactor (if needed)</name>
+  <files>src/api/auth.py</files>
+  <action>
+    Clean up production code:
+    - Extract shared utilities
+    - Ensure code follows project conventions
+    - Do NOT modify step definitions (owned by step-writer)
+  </action>
+  <verify>
+    <automated>behave features/auth.feature</automated>
+  </verify>
+  <done>
+    - All scenarios still pass after refactor
+  </done>
+</task>
+</executor_tasks>
+
+<verification>
+- [ ] `behave features/auth.feature` — all scenarios pass
+- [ ] No undefined or pending steps
+- [ ] Step definitions use real HTTP calls, not mocks
+- [ ] Step code and production code written by separate agents
+</verification>
+
+<success_criteria>
+- All listed scenarios pass via `behave`
+- Step definitions are clean and reusable
+- Production code is implemented (not stubbed)
+</success_criteria>
 ```
 
-## Red-Green-Refactor Cycle
+### Wave 0: Feature File + Step Scaffolding
 
-**RED:** Create test file → write test describing expected behavior → run test (MUST fail) → commit: `test({phase}-{plan}): add failing test for [feature]`
+When `.feature` files do NOT yet exist (user wants to define scenarios as part of planning), add a Wave 0 plan:
 
-**GREEN:** Write minimal code to pass → run test (MUST pass) → commit: `feat({phase}-{plan}): implement [feature]`
+```markdown
+---
+type: bdd
+wave: 0
+scenarios: []  # Empty — this plan CREATES the scenarios
+---
 
-**REFACTOR (if needed):** Clean up → run tests (MUST pass) → commit: `refactor({phase}-{plan}): clean up [feature]`
+<tasks>
+<task type="auto">
+  <name>Task 1: Create feature files from CONTEXT.md</name>
+  <files>features/auth.feature, features/environment.py, features/steps/__init__.py</files>
+  <action>
+    1. Set up behave project structure (features/, features/steps/, environment.py)
+    2. Write .feature files with Gherkin scenarios from CONTEXT.md decisions
+    3. Each scenario must be concrete: specific inputs, specific expected outputs
+    4. Tag scenarios by plan group: @login, @token, @registration
+    5. Verify dry-run passes (syntax valid, steps undefined is OK)
+  </action>
+  <verify>
+    <automated>behave features/ --dry-run 2>&1 | tail -5</automated>
+  </verify>
+  <done>
+    - .feature files exist with all scenarios from CONTEXT.md
+    - `behave --dry-run` parses without syntax errors
+    - Scenarios tagged for plan grouping
+  </done>
+</task>
+</tasks>
+```
 
-Each TDD plan produces 2-3 atomic commits.
+Wave 0 runs before all other waves. Subsequent plans (wave 1+) read the `.feature` files as their specification.
 
-## Context Budget for TDD
+### BDD Must-Haves Derivation
 
-TDD plans target ~40% context (lower than standard 50%). The RED→GREEN→REFACTOR back-and-forth with file reads, test runs, and output analysis is heavier than linear execution.
+For BDD plans, must_haves map directly from scenarios:
 
-</tdd_integration>
+```yaml
+must_haves:
+  truths:
+    # Each scenario name becomes a truth
+    - "Successful login returns token"
+    - "Wrong password returns 401"
+    - "Account locked after 5 failed attempts"
+  artifacts:
+    - path: "features/steps/test_auth.py"
+      provides: "Step definitions for auth scenarios"
+    - path: "src/api/auth.py"
+      provides: "Authentication endpoint implementation"
+  key_links:
+    - from: "features/steps/test_auth.py"
+      to: "src/api/auth.py"
+      via: "HTTP requests to API"
+      pattern: "requests\\.(post|get).*auth"
+```
+
+### BDD Verification
+
+Phase verification for BDD phases uses `behave` as the primary verification tool:
+
+```xml
+<verification>
+- [ ] `behave features/ --format progress` — ALL scenarios pass
+- [ ] `behave features/ --dry-run` — no undefined steps
+- [ ] No test-only workarounds in production code
+</verification>
+```
+
+The verifier agent should run `behave` and parse its output to determine pass/fail status, rather than manually inspecting code.
+
+### Context Budget for BDD
+
+BDD plans target **~45% context usage** (slightly lower than standard 50%).
+
+Why slightly lower than standard:
+- Writing step definitions requires reading .feature files + existing steps
+- Implementation iterates: run behave → fix → run behave → fix
+- Refactor phase adds another cycle
+
+**Scenario budget per plan:** 3-5 scenarios. More than 5 → split into multiple plans.
+
+</bdd_integration>
 
 <gap_closure_mode>
 
@@ -1186,6 +1398,23 @@ cat "$phase_dir"/*-DISCOVERY.md 2>/dev/null  # From mandatory discovery
 **If CONTEXT.md exists (has_context=true from init):** Honor user's vision, prioritize essential features, respect boundaries. Locked decisions — do not revisit.
 
 **If RESEARCH.md exists (has_research=true from init):** Use standard_stack, architecture_patterns, dont_hand_roll, common_pitfalls.
+
+**BDD detection — check for `.feature` files:**
+
+```bash
+# Phase-local features, project-level features dir, tests dir
+FEATURE_FILES=$(find "$phase_dir" features/ tests/features/ -name "*.feature" 2>/dev/null | head -20)
+BDD_MODE=false
+if [ -n "$FEATURE_FILES" ]; then
+  BDD_MODE=true
+  # Read all feature files to extract scenario inventory
+  for f in $FEATURE_FILES; do cat "$f"; done
+fi
+```
+
+**If BDD_MODE is true:** Switch to BDD-driven planning (see `<bdd_integration>`). Feature scenarios are the specification — plans implement scenarios, not the other way around. Map scenario groups to plans, use `behave` for verification.
+
+**If no `.feature` files exist but CONTEXT.md describes scenarios in Given/When/Then format:** Add a Wave 0 plan to create `.feature` files and step scaffolding before implementation plans.
 </step>
 
 <step name="break_into_tasks">
@@ -1196,7 +1425,7 @@ For each task:
 2. What does it CREATE? (files, types, APIs others might need)
 3. Can it run independently? (no dependencies = Wave 1 candidate)
 
-Apply TDD detection heuristic. Apply user setup detection.
+Apply BDD detection heuristic. Apply user setup detection.
 </step>
 
 <step name="build_dependency_graph">
