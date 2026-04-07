@@ -3170,10 +3170,12 @@ function install(isGlobal, runtime = 'claude') {
       fs.mkdirSync(hooksDest, { recursive: true });
       const hookEntries = fs.readdirSync(hooksSrc);
       const configDirReplacement = getConfigDirFromHome(runtime, isGlobal);
+      let hookCount = 0;
       for (const entry of hookEntries) {
         const srcFile = path.join(hooksSrc, entry);
         if (fs.statSync(srcFile).isFile()) {
           const destFile = path.join(hooksDest, entry);
+          const existed = fs.existsSync(destFile);
           // Template .js files to replace '.claude' with runtime-specific config dir
           // and stamp the current Redpill version into the hook version header
           if (entry.endsWith('.js')) {
@@ -3186,11 +3188,12 @@ function install(isGlobal, runtime = 'claude') {
           } else {
             fs.copyFileSync(srcFile, destFile);
           }
+          const action = existed ? 'Updated' : 'Installed';
+          console.log(`  ${green}✓${reset} ${action} hook: ${entry}`);
+          hookCount++;
         }
       }
-      if (verifyInstalled(hooksDest, 'hooks')) {
-        console.log(`  ${green}✓${reset} Installed hooks (bundled)`);
-      } else {
+      if (hookCount === 0) {
         failures.push('hooks');
       }
     }
