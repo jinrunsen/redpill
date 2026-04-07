@@ -241,8 +241,10 @@ function expandTilde(filePath) {
  */
 function buildHookCommand(configDir, hookName) {
   // Use forward slashes for Node.js compatibility on all platforms
+  // Do NOT wrap path in quotes — Claude Code hook executor does not use a shell,
+  // so quotes would become literal characters in the module path.
   const hooksPath = configDir.replace(/\\/g, '/') + '/hooks/' + hookName;
-  return `node "${hooksPath}"`;
+  return `node ${hooksPath}`;
 }
 
 /**
