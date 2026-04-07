@@ -1,6 +1,6 @@
 {
   "name": "redpill-cc",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "BDD 驱动的 AI 辅助开发框架，基于场景测试管理项目进度",
   "bin": {
     "redpill-cc": "bin/install.js"
@@ -38,5 +38,9 @@
     "prepublishOnly": "npm run build:hooks",
     "test": "node scripts/run-tests.cjs",
     "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'redpill/bin/lib/*.cjs' --exclude 'tests/**' --all node scripts/run-tests.cjs"
+  },
+  "dependencies": {
+    "@cucumber/gherkin": "^39.0.0",
+    "@cucumber/messages": "^32.2.0"
   }
 }

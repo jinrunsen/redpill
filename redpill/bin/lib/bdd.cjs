@@ -1,5 +1,5 @@
 /**
- * BDD 模块 — 解析 .feature 文件中的 @status 标签，统计 BDD 场景进度
+ * BDD 模块 — 使用 @cucumber/gherkin 解析 .feature 文件，统计 BDD 场景进度
  *
  * 支持的状态标签：@status-todo, @status-done, @status-active, @status-blocked
  * 无 @status 标签的场景默认视为 todo。
@@ -8,52 +8,47 @@
 
 const fs = require('fs');
 const path = require('path');
+const { Parser, AstBuilder, GherkinClassicTokenMatcher } = require('@cucumber/gherkin');
+const { IdGenerator } = require('@cucumber/messages');
 
 // ─── 内部工具 ─────────────────────────────────────────────────────────────────
 
+const STATUS_VALUES = ['todo', 'done', 'active', 'blocked'];
+
 /**
- * 解析单个 .feature 文件，提取所有场景及其 @status 标签。
+ * 使用 @cucumber/gherkin 解析单个 .feature 文件，提取所有场景及其 @status 标签。
  * 返回数组：[{ scenario, line, status, tags }]
  */
 function parseFeatureFile(content) {
-  const lines = content.split(/\r?\n/);
+  const parser = new Parser(new AstBuilder(IdGenerator.incrementing()), new GherkinClassicTokenMatcher());
+  const doc = parser.parse(content);
+  if (!doc.feature) return [];
+
   const scenarios = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
-
-    // 匹配 Scenario: 或 Scenario Outline: 行
-    const scenarioMatch = trimmed.match(/^Scenario(?:\s+Outline)?:\s*(.+)/);
-    if (!scenarioMatch) continue;
-
-    const scenarioName = scenarioMatch[1].trim();
-    const lineNumber = i + 1; // 1-based
-
-    // 向上扫描紧邻的标签行，收集所有 @status-xxx 标签
-    const tags = [];
-    let status = 'todo'; // 默认状态
-
-    for (let j = i - 1; j >= 0; j--) {
-      const prevLine = lines[j].trim();
-      if (prevLine === '') continue; // 跳过空行
-      if (!prevLine.startsWith('@')) break; // 非标签行则停止
-
-      // 提取该行所有 @status-xxx 标签
-      const statusTags = prevLine.match(/@status-\w+/g);
-      if (statusTags) {
-        tags.push(...statusTags);
+  function extractScenarios(children) {
+    for (const child of children) {
+      if (child.rule) {
+        extractScenarios(child.rule.children);
+        continue;
       }
-    }
+      const sc = child.scenario;
+      if (!sc) continue;
 
-    // 取最后一个 @status 标签作为实际状态（如有多个）
-    if (tags.length > 0) {
-      const lastTag = tags[tags.length - 1];
-      status = lastTag.replace('@status-', '');
-    }
+      const tagNames = sc.tags.map(t => t.name);
+      const statusTag = tagNames.filter(t => t.startsWith('@status-')).pop();
+      const status = statusTag ? statusTag.replace('@status-', '') : 'todo';
 
-    scenarios.push({ scenario: scenarioName, line: lineNumber, status, tags });
+      scenarios.push({
+        scenario: sc.name,
+        line: sc.location.line,
+        status: STATUS_VALUES.includes(status) ? status : 'todo',
+        tags: tagNames.filter(t => t.startsWith('@status-')),
+      });
+    }
   }
 
+  extractScenarios(doc.feature.children);
   return scenarios;
 }
 
@@ -221,9 +216,93 @@ function bddRegressionCheck(projectRoot, featuresDir = 'features') {
   return { scenarios, count: scenarios.length };
 }
 
+/**
+ * 生成 Feature 状态报告（Markdown + 结构化输出）
+ * 等价于 feature_report.py，但直接解析 .feature 文件，无需 behave。
+ */
+function bddReport(projectRoot, featuresDir = 'features') {
+  const featuresPath = path.join(projectRoot, featuresDir);
+  const files = collectFeatureFiles(featuresPath);
+
+  if (files.length === 0) {
+    return {
+      markdown: '## Feature Status Report\n\nNo .feature files found.',
+      data: { total_scenarios: 0, status: { todo: 0, active: 0, done: 0, blocked: 0 }, progress: '0/0 (0%)', exit_condition: 'NO_FEATURES' },
+    };
+  }
+
+  const STATUS_KEYS = ['todo', 'active', 'done', 'blocked'];
+  const perFile = [];
+  const totals = { todo: 0, active: 0, done: 0, blocked: 0, total: 0 };
+  const activeScenarios = [];
+
+  for (const file of files) {
+    const filePath = path.join(featuresPath, file);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const scenarios = parseFeatureFile(content);
+    const counts = { todo: 0, active: 0, done: 0, blocked: 0 };
+
+    for (const s of scenarios) {
+      const key = STATUS_KEYS.includes(s.status) ? s.status : 'todo';
+      counts[key]++;
+      if (s.status === 'active') {
+        activeScenarios.push({ location: `${featuresDir}/${file}:${s.line}`, name: s.scenario });
+      }
+    }
+
+    const fileTotal = scenarios.length;
+    perFile.push({ file: `${featuresDir}/${file}`, counts, total: fileTotal });
+    for (const k of STATUS_KEYS) totals[k] += counts[k];
+    totals.total += fileTotal;
+  }
+
+  // Markdown 报告
+  const lines = [
+    '## Feature Status Report\n',
+    '| Feature File | @todo | @active | @done | @blocked | Total |',
+    '|---|:---:|:---:|:---:|:---:|:---:|',
+  ];
+  for (const pf of perFile) {
+    const cells = STATUS_KEYS.map(k => pf.counts[k]).join(' | ');
+    lines.push(`| \`${pf.file}\` | ${cells} | ${pf.total} |`);
+  }
+  const totalCells = STATUS_KEYS.map(k => `**${totals[k]}**`).join(' | ');
+  lines.push(`| **TOTAL** | ${totalCells} | **${totals.total}** |`);
+  lines.push('');
+
+  const pct = totals.total ? Math.round(totals.done / totals.total * 100) : 0;
+  lines.push(`Progress: ${totals.done}/${totals.total} scenarios done (${pct}%)`);
+
+  if (activeScenarios.length > 0) {
+    lines.push('');
+    lines.push('### Active -- in progress');
+    for (const sc of activeScenarios) {
+      lines.push(`- \`${sc.location}\` **${sc.name}**`);
+    }
+  }
+
+  // 退出条件
+  let exitCondition;
+  if (totals.total === 0) exitCondition = 'NO_FEATURES';
+  else if (totals.done === totals.total) exitCondition = 'ALL_DONE';
+  else if (totals.todo === 0 && totals.active === 0) exitCondition = 'ALL_BLOCKED';
+  else exitCondition = 'HAS_WORK';
+
+  const data = {
+    total_scenarios: totals.total,
+    status: { todo: totals.todo, active: totals.active, done: totals.done, blocked: totals.blocked },
+    progress: `${totals.done}/${totals.total} (${pct}%)`,
+    exit_condition: exitCondition,
+  };
+  if (activeScenarios.length > 0) data.active_scenarios = activeScenarios;
+
+  return { markdown: lines.join('\n'), data };
+}
+
 module.exports = {
   bddSummary,
   bddNextFailing,
   bddMarkDone,
   bddRegressionCheck,
+  bddReport,
 };

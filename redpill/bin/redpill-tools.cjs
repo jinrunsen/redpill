@@ -16,6 +16,7 @@
  *   bdd next-failing                   Find first todo/active scenario
  *   bdd regression-check               List all done scenarios
  *   bdd summary                        Aggregate BDD scenario progress
+ *   bdd report                         Generate feature status report (markdown + structured)
  *   bdd mark-done <feature> <scenario> Mark scenario as done
  *
  * Decisions Commands:
@@ -237,6 +238,7 @@ async function main() {
   state activity          追加活动记录（--message "..."）
 
   bdd summary             扫描 .feature 文件，统计 @status 分布
+  bdd report              生成 Feature 状态报告（Markdown + 结构化数据）
   bdd next-failing        找到下一个 @status-todo 场景
   bdd regression-check    列出所有 @status-done 场景（用于回归检查）
   bdd mark-done           标记场景为 @status-done
@@ -384,6 +386,13 @@ async function runCommand(command, args, cwd, raw) {
       } else if (subcommand === 'summary') {
         const result = bdd.bddSummary(cwd, bddFeaturesDir);
         outputResult(result, raw);
+      } else if (subcommand === 'report') {
+        const result = bdd.bddReport(cwd, bddFeaturesDir);
+        if (raw) {
+          outputResult(result.data, raw);
+        } else {
+          process.stdout.write(result.markdown + '\n');
+        }
       } else if (subcommand === 'mark-done') {
         const featurePath = args[2];
         const scenarioName = parseMultiwordArg(args, 'scenario') || args.slice(3).filter(a => !a.startsWith('--')).join(' ');
@@ -393,7 +402,7 @@ async function runCommand(command, args, cwd, raw) {
         const result = bdd.bddMarkDone(fullPath, scenarioName);
         outputResult({ modified: result }, raw);
       } else {
-        error('Unknown bdd subcommand. Available: next-failing, regression-check, summary, mark-done');
+        error('Unknown bdd subcommand. Available: next-failing, regression-check, summary, report, mark-done');
       }
       break;
     }
