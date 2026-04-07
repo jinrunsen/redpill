@@ -43,7 +43,6 @@ const hasLocal = args.includes('--local') || args.includes('-l');
 const hasOpencode = args.includes('--opencode');
 const hasClaude = args.includes('--claude');
 const hasCodex = args.includes('--codex');
-const hasSdk = args.includes('--sdk');
 const hasBoth = args.includes('--both'); // Legacy flag, keeps working
 const hasAll = args.includes('--all');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
@@ -222,7 +221,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx redpill-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install Redpill SDK CLI (redpill-sdk)\n    ${cyan}-u, --uninstall${reset}           Uninstall Redpill (remove all Redpill files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx redpill-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx redpill-cc --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx redpill-cc --codex --global\n\n    ${dim}# Install for OpenCode globally${reset}\n    npx redpill-cc --opencode --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx redpill-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx redpill-cc --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Install to current project only${reset}\n    npx redpill-cc --claude --local\n\n    ${dim}# Uninstall Redpill from Codex globally${reset}\n    npx redpill-cc --codex --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / CODEX_HOME environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx redpill-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall Redpill (remove all Redpill files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx redpill-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx redpill-cc --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx redpill-cc --codex --global\n\n    ${dim}# Install for OpenCode globally${reset}\n    npx redpill-cc --opencode --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx redpill-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx redpill-cc --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Install to current project only${reset}\n    npx redpill-cc --claude --local\n\n    ${dim}# Uninstall Redpill from Codex globally${reset}\n    npx redpill-cc --codex --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / CODEX_HOME environment variables.\n`);
   process.exit(0);
 }
 
@@ -3542,70 +3541,6 @@ function handleStatusline(settings, isInteractive, callback) {
   });
 }
 
-/**
- * Install the Redpill SDK globally via npm.
- * @returns {boolean} true if install succeeded
- */
-function installSdk() {
-  const sdkVersion = pkg.version;
-  const sdkPkg = `@redpill-build/sdk@${sdkVersion}`;
-  console.log(`\n  ${cyan}Installing Redpill SDK...${reset}`);
-  console.log(`  ${dim}npm install -g ${sdkPkg}${reset}\n`);
-  try {
-    require('child_process').execSync(`npm install -g ${sdkPkg}`, { stdio: 'inherit' });
-    console.log(`\n  ${green}✓${reset} Redpill SDK installed (${cyan}redpill-sdk${reset} command available)`);
-    return true;
-  } catch (e) {
-    console.log(`\n  ${yellow}⚠${reset} SDK install failed: ${e.message}`);
-    console.log(`  ${dim}You can install it manually: npm install -g ${sdkPkg}${reset}`);
-    return false;
-  }
-}
-
-/**
- * Prompt the user to optionally install the Redpill SDK.
- * Called after runtime installation completes.
- * @param {Function} callback - called with true/false
- */
-function promptSdk(callback) {
-  if (!process.stdin.isTTY) {
-    callback(false);
-    return;
-  }
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  let answered = false;
-
-  rl.on('close', () => {
-    if (!answered) {
-      answered = true;
-      callback(false);
-    }
-  });
-
-  console.log(`
-  ${yellow}Also install the Redpill SDK?${reset}
-
-  The SDK provides a standalone CLI for autonomous execution:
-    ${dim}redpill-sdk init @prd.md${reset}    Bootstrap a project from a PRD
-    ${dim}redpill-sdk auto${reset}            Run full autonomous lifecycle
-    ${dim}redpill-sdk run "prompt"${reset}    Execute a milestone from text
-
-  ${cyan}1${reset}) No
-  ${cyan}2${reset}) Yes ${dim}(runs: npm install -g @redpill-build/sdk)${reset}
-`);
-
-  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
-    answered = true;
-    rl.close();
-    const choice = answer.trim() || '1';
-    callback(choice === '2');
-  });
-}
 
 /**
  * Prompt for runtime selection
@@ -3726,32 +3661,16 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
   const primaryStatuslineResult = results.find(r => statuslineRuntimes.includes(r.runtime));
 
   const finalize = (shouldInstallStatusline) => {
-    // Handle SDK installation before printing final summaries
-    const printSummaries = () => {
-      for (const result of results) {
-        const useStatusline = statuslineRuntimes.includes(result.runtime) && shouldInstallStatusline;
-        finishInstall(
-          result.settingsPath,
-          result.settings,
-          result.statuslineCommand,
-          useStatusline,
-          result.runtime,
-          isGlobal
-        );
-      }
-    };
-
-    if (hasSdk) {
-      // --sdk flag: install without prompting
-      installSdk();
-      printSummaries();
-    } else if (isInteractive) {
-      promptSdk((wantsSdk) => {
-        if (wantsSdk) installSdk();
-        printSummaries();
-      });
-    } else {
-      printSummaries();
+    for (const result of results) {
+      const useStatusline = statuslineRuntimes.includes(result.runtime) && shouldInstallStatusline;
+      finishInstall(
+        result.settingsPath,
+        result.settings,
+        result.statuslineCommand,
+        useStatusline,
+        result.runtime,
+        isGlobal
+      );
     }
   };
 
@@ -3785,8 +3704,6 @@ if (process.env.Redpill_TEST_MODE) {
     writeManifest,
     reportLocalPatches,
     validateHookFields,
-    installSdk,
-    promptSdk,
   };
 } else {
 
