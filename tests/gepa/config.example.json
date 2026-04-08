@@ -1,0 +1,8 @@
+{
+  "api_key": "sk-ant-your-key-here",
+  "api_base_url": "",
+  "task_model": "anthropic/claude-sonnet-4-20250514",
+  "reflection_model": "anthropic/claude-sonnet-4-20250514",
+  "max_metric_calls": 200,
+  "e2e_max_metric_calls": 50
+}

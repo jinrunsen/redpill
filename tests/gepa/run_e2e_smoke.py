@@ -13,7 +13,12 @@ This test:
 5. Optionally runs behave to verify the fixture itself works
 
 Usage:
-    export ANTHROPIC_API_KEY="sk-ant-..."
+    # Option 1: config file
+    # Edit tests/gepa/config.json with api_key and optional api_base_url
+
+    # Option 2: env vars
+    # export ANTHROPIC_API_KEY="sk-ant-..."
+
     python run_e2e_smoke.py
 """
 
@@ -25,6 +30,7 @@ import tempfile
 from pathlib import Path
 
 import dspy
+from config_loader import load_config, check_api_key, configure_dspy
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -32,8 +38,6 @@ import dspy
 
 WORKFLOW_PATH = Path(__file__).parent.parent.parent / "get-shit-done" / "workflows" / "bdd-phase.md"
 FIXTURE_PATH = Path(__file__).parent / "e2e_fixture"
-TASK_MODEL = "anthropic/claude-sonnet-4-20250514"
-REFLECTION_MODEL = "anthropic/claude-sonnet-4-20250514"
 
 # ---------------------------------------------------------------------------
 # E2E Scenario
@@ -149,9 +153,9 @@ def main():
     print(" BDD Phase Workflow — E2E Smoke Test")
     print("=" * 60)
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("\n❌ ANTHROPIC_API_KEY not set. Run:")
-        print('   export ANTHROPIC_API_KEY="sk-ant-..."')
+    # Load config (config.json > env vars > defaults)
+    cfg = load_config()
+    if not check_api_key(cfg):
         return
 
     # Setup
@@ -186,9 +190,7 @@ def main():
     }, indent=2)
 
     # Configure DSPy
-    task_lm = dspy.LM(model=TASK_MODEL, temperature=0.0, max_tokens=8000)
-    reflection_lm = dspy.LM(model=REFLECTION_MODEL, temperature=1.0, max_tokens=8000)
-    dspy.configure(lm=task_lm)
+    task_lm, reflection_lm = configure_dspy(cfg)
 
     # Build dataset (single example for smoke test)
     example = dspy.Example(
@@ -218,7 +220,7 @@ def main():
 
     gepa = dspy.GEPA(
         metric=e2e_metric,
-        max_metric_calls=50,  # Small budget for smoke test
+        max_metric_calls=cfg["e2e_max_metric_calls"],
         reflection_lm=reflection_lm,
         reflection_minibatch_size=1,
         track_stats=True,

@@ -7,13 +7,40 @@ Validates and optimizes the `bdd-phase.md` workflow prompt using DSPy GEPA.
 ```bash
 cd tests/gepa
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY="sk-ant-..."
 ```
+
+### Configure API access (choose one)
+
+**Option 1: config.json (recommended)**
+```bash
+# Edit tests/gepa/config.json
+{
+  "api_key": "sk-ant-...",
+  "api_base_url": "https://your-proxy/v1",   // optional, for proxies
+  "task_model": "anthropic/claude-sonnet-4-20250514",
+  "reflection_model": "anthropic/claude-sonnet-4-20250514",
+  "max_metric_calls": 200,
+  "e2e_max_metric_calls": 50
+}
+```
+
+**Option 2: environment variables**
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+export ANTHROPIC_BASE_URL="https://your-proxy/v1"   # optional
+export GEPA_TASK_MODEL="anthropic/claude-sonnet-4-20250514"  # optional
+export GEPA_REFLECTION_MODEL="anthropic/claude-sonnet-4-20250514"  # optional
+export GEPA_MAX_METRIC_CALLS=200  # optional
+```
+
+Priority: config.json > env vars > defaults. Empty string values in config.json are ignored.
 
 ## Structure
 
 ```
 tests/gepa/
+  config.json              — API key, base URL, model config (git-ignored)
+  config_loader.py         — Shared config loader
   run_decision_tests.py    — Layer 1: Decision path tests (lightweight, ~150 API calls)
   run_e2e_smoke.py         — Layer 2: End-to-end smoke test (heavier, real Flask+behave)
   e2e_fixture/             — Minimal Flask+behave project for smoke tests
