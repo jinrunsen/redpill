@@ -1120,6 +1120,33 @@ This ensures new projects get the default GSD workflow-enforcement guidance and 
 node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md CLAUDE.md
 ```
 
+## 8.5. Generate DEV-SETUP.md
+
+**If project has existing code (`has_existing_code` is true OR project has a build system):**
+
+Detect project structure and generate `.planning/DEV-SETUP.md` for local development setup.
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► DETECTING LOCAL ENVIRONMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Execute the check-env workflow in generate mode:
+
+Follow `@~/.claude/get-shit-done/workflows/check-env.md` — Step 2 (Generate) then Step 3 (Validate).
+
+This creates `.planning/DEV-SETUP.md` with detected prerequisites, middleware, build/run commands, and verifies the service runs locally.
+
+**If no existing code (pure greenfield, no package.json or equivalent):**
+
+Skip — DEV-SETUP.md will be created later when the project has buildable code. Display note:
+
+```
+ℹ No build system detected — DEV-SETUP.md will be needed before running BDD.
+  Run /gsd:check-env after setting up your project's build toolchain.
+```
+
 ## 9. Done
 
 Present completion summary:
@@ -1139,6 +1166,7 @@ Present completion summary:
 | Requirements   | `.planning/REQUIREMENTS.md` |
 | Roadmap        | `.planning/ROADMAP.md`      |
 | Project guide  | `CLAUDE.md`                 |
+| Dev setup      | `.planning/DEV-SETUP.md`    |
 
 **[N] phases** | **[X] requirements** | Ready to build ✓
 ```
@@ -1220,6 +1248,7 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - `.planning/REQUIREMENTS.md`
 - `.planning/ROADMAP.md`
 - `.planning/STATE.md`
+- `.planning/DEV-SETUP.md` (if existing code detected)
 - `CLAUDE.md`
 
 </output>
@@ -1243,6 +1272,7 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - [ ] STATE.md initialized
 - [ ] REQUIREMENTS.md traceability updated
 - [ ] CLAUDE.md generated with GSD workflow guidance
+- [ ] DEV-SETUP.md generated and validated (if existing code detected)
 - [ ] User knows next step is `/gsd:discuss-phase 1`
 
 **Atomic commits:** Each phase commits its artifacts immediately. If context is lost, artifacts persist.
