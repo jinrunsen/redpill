@@ -1421,6 +1421,99 @@ function cmdAgentSkills(cwd, agentType, raw) {
   process.exit(0);
 }
 
+function cmdInitBddPhase(cwd, phase, raw) {
+  if (!phase) {
+    error('phase required for init bdd-phase');
+  }
+
+  const config = loadConfig(cwd);
+  let phaseInfo = findPhaseInternal(cwd, phase);
+  const roadmapPhase = getRoadmapPhaseInternal(cwd, phase);
+
+  // Fallback to ROADMAP.md if no phase directory exists yet
+  if (!phaseInfo && roadmapPhase?.found) {
+    const phaseName = roadmapPhase.phase_name;
+    phaseInfo = {
+      found: true,
+      directory: null,
+      phase_number: roadmapPhase.phase_number,
+      phase_name: phaseName,
+      phase_slug: phaseName ? phaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
+    };
+  }
+
+  const reqMatch = roadmapPhase?.section?.match(/^\*\*Requirements\*\*:[^\S\n]*([^\n]*)$/m);
+  const reqExtracted = reqMatch
+    ? reqMatch[1].replace(/[\[\]]/g, '').split(',').map(s => s.trim()).filter(Boolean).join(', ')
+    : null;
+  const phase_req_ids = (reqExtracted && reqExtracted !== 'TBD') ? reqExtracted : null;
+
+  const result = {
+    // Models
+    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
+    step_writer_model: resolveModelInternal(cwd, 'gsd-step-writer'),
+    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+
+    // Config flags
+    commit_docs: config.commit_docs,
+    text_mode: config.text_mode,
+
+    // Phase info
+    phase_found: !!phaseInfo,
+    phase_dir: phaseInfo?.directory || null,
+    phase_number: phaseInfo?.phase_number || null,
+    phase_name: phaseInfo?.phase_name || null,
+    phase_slug: phaseInfo?.phase_slug || null,
+    padded_phase: phaseInfo?.phase_number ? normalizePhaseName(phaseInfo.phase_number) : null,
+    phase_req_ids,
+
+    // Environment
+    planning_exists: fs.existsSync(planningDir(cwd)),
+    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
+
+    // File paths
+    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
+    requirements_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'REQUIREMENTS.md'))),
+  };
+
+  // BDD-specific paths
+  if (phaseInfo?.directory) {
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const designFile = files.find(f => f.endsWith('-DESIGN.md') || f === 'DESIGN.md');
+      if (designFile) {
+        result.design_path = toPosixPath(path.join(phaseInfo.directory, designFile));
+      }
+      const progressFile = files.find(f => f === 'BDD-PROGRESS.json');
+      if (progressFile) {
+        result.bdd_progress_path = toPosixPath(path.join(phaseInfo.directory, progressFile));
+        result.has_bdd_progress = true;
+      } else {
+        result.has_bdd_progress = false;
+      }
+    } catch {
+      result.has_bdd_progress = false;
+    }
+  }
+
+  // Check for feature files
+  const featuresDir = path.join(cwd, 'features');
+  result.has_feature_files = fs.existsSync(featuresDir) &&
+    fs.readdirSync(featuresDir).some(f => f.endsWith('.feature'));
+
+  // Check behave availability
+  try {
+    execSync('behave --version', { stdio: 'pipe' });
+    result.behave_available = true;
+  } catch {
+    result.behave_available = false;
+  }
+
+  output(withProjectRoot(cwd, result), raw);
+}
+
 module.exports = {
   cmdInitExecutePhase,
   cmdInitPlanPhase,
@@ -1441,4 +1534,5 @@ module.exports = {
   detectChildRepos,
   buildAgentSkillsBlock,
   cmdAgentSkills,
+  cmdInitBddPhase,
 };
