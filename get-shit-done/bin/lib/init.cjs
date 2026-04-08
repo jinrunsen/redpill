@@ -1475,6 +1475,9 @@ function cmdInitBddPhase(cwd, phase, raw) {
     state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
     roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
     requirements_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'REQUIREMENTS.md'))),
+
+    // BDD defaults (overridden below if phase directory exists)
+    has_bdd_progress: false,
   };
 
   // BDD-specific paths
@@ -1500,12 +1503,17 @@ function cmdInitBddPhase(cwd, phase, raw) {
 
   // Check for feature files
   const featuresDir = path.join(cwd, 'features');
-  result.has_feature_files = fs.existsSync(featuresDir) &&
-    fs.readdirSync(featuresDir).some(f => f.endsWith('.feature'));
+  try {
+    result.has_feature_files = fs.existsSync(featuresDir) &&
+      fs.statSync(featuresDir).isDirectory() &&
+      fs.readdirSync(featuresDir).some(f => f.endsWith('.feature'));
+  } catch {
+    result.has_feature_files = false;
+  }
 
   // Check behave availability
   try {
-    execSync('behave --version', { stdio: 'pipe' });
+    execSync('behave --version', { stdio: 'pipe', timeout: 5000 });
     result.behave_available = true;
   } catch {
     result.behave_available = false;
