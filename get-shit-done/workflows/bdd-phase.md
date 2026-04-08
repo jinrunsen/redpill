@@ -45,9 +45,88 @@ mkdir -p ".planning/phases/${padded_phase}-${phase_slug}"
 ```
 Re-run init to get updated paths.
 
-**Check 4:** [RESERVED] Service build/run context document exists. (Doc path TBD — skip for now.)
+**Check 4:** DEV-SETUP.md exists — verify `.planning/DEV-SETUP.md` is present:
+```bash
+if [[ ! -f ".planning/DEV-SETUP.md" ]]; then
+  echo "❌ DEV-SETUP gate failed: .planning/DEV-SETUP.md not found."
+  echo ""
+  echo "  BDD requires a local development setup document before proceeding."
+  echo "  This file describes how to build, run, and verify the service locally."
+  echo ""
+  echo "  → Create .planning/DEV-SETUP.md with local build/run instructions."
+  echo "  → See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+  echo ""
+  echo "  The file must include YAML frontmatter with: prerequisites, install,"
+  echo "  build, start, and verify fields. Optionally include middleware"
+  echo "  dependencies."
+  exit 1
+fi
+```
+Also verify the frontmatter is parseable (contains required fields):
+```bash
+# Extract frontmatter and check required fields
+FRONTMATTER=$(sed -n '/^---$/,/^---$/p' .planning/DEV-SETUP.md)
+for field in install build start verify; do
+  if ! echo "$FRONTMATTER" | grep -q "^${field}:"; then
+    echo "❌ DEV-SETUP gate failed: missing required field '${field}' in frontmatter."
+    echo "  → See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+    exit 1
+  fi
+done
+```
 
-**Check 5:** [RESERVED] Current environment can compile and run the service. (Check method TBD — skip for now.)
+**Check 5:** Local environment can compile and run the service — parse DEV-SETUP.md frontmatter and execute validation steps sequentially:
+
+**Step 5a — Prerequisites:** For each item in `prerequisites[]`, run its `check` command. If a `version` is specified, compare the output. Report the first failure:
+```
+❌ DEV-SETUP gate failed at [prerequisites] {name}:
+  Command: {check}
+  Result: {output or "command not found"}
+  → Install {name} {version if specified}
+```
+
+**Step 5b — Middleware:** For each item in `middleware[]`, run its `check` command. On failure, include the `setup` command (if present) and `config` hint:
+```
+❌ DEV-SETUP gate failed at [middleware] {name}:
+  Command: {check}
+  Result: {output or "connection refused"}
+  → Start {name}: {setup}
+  → Config: {config}
+```
+
+**Step 5c — Install:** Run the `install` command. On failure:
+```
+❌ DEV-SETUP gate failed at [install]:
+  Command: {install}
+  Exit code: {code}
+  Output (last 20 lines):
+  {tail output}
+```
+
+**Step 5d — Build:** Run the `build` command. On failure:
+```
+❌ DEV-SETUP gate failed at [build]:
+  Command: {build}
+  Exit code: {code}
+  Output (last 20 lines):
+  {tail output}
+```
+
+**Step 5e — Start + Verify:** Run `start` in background, wait `start_wait` seconds (default 5), then run `verify.command` with retries up to `verify.timeout` seconds (default 30). If `verify.expected` is set, check output contains that string. On failure:
+```
+❌ DEV-SETUP gate failed at [verify]:
+  Command: {verify.command}
+  Expected: {verify.expected or "exit code 0"}
+  Result: {output or "connection refused"}
+  → Check that the service starts correctly on the expected port.
+  → Review .planning/DEV-SETUP.md start and verify fields.
+```
+After verification (pass or fail), kill the background service process.
+
+**On success:** Display:
+```
+✓ DEV-SETUP gate passed — service builds and runs locally.
+```
 
 **Check 6:** `has_feature_files` is false → Error:
 ```
