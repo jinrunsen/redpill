@@ -172,6 +172,7 @@ Display: `◆ Spawning step-writer for: {scenario_name}`
 ```
 Agent(
   subagent_type="gsd-step-writer",
+  model="{step_writer_model}",
   description="Write steps for: {scenario_name}",
   prompt="
     <objective>
@@ -233,6 +234,7 @@ Display: `◆ Spawning executor for: {scenario_name}`
 ```
 Agent(
   subagent_type="gsd-executor",
+  model="{executor_model}",
   description="Implement backend for: {scenario_name}",
   prompt="
     <objective>
@@ -280,6 +282,7 @@ Re-dispatch executor with previous attempt context:
 ```
 Agent(
   subagent_type="gsd-executor",
+  model="{executor_model}",
   description="Fix failing scenario: {scenario_name}",
   prompt="
     <objective>
@@ -333,6 +336,7 @@ Display: `◆ Spawning reviewer for: {scenario_name}`
 ```
 Agent(
   subagent_type="gsd-verifier",
+  model="{verifier_model}",
   description="Review implementation: {scenario_name}",
   prompt="
     <objective>
@@ -374,11 +378,19 @@ Agent(
 ```
 Agent(
   subagent_type="gsd-executor",
+  model="{executor_model}",
   description="Fix review issues: {scenario_name}",
   prompt="
     <objective>
     Fix blocking review issues for scenario: {scenario_name}
     </objective>
+
+    <files_to_read>
+    - {feature_file}
+    - {design_path} (Technical design)
+    - features/steps/ (Step definitions)
+    - ./CLAUDE.md (if exists)
+    </files_to_read>
 
     <review_feedback>
     {blocking_issues}
