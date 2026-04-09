@@ -130,7 +130,7 @@ After verification (pass or fail), kill the background service process.
 
 **Check 6:** `has_feature_files` is false → Error:
 ```
-No .feature files found in features/ directory.
+No .feature files found in features/ directory (including subdirectories).
 Write your Gherkin scenarios first, then re-run /gsd:bdd-phase {N}.
 ```
 

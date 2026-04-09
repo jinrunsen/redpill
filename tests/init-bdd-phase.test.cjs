@@ -95,6 +95,17 @@ describe('init bdd-phase', () => {
     assert.strictEqual(output.has_feature_files, true);
   });
 
+  test('has_feature_files is true when .feature files exist in subdirectory', () => {
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '03-auth');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, 'features', 'auth'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'features', 'auth', 'login.feature'), 'Feature: Login\n  Scenario: Login\n    Given a user');
+
+    const result = runGsdTools('init bdd-phase 03', tmpDir);
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.has_feature_files, true);
+  });
+
   // --- BDD-specific: design_path ---
 
   test('design_path is undefined when no DESIGN.md exists', () => {

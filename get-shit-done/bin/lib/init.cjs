@@ -1501,12 +1501,24 @@ function cmdInitBddPhase(cwd, phase, raw) {
     }
   }
 
-  // Check for feature files
+  // Check for feature files (recursive — supports subdirectories)
   const featuresDir = path.join(cwd, 'features');
+  function hasFeatureFiles(dir) {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isFile() && entry.name.endsWith('.feature')) return true;
+        if (entry.isDirectory()) {
+          if (hasFeatureFiles(path.join(dir, entry.name))) return true;
+        }
+      }
+    } catch {}
+    return false;
+  }
   try {
     result.has_feature_files = fs.existsSync(featuresDir) &&
       fs.statSync(featuresDir).isDirectory() &&
-      fs.readdirSync(featuresDir).some(f => f.endsWith('.feature'));
+      hasFeatureFiles(featuresDir);
   } catch {
     result.has_feature_files = false;
   }
