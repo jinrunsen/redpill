@@ -1,10 +1,10 @@
 <purpose>
-Execute a phase using BDD scenario-driven development. Iterates through Gherkin scenarios one-by-one via RED → WORK → GREEN → REVIEW cycles. Each scenario is an atomic unit of work with its own commit, review, and regression check. Fully integrated with GSD state tracking (STATE.md, ROADMAP.md, REQUIREMENTS.md).
+Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the GSD phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .planning/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
 </purpose>
 
 <required_reading>
-Read STATE.md before any operation to load project context.
-Read config.json for behavior settings.
+Read STATE.md before any operation to load project context (if it exists).
+Read config.json for behavior settings (if it exists).
 
 @~/.claude/get-shit-done/references/git-integration.md
 </required_reading>
@@ -22,40 +22,40 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 1. Initialize
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init bdd-phase "$PHASE")
+INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init run-bdd)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `phase_req_ids`, `planning_exists`, `roadmap_exists`, `state_path`, `roadmap_path`, `requirements_path`, `design_path`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
+Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `planning_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
 
 ## 2. Parse Arguments
 
-Extract from $ARGUMENTS: phase number (integer or decimal like `2.1`), flags (`--resume`, `--skip-review`, `--tag @tag_name`).
+Extract from $ARGUMENTS:
+- **Feature file paths**: any arguments ending in `.feature` or a directory path (e.g., `features/auth.feature`, `features/billing/`)
+- **`-n "scenario name"`**: specific scenario name filter
+- **`--tag @tag_name`**: behave tag filter
+- **`--design path/to/DESIGN.md`**: optional technical design document path
+- **`--resume`**: continue from last checkpoint
+- **`--skip-review`**: skip review agent
 
-Set `TEXT_MODE=true` if `--text` is present in $ARGUMENTS OR `text_mode` from init JSON is `true`.
+If no feature files or tags specified, default to `features/` (all features).
+
+Set `DESIGN_PATH` from `--design` flag or null if not provided.
+Set `FEATURE_TARGETS` from feature file arguments or `features/`.
+Set `TEXT_MODE=true` if `text_mode` from init JSON is `true`.
 
 ## 3. Pre-flight Checks
 
-**Check 1:** `planning_exists` is false → Error: "Run /gsd:new-project first."
-
-**Check 2:** `phase_found` is false → Error with available phases from ROADMAP.md.
-
-**Check 3:** `phase_dir` is null → Create phase directory:
-```bash
-mkdir -p ".planning/phases/${padded_phase}-${phase_slug}"
-```
-Re-run init to get updated paths.
-
-**Check 4:** DEV-SETUP.md exists — verify `.planning/DEV-SETUP.md` is present:
+**Check 1:** DEV-SETUP.md exists — verify `.planning/DEV-SETUP.md` is present:
 ```bash
 if [[ ! -f ".planning/DEV-SETUP.md" ]]; then
-  echo "❌ DEV-SETUP gate failed: .planning/DEV-SETUP.md not found."
+  echo "DEV-SETUP gate failed: .planning/DEV-SETUP.md not found."
   echo ""
   echo "  BDD requires a local development setup document before proceeding."
   echo "  This file describes how to build, run, and verify the service locally."
   echo ""
-  echo "  → Create .planning/DEV-SETUP.md with local build/run instructions."
-  echo "  → See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+  echo "  Create .planning/DEV-SETUP.md with local build/run instructions."
+  echo "  See template: ~/.claude/get-shit-done/templates/dev-setup.md"
   echo ""
   echo "  The file must include YAML frontmatter with: prerequisites, install,"
   echo "  build, start, and verify fields. Optionally include middleware"
@@ -65,94 +65,110 @@ fi
 ```
 Also verify the frontmatter is parseable (contains required fields):
 ```bash
-# Extract frontmatter and check required fields
 FRONTMATTER=$(sed -n '/^---$/,/^---$/p' .planning/DEV-SETUP.md)
 for field in install build start verify; do
   if ! echo "$FRONTMATTER" | grep -q "^${field}:"; then
-    echo "❌ DEV-SETUP gate failed: missing required field '${field}' in frontmatter."
-    echo "  → See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+    echo "DEV-SETUP gate failed: missing required field '${field}' in frontmatter."
+    echo "  See template: ~/.claude/get-shit-done/templates/dev-setup.md"
     exit 1
   fi
 done
 ```
 
-**Check 5:** Local environment can compile and run the service — parse DEV-SETUP.md frontmatter and execute validation steps sequentially:
+**Check 2:** Local environment can compile and run the service — parse DEV-SETUP.md frontmatter and execute validation steps sequentially:
 
-**Step 5a — Prerequisites:** For each item in `prerequisites[]`, run its `check` command. If a `version` is specified, compare the output. Report the first failure:
+**Step 2a — Prerequisites:** For each item in `prerequisites[]`, run its `check` command. If a `version` is specified, compare the output. Report the first failure:
 ```
-❌ DEV-SETUP gate failed at [prerequisites] {name}:
+DEV-SETUP gate failed at [prerequisites] {name}:
   Command: {check}
   Result: {output or "command not found"}
-  → Install {name} {version if specified}
+  Install {name} {version if specified}
 ```
 
-**Step 5b — Middleware:** For each item in `middleware[]`, run its `check` command. On failure, include the `setup` command (if present) and `config` hint:
+**Step 2b — Middleware:** For each item in `middleware[]`, run its `check` command. On failure, include the `setup` command (if present) and `config` hint:
 ```
-❌ DEV-SETUP gate failed at [middleware] {name}:
+DEV-SETUP gate failed at [middleware] {name}:
   Command: {check}
   Result: {output or "connection refused"}
-  → Start {name}: {setup}
-  → Config: {config}
+  Start {name}: {setup}
+  Config: {config}
 ```
 
-**Step 5c — Install:** Run the `install` command. On failure:
+**Step 2c — Install:** Run the `install` command. On failure:
 ```
-❌ DEV-SETUP gate failed at [install]:
+DEV-SETUP gate failed at [install]:
   Command: {install}
   Exit code: {code}
   Output (last 20 lines):
   {tail output}
 ```
 
-**Step 5d — Build:** Run the `build` command. On failure:
+**Step 2d — Build:** Run the `build` command. On failure:
 ```
-❌ DEV-SETUP gate failed at [build]:
+DEV-SETUP gate failed at [build]:
   Command: {build}
   Exit code: {code}
   Output (last 20 lines):
   {tail output}
 ```
 
-**Step 5e — Start + Verify:** Run `start` in background, wait `start_wait` seconds (default 5), then run `verify.command` with retries up to `verify.timeout` seconds (default 30). If `verify.expected` is set, check output contains that string. On failure:
+**Step 2e — Start + Verify:** Run `start` in background, wait `start_wait` seconds (default 5), then run `verify.command` with retries up to `verify.timeout` seconds (default 30). If `verify.expected` is set, check output contains that string. On failure:
 ```
-❌ DEV-SETUP gate failed at [verify]:
+DEV-SETUP gate failed at [verify]:
   Command: {verify.command}
   Expected: {verify.expected or "exit code 0"}
   Result: {output or "connection refused"}
-  → Check that the service starts correctly on the expected port.
-  → Review .planning/DEV-SETUP.md start and verify fields.
+  Check that the service starts correctly on the expected port.
+  Review .planning/DEV-SETUP.md start and verify fields.
 ```
 After verification (pass or fail), kill the background service process.
 
 **On success:** Display:
 ```
-✓ DEV-SETUP gate passed — service builds and runs locally.
+DEV-SETUP gate passed — service builds and runs locally.
 ```
 
-**Check 6:** `has_feature_files` is false → Error:
+**Check 3:** Feature files exist — based on `has_feature_files` from init or check that `FEATURE_TARGETS` resolve to actual `.feature` files:
+```bash
+# If specific feature files were provided, verify they exist
+for f in $FEATURE_TARGETS; do
+  if [[ "$f" == *.feature ]] && [[ ! -f "$f" ]]; then
+    echo "Feature file not found: $f"
+    exit 1
+  fi
+done
+```
+If `has_feature_files` is false and no specific files provided:
 ```
 No .feature files found in features/ directory (including subdirectories).
-Write your Gherkin scenarios first, then re-run /gsd:bdd-phase {N}.
+Write your Gherkin scenarios first, then re-run /gsd:run-bdd.
 ```
 
-**Check 7:** `design_path` is null → Error:
-```
-No DESIGN.md found for Phase {N}. Provide a technical design document at:
-.planning/phases/{padded_phase}-{phase_slug}/{padded_phase}-DESIGN.md
-```
-
-**Check 8:** `behave_available` is false → Error:
+**Check 4:** `behave_available` is false:
 ```
 behave not found. Install it: pip install behave
 ```
 
+**Check 5:** If `--design` provided, verify the file exists:
+```bash
+if [[ -n "$DESIGN_PATH" ]] && [[ ! -f "$DESIGN_PATH" ]]; then
+  echo "Design document not found: $DESIGN_PATH"
+  exit 1
+fi
+```
+
 ## 4. Initialize Progress Tracking
+
+Ensure `.planning/bdd/` directory exists:
+```bash
+mkdir -p .planning/bdd
+```
 
 **If `has_bdd_progress` is true (resuming):**
 Read `BDD-PROGRESS.json` from `bdd_progress_path`. Display:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD RESUMING — Phase {N}
+ GSD ► BDD RESUMING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Previously passed: {passed_count} scenarios
@@ -160,10 +176,9 @@ Read `BDD-PROGRESS.json` from `bdd_progress_path`. Display:
 ```
 
 **If `has_bdd_progress` is false (fresh start):**
-Create `BDD-PROGRESS.json` in phase directory:
+Create `BDD-PROGRESS.json` in `.planning/bdd/`:
 ```json
 {
-  "phase": {phase_number},
   "total_scenarios": 0,
   "passed": [],
   "failed": [],
@@ -177,12 +192,13 @@ Create `BDD-PROGRESS.json` in phase directory:
 Display banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PHASE {N}: {phase_name}
+ GSD ► BDD RUN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
- Mode: Scenario-driven development
- Design: {design_path}
- Features: features/*.feature
+ Mode: Scenario-driven development (phase-independent)
+ Features: {FEATURE_TARGETS}
+ Design: {DESIGN_PATH or "none"}
+ Tag: {tag or "all"}
 ```
 
 Record BDD start time:
@@ -192,11 +208,29 @@ BDD_START_EPOCH=$(date +%s)
 
 ## 5. Discover Scenarios
 
+Build the behave discovery command based on input:
+
 ```bash
-behave --dry-run --no-capture --format json features/ 2>&1
+# Base command
+BEHAVE_CMD="behave --dry-run --no-capture --format json"
+
+# Add feature targets
+BEHAVE_CMD="$BEHAVE_CMD $FEATURE_TARGETS"
+
+# Add tag filter if provided
+if [[ -n "$TAG_FILTER" ]]; then
+  BEHAVE_CMD="$BEHAVE_CMD --tags=$TAG_FILTER"
+fi
+
+# Add scenario name filter if provided
+if [[ -n "$SCENARIO_NAME" ]]; then
+  BEHAVE_CMD="$BEHAVE_CMD -n '$SCENARIO_NAME'"
+fi
+
+eval $BEHAVE_CMD 2>&1
 ```
 
-Parse JSON output to build full scenario list. If `--tag` flag provided, filter by tag.
+Parse JSON output to build full scenario list.
 
 Update `BDD-PROGRESS.json` with `total_scenarios` count.
 
@@ -204,7 +238,7 @@ Exclude scenarios already in `passed` list (for resume).
 
 **If no remaining scenarios:**
 - If `passed` is non-empty → all done, skip to step 12 (Completion).
-- If `passed` is empty → Error: "No scenarios found. Check your .feature files."
+- If `passed` is empty → Error: "No scenarios found matching the given filters. Check your .feature files, tags, or scenario names."
 
 Display scenario count:
 ```
@@ -251,7 +285,7 @@ Track `step_writer_dispatched = false`. It flips to `true` in 7b if the step-wri
 
 Set `step_writer_dispatched = true`.
 
-Display: `◆ Spawning step-writer for: {scenario_name}`
+Display: `Spawning step-writer for: {scenario_name}`
 
 ```
 Agent(
@@ -266,7 +300,7 @@ Agent(
 
     <files_to_read>
     - {feature_file}
-    - {design_path} (Technical design)
+    - {DESIGN_PATH} (Technical design — if provided)
     - features/steps/ (Existing step definitions — reuse first)
     - features/environment.py
     - ./CLAUDE.md (Project instructions, if exists)
@@ -311,7 +345,11 @@ If user selects "Abort" → go to step 12 (Completion) with partial results.
 
 Otherwise, dispatch `gsd-step-reviewer` to audit the steps the writer just produced. This catches contract mismatches, missing assertions, and intent-level bugs **before** the executor wastes cycles implementing against a broken spec.
 
-Display: `◆ Spawning step-reviewer for: {scenario_name}`
+Build the design context block:
+- If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design / API contract)`
+- If not: omit the design line from `<files_to_read>`
+
+Display: `Spawning step-reviewer for: {scenario_name}`
 
 ```
 Agent(
@@ -333,7 +371,7 @@ Agent(
     - features/steps/ (Step definitions written by step-writer)
     - features/steps/helpers/ (Helpers the steps call through)
     - features/environment.py
-    - {design_path} (Technical design / API contract)
+    {- DESIGN_PATH line if provided}
     - ./CLAUDE.md (Project instructions, if exists)
     </files_to_read>
 
@@ -366,7 +404,7 @@ Agent(
     - {feature_file}
     - features/steps/
     - features/steps/helpers/
-    - {design_path}
+    {- DESIGN_PATH line if provided}
     - ./CLAUDE.md (if exists)
     </files_to_read>
 
@@ -409,7 +447,11 @@ Get latest failure output:
 behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
-Display: `◆ Spawning executor for: {scenario_name}`
+Display: `Spawning executor for: {scenario_name}`
+
+Build the design context block:
+- If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design — follow architecture decisions)`
+- If not: omit the design line from `<files_to_read>`
 
 ```
 Agent(
@@ -425,8 +467,7 @@ Agent(
     <files_to_read>
     - {feature_file} (Scenario — understand expected behavior)
     - features/steps/ (Read step definitions to understand API calls)
-    - {design_path} (Technical design — follow architecture decisions)
-    - {state_path} (Project state)
+    {- DESIGN_PATH line if provided}
     - ./CLAUDE.md (Project instructions, if exists)
     </files_to_read>
 
@@ -473,7 +514,7 @@ Agent(
     <files_to_read>
     - {feature_file}
     - features/steps/
-    - {design_path}
+    {- DESIGN_PATH line if provided}
     - ./CLAUDE.md (if exists)
     </files_to_read>
 
@@ -511,7 +552,7 @@ Get code changes since scenario start:
 SCENARIO_DIFF=$(git diff {SCENARIO_START_COMMIT}..HEAD)
 ```
 
-Display: `◆ Spawning reviewer for: {scenario_name}`
+Display: `Spawning reviewer for: {scenario_name}`
 
 ```
 Agent(
@@ -526,7 +567,7 @@ Agent(
 
     <files_to_read>
     - {feature_file} (Scenario intent)
-    - {design_path} (Technical design — does implementation follow it?)
+    {- DESIGN_PATH line if provided}
     - ./CLAUDE.md (Project conventions, if exists)
     </files_to_read>
 
@@ -536,7 +577,7 @@ Agent(
 
     <review_dimensions>
     1. Scenario match — does the code do what the scenario describes?
-    2. Design alignment — does the implementation follow the technical design?
+    2. Design alignment — does the implementation follow the technical design? (skip if no design provided)
     3. Code quality — no obvious bugs, security issues, or anti-patterns?
     4. Scope — did the executor stay within the scenario boundary?
     </review_dimensions>
@@ -567,7 +608,7 @@ Agent(
 
     <files_to_read>
     - {feature_file}
-    - {design_path} (Technical design)
+    {- DESIGN_PATH line if provided}
     - features/steps/ (Step definitions)
     - ./CLAUDE.md (if exists)
     </files_to_read>
@@ -624,14 +665,14 @@ Update `BDD-PROGRESS.json`:
 - Increment `iteration`
 - Reset `stuck_count` to 0
 
-Update STATE.md:
+Update STATE.md (if `.planning/` exists):
 ```bash
 SCENARIO_END_EPOCH=$(date +%s)
 SCENARIO_DURATION_SEC=$(( SCENARIO_END_EPOCH - SCENARIO_START_EPOCH ))
 SCENARIO_DURATION_MIN=$(( SCENARIO_DURATION_SEC / 60 ))
 
 node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
-  --phase "${PHASE}" --plan "bdd" \
+  --plan "bdd" \
   --duration "${SCENARIO_DURATION_MIN}m" \
   --tasks "1" --files "$(git diff --name-only {SCENARIO_START_COMMIT}..HEAD | wc -l)"
 ```
@@ -639,15 +680,15 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
 Display progress:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PROGRESS — Phase {N}
+ GSD ► BDD PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
- ✓ {passed_count}/{total_count} scenarios passing
+ {passed_count}/{total_count} scenarios passing
 
  [{progress_bar}] {percentage}%
 
- Latest: ✓ {scenario_name}
- Next:   → {next_scenario_name}
+ Latest: {scenario_name}
+ Next:   {next_scenario_name}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -691,11 +732,10 @@ fi
 
 ### 12b. Generate BDD-SUMMARY.md
 
-Write `{padded_phase}-BDD-SUMMARY.md` in phase directory:
+Write `BDD-SUMMARY.md` in `.planning/bdd/`:
 
 ```markdown
 ---
-phase: {N}
 plan: bdd
 type: bdd
 duration: {TOTAL_DURATION}
@@ -704,22 +744,30 @@ scenarios_total: {total}
 scenarios_passed: {passed_count}
 scenarios_failed: {failed_count}
 scenarios_skipped: {skipped_count}
-requirements-completed: [{phase_req_ids that were covered}]
+features: [{feature file list}]
+design: {DESIGN_PATH or "none"}
+tag_filter: {tag or "none"}
 key-files:
   created: [{new files from git}]
   modified: [{modified files from git}]
 ---
 
-# Phase {N}: {phase_name} — BDD Summary
+# BDD Run Summary
 
-Scenario-driven implementation via /gsd:bdd-phase.
+Scenario-driven implementation via /gsd:run-bdd.
+
+## Input
+
+- Features: {FEATURE_TARGETS}
+- Tag: {tag or "all"}
+- Design: {DESIGN_PATH or "none"}
 
 ## Scenario Results
 
-| # | Scenario | Status | Commit | Duration |
-|---|----------|--------|--------|----------|
+| # | Scenario | Feature | Status | Commit | Duration |
+|---|----------|---------|--------|--------|----------|
 {for each scenario in order:}
-| {i} | {name} | {PASS/FAIL/SKIP} | {commit_hash or —} | {duration or —} |
+| {i} | {name} | {feature_file} | {PASS/FAIL/SKIP} | {commit_hash or —} | {duration or —} |
 
 ## Review Findings
 
@@ -729,10 +777,6 @@ Scenario-driven implementation via /gsd:bdd-phase.
 
 {regression_fix_log entries, or "None"}
 
-## Deviations from Design
-
-{deviations, or "None"}
-
 ## Issues Encountered
 
 {failed/skipped scenarios with reasons, or "None"}
@@ -740,45 +784,30 @@ Scenario-driven implementation via /gsd:bdd-phase.
 
 ### 12c. Update GSD state
 
-```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" roadmap update-plan-progress "${PHASE}"
-```
-
-If `phase_req_ids` is not null:
-```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" requirements mark-complete ${REQ_IDS}
-```
+If `.planning/STATE.md` exists, update it with total metrics. **Do NOT update ROADMAP.md or REQUIREMENTS.md.**
 
 ### 12d. Commit metadata
 
 ```bash
 node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
-  "docs(phase-${PHASE}): complete BDD phase summary" \
-  --files "${phase_dir}/${padded_phase}-BDD-SUMMARY.md" "${phase_dir}/BDD-PROGRESS.json" .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
+  "docs(bdd): complete BDD run summary" \
+  --files ".planning/bdd/BDD-SUMMARY.md" ".planning/bdd/BDD-PROGRESS.json" .planning/STATE.md
 ```
 
 ### 12e. Display completion
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PHASE {N} COMPLETE ✓
+ GSD ► BDD RUN COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Phase {N}: {phase_name} — {passed}/{total} scenarios passing
+{passed}/{total} scenarios passing
 
 Duration: {TOTAL_DURATION}
 Commits: {commit_count}
 Files changed: {file_count}
 
-───────────────────────────────────────────────────
-
-## ▶ Next Up
-
-/gsd:verify-work {N}      — manual verification
-/gsd:plan-phase {N+1}     — plan next phase
-/gsd:discuss-phase {N+1}  — discuss next phase
-
-<sub>/clear first → fresh context window</sub>
+Summary: .planning/bdd/BDD-SUMMARY.md
 
 ───────────────────────────────────────────────────
 ```
@@ -786,19 +815,21 @@ Files changed: {file_count}
 </process>
 
 <success_criteria>
-- [ ] Pre-flight checks all pass before entering loop
-- [ ] BDD-PROGRESS.json created/loaded correctly
-- [ ] Scenarios discovered via behave --dry-run
+- [ ] Pre-flight checks all pass before entering loop (DEV-SETUP, behave, feature files)
+- [ ] Arguments parsed correctly (feature paths, tags, scenario names, design path)
+- [ ] BDD-PROGRESS.json created/loaded in .planning/bdd/
+- [ ] Scenarios discovered via behave --dry-run with correct filters
 - [ ] Each scenario iterated: RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
 - [ ] gsd-step-writer dispatched for undefined steps
 - [ ] gsd-step-reviewer dispatched after step-writer (unless --skip-review) and its verdict honored
 - [ ] gsd-executor dispatched for implementation
 - [ ] gsd-verifier dispatched for review (unless --skip-review)
+- [ ] Design document passed to agents when --design is provided
+- [ ] Design document gracefully omitted when not provided
 - [ ] Regression check runs all previously passed scenarios
 - [ ] BDD-PROGRESS.json updated after each scenario
-- [ ] STATE.md updated with metrics
-- [ ] BDD-SUMMARY.md generated on completion
-- [ ] ROADMAP.md and REQUIREMENTS.md updated
+- [ ] STATE.md updated with metrics (no ROADMAP/REQUIREMENTS updates)
+- [ ] BDD-SUMMARY.md generated on completion in .planning/bdd/
 - [ ] Stuck detection triggers after 5 iterations without progress
 - [ ] Resume works correctly from BDD-PROGRESS.json
 </success_criteria>

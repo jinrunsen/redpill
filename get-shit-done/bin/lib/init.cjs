@@ -1452,6 +1452,7 @@ function cmdInitBddPhase(cwd, phase, raw) {
     // Models
     executor_model: resolveModelInternal(cwd, 'gsd-executor'),
     step_writer_model: resolveModelInternal(cwd, 'gsd-step-writer'),
+    step_reviewer_model: resolveModelInternal(cwd, 'gsd-step-reviewer'),
     verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
 
     // Config flags
@@ -1534,6 +1535,67 @@ function cmdInitBddPhase(cwd, phase, raw) {
   output(withProjectRoot(cwd, result), raw);
 }
 
+function cmdInitRunBdd(cwd, raw) {
+  const config = loadConfig(cwd);
+
+  const result = {
+    // Models
+    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
+    step_writer_model: resolveModelInternal(cwd, 'gsd-step-writer'),
+    step_reviewer_model: resolveModelInternal(cwd, 'gsd-step-reviewer'),
+    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+
+    // Config flags
+    commit_docs: config.commit_docs,
+    text_mode: config.text_mode,
+
+    // Environment
+    planning_exists: fs.existsSync(planningDir(cwd)),
+
+    // File paths
+    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    bdd_dir: '.planning/bdd',
+  };
+
+  // Check for existing BDD-PROGRESS.json in .planning/bdd/
+  const bddDir = path.join(planningDir(cwd), 'bdd');
+  const progressPath = path.join(bddDir, 'BDD-PROGRESS.json');
+  result.has_bdd_progress = fs.existsSync(progressPath);
+  result.bdd_progress_path = toPosixPath(path.relative(cwd, progressPath));
+
+  // Check for feature files (recursive — supports subdirectories)
+  const featuresDir = path.join(cwd, 'features');
+  function hasFeatureFiles(dir) {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isFile() && entry.name.endsWith('.feature')) return true;
+        if (entry.isDirectory()) {
+          if (hasFeatureFiles(path.join(dir, entry.name))) return true;
+        }
+      }
+    } catch {}
+    return false;
+  }
+  try {
+    result.has_feature_files = fs.existsSync(featuresDir) &&
+      fs.statSync(featuresDir).isDirectory() &&
+      hasFeatureFiles(featuresDir);
+  } catch {
+    result.has_feature_files = false;
+  }
+
+  // Check behave availability
+  try {
+    execSync('behave --version', { stdio: 'pipe', timeout: 5000 });
+    result.behave_available = true;
+  } catch {
+    result.behave_available = false;
+  }
+
+  output(withProjectRoot(cwd, result), raw);
+}
+
 module.exports = {
   cmdInitExecutePhase,
   cmdInitPlanPhase,
@@ -1555,4 +1617,5 @@ module.exports = {
   buildAgentSkillsBlock,
   cmdAgentSkills,
   cmdInitBddPhase,
+  cmdInitRunBdd,
 };

@@ -776,8 +776,11 @@ async function runCommand(command, args, cwd, raw) {
         case 'bdd-phase':
           init.cmdInitBddPhase(cwd, args[2], raw);
           break;
+        case 'run-bdd':
+          init.cmdInitRunBdd(cwd, raw);
+          break;
         default:
-          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress, manager, new-workspace, list-workspaces, remove-workspace, bdd-phase`);
+          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress, manager, new-workspace, list-workspaces, remove-workspace, bdd-phase, run-bdd`);
       }
       break;
     }
