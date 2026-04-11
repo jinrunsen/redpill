@@ -176,6 +176,12 @@ vs Node/Jest）。
 - **Auto 模式**：一次性生成，场景数上限为 `feature_auto_scenario_cap`
   （默认 8）；必须覆盖 happy path + 至少一条错误路径 + 关键边界条件
   （如存在）
+- **示例数据必须真实**：场景中所有具体值必须使用业务语境里真实可能出现
+  的名称，**禁止**抽象占位（`A/B/C`、`组1/组2`、`Foo/Bar`、`user1/user2`、
+  `测试部门`）。正确示例：区域 → `华东区/华南区/华北区`；部门 →
+  `市场办公中心/研发中心/财务中心`；城市 → `上海市/北京市/深圳市`；
+  用户 → `alice/bob`（或中文名）。Domain（见步骤 5）和 `tech_stack_hint`
+  应指导词汇选择——电商系统用电商术语，医疗系统用医疗术语
 
 ### 7. 建立 Task Workspace
 
@@ -203,14 +209,24 @@ Agent(
   description="Review feature: ${SLUG}",
   prompt="
     <objective>
-    Review the Gherkin .feature file for spec quality and business language.
+    Review the Gherkin .feature file for spec quality, business language,
+    AND sample data authenticity (no placeholder values — every concrete
+    value must be realistic domain-appropriate data).
     </objective>
 
     <files_to_read>
     - ${TASK_DIR}/${SLUG}.feature
-    - ${TASK_DIR}/TASK.md (context: original description, extends baseline)
+    - ${TASK_DIR}/TASK.md (context: original description, domain, extends baseline)
     ${EXTENDS:+- ${EXTENDS} (baseline for comparison)}
     </files_to_read>
+
+    <review_emphasis>
+    Explicitly audit every sample value in the scenarios. Flag any abstract
+    placeholders (A/B/C, 组1/组2, Foo/Bar, user1/user2, "测试部门") as
+    CRITICAL auto-fixable issues with a concrete realistic replacement in
+    the 'suggestion' field, using domain-appropriate vocabulary matching
+    the TASK.md domain field.
+    </review_emphasis>
 
     <output_contract>
     Return a <FEATURE_REVIEW> block as specified in your agent definition.
@@ -324,6 +340,19 @@ deferred TODO，而不是失败。
 7. **Feature 头部**（`As a / I want / So that`）。
 8. **无矛盾**（同一 feature 的场景之间不冲突）。
 9. **场景独立性。**
+10. **示例数据真实性 + 一致性**（CRITICAL）。场景中每一个具体值都必须是
+    业务语境里**真实可能出现**的数据，而不是抽象占位。并且同类数据在所有
+    场景之间必须保持**一致风格**（不能一会儿用 `A/B/C`、一会儿用真实名字）。
+    - ❌ 禁止：`A/B/C`、`组 1/组 2`、`Foo/Bar`、`user1/user2`、
+      `测试部门`、`xxx 公司`、`示例地址`、`11111`
+    - ✅ 推荐：区域用 `华东区/华南区/华北区`；部门用 `市场办公中心/研发中心/
+      财务中心`；城市用 `上海市/北京市/深圳市`；人名用 `alice/bob` 或
+      `张伟/李娜`；公司用 `某已知同行业公司`；金额/数量用业务合理的量级
+    - 判定依据：若领域专家看到数据会说"这不是我们系统里会出现的样子"，
+      就算违反。抽象占位一律标 CRITICAL / auto-fixable，并在 `suggestion`
+      中给出**具体的**替换值（不是"请用真实数据"这种空话）
+    - 应当结合 `TASK.md` 中的 `domain` 字段和项目 `tech_stack_hint` 来
+      推断该领域下合理的术语和数据风格
 
 ### 输出契约（强制）
 
@@ -339,6 +368,7 @@ quality_scores:
   step_consistency: HIGH | ACCEPTABLE | NEEDS_WORK
   completeness: HIGH | ACCEPTABLE | NEEDS_WORK
   parameterization: HIGH | ACCEPTABLE | NEEDS_WORK
+  data_authenticity: HIGH | ACCEPTABLE | NEEDS_WORK
 
 issues:
   - id: 1
@@ -364,7 +394,9 @@ summary: "一段话的整体评估"
 
 - **auto-fixable**：业务语言改写、命令式→声明式重写、step 一致性重命名、
   参数化改进、为实现一场景一行为进行的场景拆分、缺失的
-  `As a/I want/So that`、缺失的 `@status-*` 标签、Gherkin 语法错误。
+  `As a/I want/So that`、缺失的 `@status-*` 标签、Gherkin 语法错误、
+  **示例数据真实性替换**（把 `A/B/C` 等占位替换为领域内真实值；`suggestion`
+  必须给出具体替换值）。
 - **product-decision**：缺失的场景覆盖、矛盾、行为歧义、缺失的 Rule、
   与已有 feature 的冲突。
 
@@ -482,6 +514,10 @@ workflow。
 - [ ] 两种模式在写入文件后都至少调用一次 `gsd-feature-reviewer`。
 - [ ] Reviewer 返回的 `<FEATURE_REVIEW>` 块中每条 issue 都带有 `category`
       字段。
+- [ ] Reviewer 的 `quality_scores` 包含 `data_authenticity` 评分。
+- [ ] 所有抽象占位（`A/B/C`、`组1/组2`、`Foo/Bar`、`user1/user2` 等）
+      被 reviewer 标为 CRITICAL auto-fixable，且 `suggestion` 给出领域内
+      具体替换值，在 `--auto` 模式下被自动替换。
 - [ ] `--auto` 模式下技术类 issue 被自动修正；交互模式下通过批量确认处理。
 - [ ] 产品类 issue 永远不会被自动修改 —— `--auto` 模式下它们落入 `.feature`
       文件末尾的 `# TODO: Open questions` 块 和 `TASK.md`；交互模式下由
