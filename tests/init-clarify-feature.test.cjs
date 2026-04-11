@@ -98,3 +98,111 @@ describe('extractFeatureDomains helper', () => {
     assert.deepStrictEqual(result, ['auth']);
   });
 });
+
+describe('init clarify-feature handler', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('returns task_id in YYMMDD-xxx format', () => {
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.match(output.task_id, /^\d{6}-[0-9a-z]{3}$/,
+      `task_id ${output.task_id} does not match YYMMDD-xxx`);
+  });
+
+  test('returns standard paths and verifier_model', () => {
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.features_task_dir_base, '.planning/features');
+    assert.strictEqual(output.state_path, '.planning/STATE.md');
+    assert.strictEqual(output.claude_md_path, './CLAUDE.md');
+    assert.ok('verifier_model' in output, 'missing verifier_model');
+    assert.ok('text_mode' in output, 'missing text_mode');
+  });
+
+  test('returns empty existing_features when features/ missing', () => {
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.deepStrictEqual(output.existing_features, []);
+    assert.deepStrictEqual(output.existing_feature_domains, []);
+    assert.strictEqual(output.has_existing_features, false);
+  });
+
+  test('returns populated existing_features and domains when features/ has files', () => {
+    const authDir = path.join(tmpDir, 'features', 'auth');
+    fs.mkdirSync(authDir, { recursive: true });
+    fs.writeFileSync(path.join(authDir, 'login.feature'), 'Feature: Login');
+    fs.writeFileSync(path.join(tmpDir, 'features', 'health.feature'), 'Feature: Health');
+
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.has_existing_features, true);
+    assert.strictEqual(output.existing_features.length, 2);
+    assert.deepStrictEqual(output.existing_feature_domains, ['auth']);
+  });
+
+  test('returns planning_exists true when .planning/ present', () => {
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.planning_exists, true);
+  });
+
+  test('tolerates missing .planning/ directory', () => {
+    // createTempProject creates .planning/phases — remove it
+    fs.rmSync(path.join(tmpDir, '.planning'), { recursive: true, force: true });
+
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.planning_exists, false);
+  });
+
+  test('detects pyproject.toml in tech_stack_hint', () => {
+    fs.writeFileSync(path.join(tmpDir, 'pyproject.toml'), '[project]\nname = "x"\n');
+
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.ok(output.tech_stack_hint, 'tech_stack_hint missing');
+    assert.strictEqual(output.tech_stack_hint.has_pyproject_toml, true);
+    assert.strictEqual(output.tech_stack_hint.has_package_json, false);
+  });
+
+  test('detects package.json in tech_stack_hint', () => {
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{"name":"x"}');
+
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.tech_stack_hint.has_package_json, true);
+  });
+
+  test('returns default review config values', () => {
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.feature_review_max_rounds, 2);
+    assert.strictEqual(output.feature_auto_scenario_cap, 8);
+  });
+});

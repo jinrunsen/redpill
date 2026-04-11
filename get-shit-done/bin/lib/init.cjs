@@ -1652,6 +1652,88 @@ function cmdInitRunBdd(cwd, raw) {
   output(withProjectRoot(cwd, result), raw);
 }
 
+/**
+ * Init handler for /gsd:clarify-feature.
+ *
+ * Returns context needed by the clarify-feature workflow: a fresh
+ * task_id (YYMMDD-xxx), existing feature inventory, tech stack hints,
+ * and review config knobs. Lenient about missing .planning/.
+ */
+function cmdInitClarifyFeature(cwd, raw) {
+  const config = loadConfig(cwd);
+  const now = new Date();
+
+  // YYMMDD-xxx — same scheme as cmdInitQuick, 2s-precision Base36.
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const dateStr = yy + mm + dd;
+  const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const timeBlocks = Math.floor(secondsSinceMidnight / 2);
+  const timeEncoded = timeBlocks.toString(36).padStart(3, '0');
+  const taskId = dateStr + '-' + timeEncoded;
+
+  const existingFeatures = scanFeatureFiles(cwd);
+  const existingDomains = extractFeatureDomains(existingFeatures);
+
+  // Tech stack hint — best-effort, file existence only.
+  let techStackHint = null;
+  try {
+    techStackHint = {
+      has_package_json: fs.existsSync(path.join(cwd, 'package.json')),
+      has_pyproject_toml: fs.existsSync(path.join(cwd, 'pyproject.toml')),
+      has_cargo_toml: fs.existsSync(path.join(cwd, 'Cargo.toml')),
+      has_go_mod: fs.existsSync(path.join(cwd, 'go.mod')),
+    };
+  } catch {
+    techStackHint = null;
+  }
+
+  // Review knobs from config.json (workflow section), with defaults.
+  const workflowCfg = (config && config.workflow) || {};
+  const featureReviewMaxRounds =
+    typeof workflowCfg.feature_review_max_rounds === 'number'
+      ? workflowCfg.feature_review_max_rounds
+      : 2;
+  const featureAutoScenarioCap =
+    typeof workflowCfg.feature_auto_scenario_cap === 'number'
+      ? workflowCfg.feature_auto_scenario_cap
+      : 8;
+
+  const result = {
+    // Models
+    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+
+    // Config flags
+    text_mode: config.text_mode,
+
+    // Environment
+    planning_exists: fs.existsSync(planningRoot(cwd)),
+
+    // Paths
+    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    claude_md_path: './CLAUDE.md',
+    features_task_dir_base: '.planning/features',
+
+    // Task identity
+    task_id: taskId,
+
+    // Feature inventory
+    existing_features: existingFeatures,
+    existing_feature_domains: existingDomains,
+    has_existing_features: existingFeatures.length > 0,
+
+    // Tech stack hint (best-effort)
+    tech_stack_hint: techStackHint,
+
+    // Review config
+    feature_review_max_rounds: featureReviewMaxRounds,
+    feature_auto_scenario_cap: featureAutoScenarioCap,
+  };
+
+  output(withProjectRoot(cwd, result), raw);
+}
+
 module.exports = {
   cmdInitExecutePhase,
   cmdInitPlanPhase,
@@ -1676,4 +1758,5 @@ module.exports = {
   cmdInitRunBdd,
   scanFeatureFiles,
   extractFeatureDomains,
+  cmdInitClarifyFeature,
 };
