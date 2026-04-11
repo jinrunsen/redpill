@@ -11,7 +11,9 @@
     "security_asvs_level": 1,
     "security_block_on": "high",
     "discuss_mode": "discuss",
-    "research_before_questions": false
+    "research_before_questions": false,
+    "feature_review_max_rounds": 2,
+    "feature_auto_scenario_cap": 8
   },
   "planning": {
     "commit_docs": true,
