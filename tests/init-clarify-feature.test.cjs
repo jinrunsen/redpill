@@ -127,8 +127,9 @@ describe('init clarify-feature handler', () => {
     assert.strictEqual(output.features_task_dir_base, '.planning/features');
     assert.strictEqual(output.state_path, '.planning/STATE.md');
     assert.strictEqual(output.claude_md_path, './CLAUDE.md');
-    assert.ok('verifier_model' in output, 'missing verifier_model');
-    assert.ok('text_mode' in output, 'missing text_mode');
+    assert.strictEqual(typeof output.verifier_model, 'string', 'verifier_model should be a string');
+    assert.notStrictEqual(output.verifier_model, '', 'verifier_model should not be empty');
+    assert.strictEqual(typeof output.text_mode, 'boolean', 'text_mode should be a boolean');
   });
 
   test('returns empty existing_features when features/ missing', () => {
@@ -204,5 +205,22 @@ describe('init clarify-feature handler', () => {
     const output = JSON.parse(result.output);
     assert.strictEqual(output.feature_review_max_rounds, 2);
     assert.strictEqual(output.feature_auto_scenario_cap, 8);
+  });
+
+  test('honors feature_review_max_rounds and feature_auto_scenario_cap from config.json', () => {
+    const configPath = path.join(tmpDir, '.planning', 'config.json');
+    fs.writeFileSync(configPath, JSON.stringify({
+      workflow: {
+        feature_review_max_rounds: 5,
+        feature_auto_scenario_cap: 20,
+      },
+    }));
+
+    const result = runGsdTools('init clarify-feature', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.feature_review_max_rounds, 5);
+    assert.strictEqual(output.feature_auto_scenario_cap, 20);
   });
 });

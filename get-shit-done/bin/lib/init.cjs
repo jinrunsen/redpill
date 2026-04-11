@@ -1689,17 +1689,7 @@ function cmdInitClarifyFeature(cwd, raw) {
     techStackHint = null;
   }
 
-  // Review knobs from config.json (workflow section), with defaults.
-  const workflowCfg = (config && config.workflow) || {};
-  const featureReviewMaxRounds =
-    typeof workflowCfg.feature_review_max_rounds === 'number'
-      ? workflowCfg.feature_review_max_rounds
-      : 2;
-  const featureAutoScenarioCap =
-    typeof workflowCfg.feature_auto_scenario_cap === 'number'
-      ? workflowCfg.feature_auto_scenario_cap
-      : 8;
-
+  // Review knobs come from config.workflow.* via loadConfig's flattened schema.
   const result = {
     // Models
     verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
@@ -1727,8 +1717,8 @@ function cmdInitClarifyFeature(cwd, raw) {
     tech_stack_hint: techStackHint,
 
     // Review config
-    feature_review_max_rounds: featureReviewMaxRounds,
-    feature_auto_scenario_cap: featureAutoScenarioCap,
+    feature_review_max_rounds: config.feature_review_max_rounds,
+    feature_auto_scenario_cap: config.feature_auto_scenario_cap,
   };
 
   output(withProjectRoot(cwd, result), raw);
