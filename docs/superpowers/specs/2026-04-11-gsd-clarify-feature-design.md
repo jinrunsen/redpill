@@ -46,15 +46,15 @@ workflow 融合为一个 GSD 原生命令，满足以下要求：
 ## 命令形态
 
 ```
-/gsd:clarify-feature <description> [--auto] [--area <name>] [--extends <path>]
+/gsd:clarify-feature <description> [--auto] [--domain <name>] [--extends <path>]
 ```
 
 **Flag 说明：**
 
 - `--auto` — 自主模式。跳过澄清提问，直接生成场景，自动修正 reviewer
   提出的技术类问题，将产品类问题写入 `.feature` 文件末尾的 TODO 注释块。
-- `--area <name>` — 预设目标 area（归档时位于 `features/` 下的子目录）。
-  跳过 area 选择提问。
+- `--domain <name>` — 预设目标 domain（归档时位于 `features/` 下的子目录，
+  对应 DDD 的领域/子域划分）。跳过 domain 选择提问。
 - `--extends <path>` — 扩展已有 feature。原文件被拷贝到 task workspace
   作为基线，直到归档前保持不被修改。
 
@@ -82,7 +82,7 @@ id: 251011-a3f
 slug: user-login
 description: "用户登录 + 错误处理"
 created: 2026-04-11T10:23:00Z
-area: auth                         # 目标子目录；位于根目录时为 null
+domain: auth                       # DDD 领域/子域；位于根目录时为 null
 target_path: features/auth/user-login.feature
 extends: null                      # 或 features/auth/login.feature
 status: clarified                  # clarified | designed | bdd-in-progress | archived
@@ -119,14 +119,14 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 
 解析 JSON，提取：`verifier_model`、`text_mode`、`planning_exists`、
 `state_path`、`claude_md_path`、`features_task_dir_base`、`task_id`、
-`existing_features[]`、`existing_feature_areas[]`、`has_existing_features`、
+`existing_features[]`、`existing_feature_domains[]`、`has_existing_features`、
 `tech_stack_hint`、`feature_review_max_rounds`、`feature_auto_scenario_cap`。
 
 ### 2. 解析参数
 
 - 非 flag 词汇 → `$DESCRIPTION`
 - `--auto` → `$AUTO_MODE=true`
-- `--area <name>` → `$AREA=<name>`
+- `--domain <name>` → `$DOMAIN=<name>`
 - `--extends <path>` → `$EXTENDS=<path>`
 - `--text` 或 init 返回的 `text_mode: true` → `$TEXT_MODE=true`
 
@@ -156,14 +156,16 @@ vs Node/Jest）。
 
 **Auto 模式** — 跳过对话；Claude 直接分析 `$DESCRIPTION`。
 
-### 5. 确定 area
+### 5. 确定 domain
 
-仅用于填写 `TASK.md` 中的 `target_path`。**不影响**本步骤的文件写入位置。
+对应 DDD 的领域（domain）/子域（subdomain）划分。仅用于填写 `TASK.md`
+中的 `target_path`。**不影响**本步骤的文件写入位置。
 
-- 若 `$AREA` 已提供 → 使用它
-- **交互模式**：`AskUserQuestion` 列出 `existing_feature_areas[]` +
-  "创建新 area" + "根目录（无子目录）"
-- **Auto 模式**：LLM 从 `$DESCRIPTION` 中推断。置信度不足时使用根目录。
+- 若 `$DOMAIN` 已提供 → 使用它
+- **交互模式**：`AskUserQuestion` 列出 `existing_feature_domains[]` +
+  "创建新 domain" + "根目录（无子目录）"
+- **Auto 模式**：LLM 从 `$DESCRIPTION` 中推断 domain。置信度不足时使用
+  根目录。
 
 ### 6. 生成 Feature 内容（内存中）
 
@@ -280,7 +282,7 @@ Agent(
 
 若 `.planning/STATE.md` 存在，通过 `gsd-tools.cjs state record-feature-task`
 helper 将任务追加到新的 "Feature Tasks" 表（最小 schema：id、slug、status、
-created、scenarios、area）。若该 helper 尚不存在，workflow 在输出中暴露一条
+created、scenarios、domain）。若该 helper 尚不存在，workflow 在输出中暴露一条
 deferred TODO，而不是失败。
 
 显示完成 banner：
@@ -391,7 +393,7 @@ summary: "一段话的整体评估"
   "features_task_dir_base": ".planning/features",
   "task_id": "251011-a3f",
   "existing_features": ["features/auth/login.feature", "..."],
-  "existing_feature_areas": ["auth", "billing"],
+  "existing_feature_domains": ["auth", "billing"],
   "has_existing_features": true,
   "tech_stack_hint": {
     "language": "python",
@@ -409,8 +411,8 @@ summary: "一段话的整体评估"
   不要另起炉灶。
 - `existing_features[]`：递归扫描 `features/**/*.feature`（与 db37b70 中
   引入的递归修复逻辑一致）。
-- `existing_feature_areas[]`：提取每个条目的一级子目录；去重；忽略根目录
-  下的 feature。
+- `existing_feature_domains[]`：提取每个条目的一级子目录（对应 DDD 的
+  领域/子域）；去重；忽略根目录下的 feature。
 - `verifier_model`：沿用 `init bdd-phase` 中 `verifier_model` 的解析路径。
 - `planning_exists`：宽松处理 —— `clarify-feature` 在 `/gsd:new-project`
   未运行的情况下也必须能工作（与 `run-bdd` 一致）。
@@ -424,7 +426,7 @@ summary: "一段话的整体评估"
 **抽取的可复用 helper：**
 
 - `scanFeatureFiles(root)` —— 递归 `*.feature` 扫描
-- `extractFeatureAreas(paths)` —— 一级子目录提取
+- `extractFeatureDomains(paths)` —— 一级子目录提取（作为 DDD domain 列表）
 
 这些 helper 将被未来的 `init design-feature` 和 `init archive-feature`
 handler 复用。
@@ -453,7 +455,7 @@ handler 复用。
 ---
 name: gsd:clarify-feature
 description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with gsd-feature-reviewer
-argument-hint: "<description> [--auto] [--area <name>] [--extends <path-to-feature>]"
+argument-hint: "<description> [--auto] [--domain <name>] [--extends <path-to-feature>]"
 allowed-tools:
   - Read
   - Write
@@ -493,7 +495,7 @@ workflow。
 - [ ] 命令在 `.planning/` 不存在时也能工作（与 `run-bdd` 一致的宽松模式）。
 - [ ] `gsd-feature-reviewer` 是只读的 —— `allowed-tools: [Read, Glob, Grep]`。
 - [ ] `gsd-tools.cjs` 中新增 `init clarify-feature` handler，包含可复用的
-      `scanFeatureFiles` / `extractFeatureAreas` helper。
+      `scanFeatureFiles` / `extractFeatureDomains` helper。
 
 ## 风险与开放项
 
