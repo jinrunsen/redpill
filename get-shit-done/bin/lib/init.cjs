@@ -1421,6 +1421,40 @@ function cmdAgentSkills(cwd, agentType, raw) {
   process.exit(0);
 }
 
+/**
+ * Recursively scan `<cwd>/features/` for `.feature` files.
+ * Returns POSIX-style paths relative to `cwd`. Empty array if
+ * features/ is missing or unreadable.
+ */
+function scanFeatureFiles(cwd) {
+  const featuresDir = path.join(cwd, 'features');
+  const results = [];
+  function walk(dir) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile() && entry.name.endsWith('.feature')) {
+        results.push(toPosixPath(path.relative(cwd, full)));
+      }
+    }
+  }
+  if (fs.existsSync(featuresDir)) {
+    try {
+      if (fs.statSync(featuresDir).isDirectory()) {
+        walk(featuresDir);
+      }
+    } catch {}
+  }
+  return results;
+}
+
 function cmdInitBddPhase(cwd, phase, raw) {
   if (!phase) {
     error('phase required for init bdd-phase');
@@ -1618,4 +1652,5 @@ module.exports = {
   cmdAgentSkills,
   cmdInitBddPhase,
   cmdInitRunBdd,
+  scanFeatureFiles,
 };
