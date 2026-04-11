@@ -160,6 +160,36 @@ Research, plan, and verify a phase.
 
 ---
 
+### `/gsd:clarify-feature`
+
+Clarify a feature idea into a Gherkin `.feature` file and validate it with `gsd-feature-reviewer`. Output is staged in `.planning/features/{task_id}-{slug}/` — the same workspace will later hold design docs, BDD progress, and BDD summary for this feature's lifecycle.
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `<description>` | Yes (for `--auto`) | Free-text feature description; prompted interactively if omitted in interactive mode |
+
+| Flag | Description |
+|------|-------------|
+| `--auto` | Autonomous mode. Skip clarifying questions, generate scenarios in one pass (capped at `workflow.feature_auto_scenario_cap`, default 8), auto-fix technical reviewer findings, record product questions in a `# TODO: Open questions` block |
+| `--domain <name>` | Pre-set the DDD domain (subdirectory under `features/` at archive time). Skips the domain prompt |
+| `--extends <path>` | Extend an existing feature. The original is copied into the task workspace as a baseline and kept untouched; new/revised scenarios are layered on top |
+
+**Review loop:** After the file is written, `gsd-feature-reviewer` audits it for business language, one-scenario-one-behavior, step consistency, completeness, parameterization, and **sample data authenticity** (no `A/B/C`, `Foo/Bar`, `user1/user2` placeholders — use domain-appropriate real-world values like `华东区`, `市场办公中心`, `alice`). Technical issues are auto-fixed; product-decision issues are surfaced to the user (interactive) or written to a TODO block (auto). The loop runs at most `workflow.feature_review_max_rounds` rounds (default 2).
+
+**Produces:** `.planning/features/{task_id}-{slug}/{slug}.feature` and `.planning/features/{task_id}-{slug}/TASK.md`
+
+```bash
+/gsd:clarify-feature "用户登录 + 错误处理"                      # Interactive
+/gsd:clarify-feature "用户登录" --auto                           # Autonomous
+/gsd:clarify-feature "用户登录" --auto --domain auth             # Preset domain
+/gsd:clarify-feature "加 OTP 场景" --extends features/auth/login.feature
+```
+
+**Next steps after completion:**
+- `/gsd:run-bdd .planning/features/<task>/<slug>.feature` — execute BDD cycle against the staged feature
+
+---
+
 ### `/gsd:execute-phase`
 
 Execute all plans in a phase with wave-based parallelization, or run a specific wave.
