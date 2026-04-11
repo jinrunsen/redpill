@@ -1455,6 +1455,28 @@ function scanFeatureFiles(cwd) {
   return results;
 }
 
+/**
+ * Given POSIX-style paths under `features/`, return the unique set of
+ * first-level subdirectory names (the DDD "domain" of each feature).
+ * Root-level features (no subdirectory) are excluded. Order is stable
+ * by first occurrence.
+ */
+function extractFeatureDomains(featurePaths) {
+  const seen = new Set();
+  const result = [];
+  for (const p of featurePaths) {
+    const parts = p.split('/');
+    // Expect ['features', '<domain>', ...rest]
+    if (parts.length < 3 || parts[0] !== 'features') continue;
+    const domain = parts[1];
+    if (!seen.has(domain)) {
+      seen.add(domain);
+      result.push(domain);
+    }
+  }
+  return result;
+}
+
 function cmdInitBddPhase(cwd, phase, raw) {
   if (!phase) {
     error('phase required for init bdd-phase');
@@ -1653,4 +1675,5 @@ module.exports = {
   cmdInitBddPhase,
   cmdInitRunBdd,
   scanFeatureFiles,
+  extractFeatureDomains,
 };

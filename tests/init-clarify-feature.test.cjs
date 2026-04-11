@@ -64,3 +64,37 @@ describe('scanFeatureFiles helper', () => {
     assert.deepStrictEqual(result, ['features/login.feature']);
   });
 });
+
+describe('extractFeatureDomains helper', () => {
+  test('returns empty array for empty input', () => {
+    assert.deepStrictEqual(initLib.extractFeatureDomains([]), []);
+  });
+
+  test('extracts unique first-level subdirectories', () => {
+    const input = [
+      'features/auth/login.feature',
+      'features/auth/logout.feature',
+      'features/billing/checkout.feature',
+    ];
+    const result = initLib.extractFeatureDomains(input).sort();
+    assert.deepStrictEqual(result, ['auth', 'billing']);
+  });
+
+  test('ignores root-level feature files (no domain)', () => {
+    const input = [
+      'features/health.feature',
+      'features/auth/login.feature',
+    ];
+    const result = initLib.extractFeatureDomains(input);
+    assert.deepStrictEqual(result, ['auth']);
+  });
+
+  test('handles deeper nesting by taking only first level', () => {
+    const input = [
+      'features/auth/sso/oidc.feature',
+      'features/auth/sso/saml.feature',
+    ];
+    const result = initLib.extractFeatureDomains(input);
+    assert.deepStrictEqual(result, ['auth']);
+  });
+});
