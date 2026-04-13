@@ -662,8 +662,8 @@ function convertClaudeToCopilotContent(content, isGlobal = false) {
   }
   c = c.replace(/\.\/\.claude\//g, './.github/');
   c = c.replace(/\.claude\//g, '.github/');
-  // CONV-07: Command name conversion (all redpill: references → gsd-)
-  c = c.replace(/redpill:/g, 'gsd-');
+  // CONV-07: Command name conversion (all redpill: references → redpill-)
+  c = c.replace(/redpill:/g, 'redpill-');
   // Runtime-neutral agent name replacement (#766)
   c = neutralizeAgentReferences(c, 'copilot-instructions.md');
   return c;
@@ -787,8 +787,8 @@ function convertClaudeToAntigravityContent(content, isGlobal = false) {
   }
   c = c.replace(/\.\/\.claude\//g, './.agent/');
   c = c.replace(/\.claude\//g, '.agent/');
-  // Command name conversion (all redpill: references → gsd-)
-  c = c.replace(/redpill:/g, 'gsd-');
+  // Command name conversion (all redpill: references → redpill-)
+  c = c.replace(/redpill:/g, 'redpill-');
   // Runtime-neutral agent name replacement (#766)
   c = neutralizeAgentReferences(c, 'GEMINI.md');
   return c;
@@ -900,9 +900,9 @@ function convertCursorToolName(claudeTool) {
 }
 
 function convertSlashCommandsToCursorSkillMentions(content) {
-  // Keep leading "/" for slash commands; only normalize redpill: -> gsd-.
-  // This preserves rendered "next step" commands like "/gsd-execute-phase 17".
-  return content.replace(/redpill:/gi, 'gsd-');
+  // Keep leading "/" for slash commands; only normalize redpill: -> redpill-.
+  // This preserves rendered "next step" commands like "/redpill-execute-phase 17".
+  return content.replace(/redpill:/gi, 'redpill-');
 }
 
 function convertClaudeToCursorMarkdown(content) {
@@ -1019,8 +1019,8 @@ function convertWindsurfToolName(claudeTool) {
 }
 
 function convertSlashCommandsToWindsurfSkillMentions(content) {
-  // Keep leading "/" for slash commands; only normalize redpill: -> gsd-.
-  return content.replace(/redpill:/gi, 'gsd-');
+  // Keep leading "/" for slash commands; only normalize redpill: -> redpill-.
+  return content.replace(/redpill:/gi, 'redpill-');
 }
 
 function convertClaudeToWindsurfMarkdown(content) {
@@ -1140,7 +1140,7 @@ function convertAugmentToolName(claudeTool) {
 }
 
 function convertSlashCommandsToAugmentSkillMentions(content) {
-  return content.replace(/redpill:/gi, 'gsd-');
+  return content.replace(/redpill:/gi, 'redpill-');
 }
 
 function convertClaudeToAugmentMarkdown(content) {
@@ -2992,12 +2992,12 @@ function convertClaudeToGeminiToml(content) {
 
 /**
  * Copy commands to a flat structure for OpenCode
- * OpenCode expects: command/gsd-help.md (invoked as /gsd-help)
- * Source structure: commands/gsd/help.md
- * 
- * @param {string} srcDir - Source directory (e.g., commands/gsd/)
+ * OpenCode expects: command/redpill-help.md (invoked as /redpill-help)
+ * Source structure: commands/redpill/help.md
+ *
+ * @param {string} srcDir - Source directory (e.g., commands/redpill/)
  * @param {string} destDir - Destination directory (e.g., command/)
- * @param {string} prefix - Prefix for filenames (e.g., 'gsd')
+ * @param {string} prefix - Prefix for filenames (e.g., 'redpill')
  * @param {string} pathPrefix - Path prefix for file references
  * @param {string} runtime - Target runtime ('claude' or 'opencode')
  */
@@ -3024,7 +3024,7 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
     
     if (entry.isDirectory()) {
       // Recurse into subdirectories, adding to prefix
-      // e.g., commands/gsd/debug/start.md -> command/gsd-debug-start.md
+      // e.g., commands/redpill/debug/start.md -> command/redpill-debug-start.md
       copyFlattenedCommands(srcPath, destDir, `${prefix}-${entry.name}`, pathPrefix, runtime);
     } else if (entry.name.endsWith('.md')) {
       // Flatten: help.md -> gsd-help.md
@@ -3049,7 +3049,7 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
   }
 }
 
-function listCodexSkillNames(skillsDir, prefix = 'gsd-') {
+function listCodexSkillNames(skillsDir, prefix = 'redpill-') {
   if (!fs.existsSync(skillsDir)) return [];
   const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
   return entries
@@ -3273,12 +3273,12 @@ function copyCommandsAsCopilotSkills(srcDir, skillsDir, prefix, isGlobal = false
 
 /**
  * Copy Claude commands as Claude skills — one folder per skill with SKILL.md.
- * Claude Code 2.1.88+ uses skills/xxx/SKILL.md instead of commands/gsd/xxx.md.
+ * Claude Code 2.1.88+ uses skills/xxx/SKILL.md instead of commands/redpill/xxx.md.
  * Claude is the native format so no path replacement is needed — only
  * frontmatter restructuring via convertClaudeCommandToClaudeSkill.
  * @param {string} srcDir - Source commands directory
  * @param {string} skillsDir - Target skills directory
- * @param {string} prefix - Skill name prefix (e.g. 'gsd')
+ * @param {string} prefix - Skill name prefix (e.g. 'redpill')
  * @param {string} pathPrefix - Path prefix for file references
  * @param {string} runtime - Target runtime
  * @param {boolean} isGlobal - Whether this is a global install
@@ -3334,7 +3334,7 @@ function copyCommandsAsClaudeSkills(srcDir, skillsDir, prefix, pathPrefix, runti
  * Mirrors copyCommandsAsCopilotSkills but uses Antigravity converters.
  * @param {string} srcDir - Source commands directory
  * @param {string} skillsDir - Target skills directory
- * @param {string} prefix - Skill name prefix (e.g. 'gsd')
+ * @param {string} prefix - Skill name prefix (e.g. 'redpill')
  * @param {boolean} isGlobal - Whether this is a global install
  */
 function copyCommandsAsAntigravitySkills(srcDir, skillsDir, prefix, isGlobal = false) {
@@ -3476,7 +3476,7 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
     } else if (isCursor && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
       // For Cursor, also convert Claude references in JS/CJS utility scripts
       let jsContent = fs.readFileSync(srcPath, 'utf8');
-      jsContent = jsContent.replace(/redpill:/gi, 'gsd-');
+      jsContent = jsContent.replace(/redpill:/gi, 'redpill-');
       jsContent = jsContent.replace(/\.claude\/skills\//g, '.cursor/skills/');
       jsContent = jsContent.replace(/CLAUDE\.md/g, '.cursor/rules/');
       jsContent = jsContent.replace(/\bClaude Code\b/g, 'Cursor');
@@ -3484,7 +3484,7 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
     } else if (isWindsurf && (entry.name.endsWith('.cjs') || entry.name.endsWith('.js'))) {
       // For Windsurf, also convert Claude references in JS/CJS utility scripts
       let jsContent = fs.readFileSync(srcPath, 'utf8');
-      jsContent = jsContent.replace(/redpill:/gi, 'gsd-');
+      jsContent = jsContent.replace(/redpill:/gi, 'redpill-');
       jsContent = jsContent.replace(/\.claude\/skills\//g, '.windsurf/skills/');
       jsContent = jsContent.replace(/CLAUDE\.md/g, '.windsurf/rules');
       jsContent = jsContent.replace(/\bClaude Code\b/g, 'Windsurf');
@@ -3703,7 +3703,7 @@ function uninstall(isGlobal, runtime = 'claude') {
     if (fs.existsSync(commandDir)) {
       const files = fs.readdirSync(commandDir);
       for (const file of files) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        if ((file.startsWith('gsd-') || file.startsWith('redpill-')) && file.endsWith('.md')) {
           fs.unlinkSync(path.join(commandDir, file));
           removedCount++;
         }
@@ -3711,13 +3711,13 @@ function uninstall(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Removed REDPILL commands from command/`);
     }
   } else if (isCodex || isCursor || isWindsurf) {
-    // Codex/Cursor/Windsurf: remove skills/gsd-*/SKILL.md skill directories
+    // Codex/Cursor/Windsurf: remove skills/gsd-*/SKILL.md and skills/redpill-*/SKILL.md skill directories
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -3735,7 +3735,7 @@ function uninstall(isGlobal, runtime = 'claude') {
       const tomlFiles = fs.readdirSync(codexAgentsDir);
       let tomlCount = 0;
       for (const file of tomlFiles) {
-        if (file.startsWith('gsd-') && file.endsWith('.toml')) {
+        if ((file.startsWith('gsd-') || file.startsWith('redpill-')) && file.endsWith('.toml')) {
           fs.unlinkSync(path.join(codexAgentsDir, file));
           tomlCount++;
         }
@@ -3764,13 +3764,13 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
     }
   } else if (isCopilot) {
-    // Copilot: remove skills/gsd-*/ directories (same layout as Codex skills)
+    // Copilot: remove skills/gsd-*/ and skills/redpill-*/ directories (same layout as Codex skills)
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -3797,13 +3797,13 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
   } else if (isAntigravity) {
-    // Antigravity: remove skills/gsd-*/ directories (same layout as Copilot skills)
+    // Antigravity: remove skills/gsd-*/ and skills/redpill-*/ directories (same layout as Copilot skills)
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -3814,13 +3814,13 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
   } else if (isCursor) {
-    // Cursor: remove skills/gsd-*/ directories (same layout as Codex skills)
+    // Cursor: remove skills/gsd-*/ and skills/redpill-*/ directories (same layout as Codex skills)
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -3831,13 +3831,13 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
   } else if (isWindsurf) {
-    // Windsurf: remove skills/gsd-*/ directories (same layout as Cursor skills)
+    // Windsurf: remove skills/gsd-*/ and skills/redpill-*/ directories (same layout as Cursor skills)
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -3873,13 +3873,13 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
   } else {
-    // Claude Code: remove skills/gsd-*/ directories
+    // Claude Code: remove skills/gsd-*/ and skills/redpill-*/ directories
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
       const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('gsd-')) {
+        if (entry.isDirectory() && (entry.name.startsWith('gsd-') || entry.name.startsWith('redpill-'))) {
           fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
           skillCount++;
         }
@@ -4365,7 +4365,7 @@ function writeManifest(configDir, runtime = 'claude') {
   const isCursor = runtime === 'cursor';
   const isWindsurf = runtime === 'windsurf';
   const gsdDir = path.join(configDir, 'redpill');
-  const commandsDir = path.join(configDir, 'commands', 'gsd');
+  const commandsDir = path.join(configDir, 'commands', 'redpill');
   const opencodeCommandDir = path.join(configDir, 'command');
   const codexSkillsDir = path.join(configDir, 'skills');
   const agentsDir = path.join(configDir, 'agents');
@@ -4378,12 +4378,12 @@ function writeManifest(configDir, runtime = 'claude') {
   if (isGemini && fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
     for (const [rel, hash] of Object.entries(cmdHashes)) {
-      manifest.files['commands/gsd/' + rel] = hash;
+      manifest.files['commands/redpill/' + rel] = hash;
     }
   }
   if (isOpencode && fs.existsSync(opencodeCommandDir)) {
     for (const file of fs.readdirSync(opencodeCommandDir)) {
-      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+      if ((file.startsWith('gsd-') || file.startsWith('redpill-')) && file.endsWith('.md')) {
         manifest.files['command/' + file] = fileHash(path.join(opencodeCommandDir, file));
       }
     }
@@ -4574,111 +4574,111 @@ function install(isGlobal, runtime = 'claude') {
     const commandDir = path.join(targetDir, 'command');
     fs.mkdirSync(commandDir, { recursive: true });
 
-    // Copy commands/redpill/*.md as command/gsd-*.md (flatten structure)
+    // Copy commands/redpill/*.md as command/redpill-*.md (flatten structure)
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyFlattenedCommands(gsdSrc, commandDir, 'gsd', pathPrefix, runtime);
-    if (verifyInstalled(commandDir, 'command/gsd-*')) {
-      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('gsd-')).length;
+    copyFlattenedCommands(gsdSrc, commandDir, 'redpill', pathPrefix, runtime);
+    if (verifyInstalled(commandDir, 'command/redpill-*')) {
+      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('redpill-')).length;
       console.log(`  ${green}✓${reset} Installed ${count} commands to command/`);
     } else {
-      failures.push('command/gsd-*');
+      failures.push('command/redpill-*');
     }
   } else if (isCodex) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsCodexSkills(gsdSrc, skillsDir, 'gsd', pathPrefix, runtime);
+    copyCommandsAsCodexSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir);
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isCopilot) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsCopilotSkills(gsdSrc, skillsDir, 'gsd', isGlobal);
+    copyCommandsAsCopilotSkills(gsdSrc, skillsDir, 'redpill', isGlobal);
     if (fs.existsSync(skillsDir)) {
       const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('gsd-')).length;
+        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
       if (count > 0) {
         console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
       } else {
-        failures.push('skills/gsd-*');
+        failures.push('skills/redpill-*');
       }
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isAntigravity) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsAntigravitySkills(gsdSrc, skillsDir, 'gsd', isGlobal);
+    copyCommandsAsAntigravitySkills(gsdSrc, skillsDir, 'redpill', isGlobal);
     if (fs.existsSync(skillsDir)) {
       const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('gsd-')).length;
+        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
       if (count > 0) {
         console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
       } else {
-        failures.push('skills/gsd-*');
+        failures.push('skills/redpill-*');
       }
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isCursor) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsCursorSkills(gsdSrc, skillsDir, 'gsd', pathPrefix, runtime);
+    copyCommandsAsCursorSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isWindsurf) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsWindsurfSkills(gsdSrc, skillsDir, 'gsd', pathPrefix, runtime);
+    copyCommandsAsWindsurfSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isAugment) {
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsAugmentSkills(gsdSrc, skillsDir, 'gsd', pathPrefix, runtime);
+    copyCommandsAsAugmentSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir);
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
   } else if (isGemini) {
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    const gsdDest = path.join(commandsDir, 'gsd');
-    copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime, true, isGlobal);
-    if (verifyInstalled(gsdDest, 'commands/gsd')) {
-      console.log(`  ${green}✓${reset} Installed commands/gsd`);
+    const redpillDest = path.join(commandsDir, 'redpill');
+    copyWithPathReplacement(gsdSrc, redpillDest, pathPrefix, runtime, true, isGlobal);
+    if (verifyInstalled(redpillDest, 'commands/redpill')) {
+      console.log(`  ${green}✓${reset} Installed commands/redpill`);
     } else {
-      failures.push('commands/gsd');
+      failures.push('commands/redpill');
     }
   } else {
     // Claude Code: skills/ format (2.1.88+ compatibility)
     const skillsDir = path.join(targetDir, 'skills');
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsClaudeSkills(gsdSrc, skillsDir, 'gsd', pathPrefix, runtime, isGlobal);
+    copyCommandsAsClaudeSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime, isGlobal);
     if (fs.existsSync(skillsDir)) {
       const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('gsd-')).length;
+        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
       if (count > 0) {
         console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
       } else {
-        failures.push('skills/gsd-*');
+        failures.push('skills/redpill-*');
       }
     } else {
-      failures.push('skills/gsd-*');
+      failures.push('skills/redpill-*');
     }
 
     // Clean up legacy commands/gsd/ from previous installs
