@@ -187,16 +187,22 @@ have been auto-fixed where possible and product questions are recorded.
 
 **Skip if:** `--skip-design` flag is set.
 
-Read the generated `.feature` file and project context, then produce a
-technical design document.
+Invoke `/redpill:auto-design` to generate a technical design document from
+the feature file. This includes a tech reviewer loop (max 3 rounds).
 
-Use the design workflow or generate inline:
-- Analyze the feature scenarios
-- Determine architecture approach (API endpoints, data models, service layers)
-- Write `{task_dir}/{slug}-DESIGN.md`
+```
+Skill(skill="redpill:auto-design", args="${FEATURE_FILE}")
+```
 
-**Guard rail:** If the design reveals the feature is too complex for autonomous
-handling:
+The auto-design workflow:
+1. Loads project context (architecture, conventions, tech stack)
+2. Generates DESIGN.md covering: architecture, API/interfaces, data models,
+   service layer, implementation order, error handling, risks
+3. Spawns tech reviewer (redpill-verifier) for up to 3 rounds of review
+4. Auto-fixes BLOCKING issues; logs ADVISORY issues
+5. Commits the design document
+
+**Guard rail:** If the design workflow fails or the feature is too complex:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  REDPILL ► AUTO BDD PAUSED — design needs human review
@@ -209,7 +215,7 @@ handling:
 ```
 Exit.
 
-**Success:** Design document exists at `${DESIGN_PATH}`.
+**Success:** Design document exists at `${DESIGN_PATH}` with status `reviewed`.
 
 ## 5. Create Isolated Worktree
 
