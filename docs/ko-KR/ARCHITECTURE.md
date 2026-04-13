@@ -36,7 +36,7 @@ GSD는 사용자와 AI 코딩 에이전트(Claude Code, Gemini CLI, OpenCode, Co
                       │
 ┌─────────────────────▼────────────────────────────────┐
 │              COMMAND LAYER                            │
-│   commands/gsd/*.md — Prompt-based command files      │
+│   commands/redpill/*.md — Prompt-based command files      │
 │   (Claude Code custom commands / Codex skills)        │
 └─────────────────────┬────────────────────────────────┘
                       │
@@ -104,12 +104,12 @@ GSD는 사용자와 AI 코딩 에이전트(Claude Code, Gemini CLI, OpenCode, Co
 
 ## 컴포넌트 아키텍처
 
-### Commands (`commands/gsd/*.md`)
+### Commands (`commands/redpill/*.md`)
 
 사용자 대면 진입점입니다. 각 파일은 YAML 전문(name, description, allowed-tools)과 워크플로우를 부트스트랩하는 프롬프트 본문을 포함합니다. 명령어는 다음과 같이 설치됩니다.
 - **Claude Code:** 커스텀 슬래시 명령어 (`/redpill:command-name`)
-- **OpenCode:** 슬래시 명령어 (`/gsd-command-name`)
-- **Codex:** Skills (`$gsd-command-name`)
+- **OpenCode:** 슬래시 명령어 (`/redpill-command-name`)
+- **Codex:** Skills (`$redpill-command-name`)
 - **Copilot:** 슬래시 명령어 (`/redpill:command-name`)
 - **Antigravity:** Skills
 
@@ -344,7 +344,7 @@ UI-SPEC.md (per phase) ───────────────────
 
 ```
 ~/.claude/                          # Claude Code (전역 설치)
-├── commands/gsd/*.md               # 37개 슬래시 명령어
+├── commands/redpill/*.md               # 37개 슬래시 명령어
 ├── redpill/
 │   ├── bin/redpill-tools.cjs           # CLI 유틸리티
 │   ├── bin/lib/*.cjs               # 15개 도메인 모듈
@@ -437,8 +437,8 @@ UI-SPEC.md (per phase) ───────────────────
    - Antigravity: Google 모델 등가물을 사용한 skills-first 방식
 5. **경로 정규화** — `~/.claude/` 경로를 런타임별 경로로 교체
 6. **설정 통합** — 런타임의 `settings.json`에 훅 등록
-7. **패치 백업** — v1.17부터 로컬 수정 파일을 `gsd-local-patches/`에 백업하여 `/redpill:reapply-patches`에 사용
-8. **매니페스트 추적** — 깔끔한 제거를 위해 `gsd-file-manifest.json` 작성
+7. **패치 백업** — v1.17부터 로컬 수정 파일을 `redpill-local-patches/`에 백업하여 `/redpill:reapply-patches`에 사용
+8. **매니페스트 추적** — 깔끔한 제거를 위해 `redpill-file-manifest.json` 작성
 9. **제거 모드** — `--uninstall`로 모든 REDPILL 파일, 훅, 설정 제거
 
 ### 플랫폼 처리
@@ -466,7 +466,7 @@ Runtime Engine (Claude Code / Gemini CLI)
     │
     └── SessionStart event ──► redpill-check-update.js
         Reads: VERSION file
-        Writes: ~/.claude/cache/gsd-update-check.json (spawns background process)
+        Writes: ~/.claude/cache/redpill-update-check.json (spawns background process)
 ```
 
 ### 컨텍스트 모니터 임계값
@@ -510,9 +510,9 @@ GSD는 통합된 명령어/워크플로우 아키텍처를 통해 6개의 AI 코
 | 런타임 | 명령어 형식 | 에이전트 시스템 | 설정 위치 |
 |---------|---------------|--------------|-----------------|
 | Claude Code | `/redpill:command` | Task 생성 | `~/.claude/` |
-| OpenCode | `/gsd-command` | Subagent 모드 | `~/.config/opencode/` |
+| OpenCode | `/redpill-command` | Subagent 모드 | `~/.config/opencode/` |
 | Gemini CLI | `/redpill:command` | Task 생성 | `~/.gemini/` |
-| Codex | `$gsd-command` | Skills | `~/.codex/` |
+| Codex | `$redpill-command` | Skills | `~/.codex/` |
 | Copilot | `/redpill:command` | 에이전트 위임 | `~/.github/` |
 | Antigravity | Skills | Skills | `~/.gemini/antigravity/` |
 

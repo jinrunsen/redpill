@@ -4,7 +4,7 @@
 
 ```bash
 # Clone the repo
-git clone https://github.com/gsd-build/get-shit-done.git
+git clone https://github.com/redpill-build/get-shit-done.git
 cd get-shit-done
 
 # Install dependencies
@@ -183,7 +183,7 @@ redpill/
   references/           — Reference documentation (.md)
   templates/            — File templates
 agents/                 — Agent definitions (.md)
-commands/gsd/           — Slash command definitions (.md)
+commands/redpill/           — Slash command definitions (.md)
 tests/                  — Test files (.test.cjs)
   helpers.cjs           — Shared test utilities
 docs/                   — User-facing documentation

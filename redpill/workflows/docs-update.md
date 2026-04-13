@@ -22,7 +22,7 @@ AGENT_SKILLS=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills r
 Extract from init JSON:
 - `doc_writer_model` — model string to pass to each spawned agent (never hardcode a model name)
 - `commit_docs` — whether to commit generated files when done
-- `existing_docs` — array of `{path, has_gsd_marker}` objects for existing Markdown files
+- `existing_docs` — array of `{path, has_redpill_marker}` objects for existing Markdown files
 - `project_type` — object with boolean signals: `has_package_json`, `has_api_routes`, `has_cli_bin`, `is_open_source`, `has_deploy_config`, `is_monorepo`, `has_tests`
 - `doc_tooling` — object with booleans: `docusaurus`, `vitepress`, `mkdocs`, `storybook`
 - `monorepo_workspaces` — array of workspace glob patterns (empty if not a monorepo)
@@ -336,9 +336,9 @@ Check for hand-written docs in the queue and gather user decisions before dispat
 
 1. If `--force` is present in `$ARGUMENTS`: treat all docs as mode: regenerate, skip to detect_runtime_capabilities.
 2. If `--verify-only` is present in `$ARGUMENTS`: skip to verify_only_report (do not continue to detect_runtime_capabilities).
-3. If no docs in the queue have `has_gsd_marker: false` in the `existing_docs` array: skip to detect_runtime_capabilities.
+3. If no docs in the queue have `has_redpill_marker: false` in the `existing_docs` array: skip to detect_runtime_capabilities.
 
-**For each queued doc where `has_gsd_marker` is false (hand-written doc detected):**
+**For each queued doc where `has_redpill_marker` is false (hand-written doc detected):**
 
 Present the following choice using `AskUserQuestion` if available, or inline prompt otherwise:
 

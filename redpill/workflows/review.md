@@ -115,7 +115,7 @@ Focus on:
 Output your review in markdown format.
 ```
 
-Write to a temp file: `/tmp/gsd-review-prompt-{phase}.md`
+Write to a temp file: `/tmp/redpill-review-prompt-{phase}.md`
 </step>
 
 <step name="invoke_reviewers">
@@ -123,17 +123,17 @@ For each selected CLI, invoke in sequence (not parallel — avoid rate limits):
 
 **Gemini:**
 ```bash
-gemini -p "$(cat /tmp/gsd-review-prompt-{phase}.md)" 2>/dev/null > /tmp/gsd-review-gemini-{phase}.md
+gemini -p "$(cat /tmp/redpill-review-prompt-{phase}.md)" 2>/dev/null > /tmp/redpill-review-gemini-{phase}.md
 ```
 
 **Claude (separate session):**
 ```bash
-claude -p "$(cat /tmp/gsd-review-prompt-{phase}.md)" --no-input 2>/dev/null > /tmp/gsd-review-claude-{phase}.md
+claude -p "$(cat /tmp/redpill-review-prompt-{phase}.md)" --no-input 2>/dev/null > /tmp/redpill-review-claude-{phase}.md
 ```
 
 **Codex:**
 ```bash
-codex exec --skip-git-repo-check "$(cat /tmp/gsd-review-prompt-{phase}.md)" 2>/dev/null > /tmp/gsd-review-codex-{phase}.md
+codex exec --skip-git-repo-check "$(cat /tmp/redpill-review-prompt-{phase}.md)" 2>/dev/null > /tmp/redpill-review-codex-{phase}.md
 ```
 
 **CodeRabbit:**
@@ -141,14 +141,14 @@ codex exec --skip-git-repo-check "$(cat /tmp/gsd-review-prompt-{phase}.md)" 2>/d
 Note: CodeRabbit reviews the current git diff/working tree — it does not accept a prompt. It may take up to 5 minutes. Use `timeout: 360000` on the Bash tool call.
 
 ```bash
-coderabbit review --prompt-only 2>/dev/null > /tmp/gsd-review-coderabbit-{phase}.md
+coderabbit review --prompt-only 2>/dev/null > /tmp/redpill-review-coderabbit-{phase}.md
 ```
 
 **OpenCode (via GitHub Copilot):**
 ```bash
-cat /tmp/gsd-review-prompt-{phase}.md | opencode run - 2>/dev/null > /tmp/gsd-review-opencode-{phase}.md
-if [ ! -s /tmp/gsd-review-opencode-{phase}.md ]; then
-  echo "OpenCode review failed or returned empty output." > /tmp/gsd-review-opencode-{phase}.md
+cat /tmp/redpill-review-prompt-{phase}.md | opencode run - 2>/dev/null > /tmp/redpill-review-opencode-{phase}.md
+if [ ! -s /tmp/redpill-review-opencode-{phase}.md ]; then
+  echo "OpenCode review failed or returned empty output." > /tmp/redpill-review-opencode-{phase}.md
 fi
 ```
 

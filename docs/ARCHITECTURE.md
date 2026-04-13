@@ -36,7 +36,7 @@ GSD is a **meta-prompting framework** that sits between the user and AI coding a
                       │
 ┌─────────────────────▼────────────────────────────────┐
 │              COMMAND LAYER                            │
-│   commands/gsd/*.md — Prompt-based command files      │
+│   commands/redpill/*.md — Prompt-based command files      │
 │   (Claude Code custom commands / Codex skills)        │
 └─────────────────────┬────────────────────────────────┘
                       │
@@ -104,12 +104,12 @@ Multiple layers prevent common failure modes:
 
 ## Component Architecture
 
-### Commands (`commands/gsd/*.md`)
+### Commands (`commands/redpill/*.md`)
 
 User-facing entry points. Each file contains YAML frontmatter (name, description, allowed-tools) and a prompt body that bootstraps the workflow. Commands are installed as:
 - **Claude Code:** Custom slash commands (`/redpill:command-name`)
-- **OpenCode:** Slash commands (`/gsd-command-name`)
-- **Codex:** Skills (`$gsd-command-name`)
+- **OpenCode:** Slash commands (`/redpill-command-name`)
+- **Codex:** Skills (`$redpill-command-name`)
 - **Copilot:** Slash commands (`/redpill:command-name`)
 - **Antigravity:** Skills
 
@@ -344,7 +344,7 @@ UI-SPEC.md (per phase) ───────────────────
 
 ```
 ~/.claude/                          # Claude Code (global install)
-├── commands/gsd/*.md               # 37 slash commands
+├── commands/redpill/*.md               # 37 slash commands
 ├── redpill/
 │   ├── bin/redpill-tools.cjs           # CLI utility
 │   ├── bin/lib/*.cjs               # 15 domain modules
@@ -437,8 +437,8 @@ The installer (`bin/install.js`, ~3,000 lines) handles:
    - Antigravity: Skills-first with Google model equivalents
 5. **Path normalization** — Replaces `~/.claude/` paths with runtime-specific paths
 6. **Settings integration** — Registers hooks in runtime's `settings.json`
-7. **Patch backup** — Since v1.17, backs up locally modified files to `gsd-local-patches/` for `/redpill:reapply-patches`
-8. **Manifest tracking** — Writes `gsd-file-manifest.json` for clean uninstall
+7. **Patch backup** — Since v1.17, backs up locally modified files to `redpill-local-patches/` for `/redpill:reapply-patches`
+8. **Manifest tracking** — Writes `redpill-file-manifest.json` for clean uninstall
 9. **Uninstall mode** — `--uninstall` removes all REDPILL files, hooks, and settings
 
 ### Platform Handling
@@ -466,7 +466,7 @@ Runtime Engine (Claude Code / Gemini CLI)
     │
     └── SessionStart event ──► redpill-check-update.js
         Reads: VERSION file
-        Writes: ~/.claude/cache/gsd-update-check.json (spawns background process)
+        Writes: ~/.claude/cache/redpill-update-check.json (spawns background process)
 ```
 
 ### Context Monitor Thresholds
@@ -510,9 +510,9 @@ GSD supports 6 AI coding runtimes through a unified command/workflow architectur
 | Runtime | Command Format | Agent System | Config Location |
 |---------|---------------|--------------|-----------------|
 | Claude Code | `/redpill:command` | Task spawning | `~/.claude/` |
-| OpenCode | `/gsd-command` | Subagent mode | `~/.config/opencode/` |
+| OpenCode | `/redpill-command` | Subagent mode | `~/.config/opencode/` |
 | Gemini CLI | `/redpill:command` | Task spawning | `~/.gemini/` |
-| Codex | `$gsd-command` | Skills | `~/.codex/` |
+| Codex | `$redpill-command` | Skills | `~/.codex/` |
 | Copilot | `/redpill:command` | Agent delegation | `~/.github/` |
 | Antigravity | Skills | Skills | `~/.gemini/antigravity/` |
 

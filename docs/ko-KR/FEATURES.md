@@ -765,7 +765,7 @@
 - REQ-UPDATE-01: npm을 통해 새 버전을 확인해야 합니다.
 - REQ-UPDATE-02: 업데이트 전에 새 버전의 변경 로그를 표시해야 합니다.
 - REQ-UPDATE-03: 런타임을 인식하고 올바른 디렉토리를 대상으로 해야 합니다.
-- REQ-UPDATE-04: 로컬에서 수정된 파일을 `gsd-local-patches/`에 백업해야 합니다.
+- REQ-UPDATE-04: 로컬에서 수정된 파일을 `redpill-local-patches/`에 백업해야 합니다.
 - REQ-UPDATE-05: `/redpill:reapply-patches`는 업데이트 후 로컬 수정사항을 복원해야 합니다.
 
 ---
@@ -779,7 +779,7 @@
 **요구사항.**
 - REQ-SETTINGS-01: 토글 옵션과 함께 현재 설정을 표시해야 합니다.
 - REQ-SETTINGS-02: `.redpill/config.json`을 업데이트해야 합니다.
-- REQ-SETTINGS-03: 전역 기본값으로 저장하는 것을 지원해야 합니다(`~/.gsd/defaults.json`).
+- REQ-SETTINGS-03: 전역 기본값으로 저장하는 것을 지원해야 합니다(`~/.redpill/defaults.json`).
 
 **구성 가능한 설정.**
 | 설정 | 유형 | 기본값 | 설명 |

@@ -496,8 +496,8 @@ GSD stores project settings in `.redpill/config.json`. Configure during `/redpil
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   }
 }
@@ -548,8 +548,8 @@ Disable workflow toggles to speed up phases in familiar domains or when conservi
 | Setting | Options | Default | What it Controls |
 |---------|---------|---------|------------------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | When and how branches are created |
-| `git.phase_branch_template` | Template string | `gsd/phase-{phase}-{slug}` | Branch name for phase strategy |
-| `git.milestone_branch_template` | Template string | `gsd/{milestone}-{slug}` | Branch name for milestone strategy |
+| `git.phase_branch_template` | Template string | `redpill/phase-{phase}-{slug}` | Branch name for phase strategy |
+| `git.milestone_branch_template` | Template string | `redpill/{milestone}-{slug}` | Branch name for milestone strategy |
 | `git.quick_branch_template` | Template string or `null` | `null` | Optional branch name for `/redpill:quick` tasks |
 
 **Branching strategies explained:**
@@ -566,7 +566,7 @@ Example quick-task branching:
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -688,7 +688,7 @@ Work on multiple repos or features in parallel with isolated REDPILL state.
 /redpill:new-workspace --name feature-b --repos .
 
 # Then cd into the workspace and initialize GSD
-cd ~/gsd-workspaces/feature-b
+cd ~/redpill-workspaces/feature-b
 /redpill:new-project
 
 # List and manage workspaces
@@ -764,7 +764,7 @@ Set `commit_docs: false` during `/redpill:new-project` or via `/redpill:settings
 
 ### REDPILL Update Overwrote My Local Changes
 
-Since v1.17, the installer backs up locally modified files to `gsd-local-patches/`. Run `/redpill:reapply-patches` to merge your changes back.
+Since v1.17, the installer backs up locally modified files to `redpill-local-patches/`. Run `/redpill:reapply-patches` to merge your changes back.
 
 ### Workflow Diagnostics (`/redpill:forensics`)
 

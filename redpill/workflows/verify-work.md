@@ -33,7 +33,7 @@ If $ARGUMENTS contains a phase number, load context:
 INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init verify-work "${PHASE_ARG}")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 AGENT_SKILLS_PLANNER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-planner 2>/dev/null)
-AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills gsd-checker 2>/dev/null)
+AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-checker 2>/dev/null)
 ```
 
 Parse JSON for: `planner_model`, `checker_model`, `commit_docs`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `has_verification`, `uat_path`.

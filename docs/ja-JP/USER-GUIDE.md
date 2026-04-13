@@ -486,8 +486,8 @@ GSD はプロジェクト設定を `.redpill/config.json` に保存します。`
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   }
 }
@@ -538,8 +538,8 @@ GSD はプロジェクト設定を `.redpill/config.json` に保存します。`
 | 設定 | オプション | デフォルト | 制御内容 |
 |---------|---------|---------|------------------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | ブランチ作成のタイミングと方法 |
-| `git.phase_branch_template` | テンプレート文字列 | `gsd/phase-{phase}-{slug}` | phase 戦略のブランチ名 |
-| `git.milestone_branch_template` | テンプレート文字列 | `gsd/{milestone}-{slug}` | milestone 戦略のブランチ名 |
+| `git.phase_branch_template` | テンプレート文字列 | `redpill/phase-{phase}-{slug}` | phase 戦略のブランチ名 |
+| `git.milestone_branch_template` | テンプレート文字列 | `redpill/{milestone}-{slug}` | milestone 戦略のブランチ名 |
 | `git.quick_branch_template` | テンプレート文字列 または `null` | `null` | `/redpill:quick` タスク用のオプションブランチ名 |
 
 **ブランチ戦略の説明：**
@@ -556,7 +556,7 @@ quick タスクのブランチ設定例：
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -678,7 +678,7 @@ claude --dangerously-skip-permissions
 /redpill:new-workspace --name feature-b --repos .
 
 # ワークスペースに移動して REDPILL を初期化
-cd ~/gsd-workspaces/feature-b
+cd ~/redpill-workspaces/feature-b
 /redpill:new-project
 
 # ワークスペースの一覧と管理
@@ -754,7 +754,7 @@ GSD サブエージェントが Anthropic モデルを呼び出し、OpenRouter 
 
 ### REDPILL アップデートがローカル変更を上書きした
 
-v1.17 以降、インストーラーはローカルで変更されたファイルを `gsd-local-patches/` にバックアップします。`/redpill:reapply-patches` を実行して変更をマージし直してください。
+v1.17 以降、インストーラーはローカルで変更されたファイルを `redpill-local-patches/` にバックアップします。`/redpill:reapply-patches` を実行して変更をマージし直してください。
 
 ### ワークフロー診断 (`/redpill:forensics`)
 

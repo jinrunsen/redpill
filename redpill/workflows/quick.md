@@ -133,7 +133,7 @@ INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init quick "$DESCRIPTI
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 AGENT_SKILLS_PLANNER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-planner 2>/dev/null)
 AGENT_SKILLS_EXECUTOR=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-executor 2>/dev/null)
-AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills gsd-checker 2>/dev/null)
+AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-checker 2>/dev/null)
 AGENT_SKILLS_VERIFIER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-verifier 2>/dev/null)
 ```
 

@@ -50,8 +50,8 @@ GSD stores project settings in `.redpill/config.json`. Created during `/redpill:
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   },
   "gates": {
@@ -184,17 +184,17 @@ Any REDPILL agent type can receive skills. Common types:
 
 - `redpill-executor` -- executes implementation plans
 - `redpill-planner` -- creates phase plans
-- `gsd-checker` -- verifies plan quality
+- `redpill-checker` -- verifies plan quality
 - `redpill-verifier` -- post-execution verification
-- `gsd-researcher` -- phase research
+- `redpill-researcher` -- phase research
 - `redpill-project-researcher` -- new-project research
 - `redpill-debugger` -- diagnostic agents
 - `redpill-codebase-mapper` -- codebase analysis
-- `gsd-advisor` -- discuss-phase advisors
+- `redpill-advisor` -- discuss-phase advisors
 - `redpill-ui-researcher` -- UI design contract creation
 - `redpill-ui-checker` -- UI spec verification
 - `redpill-roadmapper` -- roadmap creation
-- `gsd-synthesizer` -- research synthesis
+- `redpill-synthesizer` -- research synthesis
 
 ### How It Works
 
@@ -240,8 +240,8 @@ node redpill-tools.cjs config-set agent_skills.redpill-executor '["skills/my-ski
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `git.branching_strategy` | enum | `none` | `none`, `phase`, or `milestone` |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | Branch name template for phase strategy |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Branch name template for milestone strategy |
+| `git.phase_branch_template` | string | `redpill/phase-{phase}-{slug}` | Branch name template for phase strategy |
+| `git.milestone_branch_template` | string | `redpill/{milestone}-{slug}` | Branch name template for milestone strategy |
 | `git.quick_branch_template` | string or null | `null` | Optional branch name template for `/redpill:quick` tasks |
 
 ### Strategy Comparison
@@ -265,7 +265,7 @@ Example quick-task branching:
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -363,7 +363,7 @@ Valid override values: `opus`, `sonnet`, `haiku`, `inherit`, or any fully-qualif
 
 ### Non-Claude Runtimes (Codex, OpenCode, Gemini CLI)
 
-When REDPILL is installed for a non-Claude runtime, the installer automatically sets `resolve_model_ids: "omit"` in `~/.gsd/defaults.json`. This causes REDPILL to return an empty model parameter for all agents, so each agent uses whatever model the runtime is configured with. No additional setup is needed for the default case.
+When REDPILL is installed for a non-Claude runtime, the installer automatically sets `resolve_model_ids: "omit"` in `~/.redpill/defaults.json`. This causes REDPILL to return an empty model parameter for all agents, so each agent uses whatever model the runtime is configured with. No additional setup is needed for the default case.
 
 If you want different agents to use different models, use `model_overrides` with fully-qualified model IDs that your runtime recognizes:
 
@@ -424,6 +424,6 @@ The intent is the same as the Claude profile tiers -- use a stronger model for p
 
 Save settings as global defaults for future projects:
 
-**Location:** `~/.gsd/defaults.json`
+**Location:** `~/.redpill/defaults.json`
 
 When `/redpill:new-project` creates a new `config.json`, it reads global defaults and merges them as the starting configuration. Per-project settings always override globals.

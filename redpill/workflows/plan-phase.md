@@ -24,9 +24,9 @@ Load all context in one call (paths only to minimize orchestrator context):
 ```bash
 INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init plan-phase "$PHASE")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
-AGENT_SKILLS_RESEARCHER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills gsd-researcher 2>/dev/null)
+AGENT_SKILLS_RESEARCHER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-researcher 2>/dev/null)
 AGENT_SKILLS_PLANNER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-planner 2>/dev/null)
-AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills gsd-checker 2>/dev/null)
+AGENT_SKILLS_CHECKER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-checker 2>/dev/null)
 CONTEXT_WINDOW=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" config-get context_window 2>/dev/null || echo "200000")
 ```
 
@@ -517,15 +517,15 @@ ls "${PHASE_DIR}"/*-PLAN.md 2>/dev/null || true
 Extract from INIT JSON:
 
 ```bash
-_gsd_field() { node -e "const o=JSON.parse(process.argv[1]); const v=o[process.argv[2]]; process.stdout.write(v==null?'':String(v))" "$1" "$2"; }
-STATE_PATH=$(_gsd_field "$INIT" state_path)
-ROADMAP_PATH=$(_gsd_field "$INIT" roadmap_path)
-REQUIREMENTS_PATH=$(_gsd_field "$INIT" requirements_path)
-RESEARCH_PATH=$(_gsd_field "$INIT" research_path)
-VERIFICATION_PATH=$(_gsd_field "$INIT" verification_path)
-UAT_PATH=$(_gsd_field "$INIT" uat_path)
-CONTEXT_PATH=$(_gsd_field "$INIT" context_path)
-REVIEWS_PATH=$(_gsd_field "$INIT" reviews_path)
+_redpill_field() { node -e "const o=JSON.parse(process.argv[1]); const v=o[process.argv[2]]; process.stdout.write(v==null?'':String(v))" "$1" "$2"; }
+STATE_PATH=$(_redpill_field "$INIT" state_path)
+ROADMAP_PATH=$(_redpill_field "$INIT" roadmap_path)
+REQUIREMENTS_PATH=$(_redpill_field "$INIT" requirements_path)
+RESEARCH_PATH=$(_redpill_field "$INIT" research_path)
+VERIFICATION_PATH=$(_redpill_field "$INIT" verification_path)
+UAT_PATH=$(_redpill_field "$INIT" uat_path)
+CONTEXT_PATH=$(_redpill_field "$INIT" context_path)
+REVIEWS_PATH=$(_redpill_field "$INIT" reviews_path)
 ```
 
 ## 7.5. Verify Nyquist Artifacts

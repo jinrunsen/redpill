@@ -7,8 +7,8 @@
 ## コマンド構文
 
 - **Claude Code / Gemini / Copilot:** `/redpill:command-name [args]`
-- **OpenCode:** `/gsd-command-name [args]`
-- **Codex:** `$gsd-command-name [args]`
+- **OpenCode:** `/redpill-command-name [args]`
+- **Codex:** `$redpill-command-name [args]`
 
 ---
 
@@ -40,7 +40,7 @@
 |------|-------------|
 | `--name <name>` | ワークスペース名（必須） |
 | `--repos repo1,repo2` | カンマ区切りのリポジトリパスまたは名前 |
-| `--path /target` | 対象ディレクトリ（デフォルト: `~/gsd-workspaces/<name>`） |
+| `--path /target` | 対象ディレクトリ（デフォルト: `~/redpill-workspaces/<name>`） |
 | `--strategy worktree\|clone` | コピー戦略（デフォルト: `worktree`） |
 | `--branch <name>` | チェックアウトするブランチ（デフォルト: `workspace/<name>`） |
 | `--auto` | 対話的な質問をスキップ |
@@ -63,7 +63,7 @@
 
 アクティブなGSDワークスペースとそのステータスを一覧表示します。
 
-**スキャン対象:** `~/gsd-workspaces/` 内の `WORKSPACE.md` マニフェスト
+**スキャン対象:** `~/redpill-workspaces/` 内の `WORKSPACE.md` マニフェスト
 **表示内容:** 名前、リポジトリ数、戦略、GSDプロジェクトのステータス
 
 ```bash

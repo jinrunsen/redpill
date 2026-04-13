@@ -486,8 +486,8 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   }
 }
@@ -538,8 +538,8 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
 | 설정 | 옵션 | 기본값 | 제어 대상 |
 |------|------|--------|----------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | 브랜치 생성 시점과 방법 |
-| `git.phase_branch_template` | 템플릿 문자열 | `gsd/phase-{phase}-{slug}` | phase 전략의 브랜치 이름 |
-| `git.milestone_branch_template` | 템플릿 문자열 | `gsd/{milestone}-{slug}` | milestone 전략의 브랜치 이름 |
+| `git.phase_branch_template` | 템플릿 문자열 | `redpill/phase-{phase}-{slug}` | phase 전략의 브랜치 이름 |
+| `git.milestone_branch_template` | 템플릿 문자열 | `redpill/{milestone}-{slug}` | milestone 전략의 브랜치 이름 |
 | `git.quick_branch_template` | 템플릿 문자열 또는 `null` | `null` | `/redpill:quick` 작업의 선택적 브랜치 이름 |
 
 **브랜칭 전략 설명.**
@@ -556,7 +556,7 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -678,7 +678,7 @@ claude --dangerously-skip-permissions
 /redpill:new-workspace --name feature-b --repos .
 
 # Then cd into the workspace and initialize GSD
-cd ~/gsd-workspaces/feature-b
+cd ~/redpill-workspaces/feature-b
 /redpill:new-project
 
 # List and manage workspaces
@@ -754,7 +754,7 @@ GSD 서브에이전트가 Anthropic 모델을 호출하는데 OpenRouter나 로�
 
 ### REDPILL 업데이트가 로컬 변경사항을 덮어쓴 경우
 
-v1.17부터 설치 프로그램이 로컬로 수정된 파일을 `gsd-local-patches/`에 백업합니다. 변경사항을 다시 병합하려면 `/redpill:reapply-patches`를 실행하세요.
+v1.17부터 설치 프로그램이 로컬로 수정된 파일을 `redpill-local-patches/`에 백업합니다. 변경사항을 다시 병합하려면 `/redpill:reapply-patches`를 실행하세요.
 
 ### 워크플로우 진단 (`/redpill:forensics`)
 

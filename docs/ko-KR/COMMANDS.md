@@ -7,8 +7,8 @@
 ## 명령어 문법
 
 - **Claude Code / Gemini / Copilot:** `/redpill:command-name [args]`
-- **OpenCode:** `/gsd-command-name [args]`
-- **Codex:** `$gsd-command-name [args]`
+- **OpenCode:** `/redpill-command-name [args]`
+- **Codex:** `$redpill-command-name [args]`
 
 ---
 
@@ -40,7 +40,7 @@
 |--------|------|
 | `--name <name>` | 워크스페이스 이름 (필수) |
 | `--repos repo1,repo2` | 쉼표로 구분된 저장소 경로 또는 이름 |
-| `--path /target` | 대상 디렉터리 (기본값: `~/gsd-workspaces/<name>`) |
+| `--path /target` | 대상 디렉터리 (기본값: `~/redpill-workspaces/<name>`) |
 | `--strategy worktree\|clone` | 복사 전략 (기본값: `worktree`) |
 | `--branch <name>` | 체크아웃할 브랜치 (기본값: `workspace/<name>`) |
 | `--auto` | 대화형 질문을 건너뜁니다 |
@@ -63,7 +63,7 @@
 
 활성 REDPILL 워크스페이스와 상태를 목록으로 표시합니다.
 
-**스캔 위치:** `~/gsd-workspaces/`에서 `WORKSPACE.md` 매니페스트를 탐색합니다.
+**스캔 위치:** `~/redpill-workspaces/`에서 `WORKSPACE.md` 매니페스트를 탐색합니다.
 **표시 항목:** 이름, 저장소 수, 전략, REDPILL 프로젝트 상태
 
 ```bash

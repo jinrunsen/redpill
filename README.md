@@ -10,11 +10,11 @@
 
 [![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
 [![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
+[![Tests](https://img.shields.io/github/actions/workflow/status/redpill-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/redpill-build/redpill/actions/workflows/test.yml)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/redpill)
+[![X (Twitter)](https://img.shields.io/badge/X-@redpill_dev-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/redpill_dev)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/gsd-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/gsd-build/get-shit-done)
+[![GitHub stars](https://img.shields.io/github/stars/redpill-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/redpill-build/get-shit-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
@@ -89,11 +89,11 @@ The installer prompts you to choose:
 
 Verify with:
 - Claude Code / Gemini / Copilot / Antigravity: `/redpill:help`
-- OpenCode / Augment: `/gsd-help`
-- Codex: `$gsd-help`
+- OpenCode / Augment: `/redpill-help`
+- Codex: `$redpill-help`
 
 > [!NOTE]
-> Claude Code 2.1.88+ and Codex install as skills (`skills/gsd-*/SKILL.md`). Older Claude Code versions use `commands/gsd/`. The installer handles this automatically.
+> Claude Code 2.1.88+ and Codex install as skills (`skills/redpill-*/SKILL.md`). Older Claude Code versions use `commands/redpill/`. The installer handles this automatically.
 
 ### Staying Updated
 
@@ -153,7 +153,7 @@ Use `--sdk` to also install the REDPILL SDK CLI (`redpill-sdk`) for headless aut
 Clone the repository and run the installer locally:
 
 ```bash
-git clone https://github.com/gsd-build/get-shit-done.git
+git clone https://github.com/redpill-build/get-shit-done.git
 cd get-shit-done
 node bin/install.js --claude --local
 ```
@@ -703,8 +703,8 @@ Control how REDPILL handles branches during execution.
 | Setting | Options | Default | What it does |
 |---------|---------|---------|--------------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | Branch creation strategy |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | Template for phase branches |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Template for milestone branches |
+| `git.phase_branch_template` | string | `redpill/phase-{phase}-{slug}` | Template for phase branches |
+| `git.milestone_branch_template` | string | `redpill/{milestone}-{slug}` | Template for milestone branches |
 
 **Strategies:**
 - **`none`** — Commits to current branch (default REDPILL behavior)
@@ -764,8 +764,8 @@ This prevents Claude from reading these files entirely, regardless of what comma
 
 **Commands not found after install?**
 - Restart your runtime to reload commands/skills
-- Verify files exist in `~/.claude/skills/gsd-*/SKILL.md` (Claude Code 2.1.88+) or `~/.claude/commands/gsd/` (legacy)
-- For Codex, verify skills exist in `~/.codex/skills/gsd-*/SKILL.md` (global) or `./.codex/skills/gsd-*/SKILL.md` (local)
+- Verify files exist in `~/.claude/skills/redpill-*/SKILL.md` (Claude Code 2.1.88+) or `~/.claude/commands/redpill/` (legacy)
+- For Codex, verify skills exist in `~/.codex/skills/redpill-*/SKILL.md` (global) or `./.codex/skills/redpill-*/SKILL.md` (local)
 
 **Commands not working as expected?**
 - Run `/redpill:help` to verify installation
@@ -822,18 +822,18 @@ These community ports pioneered multi-runtime support:
 
 | Project | Platform | Description |
 |---------|----------|-------------|
-| [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Original OpenCode adaptation |
-| gsd-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
+| [redpill-opencode](https://github.com/rokicool/redpill-opencode) | OpenCode | Original OpenCode adaptation |
+| redpill-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
 
 ---
 
 ## Star History
 
-<a href="https://star-history.com/#gsd-build/get-shit-done&Date">
+<a href="https://star-history.com/#jinrunsen/redpill&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
  </picture>
 </a>
 

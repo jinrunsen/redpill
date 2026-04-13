@@ -7,8 +7,8 @@
 ## Command Syntax
 
 - **Claude Code / Gemini / Copilot:** `/redpill:command-name [args]`
-- **OpenCode:** `/gsd-command-name [args]`
-- **Codex:** `$gsd-command-name [args]`
+- **OpenCode:** `/redpill-command-name [args]`
+- **Codex:** `$redpill-command-name [args]`
 
 ---
 
@@ -40,7 +40,7 @@ Create an isolated workspace with repo copies and independent `.redpill/` direct
 |------|-------------|
 | `--name <name>` | Workspace name (required) |
 | `--repos repo1,repo2` | Comma-separated repo paths or names |
-| `--path /target` | Target directory (default: `~/gsd-workspaces/<name>`) |
+| `--path /target` | Target directory (default: `~/redpill-workspaces/<name>`) |
 | `--strategy worktree\|clone` | Copy strategy (default: `worktree`) |
 | `--branch <name>` | Branch to checkout (default: `workspace/<name>`) |
 | `--auto` | Skip interactive questions |
@@ -63,7 +63,7 @@ Create an isolated workspace with repo copies and independent `.redpill/` direct
 
 List active REDPILL workspaces and their status.
 
-**Scans:** `~/gsd-workspaces/` for `WORKSPACE.md` manifests
+**Scans:** `~/redpill-workspaces/` for `WORKSPACE.md` manifests
 **Shows:** Name, repo count, strategy, REDPILL project status
 
 ```bash

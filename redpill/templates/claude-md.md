@@ -85,7 +85,7 @@ No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skill
 **Discovery behavior:**
 - Scans `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, `.github/skills/` for subdirectories containing `SKILL.md`
 - Extracts `name` and `description` from YAML frontmatter (supports multi-line descriptions)
-- Skips GSD's own installed skills (directories starting with `gsd-`)
+- Skips GSD's own installed skills (directories starting with `redpill-`)
 - Deduplicates by skill name across directories
 
 ### Workflow Enforcement Section

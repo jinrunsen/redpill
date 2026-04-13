@@ -250,8 +250,8 @@ GSD 在 `.redpill/config.json` 中存储项目设置。在 `/redpill:new-project
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}"
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}"
   }
 }
 ```
@@ -289,8 +289,8 @@ GSD 在 `.redpill/config.json` 中存储项目设置。在 `/redpill:new-project
 | 设置 | 选项 | 默认值 | 控制内容 |
 |---------|---------|---------|------------------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | 何时以及如何创建分支 |
-| `git.phase_branch_template` | 模板字符串 | `gsd/phase-{phase}-{slug}` | 阶段策略的分支名 |
-| `git.milestone_branch_template` | 模板字符串 | `gsd/{milestone}-{slug}` | 里程碑策略的分支名 |
+| `git.phase_branch_template` | 模板字符串 | `redpill/phase-{phase}-{slug}` | 阶段策略的分支名 |
+| `git.milestone_branch_template` | 模板字符串 | `redpill/{milestone}-{slug}` | 里程碑策略的分支名 |
 
 **分支策略说明：**
 
@@ -439,7 +439,7 @@ claude --dangerously-skip-permissions
 
 ### REDPILL 更新覆盖了我的本地更改
 
-从 v1.17 开始，安装程序将本地修改的文件备份到 `gsd-local-patches/`。运行 `/redpill:reapply-patches` 将你的更改合并回来。
+从 v1.17 开始，安装程序将本地修改的文件备份到 `redpill-local-patches/`。运行 `/redpill:reapply-patches` 将你的更改合并回来。
 
 ### 子代理似乎失败但工作已完成
 

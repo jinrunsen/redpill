@@ -10,11 +10,11 @@
 
 [![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
 [![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
+[![Tests](https://img.shields.io/github/actions/workflow/status/redpill-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/redpill-build/redpill/actions/workflows/test.yml)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/redpill)
+[![X (Twitter)](https://img.shields.io/badge/X-@redpill_dev-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/redpill_dev)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/gsd-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/gsd-build/get-shit-done)
+[![GitHub stars](https://img.shields.io/github/stars/redpill-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/redpill-build/get-shit-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
@@ -89,13 +89,13 @@ npx redpill-cc@latest
 
 설치가 됐는지 확인하려면:
 - Claude Code / Gemini: `/redpill:help`
-- OpenCode: `/gsd-help`
-- Codex: `$gsd-help`
+- OpenCode: `/redpill-help`
+- Codex: `$redpill-help`
 - Copilot: `/redpill:help`
 - Antigravity: `/redpill:help`
 
 > [!NOTE]
-> Codex 설치는 커스텀 프롬프트 대신 스킬(`skills/gsd-*/SKILL.md`)을 사용합니다.
+> Codex 설치는 커스텀 프롬프트 대신 스킬(`skills/redpill-*/SKILL.md`)을 사용합니다.
 
 ### 업데이트 유지
 
@@ -150,7 +150,7 @@ npx redpill-cc --all --global      # 모든 디렉터리에 설치
 저장소를 클론하고 설치 프로그램을 로컬에서 실행합니다:
 
 ```bash
-git clone https://github.com/gsd-build/get-shit-done.git
+git clone https://github.com/redpill-build/get-shit-done.git
 cd get-shit-done
 node bin/install.js --claude --local
 ```
@@ -680,8 +680,8 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
 | 설정 | 옵션 | 기본값 | 역할 |
 |---------|---------|---------|--------------|
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | 브랜치 생성 전략 |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | 단계 브랜치 템플릿 |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | 마일스톤 브랜치 템플릿 |
+| `git.phase_branch_template` | string | `redpill/phase-{phase}-{slug}` | 단계 브랜치 템플릿 |
+| `git.milestone_branch_template` | string | `redpill/{milestone}-{slug}` | 마일스톤 브랜치 템플릿 |
 
 **전략:**
 - **`none`** — 현재 브랜치에 커밋 (기본 REDPILL 동작)
@@ -741,8 +741,8 @@ GSD의 코드베이스 매핑 및 분석 명령어는 프로젝트를 이해하�
 
 **설치 후 명령어를 찾을 수 없나요?**
 - 런타임을 재시작해 명령어/스킬을 다시 로드하세요
-- `~/.claude/commands/gsd/` (전역) 또는 `./.claude/commands/gsd/` (로컬)에 파일이 있는지 확인하세요
-- Codex의 경우 `~/.codex/skills/gsd-*/SKILL.md` (전역) 또는 `./.codex/skills/gsd-*/SKILL.md` (로컬)에 스킬이 있는지 확인하세요
+- `~/.claude/commands/redpill/` (전역) 또는 `./.claude/commands/redpill/` (로컬)에 파일이 있는지 확인하세요
+- Codex의 경우 `~/.codex/skills/redpill-*/SKILL.md` (전역) 또는 `./.codex/skills/redpill-*/SKILL.md` (로컬)에 스킬이 있는지 확인하세요
 
 **명령어가 예상대로 작동하지 않나요?**
 - `/redpill:help`를 실행해 설치 확인
@@ -797,18 +797,18 @@ OpenCode, Gemini CLI, Codex는 이제 `npx redpill-cc`를 통해 기본 지원�
 
 | 프로젝트 | 플랫폼 | 설명 |
 |---------|----------|-------------|
-| [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | 최초 OpenCode 적응 |
-| gsd-gemini (아카이브됨) | Gemini CLI | uberfuzzy의 최초 Gemini 적응 |
+| [redpill-opencode](https://github.com/rokicool/redpill-opencode) | OpenCode | 최초 OpenCode 적응 |
+| redpill-gemini (아카이브됨) | Gemini CLI | uberfuzzy의 최초 Gemini 적응 |
 
 ---
 
 ## 스타 히스토리
 
-<a href="https://star-history.com/#gsd-build/get-shit-done&Date">
+<a href="https://star-history.com/#jinrunsen/redpill&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
  </picture>
 </a>
 

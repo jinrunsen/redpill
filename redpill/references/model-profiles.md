@@ -45,7 +45,7 @@ Model profiles control which Claude model each REDPILL agent uses. This allows b
 
 ## Using Non-Claude Runtimes (Codex, OpenCode, Gemini CLI)
 
-When installed for a non-Claude runtime, the REDPILL installer sets `resolve_model_ids: "omit"` in `~/.gsd/defaults.json`. This returns an empty model parameter for all agents, so each agent uses the runtime's default model. No manual setup is needed.
+When installed for a non-Claude runtime, the REDPILL installer sets `resolve_model_ids: "omit"` in `~/.redpill/defaults.json`. This returns an empty model parameter for all agents, so each agent uses the runtime's default model. No manual setup is needed.
 
 To assign different models to different agents, add `model_overrides` with model IDs your runtime recognizes:
 

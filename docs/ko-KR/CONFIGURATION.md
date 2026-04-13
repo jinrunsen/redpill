@@ -49,8 +49,8 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   },
   "gates": {
@@ -166,8 +166,8 @@ GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpi
 | 설정 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
 | `git.branching_strategy` | enum | `none` | `none`, `phase`, 또는 `milestone` |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | phase 전략의 브랜치 이름 템플릿 |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | milestone 전략의 브랜치 이름 템플릿 |
+| `git.phase_branch_template` | string | `redpill/phase-{phase}-{slug}` | phase 전략의 브랜치 이름 템플릿 |
+| `git.milestone_branch_template` | string | `redpill/{milestone}-{slug}` | milestone 전략의 브랜치 이름 템플릿 |
 | `git.quick_branch_template` | string 또는 null | `null` | `/redpill:quick` 태스크를 위한 선택적 브랜치 이름 템플릿 |
 
 ### 전략 비교
@@ -191,7 +191,7 @@ quick 태스크 브랜칭 예시:
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -277,7 +277,7 @@ quick 태스크 브랜칭 예시:
 
 ### 비 Claude 런타임 (Codex, OpenCode, Gemini CLI)
 
-비 Claude 런타임에 GSD를 설치하면 인스톨러가 자동으로 `~/.gsd/defaults.json`에 `resolve_model_ids: "omit"`을 설정합니다. 이로 인해 GSD는 모든 에이전트에 빈 model 파라미터를 반환하며 각 에이전트는 런타임에 설정된 모델을 사용합니다. 기본 사용 시 추가 설정은 필요하지 않습니다.
+비 Claude 런타임에 GSD를 설치하면 인스톨러가 자동으로 `~/.redpill/defaults.json`에 `resolve_model_ids: "omit"`을 설정합니다. 이로 인해 GSD는 모든 에이전트에 빈 model 파라미터를 반환하며 각 에이전트는 런타임에 설정된 모델을 사용합니다. 기본 사용 시 추가 설정은 필요하지 않습니다.
 
 에이전트마다 다른 모델을 사용하려면 런타임이 인식하는 완전히 정규화된 모델 ID로 `model_overrides`를 사용합니다.
 
@@ -337,6 +337,6 @@ quick 태스크 브랜칭 예시:
 
 향후 프로젝트를 위한 전역 기본값으로 설정을 저장할 수 있습니다.
 
-**위치:** `~/.gsd/defaults.json`
+**위치:** `~/.redpill/defaults.json`
 
 `/redpill:new-project`가 새 `config.json`을 생성할 때 전역 기본값을 읽어 초기 설정으로 병합합니다. 프로젝트별 설정은 항상 전역 설정보다 우선합니다.

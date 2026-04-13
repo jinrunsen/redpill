@@ -277,7 +277,7 @@ node redpill-tools.cjs init map-codebase
 node redpill-tools.cjs init progress
 ```
 
-**大容量ペイロードの処理:** 出力が約50KBを超える場合、CLI は一時ファイルに書き出し、`@file:/tmp/gsd-init-XXXXX.json` を返します。ワークフローは `@file:` プレフィックスを確認し、ディスクから読み込みます:
+**大容量ペイロードの処理:** 出力が約50KBを超える場合、CLI は一時ファイルに書き出し、`@file:/tmp/redpill-init-XXXXX.json` を返します。ワークフローは `@file:` プレフィックスを確認し、ディスクから読み込みます:
 
 ```bash
 INIT=$(node redpill-tools.cjs init execute-phase "1")

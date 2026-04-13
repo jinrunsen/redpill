@@ -36,7 +36,7 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
                       │
 ┌─────────────────────▼────────────────────────────────┐
 │              COMMAND LAYER                            │
-│   commands/gsd/*.md — Prompt-based command files      │
+│   commands/redpill/*.md — Prompt-based command files      │
 │   (Claude Code custom commands / Codex skills)        │
 └─────────────────────┬────────────────────────────────┘
                       │
@@ -104,12 +104,12 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 
 ## コンポーネントアーキテクチャ
 
-### コマンド（`commands/gsd/*.md`）
+### コマンド（`commands/redpill/*.md`）
 
 ユーザー向けのエントリーポイントです。各ファイルにはYAMLフロントマター（name、description、allowed-tools）とワークフローをブートストラップするプロンプト本文が含まれています。コマンドは以下の形式でインストールされます：
 - **Claude Code:** カスタムスラッシュコマンド（`/redpill:command-name`）
-- **OpenCode:** スラッシュコマンド（`/gsd-command-name`）
-- **Codex:** スキル（`$gsd-command-name`）
+- **OpenCode:** スラッシュコマンド（`/redpill-command-name`）
+- **Codex:** スキル（`$redpill-command-name`）
 - **Copilot:** スラッシュコマンド（`/redpill:command-name`）
 - **Antigravity:** スキル
 
@@ -344,7 +344,7 @@ UI-SPEC.md (per phase) ───────────────────
 
 ```
 ~/.claude/                          # Claude Code (global install)
-├── commands/gsd/*.md               # 37 slash commands
+├── commands/redpill/*.md               # 37 slash commands
 ├── redpill/
 │   ├── bin/redpill-tools.cjs           # CLI utility
 │   ├── bin/lib/*.cjs               # 15 domain modules
@@ -437,8 +437,8 @@ UI-SPEC.md (per phase) ───────────────────
    - Antigravity: Googleモデル同等品によるスキルファースト
 5. **パス正規化** — `~/.claude/` パスをランタイム固有のパスに置換
 6. **設定統合** — ランタイムの `settings.json` にフックを登録
-7. **パッチバックアップ** — v1.17以降、ローカルで変更されたファイルを `/redpill:reapply-patches` 用に `gsd-local-patches/` へバックアップ
-8. **マニフェスト追跡** — クリーンアンインストールのために `gsd-file-manifest.json` を書き込み
+7. **パッチバックアップ** — v1.17以降、ローカルで変更されたファイルを `/redpill:reapply-patches` 用に `redpill-local-patches/` へバックアップ
+8. **マニフェスト追跡** — クリーンアンインストールのために `redpill-file-manifest.json` を書き込み
 9. **アンインストールモード** — `--uninstall` ですべてのGSDファイル、フック、設定を削除
 
 ### プラットフォーム対応
@@ -466,7 +466,7 @@ Runtime Engine (Claude Code / Gemini CLI)
     │
     └── SessionStart event ──► redpill-check-update.js
         Reads: VERSION file
-        Writes: ~/.claude/cache/gsd-update-check.json (spawns background process)
+        Writes: ~/.claude/cache/redpill-update-check.json (spawns background process)
 ```
 
 ### コンテキストモニターの閾値
@@ -510,9 +510,9 @@ GSDは統一されたコマンド/ワークフローアーキテクチャを通�
 | ランタイム | コマンド形式 | エージェントシステム | 設定場所 |
 |---------|---------------|--------------|-----------------|
 | Claude Code | `/redpill:command` | Task起動 | `~/.claude/` |
-| OpenCode | `/gsd-command` | サブエージェントモード | `~/.config/opencode/` |
+| OpenCode | `/redpill-command` | サブエージェントモード | `~/.config/opencode/` |
 | Gemini CLI | `/redpill:command` | Task起動 | `~/.gemini/` |
-| Codex | `$gsd-command` | スキル | `~/.codex/` |
+| Codex | `$redpill-command` | スキル | `~/.codex/` |
 | Copilot | `/redpill:command` | エージェント委譲 | `~/.github/` |
 | Antigravity | スキル | スキル | `~/.gemini/antigravity/` |
 

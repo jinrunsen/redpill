@@ -781,7 +781,7 @@
 - REQ-UPDATE-01: System MUST check for new versions via npm
 - REQ-UPDATE-02: System MUST display changelog for new version before updating
 - REQ-UPDATE-03: System MUST be runtime-aware and target the correct directory
-- REQ-UPDATE-04: System MUST back up locally modified files to `gsd-local-patches/`
+- REQ-UPDATE-04: System MUST back up locally modified files to `redpill-local-patches/`
 - REQ-UPDATE-05: `/redpill:reapply-patches` MUST restore local modifications after update
 
 ---
@@ -795,7 +795,7 @@
 **Requirements:**
 - REQ-SETTINGS-01: System MUST present current settings with toggle options
 - REQ-SETTINGS-02: System MUST update `.redpill/config.json`
-- REQ-SETTINGS-03: System MUST support saving as global defaults (`~/.gsd/defaults.json`)
+- REQ-SETTINGS-03: System MUST support saving as global defaults (`~/.redpill/defaults.json`)
 
 **Configurable Settings:**
 | Setting | Type | Default | Description |
@@ -1556,12 +1556,12 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 **Purpose:** Migrate REDPILL commands to Claude Code 2.1.88+ skills format with backward compatibility.
 
 **Requirements:**
-- REQ-SKILLS-01: Installer MUST write `skills/gsd-*/SKILL.md` for Claude Code 2.1.88+
-- REQ-SKILLS-02: Installer MUST auto-clean legacy `commands/gsd/` directory
+- REQ-SKILLS-01: Installer MUST write `skills/redpill-*/SKILL.md` for Claude Code 2.1.88+
+- REQ-SKILLS-02: Installer MUST auto-clean legacy `commands/redpill/` directory
 - REQ-SKILLS-03: Installer MUST maintain backward compatibility with older Claude Code versions via Gemini path
 
 **Process:**
 1. **Detect** — Check Claude Code version to determine skills support
-2. **Migrate** — Write `skills/gsd-*/SKILL.md` files for each REDPILL command
-3. **Clean** — Remove legacy `commands/gsd/` directory if skills are installed
+2. **Migrate** — Write `skills/redpill-*/SKILL.md` files for each REDPILL command
+3. **Clean** — Remove legacy `commands/redpill/` directory if skills are installed
 4. **Fallback** — Maintain Gemini path compatibility for older Claude Code versions

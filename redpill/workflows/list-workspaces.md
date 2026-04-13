@@ -1,5 +1,5 @@
 <purpose>
-List all REDPILL workspaces found in ~/gsd-workspaces/ with their status.
+List all REDPILL workspaces found in ~/redpill-workspaces/ with their status.
 </purpose>
 
 <required_reading>
@@ -22,7 +22,7 @@ Parse JSON for: `workspace_base`, `workspaces`, `workspace_count`.
 **If `workspace_count` is 0:**
 
 ```
-No workspaces found in ~/gsd-workspaces/
+No workspaces found in ~/redpill-workspaces/
 
 Create one with:
   /redpill:new-workspace --name my-workspace --repos repo1,repo2
@@ -35,7 +35,7 @@ Done.
 Display a table:
 
 ```
-GSD Workspaces (~/gsd-workspaces/)
+GSD Workspaces (~/redpill-workspaces/)
 
 | Name | Repos | Strategy | REDPILL Project |
 |------|-------|----------|-------------|
@@ -43,7 +43,7 @@ GSD Workspaces (~/gsd-workspaces/)
 | feature-b | 2 | clone | No |
 
 Manage:
-  cd ~/gsd-workspaces/<name>     # Enter a workspace
+  cd ~/redpill-workspaces/<name>     # Enter a workspace
   /redpill:remove-workspace <name>   # Remove a workspace
 ```
 

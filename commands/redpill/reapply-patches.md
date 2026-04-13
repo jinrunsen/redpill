@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 <purpose>
 After a REDPILL update wipes and reinstalls files, this command merges user's previously saved local modifications back into the new version. Uses three-way comparison (pristine baseline, user-modified backup, newly installed version) to reliably distinguish user customizations from version drift.
 
-**Critical invariant:** Every file in `gsd-local-patches/` was backed up because the installer's hash comparison detected it was modified. The workflow must NEVER conclude "no custom content" for any backed-up file — that is a logical contradiction. When in doubt, classify as CONFLICT requiring user review, not SKIP.
+**Critical invariant:** Every file in `redpill-local-patches/` was backed up because the installer's hash comparison detected it was modified. The workflow must NEVER conclude "no custom content" for any backed-up file — that is a logical contradiction. When in doubt, classify as CONFLICT requiring user review, not SKIP.
 </purpose>
 
 <process>
@@ -18,20 +18,20 @@ Check for local patches directory:
 
 ```bash
 # Global install — detect runtime config directory
-if [ -d "$HOME/.config/opencode/gsd-local-patches" ]; then
-  PATCHES_DIR="$HOME/.config/opencode/gsd-local-patches"
-elif [ -d "$HOME/.opencode/gsd-local-patches" ]; then
-  PATCHES_DIR="$HOME/.opencode/gsd-local-patches"
-elif [ -d "$HOME/.gemini/gsd-local-patches" ]; then
-  PATCHES_DIR="$HOME/.gemini/gsd-local-patches"
+if [ -d "$HOME/.config/opencode/redpill-local-patches" ]; then
+  PATCHES_DIR="$HOME/.config/opencode/redpill-local-patches"
+elif [ -d "$HOME/.opencode/redpill-local-patches" ]; then
+  PATCHES_DIR="$HOME/.opencode/redpill-local-patches"
+elif [ -d "$HOME/.gemini/redpill-local-patches" ]; then
+  PATCHES_DIR="$HOME/.gemini/redpill-local-patches"
 else
-  PATCHES_DIR="$HOME/.claude/gsd-local-patches"
+  PATCHES_DIR="$HOME/.claude/redpill-local-patches"
 fi
 # Local install fallback — check all runtime directories
 if [ ! -d "$PATCHES_DIR" ]; then
   for dir in .config/opencode .opencode .gemini .claude; do
-    if [ -d "./$dir/gsd-local-patches" ]; then
-      PATCHES_DIR="./$dir/gsd-local-patches"
+    if [ -d "./$dir/redpill-local-patches" ]; then
+      PATCHES_DIR="./$dir/redpill-local-patches"
       break
     fi
   done
@@ -53,7 +53,7 @@ Exit.
 
 The quality of the merge depends on having a **pristine baseline** — the original unmodified version of each file from the pre-update REDPILL release. This enables three-way comparison:
 - **Pristine baseline** (original REDPILL file before any user edits)
-- **User's version** (backed up in `gsd-local-patches/`)
+- **User's version** (backed up in `redpill-local-patches/`)
 - **New version** (freshly installed after update)
 
 Check for baseline sources in priority order:
@@ -76,9 +76,9 @@ git -C "$CONFIG_DIR" show {install_commit}:{file_path}
 ```
 
 ### Option B: Pristine snapshot directory
-Check if a `gsd-pristine/` directory exists alongside `gsd-local-patches/`:
+Check if a `redpill-pristine/` directory exists alongside `redpill-local-patches/`:
 ```bash
-PRISTINE_DIR="$CONFIG_DIR/gsd-pristine"
+PRISTINE_DIR="$CONFIG_DIR/redpill-pristine"
 ```
 If it exists, the installer saved pristine copies at install time. Use these as the baseline.
 
@@ -105,9 +105,9 @@ If neither git history nor pristine snapshots are available, fall back to two-wa
 
 For each file in `backup-meta.json`:
 
-1. **Read the backed-up version** (user's modified copy from `gsd-local-patches/`)
+1. **Read the backed-up version** (user's modified copy from `redpill-local-patches/`)
 2. **Read the newly installed version** (current file after update)
-3. **If available, read the pristine baseline** (from git history or `gsd-pristine/`)
+3. **If available, read the pristine baseline** (from git history or `redpill-pristine/`)
 
 ### Three-way merge (when baseline is available)
 
@@ -141,7 +141,7 @@ d. **If ALL differences appear to be mechanical drift → still flag as CONFLICT
 When the config directory is a git repo but the pristine install commit can't be found, use commit history to identify user changes:
 ```bash
 # Find non-update commits that touched this file
-git -C "$CONFIG_DIR" log --oneline --no-merges -- "{file_path}" | grep -v "redpill:update\|GSD update\|gsd-install"
+git -C "$CONFIG_DIR" log --oneline --no-merges -- "{file_path}" | grep -v "redpill:update\|GSD update\|redpill-install"
 ```
 Each matching commit represents an intentional user modification. Use the commit messages and diffs to understand what was changed and why.
 
@@ -165,8 +165,8 @@ After reapplying, regenerate the file manifest so future updates correctly detec
 ## Step 6: Cleanup option
 
 Ask user:
-- "Keep patch backups for reference?" → preserve `gsd-local-patches/`
-- "Clean up patch backups?" → remove `gsd-local-patches/` directory
+- "Keep patch backups for reference?" → preserve `redpill-local-patches/`
+- "Clean up patch backups?" → remove `redpill-local-patches/` directory
 
 ## Step 7: Report
 
@@ -187,7 +187,7 @@ Ask user:
 <success_criteria>
 - [ ] All backed-up patches processed — zero files left unhandled
 - [ ] No file classified as "no custom content" or "SKIP" — every backed-up file is definitionally modified
-- [ ] Three-way merge used when pristine baseline available (git history or gsd-pristine/)
+- [ ] Three-way merge used when pristine baseline available (git history or redpill-pristine/)
 - [ ] User modifications identified and merged into new version
 - [ ] Conflicts surfaced to user with both versions shown
 - [ ] Status reported for each file with summary of what was preserved

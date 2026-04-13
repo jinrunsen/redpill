@@ -10,11 +10,11 @@
 
 [![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
 [![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
+[![Tests](https://img.shields.io/github/actions/workflow/status/redpill-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/redpill-build/redpill/actions/workflows/test.yml)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/redpill)
+[![X (Twitter)](https://img.shields.io/badge/X-@redpill_dev-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/redpill_dev)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/gsd-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/gsd-build/get-shit-done)
+[![GitHub stars](https://img.shields.io/github/stars/redpill-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/redpill-build/get-shit-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
@@ -87,13 +87,13 @@ O instalador pede:
 
 Verifique com:
 - Claude Code / Gemini: `/redpill:help`
-- OpenCode: `/gsd-help`
-- Codex: `$gsd-help`
+- OpenCode: `/redpill-help`
+- Codex: `$redpill-help`
 - Copilot: `/redpill:help`
 - Antigravity: `/redpill:help`
 
 > [!NOTE]
-> A instalação do Codex usa skills (`skills/gsd-*/SKILL.md`) em vez de prompts customizados.
+> A instalação do Codex usa skills (`skills/redpill-*/SKILL.md`) em vez de prompts customizados.
 
 ### Mantendo atualizado
 
@@ -424,18 +424,18 @@ OpenCode, Gemini CLI e Codex agora são suportados nativamente via `npx redpill-
 
 | Projeto | Plataforma | Descrição |
 |---------|------------|-----------|
-| [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Adaptação original para OpenCode |
-| gsd-gemini (archived) | Gemini CLI | Adaptação original para Gemini por uberfuzzy |
+| [redpill-opencode](https://github.com/rokicool/redpill-opencode) | OpenCode | Adaptação original para OpenCode |
+| redpill-gemini (archived) | Gemini CLI | Adaptação original para Gemini por uberfuzzy |
 
 ---
 
 ## Star History
 
-<a href="https://star-history.com/#gsd-build/get-shit-done&Date">
+<a href="https://star-history.com/#jinrunsen/redpill&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gsd-build/get-shit-done&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jinrunsen/redpill&type=Date" />
  </picture>
 </a>
 

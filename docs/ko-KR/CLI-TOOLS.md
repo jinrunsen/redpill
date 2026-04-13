@@ -277,7 +277,7 @@ node redpill-tools.cjs init map-codebase
 node redpill-tools.cjs init progress
 ```
 
-**대용량 페이로드 처리:** 출력이 약 50KB를 초과하면 CLI가 임시 파일에 쓰고 `@file:/tmp/gsd-init-XXXXX.json`을 반환합니다. 워크플로우는 `@file:` 접두사를 확인하고 디스크에서 읽습니다.
+**대용량 페이로드 처리:** 출력이 약 50KB를 초과하면 CLI가 임시 파일에 쓰고 `@file:/tmp/redpill-init-XXXXX.json`을 반환합니다. 워크플로우는 `@file:` 접두사를 확인하고 디스크에서 읽습니다.
 
 ```bash
 INIT=$(node redpill-tools.cjs init execute-phase "1")

@@ -215,7 +215,7 @@ Collect all answers into an answers JSON object mapping dimension keys to select
 
 **Save answers to temp file:**
 ```bash
-ANSWERS_PATH=$(mktemp /tmp/gsd-profile-answers-XXXXXX.json)
+ANSWERS_PATH=$(mktemp /tmp/redpill-profile-answers-XXXXXX.json)
 ```
 
 Write the answers JSON to `$ANSWERS_PATH`.
@@ -229,7 +229,7 @@ Parse the analysis JSON from the result.
 
 Save analysis JSON to a temp file:
 ```bash
-ANALYSIS_PATH=$(mktemp /tmp/gsd-profile-analysis-XXXXXX.json)
+ANALYSIS_PATH=$(mktemp /tmp/redpill-profile-analysis-XXXXXX.json)
 ```
 
 Write the analysis JSON to `$ANALYSIS_PATH`.
@@ -351,7 +351,7 @@ Generate selected artifacts sequentially (file I/O is fast, no benefit from para
 node $HOME/.claude/redpill/bin/redpill-tools.cjs generate-dev-preferences --analysis "$ANALYSIS_PATH" --json 2>/dev/null
 ```
 
-Display: "✓ Generated /redpill:dev-preferences at $HOME/.claude/commands/gsd/dev-preferences.md"
+Display: "✓ Generated /redpill:dev-preferences at $HOME/.claude/commands/redpill/dev-preferences.md"
 
 **For CLAUDE.md profile section (if selected):**
 
@@ -410,7 +410,7 @@ Your profile:    $HOME/.claude/redpill/USER-PROFILE.md
 Then list paths for each generated artifact:
 ```
 Artifacts:
-  ✓ /redpill:dev-preferences   $HOME/.claude/commands/gsd/dev-preferences.md
+  ✓ /redpill:dev-preferences   $HOME/.claude/commands/redpill/dev-preferences.md
   ✓ CLAUDE.md section       ./CLAUDE.md
   ✓ Global CLAUDE.md        $HOME/.claude/CLAUDE.md
 ```

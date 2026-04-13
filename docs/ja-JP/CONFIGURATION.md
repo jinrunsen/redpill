@@ -49,8 +49,8 @@ GSD はプロジェクト設定を `.redpill/config.json` に保存します。`
   },
   "git": {
     "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "phase_branch_template": "redpill/phase-{phase}-{slug}",
+    "milestone_branch_template": "redpill/{milestone}-{slug}",
     "quick_branch_template": null
   },
   "gates": {
@@ -166,8 +166,8 @@ GSD はプロジェクト設定を `.redpill/config.json` に保存します。`
 | 設定 | 型 | デフォルト | 説明 |
 |------|-----|-----------|------|
 | `git.branching_strategy` | enum | `none` | `none`、`phase`、または `milestone` |
-| `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | phase 戦略のブランチ名テンプレート |
-| `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | milestone 戦略のブランチ名テンプレート |
+| `git.phase_branch_template` | string | `redpill/phase-{phase}-{slug}` | phase 戦略のブランチ名テンプレート |
+| `git.milestone_branch_template` | string | `redpill/{milestone}-{slug}` | milestone 戦略のブランチ名テンプレート |
 | `git.quick_branch_template` | string or null | `null` | `/redpill:quick` タスク用のオプションのブランチ名テンプレート |
 
 ### 戦略の比較
@@ -191,7 +191,7 @@ quick タスクのブランチ設定例：
 
 ```json
 "git": {
-  "quick_branch_template": "gsd/quick-{num}-{slug}"
+  "quick_branch_template": "redpill/quick-{num}-{slug}"
 }
 ```
 
@@ -277,7 +277,7 @@ quick タスクのブランチ設定例：
 
 ### 非 Claude ランタイム（Codex、OpenCode、Gemini CLI）
 
-GSD が非 Claude ランタイム向けにインストールされると、インストーラーは自動的に `~/.gsd/defaults.json` に `resolve_model_ids: "omit"` を設定します。これにより REDPILL はすべてのエージェントに対して空のモデルパラメータを返し、各エージェントはランタイムで設定されたモデルを使用します。デフォルトの場合、追加のセットアップは不要です。
+GSD が非 Claude ランタイム向けにインストールされると、インストーラーは自動的に `~/.redpill/defaults.json` に `resolve_model_ids: "omit"` を設定します。これにより REDPILL はすべてのエージェントに対して空のモデルパラメータを返し、各エージェントはランタイムで設定されたモデルを使用します。デフォルトの場合、追加のセットアップは不要です。
 
 異なるエージェントに異なるモデルを使用させたい場合は、ランタイムが認識する完全修飾モデル ID で `model_overrides` を使用してください：
 
@@ -337,6 +337,6 @@ GSD が非 Claude ランタイム向けにインストールされると、イ�
 
 将来のプロジェクト向けにグローバルデフォルトとして設定を保存できます。
 
-**保存場所:** `~/.gsd/defaults.json`
+**保存場所:** `~/.redpill/defaults.json`
 
 `/redpill:new-project` が新しい `config.json` を作成する際、グローバルデフォルトを読み込み、初期設定としてマージします。プロジェクトごとの設定は常にグローバル設定を上書きします。

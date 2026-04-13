@@ -277,7 +277,7 @@ node redpill-tools.cjs init map-codebase
 node redpill-tools.cjs init progress
 ```
 
-**Large payload handling:** When output exceeds ~50KB, the CLI writes to a temp file and returns `@file:/tmp/gsd-init-XXXXX.json`. Workflows check for the `@file:` prefix and read from disk:
+**Large payload handling:** When output exceeds ~50KB, the CLI writes to a temp file and returns `@file:/tmp/redpill-init-XXXXX.json`. Workflows check for the `@file:` prefix and read from disk:
 
 ```bash
 INIT=$(node redpill-tools.cjs init execute-phase "1")
