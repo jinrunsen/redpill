@@ -61,7 +61,7 @@ npx redpill-cc@latest
 
 これがGSDです。エンタープライズごっこは一切なし。Claude Codeを使って一貫してクールなものを作るための、非常に効果的なシステムです。
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 

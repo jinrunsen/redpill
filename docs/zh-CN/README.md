@@ -57,7 +57,7 @@ npx redpill-cc@latest
 
 这就是它的本质。没有企业级角色扮演的废话。只是一个让 Claude Code 稳定可靠地构建酷东西的极其有效的系统。
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 

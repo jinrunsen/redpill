@@ -1,7 +1,7 @@
 {
   "name": "redpill-cc",
   "version": "0.2.1",
-  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES.",
+  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by jinrunsen.",
   "bin": {
     "redpill-cc": "bin/install.js"
   },
@@ -25,7 +25,7 @@
     "codex",
     "codex-cli"
   ],
-  "author": "TÂCHES",
+  "author": "jinrunsen",
   "license": "MIT",
   "repository": {
     "type": "git",

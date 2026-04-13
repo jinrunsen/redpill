@@ -59,7 +59,7 @@ The system gives Claude everything it needs to do the work *and* verify it. I tr
 
 That's what this is. No enterprise roleplay bullshit. Just an incredibly effective system for building cool stuff consistently using Claude Code.
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 

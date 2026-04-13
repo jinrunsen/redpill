@@ -57,7 +57,7 @@ Então eu criei o GSD. A complexidade fica no sistema, não no seu fluxo. Por tr
 
 O sistema dá ao Claude tudo que ele precisa para fazer o trabalho *e* validar o resultado. Eu confio no fluxo. Ele entrega.
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 

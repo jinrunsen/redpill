@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/gsd-build/redpill/issues"
   },
-  "author": "TÂCHES",
+  "author": "jinrunsen",
   "license": "MIT",
   "engines": {
     "node": ">=20"

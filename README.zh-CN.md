@@ -59,7 +59,7 @@ npx redpill-cc@latest
 
 这就是它。没有企业角色扮演式的废话，只有一套非常有效、能让你持续用 Claude Code 构建酷东西的系统。
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 

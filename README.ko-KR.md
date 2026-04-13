@@ -59,7 +59,7 @@ npx redpill-cc@latest
 
 이게 전부입니다. 기업 역할극 같은 건 없습니다. Claude Code를 일관성 있게 쓰기 위한, 진짜로 잘 되는 시스템입니다.
 
-— **TÂCHES**
+— **jinrunsen**
 
 ---
 
