@@ -26,6 +26,11 @@ Valid REDPILL subagent types (use exact names — do not fall back to 'general-p
 
 ## 1. Initialize
 
+**NOTE:** There is no `init auto-design` handler. Use `init clarify-feature`
+which returns all the context this workflow needs (verifier_model, tech_stack_hint,
+design_review_max_rounds, existing features, etc.). Do NOT attempt to call
+`init auto-design` — it does not exist and will error.
+
 ```bash
 INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init clarify-feature)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
