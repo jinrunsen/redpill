@@ -4808,6 +4808,10 @@ function install(isGlobal, runtime = 'claude') {
             try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
           } else {
             fs.copyFileSync(srcFile, destFile);
+            // Ensure shell scripts are executable
+            if (entry.endsWith('.sh')) {
+              try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+            }
           }
         }
       }
