@@ -132,7 +132,14 @@ After verification (pass or fail), kill the background service process.
 **Check 6:** `has_feature_files` is false → Error:
 ```
 No .feature files found in features/ directory (including subdirectories).
-Write your Gherkin scenarios first, then re-run /redpill:bdd-phase {N}.
+
+Write your Gherkin scenarios first:
+
+  /redpill:clarify-feature "describe your requirement"     — interactive
+  /redpill:clarify-feature "requirement" --auto            — autonomous
+  /redpill:auto-run-bdd "requirement"                      — full pipeline
+
+Then re-run: /redpill:bdd-phase {N}
 ```
 
 **Check 7:** `design_path` is null → Error:

@@ -141,7 +141,14 @@ done
 If `has_feature_files` is false and no specific files provided:
 ```
 No .feature files found in features/ directory (including subdirectories).
-Write your Gherkin scenarios first, then re-run /redpill:run-bdd.
+
+Write your Gherkin scenarios first:
+
+  /redpill:clarify-feature "describe your requirement"     — interactive
+  /redpill:clarify-feature "requirement" --auto            — autonomous
+  /redpill:auto-run-bdd "requirement"                      — full pipeline
+
+Then re-run: /redpill:run-bdd
 ```
 
 **Check 4:** `behave_available` is false:
