@@ -219,8 +219,9 @@ function loadConfig(cwd) {
     phase_naming: 'sequential', // 'sequential' (default, auto-increment) or 'custom' (arbitrary string IDs)
     project_code: null, // optional short prefix for phase dirs (e.g., 'CK' → 'CK-01-foundation')
     subagent_timeout: 300000, // 5 min default; increase for large codebases or slower models (ms)
-    feature_review_max_rounds: 2,
+    feature_review_max_rounds: 3,
     feature_auto_scenario_cap: 8,
+    design_review_max_rounds: 3,
   };
 
   try {
@@ -316,6 +317,7 @@ function loadConfig(cwd) {
       subagent_timeout: get('subagent_timeout', { section: 'workflow', field: 'subagent_timeout' }) ?? defaults.subagent_timeout,
       feature_review_max_rounds: get('feature_review_max_rounds', { section: 'workflow', field: 'feature_review_max_rounds' }) ?? defaults.feature_review_max_rounds,
       feature_auto_scenario_cap: get('feature_auto_scenario_cap', { section: 'workflow', field: 'feature_auto_scenario_cap' }) ?? defaults.feature_auto_scenario_cap,
+      design_review_max_rounds: get('design_review_max_rounds', { section: 'workflow', field: 'design_review_max_rounds' }) ?? defaults.design_review_max_rounds,
       model_overrides: parsed.model_overrides || null,
       agent_skills: parsed.agent_skills || {},
     };

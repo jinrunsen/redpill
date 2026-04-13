@@ -17,6 +17,7 @@ Read CLAUDE.md (if it exists) for project conventions.
 <available_agent_types>
 Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
 - redpill-feature-reviewer — Reviews Gherkin spec quality, business language, and sample data authenticity. Read-only.
+- redpill-design-reviewer — Reviews whether .feature files faithfully represent original requirements. Acts as human proxy. Read-only.
 - redpill-step-writer — Writes BDD step definitions (Python/behave), never writes production code
 - redpill-executor — Executes implementation tasks, commits work
 - redpill-verifier — Verifies implementation quality and design alignment
@@ -99,6 +100,88 @@ scenarios tagged `@status-pending`.
 
 Locate the generated feature file path from the clarify-feature output for use
 in subsequent steps.
+
+Note: `/redpill:clarify-feature --auto` already runs `redpill-feature-reviewer`
+internally (up to `feature_review_max_rounds` rounds, default 3). Technical
+issues are auto-fixed; product-decision issues are recorded in the TODO block.
+
+## 3.5. Design Review — Feature vs Requirements (max 3 rounds)
+
+After feature generation, spawn `redpill-design-reviewer` to verify the
+generated `.feature` file faithfully represents the original requirements.
+This catches missing coverage, invented requirements, and risky assumptions
+that the feature-reviewer (Gherkin quality) does not check.
+
+```
+DESIGN_REVIEW_ROUND=1
+DESIGN_REVIEW_MAX=${design_review_max_rounds}  # default 3
+```
+
+**Review loop:**
+
+```
+while DESIGN_REVIEW_ROUND <= DESIGN_REVIEW_MAX:
+
+  Display: ◆ Spawning design-reviewer (round ${DESIGN_REVIEW_ROUND}/${DESIGN_REVIEW_MAX})
+
+  Agent(
+    subagent_type="redpill-design-reviewer",
+    model="${verifier_model}",
+    description="Design review: ${SLUG} (round ${DESIGN_REVIEW_ROUND})",
+    prompt="
+      <objective>
+      Review whether the .feature file faithfully represents the original
+      requirements. Act as a human proxy — catch missing coverage, invented
+      requirements, risky assumptions, and scope drift.
+      </objective>
+
+      <files_to_read>
+      - ${FEATURE_FILE}
+      - ${TASK_DIR}/TASK.md (contains original requirement text)
+      </files_to_read>
+
+      <requirement_source>
+      ${REQUIREMENT_TEXT}
+      </requirement_source>
+
+      <output_contract>
+      Return a <DESIGN_REVIEW> block as specified in your agent definition.
+      Every issue MUST have a 'category' field (auto-fixable | product-decision).
+      </output_contract>
+    "
+  )
+
+  Parse <DESIGN_REVIEW> block. Extract verdict.
+
+  if verdict == APPROVED:
+    Display: ◆ Design review passed (round ${DESIGN_REVIEW_ROUND})
+    break
+
+  if verdict == NEEDS_HUMAN_DESIGN:
+    Display:
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     REDPILL ► AUTO BDD PAUSED — design needs human input
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+     The design reviewer determined this feature needs human design.
+     Autonomy fitness: INAPPROPRIATE
+
+     Issues:
+     ${issues_summary}
+
+     Next: /redpill:clarify-feature "${REQUIREMENT_TEXT}"
+    Exit.
+
+  if verdict == NEEDS_REVISION:
+    Apply auto-fixable issues (missing scenarios, scope corrections)
+    Record product-decision issues in TASK.md
+    DESIGN_REVIEW_ROUND++
+
+end while
+```
+
+If loop exits at max rounds without APPROVED, proceed anyway — the issues
+have been auto-fixed where possible and product questions are recorded.
 
 ## 4. Auto Technical Design
 
@@ -215,10 +298,12 @@ Display completion:
 <success_criteria>
 - [ ] Refuses to start without a requirement argument
 - [ ] Requirement parsed from free-text or @file path
-- [ ] auto-feature invoked via /redpill:clarify-feature --auto
+- [ ] auto-feature invoked via /redpill:clarify-feature --auto (includes feature-reviewer, max 3 rounds)
 - [ ] Guard rail: exits cleanly if feature generation signals NEEDS_HUMAN_DESIGN
+- [ ] design-reviewer spawned after feature generation (max 3 rounds via design_review_max_rounds)
+- [ ] Guard rail: exits cleanly if design-reviewer signals NEEDS_HUMAN_DESIGN
 - [ ] auto-design produces a DESIGN.md (skippable via --skip-design)
-- [ ] Guard rail: exits cleanly if design signals NEEDS_HUMAN_DESIGN
+- [ ] Guard rail: exits cleanly if design is too complex for autonomous handling
 - [ ] Worktree created for isolation (skippable via --skip-worktree)
 - [ ] BDD loop invoked via /redpill:run-bdd with feature file and design
 - [ ] Guard rail: exits on STUCK (10 rounds) or BLOCKED (all blocked)
