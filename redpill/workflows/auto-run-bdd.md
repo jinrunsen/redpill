@@ -1,169 +1,230 @@
-# Redpill 全自动 BDD 工作流
+<purpose>
+Execute the full BDD lifecycle autonomously from a single requirement input.
+Pipeline: init → auto-feature → auto-design → worktree → BDD loop → finish-branch → report.
+Each stage has guard rails that exit cleanly with guidance rather than producing low-quality output.
+Requires a requirement description or PRD file path as input — refuses to start without one.
 
-> 从需求到代码，全流程无人值守。
-> 人类只需提供需求（提示词或 PRD 文档），后续全部自动完成。
->
-> **宪法约束**：BDD 工具永远是 behave（Python），不可根据项目语言更改。
+Constitutional constraint: BDD tooling is always behave (Python), regardless of the project's primary language.
+</purpose>
 
----
+<required_reading>
+Read STATE.md (if it exists) before any operation to load project context.
+Read CLAUDE.md (if it exists) for project conventions.
 
-## 前置条件：必须有需求输入
+@~/.claude/redpill/references/git-integration.md
+</required_reading>
 
-**没有需求，拒绝启动。** 检查 $ARGUMENTS：
+<available_agent_types>
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-feature-reviewer — Reviews Gherkin spec quality, business language, and sample data authenticity. Read-only.
+- redpill-step-writer — Writes BDD step definitions (Python/behave), never writes production code
+- redpill-executor — Executes implementation tasks, commits work
+- redpill-verifier — Verifies implementation quality and design alignment
+</available_agent_types>
 
-1. 如果参数以 `@` 开头 → 读取指定文件作为需求文档
-2. 如果参数是普通文本 → 作为需求描述
-3. 如果参数为空 → 输出错误并退出：
+<process>
 
+## 1. Validate Input
+
+Parse `$ARGUMENTS`:
+- If argument starts with `@` → read the file as requirement document (`REQ_SOURCE=file`)
+- If argument is plain text → use as requirement description (`REQ_SOURCE=text`)
+- If argument is empty → error and exit:
+  ```
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   REDPILL ► ERROR
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   /redpill:auto-run-bdd requires a requirement.
+
+   Usage:
+     /redpill:auto-run-bdd 实现用户登录功能，支持邮箱密码登录
+     /redpill:auto-run-bdd @docs/prd/user-auth.md
+  ```
+
+Parse flags:
+- `--skip-design` → `SKIP_DESIGN=true`
+- `--skip-worktree` → `SKIP_WORKTREE=true`
+
+Display banner:
 ```
-错误：/redpill:auto-run-bdd 需要提供需求。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ REDPILL ► AUTO BDD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-用法：
-  /redpill:auto-run-bdd 实现用户登录功能，支持邮箱密码登录
-  /redpill:auto-run-bdd @docs/prd/user-auth.md
-
-需求可以是：
-  - 一句话描述
-  - 详细的功能描述段落
-  - PRD 文档路径（以 @ 开头）
+ Mode: Full autonomous pipeline
+ Requirement: ${REQ_SUMMARY} (${REQ_SOURCE})
+ Stages: feature → design → worktree → BDD → finish
 ```
 
----
-
-## 步骤 1：初始化项目（如未初始化）
-
-检查 `.redpill/` 是否存在：
+## 2. Initialize Project (if needed)
 
 ```bash
-node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state read
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init clarify-feature)
+if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-如果不存在 → 执行 `/redpill:init` 工作流（创建目录结构、扫描项目、生成上下文）。
-
----
-
-## 步骤 2：自主行为设计（auto-feature）
-
-将需求输入传递给 auto-feature skill，自主生成 .feature 文件。
-
-```
-调用 auto-feature skill
-输入：用户提供的需求文本或 PRD 文档内容
+Parse JSON for project context. If `.redpill/` does not exist, create it:
+```bash
+mkdir -p .redpill
 ```
 
-**护栏检查**：
-- 如果 auto-feature 返回 `NEEDS_HUMAN_DESIGN`（需求太模糊或太大）：
-  → 输出需求分析结果和建议，请人类用 `/redpill:clarify-feature` 交互式设计
-  → 退出（不继续自动流程）
+## 3. Auto Feature Generation
 
-**成功后**：features/ 目录下有 .feature 文件，场景标记 @status-todo。
-
----
-
-## 步骤 3：自主技术设计（auto-design）
+Invoke `/redpill:clarify-feature` in auto mode to produce the .feature file:
 
 ```
-调用 auto-tech-design skill
-输入：刚生成的 .feature 文件 + 项目上下文
+Skill(skill="redpill:clarify-feature", args="${REQUIREMENT_TEXT} --auto")
 ```
 
-**护栏检查**：
-- 如果 auto-tech-design 返回 `NEEDS_HUMAN_DESIGN`：
-  → 输出设计草稿，请人类用 `/redpill:design` 完善
-  → 退出
+**Guard rail:** If the workflow determines the requirement is too ambiguous or
+too large for autonomous handling (NEEDS_HUMAN_DESIGN signal):
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ REDPILL ► AUTO BDD PAUSED — human input needed
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**成功后**：`.redpill/wip/designs/` 和 `.redpill/wip/api/` 有设计文档。
+ The requirement is too ambiguous for autonomous feature generation.
 
----
+ Next: /redpill:clarify-feature "${REQUIREMENT_TEXT}"
+       (interactive mode to refine the requirement)
 
-## 步骤 4：创建隔离环境（worktree）
+ Then: /redpill:auto-run-bdd --skip-design
+       (resume from the BDD stage)
+```
+Exit. Do not continue.
+
+**Success:** `.redpill/features/{task_id}-{slug}/{slug}.feature` exists with
+scenarios tagged `@status-pending`.
+
+Locate the generated feature file path from the clarify-feature output for use
+in subsequent steps.
+
+## 4. Auto Technical Design
+
+**Skip if:** `--skip-design` flag is set.
+
+Read the generated `.feature` file and project context, then produce a
+technical design document.
+
+Use the design workflow or generate inline:
+- Analyze the feature scenarios
+- Determine architecture approach (API endpoints, data models, service layers)
+- Write `{task_dir}/{slug}-DESIGN.md`
+
+**Guard rail:** If the design reveals the feature is too complex for autonomous
+handling:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ REDPILL ► AUTO BDD PAUSED — design needs human review
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Design draft written to: ${DESIGN_PATH}
+ Please review and refine with: /redpill:design
+
+ Then resume: /redpill:auto-run-bdd --skip-design
+```
+Exit.
+
+**Success:** Design document exists at `${DESIGN_PATH}`.
+
+## 5. Create Isolated Worktree
+
+**Skip if:** `--skip-worktree` flag is set.
+
+Create a git worktree for the feature work:
+```bash
+BRANCH_NAME="feat/${SLUG}"
+git worktree add "../${SLUG}" -b "${BRANCH_NAME}"
+```
+
+Enter the worktree, install dependencies, verify baseline:
+```bash
+cd "../${SLUG}"
+# Run install/build commands from DEV-SETUP.md if available
+```
+
+**If worktree creation fails** → exit with error, do not continue.
+
+## 6. BDD Main Loop
+
+Invoke the BDD runner with the generated feature file and design:
 
 ```
-调用 git-worktree skill
+Skill(skill="redpill:run-bdd", args="${FEATURE_FILE} --design ${DESIGN_PATH}")
 ```
 
-创建 worktree + 分支 → 安装依赖 → 验证基线。
+This executes the full RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
+loop for each scenario.
 
----
+**Exit conditions from the BDD loop:**
+- `ALL_DONE` → proceed to step 7
+- `STUCK` (10 rounds without progress) → display diagnostics and exit:
+  ```
+  REDPILL ► AUTO BDD STUCK — no progress after 10 iterations
 
-## 步骤 5：BDD 主循环（run-bdd）
+  Last attempted: ${scenario_name}
+  Suggestion: /redpill:debug
+  ```
+- `BLOCKED` (all remaining scenarios blocked) → display signal list and exit
 
-进入 BDD 主循环，逐个通过失败场景。执行 `@~/.claude/redpill/workflows/run-bdd.md` 的完整逻辑：
+## 7. Finish Branch
 
-```
-loop:
-  RED    → behave --fail-focus 找失败场景
-  WORK   → step-writer（如需）→ implementer（TDD）
-  REVIEW → scenario-reviewer + quality-reviewer
-  SIGNAL → 收集并处理信号
-  REGRESS → 回归检查
-  PERSIST → mark-done + state update + progress update + git commit
+All scenarios passing. Execute completion:
 
-  退出条件：
-    ALL_DONE → 步骤 6
-    STUCK（10 轮无进展）→ 输出诊断信息，退出
-    BLOCKED（全部阻塞）→ 输出信号列表，退出
-end loop
-```
+- Final regression check: `behave features/` — all green
+- Archive design docs if in worktree
+- Create PR:
+  ```bash
+  gh pr create --title "feat: ${FEATURE_NAME}" --body "..."
+  ```
+- Clean up worktree (if created in step 5)
 
----
-
-## 步骤 6：完成收尾（finish-branch）
-
-所有场景通过后，自动执行收尾：
-
-```
-调用 finishing-branch skill
-```
-
-- 最终验证所有场景
-- 归档设计文档（wip/ → archive/）
-- 自动创建 PR（而非交互式选择合并方式）
-- 清理 worktree
-
----
-
-## 步骤 7：输出最终报告
+## 8. Final Report
 
 ```bash
-node "$HOME/.claude/redpill/bin/redpill-tools.cjs" bdd summary
-node "$HOME/.claude/redpill/bin/redpill-tools.cjs" progress history
-node "$HOME/.claude/redpill/bin/redpill-tools.cjs" decisions list
+BDD_END_EPOCH=$(date +%s)
 ```
 
-输出格式：
-
+Display completion:
 ```
-Redpill 全自动 BDD 开发完成。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ REDPILL ► AUTO BDD COMPLETE ✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-需求：[需求摘要]
-分支：[feature branch name]
+ Requirement: ${REQ_SUMMARY}
+ Branch: ${BRANCH_NAME}
 
-场景进度：全部通过 (X/X)
-决策记录：Y 条
-信号处理：Z 条（已全部解决）
+ Scenarios: ${passed}/${total} passing
+ Duration: ${TOTAL_DURATION}
+ Commits: ${commit_count}
+ Files changed: ${file_count}
 
-产出：
-  features/xxx.feature          — 行为规格
-  .redpill/archive/designs/     — 技术设计（已归档）
-  src/...                       — 生产代码
-  tests/...                     — 单元测试
-  PR: [PR URL]
+ Outputs:
+   ${FEATURE_FILE}                    — Gherkin spec
+   ${DESIGN_PATH}                     — Technical design
+   features/steps/                    — Step definitions
+   src/...                            — Production code
+   PR: ${PR_URL}
 
-耗时：[总时间]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
----
+</process>
 
-## 错误处理
-
-| 阶段 | 错误 | 处理 |
-|------|------|------|
-| auto-feature | NEEDS_HUMAN_DESIGN | 输出建议，退出 |
-| auto-design | NEEDS_HUMAN_DESIGN | 输出设计草稿，退出 |
-| worktree | 创建失败 | 输出错误，退出 |
-| BDD 循环 | STUCK | 输出诊断，建议 /redpill:debug |
-| BDD 循环 | BLOCKED | 输出信号列表，等待人类 |
-| finish | 回归失败 | 输出失败场景，不合并 |
-
-每个阶段失败时，已完成的工作不会丢失（已 git commit）。人类可以随时用 `/redpill:resume` 接续。
+<success_criteria>
+- [ ] Refuses to start without a requirement argument
+- [ ] Requirement parsed from free-text or @file path
+- [ ] auto-feature invoked via /redpill:clarify-feature --auto
+- [ ] Guard rail: exits cleanly if feature generation signals NEEDS_HUMAN_DESIGN
+- [ ] auto-design produces a DESIGN.md (skippable via --skip-design)
+- [ ] Guard rail: exits cleanly if design signals NEEDS_HUMAN_DESIGN
+- [ ] Worktree created for isolation (skippable via --skip-worktree)
+- [ ] BDD loop invoked via /redpill:run-bdd with feature file and design
+- [ ] Guard rail: exits on STUCK (10 rounds) or BLOCKED (all blocked)
+- [ ] PR created on completion
+- [ ] Worktree cleaned up after PR
+- [ ] Final report displayed with all metrics
+- [ ] Each stage commits its work — failure preserves progress
+- [ ] /redpill:resume can pick up from any failed stage
+</success_criteria>
