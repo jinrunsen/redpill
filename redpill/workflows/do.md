@@ -42,6 +42,10 @@ Evaluate `$ARGUMENTS` against these routing rules. Apply the **first matching** 
 | A bug, error, crash, failure, or something broken | `/redpill:debug` | Needs systematic investigation |
 | Exploring, researching, comparing, or "how does X work" | `/redpill:research-phase` | Domain research before planning |
 | Discussing vision, "how should X look", brainstorming | `/redpill:discuss-phase` | Needs context gathering |
+| A feature requirement with "BDD", "行为驱动", "场景驱动", "全自动开发", or explicit request for autonomous BDD pipeline | `/redpill:auto-run-bdd` | Full autonomous BDD: requirements → feature → design → worktree → BDD loop → PR |
+| Writing or clarifying a .feature file, "编写 feature", "clarify feature", "行为设计", describing scenarios/behaviors to formalize | `/redpill:clarify-feature` | Interactive or auto feature authoring with reviewer |
+| Running BDD scenarios against existing .feature files, "run BDD", "运行场景", "behave" | `/redpill:run-bdd` | Phase-independent BDD runner |
+| Executing a phase using BDD mode, "BDD phase N", "用 BDD 执行" | `/redpill:bdd-phase` | Scenario-driven phase execution |
 | A complex task: refactoring, migration, multi-file architecture, system redesign | `/redpill:add-phase` | Needs a full phase with plan/build cycle |
 | Planning a specific phase or "plan phase N" | `/redpill:plan-phase` | Direct planning request |
 | Executing a phase or "build phase N", "run phase N" | `/redpill:execute-phase` | Direct execution request |
