@@ -1,5 +1,14 @@
 <purpose>
 Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the REDPILL phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .redpill/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
+
+**CRITICAL ARCHITECTURE RULE — you are the ORCHESTRATOR, not the implementer:**
+You MUST dispatch subagents for ALL coding work. You NEVER write production
+code, service code, API handlers, or backend logic yourself. Your role is
+to coordinate the BDD loop: run behave, parse output, dispatch the right
+subagent (step-writer for steps, executor for implementation, verifier for
+review), and track progress. If you catch yourself about to write or edit
+a source file that is NOT in `features/` or `.redpill/`, STOP and dispatch
+`redpill-executor` instead.
 </purpose>
 
 <required_reading>
@@ -449,12 +458,20 @@ If `signals:` in the review payload contains `SCENARIO_INCOMPLETE`, `SCENARIO_CO
 
 ## 8. WORK — Implement Backend Code
 
+**CRITICAL — MANDATORY SUBAGENT DISPATCH:**
+You MUST use the `Agent` tool to spawn a `redpill-executor` subagent for
+implementation. You are the orchestrator — you NEVER write production code,
+service code, or backend code yourself. If you find yourself reading source
+files to "understand the implementation" or writing code directly, STOP.
+That is the executor's job. Your only job is to dispatch the agent, wait for
+the result, and verify with behave.
+
 Get latest failure output:
 ```bash
 behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
-Display: `Spawning executor for: {scenario_name}`
+Display: `◆ Spawning executor for: {scenario_name}`
 
 Build the design context block:
 - If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design — follow architecture decisions)`

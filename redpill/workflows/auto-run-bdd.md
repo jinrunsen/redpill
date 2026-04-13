@@ -237,6 +237,19 @@ cd "../${SLUG}"
 
 ## 6. BDD Main Loop
 
+**CRITICAL — SUBAGENT ARCHITECTURE:**
+The BDD loop MUST dispatch separate subagents for each role. You are the
+orchestrator — you coordinate, you do NOT write code. The architecture is:
+
+- `redpill-step-writer` — writes step definitions (RED phase)
+- `redpill-step-reviewer` — reviews step definitions
+- **`redpill-executor`** — writes ALL production/backend/service code (WORK phase)
+- `redpill-verifier` — reviews implementation quality (REVIEW phase)
+
+If a scenario fails after step definitions are written, you MUST spawn
+`redpill-executor` via `Agent(subagent_type="redpill-executor", ...)` to
+implement the fix. NEVER read source code and write implementation yourself.
+
 Invoke the BDD runner with the generated feature file and design:
 
 ```
@@ -244,7 +257,8 @@ Skill(skill="redpill:run-bdd", args="${FEATURE_FILE} --design ${DESIGN_PATH}")
 ```
 
 This executes the full RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
-loop for each scenario.
+loop for each scenario. Each WORK phase dispatches a fresh `redpill-executor`
+subagent.
 
 **Exit conditions from the BDD loop:**
 - `ALL_DONE` → proceed to step 7

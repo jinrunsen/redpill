@@ -1,5 +1,14 @@
 <purpose>
 Execute a phase using BDD scenario-driven development. Iterates through Gherkin scenarios one-by-one via RED → WORK → GREEN → REVIEW cycles. Each scenario is an atomic unit of work with its own commit, review, and regression check. Fully integrated with REDPILL state tracking (STATE.md, ROADMAP.md, REQUIREMENTS.md).
+
+**CRITICAL ARCHITECTURE RULE — you are the ORCHESTRATOR, not the implementer:**
+You MUST dispatch subagents for ALL coding work. You NEVER write production
+code, service code, API handlers, or backend logic yourself. Your role is
+to coordinate the BDD loop: run behave, parse output, dispatch the right
+subagent (step-writer for steps, executor for implementation, verifier for
+review), and track progress. If you catch yourself about to write or edit
+a source file that is NOT in `features/` or `.redpill/`, STOP and dispatch
+`redpill-executor` instead.
 </purpose>
 
 <required_reading>
@@ -410,6 +419,14 @@ If `signals:` in the review payload contains `SCENARIO_INCOMPLETE`, `SCENARIO_CO
 ### 7e. No undefined steps and steps approved → proceed to step 8
 
 ## 8. WORK — Implement Backend Code
+
+**CRITICAL — MANDATORY SUBAGENT DISPATCH:**
+You MUST use the `Agent` tool to spawn a `redpill-executor` subagent for
+implementation. You are the orchestrator — you NEVER write production code,
+service code, or backend code yourself. If you find yourself reading source
+files to "understand the implementation" or writing code directly, STOP.
+That is the executor's job. Your only job is to dispatch the agent, wait for
+the result, and verify with behave.
 
 Get latest failure output:
 ```bash
