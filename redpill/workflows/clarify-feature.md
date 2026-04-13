@@ -147,13 +147,35 @@ Construct a `Feature:` block with `As a / I want / So that` header and a list
 of scenarios.
 
 **Rules (both modes):**
+- **所有 Gherkin 内容必须使用中文编写。** Feature 标题、场景名称、
+  Given/When/Then 步骤描述、As a/I want/So that 头部——全部中文。
+  仅以下内容保留英文：Gherkin 关键词（`Feature:`、`Scenario:`、`Given`、
+  `When`、`Then`、`And`、`But`）、标签（`@status-pending`）、
+  表格中的技术标识符（字段名、路径、URL）。
+  ```gherkin
+  # ✅ 正确
+  Feature: 用户登录
+    As a 注册用户
+    I want 使用邮箱密码登录系统
+    So that 我可以访问个人数据
+
+    @status-pending
+    Scenario: 使用正确的邮箱和密码成功登录
+      Given 用户 "张伟" 已注册，密码为 "Secure123!"
+      When "张伟" 使用密码 "Secure123!" 登录
+      Then 应该看到 "欢迎回来，张伟"
+
+  # ❌ 错误（英文步骤）
+  Scenario: User logs in with valid credentials
+      Given a user "alice" exists with password "pass123"
+  ```
 - Each scenario gets `@status-pending`
 - Feature-level: `@status-pending` tag on the `Feature:` line itself
 - All concrete values MUST be realistic domain-appropriate data.
   **Forbidden**: `A`, `B`, `C`, `组 1`, `组 2`, `Foo`, `Bar`, `user1`, `user2`,
   `测试部门`, `xxx 公司`, `示例地址`, `11111`, lorem ipsum.
   **Use instead**: region names (`华东区`), department names (`市场办公中心`),
-  city names (`上海市`), personal names (`alice`, `张伟`), business-reasonable
+  city names (`上海市`), personal names (`张伟`, `李娜`), business-reasonable
   monetary magnitudes. The `DOMAIN` and `tech_stack_hint` should guide the
   vocabulary (an e-commerce system uses e-commerce terms; a medical system
   uses medical terms).
