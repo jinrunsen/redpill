@@ -5201,15 +5201,13 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'cursor') program = 'Cursor';
 
   let command = '/redpill:new-project';
-  if (runtime === 'opencode') command = '/gsd-new-project';
-  if (runtime === 'codex') command = '$gsd-new-project';
-  if (runtime === 'copilot') command = '/gsd-new-project';
-  if (runtime === 'antigravity') command = '/gsd-new-project';
-  if (runtime === 'cursor') command = 'gsd-new-project (mention the skill name)';
+  if (runtime === 'opencode') command = '/redpill-new-project';
+  if (runtime === 'codex') command = '$redpill-new-project';
+  if (runtime === 'copilot') command = '/redpill-new-project';
+  if (runtime === 'antigravity') command = '/redpill-new-project';
+  if (runtime === 'cursor') command = 'redpill-new-project (mention the skill name)';
   console.log(`
   ${green}Done!${reset} Open a blank directory in ${program} and run ${cyan}${command}${reset}.
-
-  ${cyan}Join the community:${reset} https://discord.gg/gsd
 `);
 }
 
@@ -5475,18 +5473,19 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
       }
     };
 
-    if (hasSdk) {
-      // --sdk flag: install without prompting
-      installSdk();
-      printSummaries();
-    } else if (isInteractive) {
-      promptSdk((wantsSdk) => {
-        if (wantsSdk) installSdk();
-        printSummaries();
-      });
-    } else {
-      printSummaries();
-    }
+    // SDK installation disabled — not needed for internal use
+    // if (hasSdk) {
+    //   installSdk();
+    //   printSummaries();
+    // } else if (isInteractive) {
+    //   promptSdk((wantsSdk) => {
+    //     if (wantsSdk) installSdk();
+    //     printSummaries();
+    //   });
+    // } else {
+    //   printSummaries();
+    // }
+    printSummaries();
   };
 
   if (primaryStatuslineResult) {
