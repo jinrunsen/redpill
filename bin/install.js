@@ -295,16 +295,16 @@ function getGlobalDir(runtime, explicitDir = null) {
 }
 
 const banner = '\n' +
-  cyan + '   ██████╗ ███████╗██████╗\n' +
-  '  ██╔════╝ ██╔════╝██╔══██╗\n' +
-  '  ██║  ███╗███████╗██║  ██║\n' +
-  '  ██║   ██║╚════██║██║  ██║\n' +
-  '  ╚██████╔╝███████║██████╔╝\n' +
-  '   ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
+  cyan + '  ██████╗ ███████╗██████╗ ██████╗ ██╗██╗     ██╗\n' +
+  '  ██╔══██╗██╔════╝██╔══██╗██╔══██╗██║██║     ██║\n' +
+  '  ██████╔╝█████╗  ██║  ██║██████╔╝██║██║     ██║\n' +
+  '  ██╔══██╗██╔══╝  ██║  ██║██╔═══╝ ██║██║     ██║\n' +
+  '  ██║  ██║███████╗██████╔╝██║     ██║███████╗███████╗\n' +
+  '  ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝     ╚═╝╚══════╝╚══════╝' + reset + '\n' +
   '\n' +
-  '  Get Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
+  '  Redpill ' + dim + 'v' + pkg.version + reset + '\n' +
   '  A meta-prompting, context engineering and spec-driven\n' +
-  '  development system for Claude Code, OpenCode, Gemini, Codex, Copilot, Antigravity, Cursor, Windsurf, and Augment by TÂCHES.\n';
+  '  development system for Claude Code, OpenCode, Gemini, Codex, Copilot, Antigravity, Cursor, Windsurf, and Augment.\n';
 
 // Parse --config-dir argument
 function parseConfigDirArg() {

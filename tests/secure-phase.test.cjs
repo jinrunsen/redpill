@@ -18,7 +18,7 @@ const path = require('path');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
-const COMMANDS_DIR = path.join(REPO_ROOT, 'commands', 'gsd');
+const COMMANDS_DIR = path.join(REPO_ROOT, 'commands', 'redpill');
 const WORKFLOWS_DIR = path.join(REPO_ROOT, 'redpill', 'workflows');
 const TEMPLATES_DIR = path.join(REPO_ROOT, 'redpill', 'templates');
 
@@ -106,7 +106,7 @@ describe('SECURE: secure-phase command file', () => {
   test('command file exists', () => {
     assert.ok(
       fs.existsSync(cmdPath),
-      'secure-phase.md must exist in commands/gsd/'
+      'secure-phase.md must exist in commands/redpill/'
     );
   });
 

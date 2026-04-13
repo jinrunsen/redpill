@@ -245,7 +245,7 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
 
 describe('reapply-patches workflow contract (#1469)', () => {
   test('workflow file contains critical invariant about never skipping backed-up files', () => {
-    const workflowPath = path.join(__dirname, '..', 'commands', 'gsd', 'reapply-patches.md');
+    const workflowPath = path.join(__dirname, '..', 'commands', 'redpill', 'reapply-patches.md');
     const content = fs.readFileSync(workflowPath, 'utf8');
 
     // The workflow must explicitly state that "no custom content" is never valid
@@ -257,7 +257,7 @@ describe('reapply-patches workflow contract (#1469)', () => {
   });
 
   test('workflow file describes three-way merge strategy', () => {
-    const workflowPath = path.join(__dirname, '..', 'commands', 'gsd', 'reapply-patches.md');
+    const workflowPath = path.join(__dirname, '..', 'commands', 'redpill', 'reapply-patches.md');
     const content = fs.readFileSync(workflowPath, 'utf8');
 
     assert.ok(content.includes('three-way') || content.includes('Three-way'),
@@ -267,7 +267,7 @@ describe('reapply-patches workflow contract (#1469)', () => {
   });
 
   test('workflow file describes git-aware detection path', () => {
-    const workflowPath = path.join(__dirname, '..', 'commands', 'gsd', 'reapply-patches.md');
+    const workflowPath = path.join(__dirname, '..', 'commands', 'redpill', 'reapply-patches.md');
     const content = fs.readFileSync(workflowPath, 'utf8');
 
     assert.ok(content.includes('git log') || content.includes('git -C'),

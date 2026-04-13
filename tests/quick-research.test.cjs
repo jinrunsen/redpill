@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
-const COMMANDS_DIR = path.join(__dirname, '..', 'commands', 'gsd');
+const COMMANDS_DIR = path.join(__dirname, '..', 'commands', 'redpill');
 const WORKFLOWS_DIR = path.join(__dirname, '..', 'redpill', 'workflows');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -26,7 +26,7 @@ describe('quick command: --research in frontmatter', () => {
   let content;
 
   test('quick.md exists', () => {
-    assert.ok(fs.existsSync(commandPath), 'commands/gsd/quick.md should exist');
+    assert.ok(fs.existsSync(commandPath), 'commands/redpill/quick.md should exist');
   });
 
   test('argument-hint includes --research', () => {

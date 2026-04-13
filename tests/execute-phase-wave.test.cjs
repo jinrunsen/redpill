@@ -13,14 +13,14 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 
-const COMMAND_PATH = path.join(__dirname, '..', 'commands', 'gsd', 'execute-phase.md');
+const COMMAND_PATH = path.join(__dirname, '..', 'commands', 'redpill', 'execute-phase.md');
 const WORKFLOW_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'execute-phase.md');
 const COMMANDS_DOC_PATH = path.join(__dirname, '..', 'docs', 'COMMANDS.md');
 const HELP_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'help.md');
 
 describe('execute-phase command: --wave flag', () => {
   test('command file exists', () => {
-    assert.ok(fs.existsSync(COMMAND_PATH), 'commands/gsd/execute-phase.md should exist');
+    assert.ok(fs.existsSync(COMMAND_PATH), 'commands/redpill/execute-phase.md should exist');
   });
 
   test('argument-hint includes --wave, --gaps-only, and --interactive', () => {

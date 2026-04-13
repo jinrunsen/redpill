@@ -811,7 +811,7 @@ describe('cmdInitQuick', () => {
       `task_dir should start with .redpill/quick/, got: "${output.task_dir}"`);
     assert.ok(output.task_dir.endsWith('-fix-login-bug'),
       `task_dir should end with -fix-login-bug, got: "${output.task_dir}"`);
-    assert.ok(/^\.planning\/quick\/\d{6}-[0-9a-z]{3}-fix-login-bug$/.test(output.task_dir),
+    assert.ok(/^\.redpill\/quick\/\d{6}-[0-9a-z]{3}-fix-login-bug$/.test(output.task_dir),
       `task_dir format wrong: "${output.task_dir}"`);
 
     // next_num must NOT be present

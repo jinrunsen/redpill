@@ -11,12 +11,12 @@ const fs = require('fs');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..');
-const commandPath = path.join(repoRoot, 'commands', 'gsd', 'milestone-summary.md');
+const commandPath = path.join(repoRoot, 'commands', 'redpill', 'milestone-summary.md');
 const workflowPath = path.join(repoRoot, 'redpill', 'workflows', 'milestone-summary.md');
 
 describe('milestone-summary command', () => {
   test('command file exists', () => {
-    assert.ok(fs.existsSync(commandPath), 'commands/gsd/milestone-summary.md should exist');
+    assert.ok(fs.existsSync(commandPath), 'commands/redpill/milestone-summary.md should exist');
   });
 
   test('command has correct frontmatter name', () => {

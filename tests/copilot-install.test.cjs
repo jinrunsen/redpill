@@ -591,7 +591,7 @@ Check ~/.claude/settings and run redpill:health.`;
 // ─── copyCommandsAsCopilotSkills (integration) ─────────────────────────────────
 
 describe('copyCommandsAsCopilotSkills', () => {
-  const srcDir = path.join(__dirname, '..', 'commands', 'gsd');
+  const srcDir = path.join(__dirname, '..', 'commands', 'redpill');
   let tempDir;
 
   beforeEach(() => {
@@ -614,7 +614,7 @@ describe('copyCommandsAsCopilotSkills', () => {
     // Count gsd-* directories — should match number of source command files
     const dirs = fs.readdirSync(tempDir, { withFileTypes: true })
       .filter(e => e.isDirectory() && e.name.startsWith('gsd-'));
-    const expectedSkillCount = fs.readdirSync(path.join(__dirname, '..', 'commands', 'gsd'))
+    const expectedSkillCount = fs.readdirSync(path.join(__dirname, '..', 'commands', 'redpill'))
       .filter(f => f.endsWith('.md')).length;
     assert.strictEqual(dirs.length, expectedSkillCount, `expected ${expectedSkillCount} skill folders, got ${dirs.length}`);
   });
@@ -721,9 +721,9 @@ describe('Copilot agent conversion - real files', () => {
 
   test('all 18 agents convert without error', () => {
     const agents = fs.readdirSync(agentsSrc)
-      .filter(f => f.startsWith('gsd-') && f.endsWith('.md'));
+      .filter(f => f.startsWith('redpill-') && f.endsWith('.md'));
     const expectedAgentCount = fs.readdirSync(agentsSrc)
-      .filter(f => f.startsWith('gsd-') && f.endsWith('.md')).length;
+      .filter(f => f.startsWith('redpill-') && f.endsWith('.md')).length;
     assert.strictEqual(agents.length, expectedAgentCount, `expected ${expectedAgentCount} agents, got ${agents.length}`);
 
     for (const agentFile of agents) {
@@ -1091,10 +1091,10 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 
 const INSTALL_PATH = path.join(__dirname, '..', 'bin', 'install.js');
-const EXPECTED_SKILLS = fs.readdirSync(path.join(__dirname, '..', 'commands', 'gsd'))
+const EXPECTED_SKILLS = fs.readdirSync(path.join(__dirname, '..', 'commands', 'redpill'))
   .filter(f => f.endsWith('.md')).length;
 const EXPECTED_AGENTS = fs.readdirSync(path.join(__dirname, '..', 'agents'))
-  .filter(f => f.startsWith('gsd-') && f.endsWith('.md')).length;
+  .filter(f => f.startsWith('redpill-') && f.endsWith('.md')).length;
 
 function runCopilotInstall(cwd) {
   const env = { ...process.env };
@@ -1152,7 +1152,7 @@ describe('E2E: Copilot full install verification', () => {
   test('installs expected number of agent files', () => {
     const agentsDir = path.join(tmpDir, '.github', 'agents');
     const files = fs.readdirSync(agentsDir);
-    const gsdAgents = files.filter(f => f.startsWith('gsd-') && f.endsWith('.agent.md'));
+    const gsdAgents = files.filter(f => f.startsWith('redpill-') && f.endsWith('.agent.md'));
     assert.strictEqual(gsdAgents.length, EXPECTED_AGENTS,
       `Expected ${EXPECTED_AGENTS} agent files, got ${gsdAgents.length}`);
   });
@@ -1160,7 +1160,7 @@ describe('E2E: Copilot full install verification', () => {
   test('installs all expected agent files', () => {
     const agentsDir = path.join(tmpDir, '.github', 'agents');
     const files = fs.readdirSync(agentsDir);
-    const gsdAgents = files.filter(f => f.startsWith('gsd-') && f.endsWith('.agent.md')).sort();
+    const gsdAgents = files.filter(f => f.startsWith('redpill-') && f.endsWith('.agent.md')).sort();
     const expected = [
       'redpill-advisor-researcher.agent.md',
       'redpill-assumptions-analyzer.agent.md',
@@ -1299,7 +1299,7 @@ describe('E2E: Copilot uninstall verification', () => {
     const agentsDir = path.join(tmpDir, '.github', 'agents');
     if (fs.existsSync(agentsDir)) {
       const files = fs.readdirSync(agentsDir);
-      const gsdAgents = files.filter(f => f.startsWith('gsd-') && f.endsWith('.agent.md'));
+      const gsdAgents = files.filter(f => f.startsWith('redpill-') && f.endsWith('.agent.md'));
       assert.strictEqual(gsdAgents.length, 0,
         `Expected 0 REDPILL agent files after uninstall, found: ${gsdAgents.join(', ')}`);
     }

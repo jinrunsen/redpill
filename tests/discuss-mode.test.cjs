@@ -19,7 +19,7 @@ describe('workflow.discuss_mode config', () => {
 
   test('discuss-phase command references both workflow files', () => {
     const command = fs.readFileSync(
-      path.join(__dirname, '..', 'commands', 'gsd', 'discuss-phase.md'), 'utf8'
+      path.join(__dirname, '..', 'commands', 'redpill', 'discuss-phase.md'), 'utf8'
     );
     assert.ok(command.includes('discuss-phase-assumptions.md'), 'should reference assumptions workflow');
     assert.ok(command.includes('discuss-phase.md'), 'should reference discuss workflow');
@@ -28,7 +28,7 @@ describe('workflow.discuss_mode config', () => {
 
   test('discuss-phase command process block defers to workflow file (not inline instructions)', () => {
     const command = fs.readFileSync(
-      path.join(__dirname, '..', 'commands', 'gsd', 'discuss-phase.md'), 'utf8'
+      path.join(__dirname, '..', 'commands', 'redpill', 'discuss-phase.md'), 'utf8'
     );
     // Extract the <process> block
     const processMatch = command.match(/<process>([\s\S]*?)<\/process>/);
@@ -63,7 +63,7 @@ describe('workflow.discuss_mode config', () => {
 
   test('discuss-phase command argument-hint includes --text', () => {
     const command = fs.readFileSync(
-      path.join(__dirname, '..', 'commands', 'gsd', 'discuss-phase.md'), 'utf8'
+      path.join(__dirname, '..', 'commands', 'redpill', 'discuss-phase.md'), 'utf8'
     );
     assert.ok(command.includes('--text'), 'argument-hint should include --text');
   });
@@ -128,7 +128,7 @@ describe('workflow.discuss_mode config', () => {
 
   test('plan-phase command argument-hint includes --text', () => {
     const command = fs.readFileSync(
-      path.join(__dirname, '..', 'commands', 'gsd', 'plan-phase.md'), 'utf8'
+      path.join(__dirname, '..', 'commands', 'redpill', 'plan-phase.md'), 'utf8'
     );
     assert.ok(command.includes('--text'), 'argument-hint should include --text flag');
   });

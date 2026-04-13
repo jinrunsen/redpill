@@ -1,6 +1,6 @@
 # Arquitetura do GSD
 
-Visão arquitetural do Get Shit Done (GSD) em Português.  
+Visão arquitetural do Redpill em Português.  
 Para detalhes de implementação linha a linha, consulte [ARCHITECTURE.md em inglês](../ARCHITECTURE.md).
 
 ---

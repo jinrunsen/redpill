@@ -989,7 +989,7 @@ describe('stale hook filter', () => {
       'README.md',                       // non-js file
     ];
 
-    const gsdFilter = f => f.startsWith('gsd-') && f.endsWith('.js');
+    const gsdFilter = f => f.startsWith('redpill-') && f.endsWith('.js');
     const filtered = files.filter(gsdFilter);
 
     assert.deepStrictEqual(filtered, [
@@ -998,10 +998,10 @@ describe('stale hook filter', () => {
       'redpill-prompt-guard.js',
       'redpill-statusline.js',
       'redpill-workflow-guard.js',
-    ], 'should only include gsd-prefixed .js files');
+    ], 'should only include redpill-prefixed .js files');
 
     assert.ok(!filtered.includes('guard-edits-outside-project.js'), 'must not include user hooks');
-    assert.ok(!filtered.includes('my-custom-hook.js'), 'must not include non-gsd hooks');
+    assert.ok(!filtered.includes('my-custom-hook.js'), 'must not include non-redpill hooks');
   });
 });
 
@@ -1024,15 +1024,15 @@ describe('stale hook path', () => {
 // ─── shared cache directory regression (#1421) ─────────────────────────────────
 
 describe('shared cache directory (#1421)', () => {
-  test('redpill-check-update.js writes cache to shared ~/.cache/gsd/ directory', () => {
+  test('redpill-check-update.js writes cache to shared ~/.cache/redpill/ directory', () => {
     const content = fs.readFileSync(
       path.join(__dirname, '..', 'hooks', 'redpill-check-update.js'), 'utf-8'
     );
     // Cache must use a tool-agnostic path so statusline can find it
     // regardless of which runtime (Claude, Gemini, OpenCode) ran the check
     assert.ok(
-      content.includes("path.join(homeDir, '.cache', 'gsd')"),
-      'check-update must write cache to ~/.cache/gsd/ (shared, tool-agnostic)'
+      content.includes("path.join(homeDir, '.cache', 'redpill')"),
+      'check-update must write cache to ~/.cache/redpill/ (shared, tool-agnostic)'
     );
   });
 
@@ -1042,13 +1042,13 @@ describe('shared cache directory (#1421)', () => {
     );
     // Statusline must check the shared cache path first
     assert.ok(
-      content.includes("path.join(homeDir, '.cache', 'gsd', 'gsd-update-check.json')"),
-      'statusline must check shared cache at ~/.cache/gsd/gsd-update-check.json'
+      content.includes("path.join(homeDir, '.cache', 'redpill', 'redpill-update-check.json')"),
+      'statusline must check shared cache at ~/.cache/redpill/redpill-update-check.json'
     );
     // Must fall back to legacy runtime-specific cache for backward compat
     assert.ok(
-      content.includes("path.join(claudeDir, 'cache', 'gsd-update-check.json')"),
-      'statusline must fall back to legacy cache at claudeDir/cache/gsd-update-check.json'
+      content.includes("path.join(claudeDir, 'cache', 'redpill-update-check.json')"),
+      'statusline must fall back to legacy cache at claudeDir/cache/redpill-update-check.json'
     );
     // Shared cache must be checked before legacy (existsSync order matters)
     const sharedIdx = content.indexOf('sharedCacheFile');

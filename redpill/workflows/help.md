@@ -5,7 +5,7 @@ Display the complete REDPILL command reference. Output ONLY the reference conten
 <reference>
 # REDPILL Command Reference
 
-**GSD** (Get Shit Done) creates hierarchical project plans optimized for solo agentic development with Claude Code.
+**GSD** (Redpill) creates hierarchical project plans optimized for solo agentic development with Claude Code.
 
 ## Quick Start
 

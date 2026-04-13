@@ -1,6 +1,6 @@
 {
   "name": "redpill-cc",
-  "version": "1.31.0",
+  "version": "0.2.1",
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES.",
   "bin": {
     "redpill-cc": "bin/install.js"

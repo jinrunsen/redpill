@@ -12,12 +12,12 @@ const path = require('path');
 const os = require('os');
 
 const repoRoot = path.resolve(__dirname, '..');
-const commandPath = path.join(repoRoot, 'commands', 'gsd', 'forensics.md');
+const commandPath = path.join(repoRoot, 'commands', 'redpill', 'forensics.md');
 const workflowPath = path.join(repoRoot, 'redpill', 'workflows', 'forensics.md');
 
 describe('forensics command', () => {
   test('command file exists', () => {
-    assert.ok(fs.existsSync(commandPath), 'commands/gsd/forensics.md should exist');
+    assert.ok(fs.existsSync(commandPath), 'commands/redpill/forensics.md should exist');
   });
 
   test('command has correct frontmatter', () => {
