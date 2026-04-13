@@ -19,7 +19,10 @@ const HOOKS_TO_COPY = [
   'redpill-context-monitor.js',
   'redpill-prompt-guard.js',
   'redpill-statusline.js',
-  'redpill-workflow-guard.js'
+  'redpill-workflow-guard.js',
+  'redpill-session-state.sh',
+  'redpill-validate-commit.sh',
+  'redpill-phase-boundary.sh',
 ];
 
 /**
@@ -59,16 +62,22 @@ function build() {
       continue;
     }
 
-    // Validate syntax before copying
-    const syntaxError = validateSyntax(src);
-    if (syntaxError) {
-      console.error(`\x1b[31m✗ ${hook}: SyntaxError — ${syntaxError}\x1b[0m`);
-      hasErrors = true;
-      continue;
+    // Validate syntax before copying (JS only — skip shell scripts)
+    if (hook.endsWith('.js')) {
+      const syntaxError = validateSyntax(src);
+      if (syntaxError) {
+        console.error(`\x1b[31m✗ ${hook}: SyntaxError — ${syntaxError}\x1b[0m`);
+        hasErrors = true;
+        continue;
+      }
     }
 
     console.log(`\x1b[32m✓\x1b[0m Copying ${hook}...`);
     fs.copyFileSync(src, dest);
+    // Ensure shell scripts are executable
+    if (hook.endsWith('.sh')) {
+      try { fs.chmodSync(dest, 0o755); } catch (e) { /* Windows */ }
+    }
   }
 
   if (hasErrors) {
