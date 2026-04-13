@@ -14,9 +14,9 @@ const fs = require('fs');
 const path = require('path');
 
 const COMMAND_PATH = path.join(__dirname, '..', 'commands', 'gsd', 'execute-phase.md');
-const WORKFLOW_PATH = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'execute-phase.md');
+const WORKFLOW_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'execute-phase.md');
 const COMMANDS_DOC_PATH = path.join(__dirname, '..', 'docs', 'COMMANDS.md');
-const HELP_PATH = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'help.md');
+const HELP_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'help.md');
 
 describe('execute-phase command: --wave flag', () => {
   test('command file exists', () => {
@@ -124,11 +124,11 @@ describe('execute-phase docs: user-facing wave flag', () => {
 });
 
 describe('use_worktrees config: cross-workflow structural coverage', () => {
-  const QUICK_PATH = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'quick.md');
-  const DIAGNOSE_PATH = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'diagnose-issues.md');
-  const EXECUTE_PLAN_PATH = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'execute-plan.md');
-  const PLANNING_CONFIG_PATH = path.join(__dirname, '..', 'get-shit-done', 'references', 'planning-config.md');
-  const CONFIG_CJS_PATH = path.join(__dirname, '..', 'get-shit-done', 'bin', 'lib', 'config.cjs');
+  const QUICK_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'quick.md');
+  const DIAGNOSE_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'diagnose-issues.md');
+  const EXECUTE_PLAN_PATH = path.join(__dirname, '..', 'redpill', 'workflows', 'execute-plan.md');
+  const PLANNING_CONFIG_PATH = path.join(__dirname, '..', 'redpill', 'references', 'planning-config.md');
+  const CONFIG_CJS_PATH = path.join(__dirname, '..', 'redpill', 'bin', 'lib', 'config.cjs');
 
   test('quick workflow reads USE_WORKTREES from config', () => {
     const content = fs.readFileSync(QUICK_PATH, 'utf-8');

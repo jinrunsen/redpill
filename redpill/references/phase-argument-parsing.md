@@ -9,7 +9,7 @@ From `$ARGUMENTS`:
 - Extract flags (prefixed with `--`)
 - Remaining text is description (for insert/add commands)
 
-## Using gsd-tools
+## Using redpill-tools
 
 The `find-phase` command handles normalization and validation in one step:
 

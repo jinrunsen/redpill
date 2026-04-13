@@ -6,10 +6,10 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const TOOLS_PATH = path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs');
+const TOOLS_PATH = path.join(__dirname, '..', 'redpill', 'bin', 'redpill-tools.cjs');
 
 /**
- * Run gsd-tools command.
+ * Run redpill-tools command.
  *
  * @param {string|string[]} args - Command string (shell-interpreted) or array
  *   of arguments (shell-bypassed via execFileSync, safe for JSON and dollar signs).

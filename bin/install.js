@@ -14,11 +14,11 @@ const dim = '\x1b[2m';
 const reset = '\x1b[0m';
 
 // Codex config.toml constants
-const REDPILL_CODEX_MARKER = '# REDPILL Agent Configuration \u2014 managed by get-shit-done installer';
+const REDPILL_CODEX_MARKER = '# REDPILL Agent Configuration \u2014 managed by redpill installer';
 const REDPILL_CODEX_HOOKS_OWNERSHIP_PREFIX = '# REDPILL codex_hooks ownership: ';
 
 // Copilot instructions marker constants
-const REDPILL_COPILOT_INSTRUCTIONS_MARKER = '<!-- REDPILL Configuration \u2014 managed by get-shit-done installer -->';
+const REDPILL_COPILOT_INSTRUCTIONS_MARKER = '<!-- REDPILL Configuration \u2014 managed by redpill installer -->';
 const REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER = '<!-- /GSD Configuration -->';
 
 const CODEX_AGENT_SANDBOX = {
@@ -2632,13 +2632,13 @@ function installCodexConfig(targetDir, agentsSrc) {
   const agents = [];
 
   // Compute the Codex REDPILL install path (absolute, so subagents with empty $HOME work — #820)
-  const codexGsdPath = `${path.resolve(targetDir, 'get-shit-done').replace(/\\/g, '/')}/`;
+  const codexGsdPath = `${path.resolve(targetDir, 'redpill').replace(/\\/g, '/')}/`;
 
   for (const file of agentEntries) {
     let content = fs.readFileSync(path.join(agentsSrc, file), 'utf8');
-    // Replace full .claude/get-shit-done prefix so path resolves to codex REDPILL install
-    content = content.replace(/~\/\.claude\/get-shit-done\//g, codexGsdPath);
-    content = content.replace(/\$HOME\/\.claude\/get-shit-done\//g, codexGsdPath);
+    // Replace full .claude/redpill prefix so path resolves to codex REDPILL install
+    content = content.replace(/~\/\.claude\/redpill\//g, codexGsdPath);
+    content = content.replace(/\$HOME\/\.claude\/redpill\//g, codexGsdPath);
     const { frontmatter } = extractFrontmatterAndBody(content);
     const name = extractFrontmatterField(frontmatter, 'name') || file.replace('.md', '');
     const description = extractFrontmatterField(frontmatter, 'description') || '';
@@ -3913,8 +3913,8 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
   }
 
-  // 2. Remove get-shit-done directory
-  const gsdDir = path.join(targetDir, 'get-shit-done');
+  // 2. Remove redpill directory
+  const gsdDir = path.join(targetDir, 'redpill');
   if (fs.existsSync(gsdDir)) {
     // Preserve user-generated files before wipe (#1423)
     const userProfilePath = path.join(gsdDir, 'USER-PROFILE.md');
@@ -4102,7 +4102,7 @@ function uninstall(isGlobal, runtime = 'claude') {
             if (config.permission[permType]) {
               const keys = Object.keys(config.permission[permType]);
               for (const key of keys) {
-                if (key.includes('get-shit-done')) {
+                if (key.includes('redpill')) {
                   delete config.permission[permType][key];
                   modified = true;
                 }
@@ -4202,7 +4202,7 @@ function parseJsonc(content) {
 
 /**
  * Configure OpenCode permissions to allow reading REDPILL reference docs
- * This prevents permission prompts when REDPILL accesses the get-shit-done directory
+ * This prevents permission prompts when REDPILL accesses the redpill directory
  * @param {boolean} isGlobal - Whether this is a global or local install
  */
 function configureOpencodePermissions(isGlobal = true) {
@@ -4363,7 +4363,7 @@ function writeManifest(configDir, runtime = 'claude') {
   const isAntigravity = runtime === 'antigravity';
   const isCursor = runtime === 'cursor';
   const isWindsurf = runtime === 'windsurf';
-  const gsdDir = path.join(configDir, 'get-shit-done');
+  const gsdDir = path.join(configDir, 'redpill');
   const commandsDir = path.join(configDir, 'commands', 'gsd');
   const opencodeCommandDir = path.join(configDir, 'command');
   const codexSkillsDir = path.join(configDir, 'skills');
@@ -4688,14 +4688,14 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy get-shit-done skill with path replacement
-  const skillSrc = path.join(src, 'get-shit-done');
-  const skillDest = path.join(targetDir, 'get-shit-done');
+  // Copy redpill skill with path replacement
+  const skillSrc = path.join(src, 'redpill');
+  const skillDest = path.join(targetDir, 'redpill');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime, false, isGlobal);
-  if (verifyInstalled(skillDest, 'get-shit-done')) {
-    console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  if (verifyInstalled(skillDest, 'redpill')) {
+    console.log(`  ${green}✓${reset} Installed redpill`);
   } else {
-    failures.push('get-shit-done');
+    failures.push('redpill');
   }
 
   // Copy agents to agents directory
@@ -4757,7 +4757,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Copy CHANGELOG.md
   const changelogSrc = path.join(src, 'CHANGELOG.md');
-  const changelogDest = path.join(targetDir, 'get-shit-done', 'CHANGELOG.md');
+  const changelogDest = path.join(targetDir, 'redpill', 'CHANGELOG.md');
   if (fs.existsSync(changelogSrc)) {
     fs.copyFileSync(changelogSrc, changelogDest);
     if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
@@ -4768,7 +4768,7 @@ function install(isGlobal, runtime = 'claude') {
   }
 
   // Write VERSION file
-  const versionDest = path.join(targetDir, 'get-shit-done', 'VERSION');
+  const versionDest = path.join(targetDir, 'redpill', 'VERSION');
   fs.writeFileSync(versionDest, pkg.version);
   if (verifyFileInstalled(versionDest, 'VERSION')) {
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
@@ -4820,7 +4820,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Clear stale update cache so next session re-evaluates hook versions
   // targetDir is e.g. ~/.claude/redpill/, parent is the config dir
-  const updateCacheFile = path.join(path.dirname(targetDir), 'cache', 'gsd-update-check.json');
+  const updateCacheFile = path.join(os.homedir(), '.cache', 'redpill', 'redpill-update-check.json');
   try { fs.unlinkSync(updateCacheFile); } catch (e) { /* cache may not exist yet */ }
 
   if (failures.length > 0) {
@@ -4899,14 +4899,14 @@ function install(isGlobal, runtime = 'claude') {
       configContent = setManagedCodexHooksOwnership(codexHooksFeature.content, codexHooksFeature.ownership);
 
       // Add SessionStart hook for update checking
-      const updateCheckScript = path.resolve(targetDir, 'get-shit-done', 'hooks', 'gsd-update-check.js').replace(/\\/g, '/');
+      const updateCheckScript = path.resolve(targetDir, 'hooks', 'redpill-check-update.js').replace(/\\/g, '/');
       const hookBlock =
         `${eol}# REDPILL Hooks${eol}` +
         `[[hooks]]${eol}` +
         `event = "SessionStart"${eol}` +
         `command = "node ${updateCheckScript}"${eol}`;
 
-      if (hasEnabledCodexHooksFeature(configContent) && !configContent.includes('gsd-update-check')) {
+      if (hasEnabledCodexHooksFeature(configContent) && !configContent.includes('redpill-check-update')) {
         configContent += hookBlock;
       }
 
@@ -4921,7 +4921,7 @@ function install(isGlobal, runtime = 'claude') {
 
   if (isCopilot) {
     // Generate copilot-instructions.md
-    const templatePath = path.join(targetDir, 'get-shit-done', 'templates', 'copilot-instructions.md');
+    const templatePath = path.join(targetDir, 'redpill', 'templates', 'copilot-instructions.md');
     const instructionsPath = path.join(targetDir, 'copilot-instructions.md');
     if (fs.existsSync(templatePath)) {
       const template = fs.readFileSync(templatePath, 'utf8');

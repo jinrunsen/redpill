@@ -1,4 +1,5 @@
 ---
+name: redpill:workstreams
 description: Manage parallel workstreams — list, create, switch, status, progress, complete, and resume
 ---
 
@@ -59,5 +60,5 @@ Set the workstream as active and suggest `/redpill:resume-work --ws <name>`.
 
 ## Step 3: Display Results
 
-Format the JSON output from gsd-tools into a human-readable display.
+Format the JSON output from redpill-tools into a human-readable display.
 Include the `${REDPILL_WS}` flag in any routing suggestions.

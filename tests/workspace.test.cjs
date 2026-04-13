@@ -2,7 +2,7 @@
  * REDPILL Workspace Tests
  *
  * Tests for /redpill:new-workspace, /redpill:list-workspaces, /redpill:remove-workspace
- * init functions and integration with gsd-tools routing.
+ * init functions and integration with redpill-tools routing.
  */
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
@@ -75,7 +75,7 @@ describe('detectChildRepos', () => {
   });
 });
 
-// ─── cmdInitNewWorkspace via gsd-tools ──────────────────────────────────────
+// ─── cmdInitNewWorkspace via redpill-tools ──────────────────────────────────────
 
 describe('init new-workspace', () => {
   let tmpDir;
@@ -119,7 +119,7 @@ describe('init new-workspace', () => {
   });
 });
 
-// ─── cmdInitListWorkspaces via gsd-tools ────────────────────────────────────
+// ─── cmdInitListWorkspaces via redpill-tools ────────────────────────────────────
 
 describe('init list-workspaces', () => {
   let tmpDir;
@@ -166,7 +166,7 @@ describe('init list-workspaces', () => {
   });
 });
 
-// ─── cmdInitRemoveWorkspace via gsd-tools ───────────────────────────────────
+// ─── cmdInitRemoveWorkspace via redpill-tools ───────────────────────────────────
 
 describe('init remove-workspace', () => {
   let tmpDir;
@@ -356,12 +356,12 @@ describe('workspace command files', () => {
   });
 });
 
-// ─── Routing in gsd-tools ───────────────────────────────────────────────────
+// ─── Routing in redpill-tools ───────────────────────────────────────────────────
 
-describe('workspace routing in gsd-tools', () => {
+describe('workspace routing in redpill-tools', () => {
   test('init new-workspace is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
+      path.join(__dirname, '..', 'redpill', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'new-workspace'"));
@@ -370,7 +370,7 @@ describe('workspace routing in gsd-tools', () => {
 
   test('init list-workspaces is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
+      path.join(__dirname, '..', 'redpill', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'list-workspaces'"));
@@ -379,7 +379,7 @@ describe('workspace routing in gsd-tools', () => {
 
   test('init remove-workspace is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
+      path.join(__dirname, '..', 'redpill', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'remove-workspace'"));

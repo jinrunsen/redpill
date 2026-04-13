@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gsd-build/get-shit-done.git",
+    "url": "git+https://github.com/gsd-build/redpill.git",
     "directory": "sdk"
   },
   "homepage": "https://github.com/gsd-build/redpill/tree/main/sdk",

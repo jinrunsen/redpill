@@ -1,7 +1,7 @@
 /**
  * REDPILL Tools Tests - docs-update
  *
- * Integration tests for the docs-init gsd-tools subcommand.
+ * Integration tests for the docs-init redpill-tools subcommand.
  * Covers: JSON output shape, project type detection, existing doc scanning,
  * REDPILL marker detection, and doc tooling detection.
  *

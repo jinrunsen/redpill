@@ -18,7 +18,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 
-const WORKFLOWS_DIR = path.join(__dirname, '..', 'get-shit-done', 'workflows');
+const WORKFLOWS_DIR = path.join(__dirname, '..', 'redpill', 'workflows');
 const HOOKS_DIR = path.join(__dirname, '..', 'hooks');
 
 /**
@@ -179,7 +179,7 @@ describe('hook stdin timeout patterns', () => {
 // ─── @file: Handoff ─────────────────────────────────────────────────────────
 
 describe('@file: handoff in workflows', () => {
-  test('all workflows calling gsd-tools init have @file: handler', () => {
+  test('all workflows calling redpill-tools init have @file: handler', () => {
     const workflowFiles = fs.readdirSync(WORKFLOWS_DIR)
       .filter(f => f.endsWith('.md'));
 
@@ -188,7 +188,7 @@ describe('@file: handoff in workflows', () => {
       const content = fs.readFileSync(path.join(WORKFLOWS_DIR, wf), 'utf-8');
 
       // Check if this workflow calls redpill-tools.cjs init
-      if (/INIT=\$\(node.*gsd-tools.*\binit\b/.test(content)) {
+      if (/INIT=\$\(node.*redpill-tools.*\binit\b/.test(content)) {
         // Must have @file: handler
         if (!content.includes('@file:')) {
           missing.push(wf);
@@ -198,7 +198,7 @@ describe('@file: handoff in workflows', () => {
 
     assert.strictEqual(
       missing.length, 0,
-      `Workflows calling gsd-tools init without @file: handler (large output will be truncated):\n  ${missing.join('\n  ')}`
+      `Workflows calling redpill-tools init without @file: handler (large output will be truncated):\n  ${missing.join('\n  ')}`
     );
   });
 });

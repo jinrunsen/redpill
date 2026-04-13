@@ -41,7 +41,7 @@ Find first PLAN without matching SUMMARY. Decimal phases supported (`01.1-hotfix
 
 ```bash
 PHASE=$(echo "$PLAN_PATH" | grep -oE '[0-9]+(\.[0-9]+)?-[0-9]+')
-# config settings can be fetched via gsd-tools config-get if needed
+# config settings can be fetched via redpill-tools config-get if needed
 ```
 
 <if mode="yolo">
@@ -539,7 +539,7 @@ Next: more plans → "Ready for {next-plan}" | last → "Phase complete, ready f
 </step>
 
 <step name="update_current_position">
-Update STATE.md using gsd-tools:
+Update STATE.md using redpill-tools:
 
 ```bash
 # Advance plan counter (handles last-plan edge case)
@@ -570,7 +570,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state add-blocker --text-file
 </step>
 
 <step name="update_session_continuity">
-Update session info using gsd-tools:
+Update session info using redpill-tools:
 
 ```bash
 node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state record-session \

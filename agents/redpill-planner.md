@@ -1491,7 +1491,7 @@ The filename MUST follow the exact pattern: `{padded_phase}-{NN}-PLAN.md`
 - Phase 3, Plan 2 → `03-02-PLAN.md`
 - Phase 2.1, Plan 1 → `02.1-01-PLAN.md`
 
-**Incorrect (will break gsd-tools detection):**
+**Incorrect (will break redpill-tools detection):**
 - ❌ `PLAN-01-auth.md`
 - ❌ `01-PLAN-01.md`
 - ❌ `plan-01.md`
@@ -1503,7 +1503,7 @@ Include all frontmatter fields.
 </step>
 
 <step name="validate_plan">
-Validate each created PLAN.md using gsd-tools:
+Validate each created PLAN.md using redpill-tools:
 
 ```bash
 VALID=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" frontmatter validate "$PLAN_PATH" --schema plan)

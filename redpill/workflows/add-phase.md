@@ -42,7 +42,7 @@ Exit.
 </step>
 
 <step name="add_phase">
-**Delegate the phase addition to gsd-tools:**
+**Delegate the phase addition to redpill-tools:**
 
 ```bash
 RESULT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase add "${description}")
@@ -104,7 +104,7 @@ Roadmap updated: .redpill/ROADMAP.md
 </process>
 
 <success_criteria>
-- [ ] `gsd-tools phase add` executed successfully
+- [ ] `redpill-tools phase add` executed successfully
 - [ ] Phase directory created
 - [ ] Roadmap updated with new phase entry
 - [ ] STATE.md updated with roadmap evolution note

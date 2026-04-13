@@ -19,8 +19,8 @@ const path = require('path');
 const REPO_ROOT = path.join(__dirname, '..');
 const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands', 'gsd');
-const WORKFLOWS_DIR = path.join(REPO_ROOT, 'get-shit-done', 'workflows');
-const TEMPLATES_DIR = path.join(REPO_ROOT, 'get-shit-done', 'templates');
+const WORKFLOWS_DIR = path.join(REPO_ROOT, 'redpill', 'workflows');
+const TEMPLATES_DIR = path.join(REPO_ROOT, 'redpill', 'templates');
 
 // ─── 1. Agent frontmatter — redpill-security-auditor.md ─────────────────────────
 

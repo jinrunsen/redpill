@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Release monitor for gsd-build/get-shit-done
+# Release monitor for gsd-build/redpill
 # Checks every 15 minutes, writes new release info to a signal file
 
-REPO="gsd-build/get-shit-done"
-SIGNAL_FILE="/tmp/gsd-new-release.json"
-STATE_FILE="/tmp/gsd-monitor-last-tag"
-LOG_FILE="/tmp/gsd-monitor.log"
+REPO="gsd-build/redpill"
+SIGNAL_FILE="/tmp/redpill-new-release.json"
+STATE_FILE="/tmp/redpill-monitor-last-tag"
+LOG_FILE="/tmp/redpill-monitor.log"
 
 # Initialize with current latest
 echo "v1.25.1" > "$STATE_FILE"

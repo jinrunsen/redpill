@@ -57,7 +57,7 @@ describe('init commands: agents_installed field (#1371)', () => {
 
     // Create agents dir as sibling of redpill/ (the installed layout)
     // redpill-tools.cjs resolves agents from REDPILL_INSTALL_DIR or __dirname/../../agents
-    const gsdInstallDir = path.resolve(__dirname, '..', 'get-shit-done', 'bin');
+    const gsdInstallDir = path.resolve(__dirname, '..', 'redpill', 'bin');
     const configDir = path.resolve(gsdInstallDir, '..', '..');
     const agentsDir = path.join(configDir, 'agents');
 

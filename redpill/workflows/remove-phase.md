@@ -77,13 +77,13 @@ Wait for confirmation.
 </step>
 
 <step name="execute_removal">
-**Delegate the entire removal operation to gsd-tools:**
+**Delegate the entire removal operation to redpill-tools:**
 
 ```bash
 RESULT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase remove "${target}")
 ```
 
-If the phase has executed plans (SUMMARY.md files), gsd-tools will error. Use `--force` only if the user confirms:
+If the phase has executed plans (SUMMARY.md files), redpill-tools will error. Use `--force` only if the user confirms:
 
 ```bash
 RESULT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase remove "${target}" --force)
@@ -140,7 +140,7 @@ Would you like to:
 
 - Don't remove completed phases (have SUMMARY.md files) without --force
 - Don't remove current or past phases
-- Don't manually renumber — use `gsd-tools phase remove` which handles all renumbering
+- Don't manually renumber — use `redpill-tools phase remove` which handles all renumbering
 - Don't add "removed phase" notes to STATE.md — git commit is the record
 - Don't modify completed phase directories
 </anti_patterns>
@@ -149,7 +149,7 @@ Would you like to:
 Phase removal is complete when:
 
 - [ ] Target phase validated as future/unstarted
-- [ ] `gsd-tools phase remove` executed successfully
+- [ ] `redpill-tools phase remove` executed successfully
 - [ ] Changes committed with descriptive message
 - [ ] User informed of changes
 </success_criteria>

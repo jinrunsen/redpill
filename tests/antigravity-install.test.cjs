@@ -113,7 +113,7 @@ describe('convertClaudeToAntigravityContent', () => {
     });
 
     test('replaces $HOME/.claude/ with $HOME/.gemini/antigravity/', () => {
-      const input = 'path.join($HOME/.claude/get-shit-done)';
+      const input = 'path.join($HOME/.claude/redpill)';
       const result = convertClaudeToAntigravityContent(input, true);
       assert.ok(result.includes('$HOME/.gemini/antigravity/'), result);
       assert.ok(!result.includes('$HOME/.claude/'), result);
@@ -387,7 +387,7 @@ describe('writeManifest (Antigravity)', () => {
     const skillsDir = path.join(tmpDir, 'skills', 'gsd-help');
     fs.mkdirSync(skillsDir, { recursive: true });
     fs.writeFileSync(path.join(skillsDir, 'SKILL.md'), '---\nname: gsd-help\ndescription: Help\n---\n');
-    const gsdDir = path.join(tmpDir, 'get-shit-done');
+    const gsdDir = path.join(tmpDir, 'redpill');
     fs.mkdirSync(gsdDir, { recursive: true });
     fs.writeFileSync(path.join(gsdDir, 'VERSION'), '1.0.0');
     const agentsDir = path.join(tmpDir, 'agents');

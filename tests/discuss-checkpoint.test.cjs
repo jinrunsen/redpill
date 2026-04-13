@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 describe('discuss-phase incremental checkpoint saves (#1485)', () => {
-  const workflowPath = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'discuss-phase.md');
+  const workflowPath = path.join(__dirname, '..', 'redpill', 'workflows', 'discuss-phase.md');
 
   test('workflow writes checkpoint file after each area completes', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');

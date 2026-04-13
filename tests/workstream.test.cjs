@@ -349,9 +349,9 @@ describe('workstream progress', () => {
   });
 });
 
-// ─── Integration: gsd-tools --ws flag ────────────────────────────────────────
+// ─── Integration: redpill-tools --ws flag ────────────────────────────────────────
 
-describe('gsd-tools --ws flag integration', () => {
+describe('redpill-tools --ws flag integration', () => {
   let tmpDir;
 
   before(() => {

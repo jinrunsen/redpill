@@ -259,7 +259,7 @@ function parseMustHavesBlock(content, blockName) {
     const nonEmptyLines = blockLines.filter(l => l.trim() !== '').length;
     if (nonEmptyLines > 0) {
       process.stderr.write(
-        `[gsd-tools] WARNING: must_haves.${blockName} block has ${nonEmptyLines} content lines but parsed 0 items. ` +
+        `[redpill-tools] WARNING: must_haves.${blockName} block has ${nonEmptyLines} content lines but parsed 0 items. ` +
         `Possible YAML formatting issue — verification will fall back to LLM-derived truths.\n`
       );
     }

@@ -506,7 +506,7 @@ ls "$phase_dir"/*-BRIEF.md 2>/dev/null
 
 ## Step 2: Load All Plans
 
-Use gsd-tools to validate plan structure:
+Use redpill-tools to validate plan structure:
 
 ```bash
 for plan in "$PHASE_DIR"/*-PLAN.md; do
@@ -526,7 +526,7 @@ Map errors/warnings to verification dimensions:
 
 ## Step 3: Parse must_haves
 
-Extract must_haves from each plan using gsd-tools:
+Extract must_haves from each plan using redpill-tools:
 
 ```bash
 MUST_HAVES=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" frontmatter get "$PLAN_PATH" --field must_haves)
@@ -571,7 +571,7 @@ For each requirement: find covering task(s), verify action is specific, flag gap
 
 ## Step 5: Validate Task Structure
 
-Use gsd-tools plan-structure verification (already run in Step 2):
+Use redpill-tools plan-structure verification (already run in Step 2):
 
 ```bash
 PLAN_STRUCTURE=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" verify plan-structure "$PLAN_PATH")
@@ -585,7 +585,7 @@ The `tasks` array in the result shows each task's completeness:
 
 **Check:** valid task type (auto, checkpoint:*, tdd), auto tasks have files/action/verify/done, action is specific, verify is runnable, done is measurable.
 
-**For manual validation of specificity** (gsd-tools checks structure, not content quality):
+**For manual validation of specificity** (redpill-tools checks structure, not content quality):
 ```bash
 grep -B5 "</task>" "$PHASE_DIR"/*-PLAN.md | grep -v "<verify>"
 ```

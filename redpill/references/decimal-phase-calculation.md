@@ -2,7 +2,7 @@
 
 Calculate the next decimal phase number for urgent insertions.
 
-## Using gsd-tools
+## Using redpill-tools
 
 ```bash
 # Get next decimal phase after phase 6

@@ -1,6 +1,6 @@
 # Git 规划提交
 
-使用 gsd-tools CLI 提交规划工件，它会自动检查 `commit_docs` 配置和 gitignore 状态。
+使用 redpill-tools CLI 提交规划工件，它会自动检查 `commit_docs` 配置和 gitignore 状态。
 
 ## 通过 CLI 提交
 

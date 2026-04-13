@@ -665,7 +665,7 @@ For each dimension, assess whether the observed pattern is consistent across the
 
 When `cross_project_consistent` is false, the summary must describe the split:
 
-- "Context-dependent: terse-direct for CLI/backend projects (gsd-tools, api-server), detailed-structured for frontend projects (dashboard, landing-page)."
+- "Context-dependent: terse-direct for CLI/backend projects (redpill-tools, api-server), detailed-structured for frontend projects (dashboard, landing-page)."
 - "Context-dependent: fast-intuitive for familiar tech (React, Node), research-first for new domains (Rust, ML)."
 
 The rating field should reflect the **dominant** pattern (most evidence). The summary describes the nuance.

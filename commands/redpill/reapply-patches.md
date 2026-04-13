@@ -1,4 +1,5 @@
 ---
+name: redpill:reapply-patches
 description: Reapply local modifications after a REDPILL update
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---

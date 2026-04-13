@@ -46,7 +46,7 @@ This ensures workstream scope chains automatically through the workflow:
 ## CLI Usage
 
 ```bash
-# All gsd-tools commands accept --ws
+# All redpill-tools commands accept --ws
 node redpill-tools.cjs state json --ws feature-a
 node redpill-tools.cjs find-phase 3 --ws feature-b
 

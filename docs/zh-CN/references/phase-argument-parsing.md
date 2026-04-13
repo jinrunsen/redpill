@@ -9,7 +9,7 @@
 - 提取标志（以 `--` 为前缀）
 - 剩余文本为描述（用于 insert/add 命令）
 
-## 使用 gsd-tools
+## 使用 redpill-tools
 
 `find-phase` 命令一步完成规范化和验证：
 

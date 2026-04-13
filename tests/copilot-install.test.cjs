@@ -741,7 +741,7 @@ describe('Copilot agent conversion - real files', () => {
 describe('Copilot content conversion - engine files', () => {
   test('converts engine .md files correctly (local mode default)', () => {
     const healthMd = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'workflows', 'health.md'), 'utf8'
+      path.join(__dirname, '..', 'redpill', 'workflows', 'health.md'), 'utf8'
     );
     const result = convertClaudeToCopilotContent(healthMd);
 
@@ -756,7 +756,7 @@ describe('Copilot content conversion - engine files', () => {
 
   test('converts engine .md files correctly (global mode)', () => {
     const healthMd = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'workflows', 'health.md'), 'utf8'
+      path.join(__dirname, '..', 'redpill', 'workflows', 'health.md'), 'utf8'
     );
     const result = convertClaudeToCopilotContent(healthMd, true);
 
@@ -771,7 +771,7 @@ describe('Copilot content conversion - engine files', () => {
 
   test('converts engine .cjs files correctly', () => {
     const verifyCjs = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'lib', 'verify.cjs'), 'utf8'
+      path.join(__dirname, '..', 'redpill', 'bin', 'lib', 'verify.cjs'), 'utf8'
     );
     const result = convertClaudeToCopilotContent(verifyCjs);
 
@@ -1010,8 +1010,8 @@ describe('Copilot manifest and patches fixes', () => {
   });
 
   test('writeManifest hashes skills for Copilot runtime', () => {
-    // Create minimal get-shit-done dir (required by writeManifest)
-    const gsdDir = path.join(tmpDir, 'get-shit-done', 'bin');
+    // Create minimal redpill dir (required by writeManifest)
+    const gsdDir = path.join(tmpDir, 'redpill', 'bin');
     fs.mkdirSync(gsdDir, { recursive: true });
     fs.writeFileSync(path.join(gsdDir, 'verify.cjs'), '// verify stub');
 
@@ -1243,7 +1243,7 @@ describe('E2E: Copilot full install verification', () => {
   });
 
   test('engine directory contains required subdirectories and files', () => {
-    const engineDir = path.join(tmpDir, '.github', 'get-shit-done');
+    const engineDir = path.join(tmpDir, '.github', 'redpill');
     const requiredDirs = ['bin', 'references', 'templates', 'workflows'];
     const requiredFiles = ['CHANGELOG.md', 'VERSION'];
 
@@ -1274,9 +1274,9 @@ describe('E2E: Copilot uninstall verification', () => {
   });
 
   test('removes engine directory', () => {
-    const engineDir = path.join(tmpDir, '.github', 'get-shit-done');
+    const engineDir = path.join(tmpDir, '.github', 'redpill');
     assert.ok(!fs.existsSync(engineDir),
-      'get-shit-done directory should not exist after uninstall');
+      'redpill directory should not exist after uninstall');
   });
 
   test('removes copilot-instructions.md', () => {
@@ -1379,7 +1379,7 @@ describe('Claude uninstall preserves user-generated files (#1423)', () => {
   });
 
   test('preserves USER-PROFILE.md across uninstall', () => {
-    const profilePath = path.join(tmpDir, '.claude', 'get-shit-done', 'USER-PROFILE.md');
+    const profilePath = path.join(tmpDir, '.claude', 'redpill', 'USER-PROFILE.md');
     const content = '# Developer Profile\n\nAutonomy: High\nGenerated: 2026-03-29\n';
     fs.writeFileSync(profilePath, content);
 
@@ -1403,11 +1403,11 @@ describe('Claude uninstall preserves user-generated files (#1423)', () => {
   });
 
   test('still removes REDPILL engine files during uninstall', () => {
-    const profilePath = path.join(tmpDir, '.claude', 'get-shit-done', 'USER-PROFILE.md');
+    const profilePath = path.join(tmpDir, '.claude', 'redpill', 'USER-PROFILE.md');
     fs.writeFileSync(profilePath, '# Profile\n');
 
     // Verify engine files exist before uninstall
-    const binDir = path.join(tmpDir, '.claude', 'get-shit-done', 'bin');
+    const binDir = path.join(tmpDir, '.claude', 'redpill', 'bin');
     assert.ok(fs.existsSync(binDir), 'bin/ should exist before uninstall');
 
     runClaudeUninstall(tmpDir);
@@ -1420,7 +1420,7 @@ describe('Claude uninstall preserves user-generated files (#1423)', () => {
   test('clean uninstall when no user files exist', () => {
     runClaudeUninstall(tmpDir);
 
-    const gsdDir = path.join(tmpDir, '.claude', 'get-shit-done');
+    const gsdDir = path.join(tmpDir, '.claude', 'redpill');
     const cmdDir = path.join(tmpDir, '.claude', 'commands', 'gsd');
     // Directories should be fully removed when no user files to preserve
     assert.ok(!fs.existsSync(gsdDir), 'redpill/ should not exist after clean uninstall');

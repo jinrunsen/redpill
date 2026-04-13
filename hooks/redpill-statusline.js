@@ -95,8 +95,8 @@ process.stdin.on('end', () => {
     // Check shared cache first (#1421), fall back to runtime-specific cache for
     // backward compatibility with older redpill-check-update.js versions.
     let gsdUpdate = '';
-    const sharedCacheFile = path.join(homeDir, '.cache', 'gsd', 'gsd-update-check.json');
-    const legacyCacheFile = path.join(claudeDir, 'cache', 'gsd-update-check.json');
+    const sharedCacheFile = path.join(homeDir, '.cache', 'redpill', 'redpill-update-check.json');
+    const legacyCacheFile = path.join(claudeDir, 'cache', 'redpill-update-check.json');
     const cacheFile = fs.existsSync(sharedCacheFile) ? sharedCacheFile : legacyCacheFile;
     if (fs.existsSync(cacheFile)) {
       try {

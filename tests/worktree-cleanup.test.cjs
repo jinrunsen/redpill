@@ -13,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 describe('worktree cleanup after executor completes (#1496)', () => {
-  const executePhasePath = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'execute-phase.md');
-  const quickPath = path.join(__dirname, '..', 'get-shit-done', 'workflows', 'quick.md');
+  const executePhasePath = path.join(__dirname, '..', 'redpill', 'workflows', 'execute-phase.md');
+  const quickPath = path.join(__dirname, '..', 'redpill', 'workflows', 'quick.md');
 
   test('execute-phase.md includes worktree cleanup step', () => {
     const content = fs.readFileSync(executePhasePath, 'utf8');

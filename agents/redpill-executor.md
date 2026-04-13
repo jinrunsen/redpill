@@ -428,7 +428,7 @@ Do NOT skip. Do NOT proceed to state updates if self-check fails.
 </self_check>
 
 <state_updates>
-After SUMMARY.md, update STATE.md using gsd-tools:
+After SUMMARY.md, update STATE.md using redpill-tools:
 
 ```bash
 # Advance plan counter (handles edge cases automatically)

@@ -434,7 +434,7 @@ Check code says:  hooksDir = path.join(configDir, 'hooks')
                   → checks ~/.claude/hooks/
 
 Installer says:   hooksDest = path.join(targetDir, 'hooks')
-                  targetDir = ~/.claude/get-shit-done
+                  targetDir = ~/.claude/redpill
                   → writes to ~/.claude/redpill/hooks/
 
 MISMATCH: Checker looks in wrong directory → hooks "not found" → reported as stale
