@@ -10,7 +10,7 @@ import { GSDEventType } from './types.js';
 
 // ─── Mock modules ────────────────────────────────────────────────────────────
 
-// Mock the heavy dependencies that GSD constructor + runPhase pull in
+// Mock the heavy dependencies that REDPILL constructor + runPhase pull in
 vi.mock('./plan-parser.js', () => ({
   parsePlan: vi.fn(),
   parsePlanFile: vi.fn(),
@@ -71,10 +71,10 @@ vi.mock('./gsd-tools.js', () => ({
   GSDToolsError: class extends Error {
     name = 'GSDToolsError';
   },
-  resolveGsdToolsPath: vi.fn().mockReturnValue('/mock/gsd-tools.cjs'),
+  resolveGsdToolsPath: vi.fn().mockReturnValue('/mock/redpill-tools.cjs'),
 }));
 
-import { GSD } from './index.js';
+import { REDPILL } from './index.js';
 import { GSDTools } from './gsd-tools.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ function makeAnalysis(phases: RoadmapPhaseInfo[]): RoadmapAnalysis {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('GSD.run()', () => {
-  let gsd: GSD;
+  let redpill: GSD;
   let mockRoadmapAnalyze: ReturnType<typeof vi.fn>;
   let events: GSDEvent[];
 

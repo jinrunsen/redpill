@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
-// Claude Code Statusline - GSD Edition
+// redpill-hook-version: {{REDPILL_VERSION}}
+// Claude Code Statusline - REDPILL Edition
 // Shows: model | current task | directory | context usage
 
 const fs = require('fs');
@@ -91,9 +91,9 @@ process.stdin.on('end', () => {
       }
     }
 
-    // GSD update available?
+    // REDPILL update available?
     // Check shared cache first (#1421), fall back to runtime-specific cache for
-    // backward compatibility with older gsd-check-update.js versions.
+    // backward compatibility with older redpill-check-update.js versions.
     let gsdUpdate = '';
     const sharedCacheFile = path.join(homeDir, '.cache', 'gsd', 'gsd-update-check.json');
     const legacyCacheFile = path.join(claudeDir, 'cache', 'gsd-update-check.json');
@@ -102,10 +102,10 @@ process.stdin.on('end', () => {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
         if (cache.update_available) {
-          gsdUpdate = '\x1b[33m⬆ /gsd:update\x1b[0m │ ';
+          gsdUpdate = '\x1b[33m⬆ /redpill:update\x1b[0m │ ';
         }
         if (cache.stale_hooks && cache.stale_hooks.length > 0) {
-          gsdUpdate += '\x1b[31m⚠ stale hooks — run /gsd:update\x1b[0m │ ';
+          gsdUpdate += '\x1b[31m⚠ stale hooks — run /redpill:update\x1b[0m │ ';
         }
       } catch (e) {}
     }

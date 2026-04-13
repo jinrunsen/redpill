@@ -47,7 +47,7 @@ function resolveModel(options?: SessionOptions, config?: GSDConfig): string | un
  * the message stream to extract the result.
  *
  * @param plan - Parsed plan structure
- * @param config - GSD project configuration
+ * @param config - REDPILL project configuration
  * @param options - Session overrides (maxTurns, budget, model, etc.)
  * @param agentDef - Raw agent definition content (optional, for tool/role extraction)
  * @returns Typed PlanResult with cost, duration, success/error status
@@ -255,7 +255,7 @@ function stepTypeToPhaseType(step: PhaseStepType): PhaseType {
  *
  * @param prompt - Raw prompt string to append to the system prompt
  * @param phaseStep - Phase step type (determines tool scoping)
- * @param config - GSD project configuration
+ * @param config - REDPILL project configuration
  * @param options - Session overrides (maxTurns, budget, model, etc.)
  * @param eventStream - Optional event stream for observability
  * @param streamContext - Optional context for event tagging

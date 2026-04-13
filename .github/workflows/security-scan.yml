@@ -45,16 +45,16 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          # Ensure .planning/ runtime data is not committed in PRs
-          # (The GSD repo itself has .planning/ in .gitignore, but PRs
+          # Ensure .redpill/ runtime data is not committed in PRs
+          # (The REDPILL repo itself has .redpill/ in .gitignore, but PRs
           # from forks or misconfigured clones might include it)
-          PLANNING_FILES=$(git diff --name-only --diff-filter=ACMR "origin/$BASE_REF"...HEAD | grep '^\.planning/' || true)
+          PLANNING_FILES=$(git diff --name-only --diff-filter=ACMR "origin/$BASE_REF"...HEAD | grep '^\.redpill/' || true)
           if [ -n "$PLANNING_FILES" ]; then
-            echo "FAIL: .planning/ runtime data must not be committed to PRs"
-            echo "The following .planning/ files were found in this PR:"
+            echo "FAIL: .redpill/ runtime data must not be committed to PRs"
+            echo "The following .redpill/ files were found in this PR:"
             echo "$PLANNING_FILES"
             echo ""
-            echo "Add .planning/ to your .gitignore and remove these files from the commit."
+            echo "Add .redpill/ to your .gitignore and remove these files from the commit."
             exit 1
           fi
           echo "planning-dir-check: clean"

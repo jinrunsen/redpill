@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** When `/gsd:new-project` creates `.planning/config.json`, the file contains all effective defaults — not just the 6 user-chosen keys — so developers can see every setting without reading source code.
+**Goal:** When `/redpill:new-project` creates `.redpill/config.json`, the file contains all effective defaults — not just the 6 user-chosen keys — so developers can see every setting without reading source code.
 
 **Architecture:** Add a single JS function `buildNewProjectConfig(cwd, userChoices)` in `config.cjs` as the one source of truth for a new project's full config. Expose it as a CLI command `config-new-project`. Update the `new-project.md` workflow to call this command instead of writing a partial JSON inline.
 
@@ -61,9 +61,9 @@ Full config that should exist from the start:
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `get-shit-done/bin/lib/config.cjs` | Modify | Add `buildNewProjectConfig()` + `cmdConfigNewProject()` |
-| `get-shit-done/bin/gsd-tools.cjs` | Modify | Register `config-new-project` case + update usage string |
-| `get-shit-done/workflows/new-project.md` | Modify | Steps 2a + 5: replace inline JSON write with CLI call |
+| `redpill/bin/lib/config.cjs` | Modify | Add `buildNewProjectConfig()` + `cmdConfigNewProject()` |
+| `redpill/bin/redpill-tools.cjs` | Modify | Register `config-new-project` case + update usage string |
+| `redpill/workflows/new-project.md` | Modify | Steps 2a + 5: replace inline JSON write with CLI call |
 | `tests/config.test.cjs` | Modify | Add `config-new-project` test suite |
 
 ---
@@ -72,7 +72,7 @@ Full config that should exist from the start:
 
 **Files:**
 
-- Modify: `get-shit-done/bin/lib/config.cjs`
+- Modify: `redpill/bin/lib/config.cjs`
 
 - [ ] **Step 1.1: Write the failing tests first**
 
@@ -101,7 +101,7 @@ describe('config-new-project command', () => {
       model_profile: 'balanced',
       workflow: { research: true, plan_check: true, verifier: true, nyquist_validation: true },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -140,7 +140,7 @@ describe('config-new-project command', () => {
       model_profile: 'quality',
       workflow: { research: false, plan_check: false, verifier: true, nyquist_validation: false },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -159,7 +159,7 @@ describe('config-new-project command', () => {
   });
 
   test('works with empty choices — all defaults materialized', () => {
-    const result = runGsdTools(['config-new-project', '{}'], tmpDir);
+    const result = runRedpillTools(['config-new-project', '{}'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -176,13 +176,13 @@ describe('config-new-project command', () => {
   test('is idempotent — returns already_exists if config exists', () => {
     // First call: create
     const choices = JSON.stringify({ mode: 'yolo', granularity: 'fine' });
-    const first = runGsdTools(['config-new-project', choices], tmpDir);
+    const first = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(first.success, `First call failed: ${first.error}`);
     const firstOut = JSON.parse(first.output);
     assert.strictEqual(firstOut.created, true);
 
     // Second call: idempotent
-    const second = runGsdTools(['config-new-project', choices], tmpDir);
+    const second = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(second.success, `Second call failed: ${second.error}`);
     const secondOut = JSON.parse(second.output);
     assert.strictEqual(secondOut.created, false);
@@ -200,7 +200,7 @@ describe('config-new-project command', () => {
       granularity: 'standard',
       workflow: { research: true, plan_check: true, verifier: true, nyquist_validation: true, auto_advance: true },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -208,18 +208,18 @@ describe('config-new-project command', () => {
   });
 
   test('rejects invalid JSON choices', () => {
-    const result = runGsdTools(['config-new-project', '{not-json}'], tmpDir);
+    const result = runRedpillTools(['config-new-project', '{not-json}'], tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(result.error.includes('Invalid JSON'), `Expected "Invalid JSON" in: ${result.error}`);
   });
 
   test('output JSON has created:true on success', () => {
     const choices = JSON.stringify({ mode: 'interactive', granularity: 'standard' });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const out = JSON.parse(result.output);
     assert.strictEqual(out.created, true);
-    assert.strictEqual(out.path, '.planning/config.json');
+    assert.strictEqual(out.path, '.redpill/config.json');
   });
 });
 ```
@@ -235,7 +235,7 @@ Expected: All `config-new-project` tests fail with "config-new-project is not a 
 
 - [ ] **Step 1.3: Implement `buildNewProjectConfig` and `cmdConfigNewProject` in config.cjs**
 
-In `get-shit-done/bin/lib/config.cjs`, add the following after the `validateKnownConfigKeyPath` function (around line 35) and before `ensureConfigFile`:
+In `redpill/bin/lib/config.cjs`, add the following after the `validateKnownConfigKeyPath` function (around line 35) and before `ensureConfigFile`:
 
 ```js
 /**
@@ -314,17 +314,17 @@ function buildNewProjectConfig(cwd, userChoices) {
 }
 
 /**
- * Command: create a fully-materialized .planning/config.json for a new project.
+ * Command: create a fully-materialized .redpill/config.json for a new project.
  *
  * Accepts user-chosen settings as a JSON string (the keys the user explicitly
- * configured during /gsd:new-project). All remaining keys are filled from
+ * configured during /redpill:new-project). All remaining keys are filled from
  * hardcoded defaults and optional ~/.gsd/defaults.json.
  *
  * Idempotent: if config.json already exists, returns { created: false }.
  */
 function cmdConfigNewProject(cwd, choicesJson, raw) {
-  const configPath = path.join(cwd, '.planning', 'config.json');
-  const planningDir = path.join(cwd, '.planning');
+  const configPath = path.join(cwd, '.redpill', 'config.json');
+  const redpillDir = path.join(cwd, '.redpill');
 
   // Idempotent: don't overwrite existing config
   if (fs.existsSync(configPath)) {
@@ -344,8 +344,8 @@ function cmdConfigNewProject(cwd, choicesJson, raw) {
 
   // Ensure .planning directory exists
   try {
-    if (!fs.existsSync(planningDir)) {
-      fs.mkdirSync(planningDir, { recursive: true });
+    if (!fs.existsSync(redpillDir)) {
+      fs.mkdirSync(redpillDir, { recursive: true });
     }
   } catch (err) {
     error('Failed to create .planning directory: ' + err.message);
@@ -355,7 +355,7 @@ function cmdConfigNewProject(cwd, choicesJson, raw) {
 
   try {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-    output({ created: true, path: '.planning/config.json' }, raw, 'created');
+    output({ created: true, path: '.redpill/config.json' }, raw, 'created');
   } catch (err) {
     error('Failed to write config.json: ' + err.message);
   }
@@ -377,19 +377,19 @@ Expected: All `config-new-project` tests pass. Existing tests still pass.
 
 ```bash
 cd /Users/diego/Dev/get-shit-done
-git add get-shit-done/bin/lib/config.cjs tests/config.test.cjs
+git add redpill/bin/lib/config.cjs tests/config.test.cjs
 git commit -m "feat: add config-new-project command for full config materialization"
 ```
 
 ---
 
-## Task 2: Register `config-new-project` in gsd-tools.cjs
+## Task 2: Register `config-new-project` in redpill-tools.cjs
 
 **Files:**
 
-- Modify: `get-shit-done/bin/gsd-tools.cjs`
+- Modify: `redpill/bin/redpill-tools.cjs`
 
-- [ ] **Step 2.1: Add the case to the switch in gsd-tools.cjs**
+- [ ] **Step 2.1: Add the case to the switch in redpill-tools.cjs**
 
 After the `config-get` case (around line 401), add:
 
@@ -409,10 +409,10 @@ New: `...config-ensure-section, config-new-project, init`
 
 ```bash
 cd /Users/diego/Dev/get-shit-done
-node get-shit-done/bin/gsd-tools.cjs config-new-project '{"mode":"interactive","granularity":"standard"}' --cwd /tmp/gsd-smoke-$(date +%s)
+node redpill/bin/redpill-tools.cjs config-new-project '{"mode":"interactive","granularity":"standard"}' --cwd /tmp/gsd-smoke-$(date +%s)
 ```
 
-Expected: outputs `{"created":true,"path":".planning/config.json"}` (or similar).
+Expected: outputs `{"created":true,"path":".redpill/config.json"}` (or similar).
 
 Clean up: `rm -rf /tmp/gsd-smoke-*`
 
@@ -429,7 +429,7 @@ Expected: All pass.
 
 ```bash
 cd /Users/diego/Dev/get-shit-done
-git add get-shit-done/bin/gsd-tools.cjs
+git add redpill/bin/redpill-tools.cjs
 git commit -m "feat: register config-new-project in gsd-tools CLI router"
 ```
 
@@ -439,7 +439,7 @@ git commit -m "feat: register config-new-project in gsd-tools CLI router"
 
 **Files:**
 
-- Modify: `get-shit-done/workflows/new-project.md`
+- Modify: `redpill/workflows/new-project.md`
 
 This is the core change. Two places need updating:
 
@@ -451,7 +451,7 @@ This is the core change. Two places need updating:
 Find the block in Step 2a that creates config.json:
 
 ```markdown
-Create `.planning/config.json` with mode set to "yolo":
+Create `.redpill/config.json` with mode set to "yolo":
 
 ```json
 {
@@ -466,11 +466,11 @@ Create `.planning/config.json` with mode set to "yolo":
 Replace the inline JSON write instruction with:
 
 ```markdown
-Create `.planning/config.json` using the CLI (fills in all defaults automatically):
+Create `.redpill/config.json` using the CLI (fills in all defaults automatically):
 
 ```bash
 mkdir -p .planning
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-new-project "$(cat <<'CHOICES'
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" config-new-project "$(cat <<'CHOICES'
 {
   "mode": "yolo",
   "granularity": "[selected: coarse|standard|fine]",
@@ -498,7 +498,7 @@ The command merges your selections with all runtime defaults (`search_gitignored
 Find the block in Step 5 that creates config.json:
 
 ```markdown
-Create `.planning/config.json` with all settings:
+Create `.redpill/config.json` with all settings:
 
 ```json
 {
@@ -512,11 +512,11 @@ Create `.planning/config.json` with all settings:
 Replace with:
 
 ```markdown
-Create `.planning/config.json` using the CLI (fills in all defaults automatically):
+Create `.redpill/config.json` using the CLI (fills in all defaults automatically):
 
 ```bash
 mkdir -p .planning
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-new-project "$(cat <<'CHOICES'
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" config-new-project "$(cat <<'CHOICES'
 {
   "mode": "[selected: yolo|interactive]",
   "granularity": "[selected: coarse|standard|fine]",
@@ -542,7 +542,7 @@ The command merges your selections with all runtime defaults (`search_gitignored
 
 ```bash
 cd /Users/diego/Dev/get-shit-done
-grep -n "config-new-project\|config\.json\|CHOICES" get-shit-done/workflows/new-project.md
+grep -n "config-new-project\|config\.json\|CHOICES" redpill/workflows/new-project.md
 ```
 
 Expected: 2 occurrences of `config-new-project` (one per step), no more inline JSON templates for config creation.
@@ -551,7 +551,7 @@ Expected: 2 occurrences of `config-new-project` (one per step), no more inline J
 
 ```bash
 cd /Users/diego/Dev/get-shit-done
-git add get-shit-done/workflows/new-project.md
+git add redpill/workflows/new-project.md
 git commit -m "feat: use config-new-project in new-project workflow for full config materialization"
 ```
 
@@ -578,10 +578,10 @@ TMP=$(mktemp -d)
 cd "$TMP"
 
 # Step 1 simulation: what init new-project returns
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs init new-project --cwd "$TMP"
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs init new-project --cwd "$TMP"
 
 # Step 5 simulation: create full config
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-new-project '{
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-new-project '{
   "mode": "interactive",
   "granularity": "standard",
   "parallelization": true,
@@ -597,7 +597,7 @@ node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-new-p
 
 # Verify the file has all 12 expected keys
 echo "=== Generated config.json ==="
-cat "$TMP/.planning/config.json"
+cat "$TMP/.redpill/config.json"
 
 # Clean up
 rm -rf "$TMP"
@@ -611,12 +611,12 @@ Expected output: a config.json with `mode`, `granularity`, `model_profile`, `com
 TMP=$(mktemp -d)
 CHOICES='{"mode":"yolo","granularity":"coarse"}'
 
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-new-project "$CHOICES" --cwd "$TMP"
-FIRST=$(cat "$TMP/.planning/config.json")
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-new-project "$CHOICES" --cwd "$TMP"
+FIRST=$(cat "$TMP/.redpill/config.json")
 
 # Second call should be no-op
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-new-project "$CHOICES" --cwd "$TMP"
-SECOND=$(cat "$TMP/.planning/config.json")
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-new-project "$CHOICES" --cwd "$TMP"
+SECOND=$(cat "$TMP/.redpill/config.json")
 
 [ "$FIRST" = "$SECOND" ] && echo "IDEMPOTENT: OK" || echo "IDEMPOTENT: FAIL"
 rm -rf "$TMP"
@@ -628,17 +628,17 @@ Expected: `IDEMPOTENT: OK`
 
 ```bash
 TMP=$(mktemp -d)
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-new-project '{
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-new-project '{
   "mode":"yolo","granularity":"standard","parallelization":true,"commit_docs":true,
   "model_profile":"balanced",
   "workflow":{"research":true,"plan_check":false,"verifier":true,"nyquist_validation":true}
 }' --cwd "$TMP"
 
 # loadConfig should correctly read plan_check (nested as workflow.plan_check)
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-get workflow.plan_check --cwd "$TMP"
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-get workflow.plan_check --cwd "$TMP"
 # Expected: false
 
-node /Users/diego/Dev/get-shit-done/get-shit-done/bin/gsd-tools.cjs config-get git.branching_strategy --cwd "$TMP"
+node /Users/diego/Dev/redpill/redpill/bin/redpill-tools.cjs config-get git.branching_strategy --cwd "$TMP"
 # Expected: "none"
 
 rm -rf "$TMP"
@@ -661,7 +661,7 @@ Expected: All pass, 0 failures.
 feat: materialize all config defaults at new-project initialization
 
 **Problem:**
-`/gsd:new-project` creates `.planning/config.json` with only the 6 keys
+`/redpill:new-project` creates `.redpill/config.json` with only the 6 keys
 the user explicitly chose during onboarding. Five additional keys
 (`search_gitignored`, `brave_search`, `git.branching_strategy`,
 `git.phase_branch_template`, `git.milestone_branch_template`) are resolved
@@ -670,12 +670,12 @@ silently by `loadConfig()` at runtime but never written to disk.
 This creates two problems:
 1. **Discoverability**: users can't see or understand `git.branching_strategy`
    without reading source code — it doesn't appear in their config.
-2. **Implicit expansion**: the first time `/gsd:settings` or `config-set`
+2. **Implicit expansion**: the first time `/redpill:settings` or `config-set`
    writes to the config, those keys still aren't added. The config only
    reflects a fraction of the effective configuration.
 
 **Solution:**
-Add `config-new-project` CLI command to `gsd-tools.cjs`. The command:
+Add `config-new-project` CLI command to `redpill-tools.cjs`. The command:
 - Accepts user-chosen values as JSON
 - Merges them with all runtime defaults (including env-detected `brave_search`)
 - Writes the fully-materialized config in one shot
@@ -694,7 +694,7 @@ exactly one place: `buildNewProjectConfig()` in `config.cjs`.
 - No new user-facing flags
 
 **Why this improves discoverability:**
-A developer opening `.planning/config.json` for the first time can now see
+A developer opening `.redpill/config.json` for the first time can now see
 `git.branching_strategy: "none"` and immediately understand that branching
-is available and configurable, without reading the GSD source.
+is available and configurable, without reading the REDPILL source.
 ```

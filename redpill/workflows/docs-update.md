@@ -3,9 +3,9 @@ Generate, update, and verify all project documentation — both canonical doc ty
 </purpose>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-doc-writer — Writes and updates project documentation files
-- gsd-doc-verifier — Verifies factual claims in docs against the live codebase
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-doc-writer — Writes and updates project documentation files
+- redpill-doc-verifier — Verifies factual claims in docs against the live codebase
 </available_agent_types>
 
 <process>
@@ -14,9 +14,9 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 Load docs-update context:
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" docs-init)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" docs-init)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
-AGENT_SKILLS=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-doc-writer 2>/dev/null)
+AGENT_SKILLS=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-doc-writer 2>/dev/null)
 ```
 
 Extract from init JSON:
@@ -107,8 +107,8 @@ After assembling the canonical doc queue above, scan the `existing_docs` array f
 
 For each non-canonical existing doc found:
 - Add to a separate `review_queue`
-- These will be passed to gsd-doc-verifier in the verify_docs step for accuracy checking
-- If inaccuracies are found, they will be dispatched to gsd-doc-writer in `fix` mode for surgical corrections
+- These will be passed to redpill-doc-verifier in the verify_docs step for accuracy checking
+- If inaccuracies are found, they will be dispatched to redpill-doc-writer in `fix` mode for surgical corrections
 
 If non-canonical docs are found, display them in the queue presentation:
 
@@ -153,7 +153,7 @@ AskUserQuestion([{
 4. For each gap the user selects:
    - Add to the generation queue with mode = `"create"`
    - Set the output path to match the project's existing doc directory structure
-   - The gsd-doc-writer will receive a `doc_assignment` with `type: "custom"` and a description of what to document, using the project's source files as content discovery targets
+   - The redpill-doc-writer will receive a `doc_assignment` with `type: "custom"` and a description of what to document, using the project's source files as content discovery targets
 
 If no gaps are detected, omit this section entirely.
 
@@ -288,10 +288,10 @@ Track the resolved mode and file path for each queued doc. For update-mode docs,
 
 **CRITICAL: Persist the work manifest.**
 
-After resolve_modes completes, write ALL work items to `.planning/tmp/docs-work-manifest.json`. This is the single source of truth for every subsequent step — the orchestrator MUST read this file at each step instead of relying on memory.
+After resolve_modes completes, write ALL work items to `.redpill/tmp/docs-work-manifest.json`. This is the single source of truth for every subsequent step — the orchestrator MUST read this file at each step instead of relying on memory.
 
 ```bash
-mkdir -p .planning/tmp
+mkdir -p .redpill/tmp
 ```
 
 Write the manifest using the Write tool:
@@ -326,7 +326,7 @@ Write the manifest using the Write tool:
 }
 ```
 
-Every subsequent step (dispatch, collect, verify, fix_loop, report) MUST begin by reading `.planning/tmp/docs-work-manifest.json` and update the `status` field for items it processes. This prevents the orchestrator from "forgetting" any work item across the multi-step workflow.
+Every subsequent step (dispatch, collect, verify, fix_loop, report) MUST begin by reading `.redpill/tmp/docs-work-manifest.json` and update the `status` field for items it processes. This prevents the orchestrator from "forgetting" any work item across the multi-step workflow.
 </step>
 
 <step name="preservation_check">
@@ -343,7 +343,7 @@ Check for hand-written docs in the queue and gather user decisions before dispat
 Present the following choice using `AskUserQuestion` if available, or inline prompt otherwise:
 
 ```
-{filename} appears to be hand-written (no GSD marker found).
+{filename} appears to be hand-written (no REDPILL marker found).
 
 How should this file be handled?
   [1] preserve    -- Skip entirely. Leave unchanged.
@@ -369,9 +369,9 @@ After all decisions recorded, continue to detect_runtime_capabilities.
 <!-- If Task tool is unavailable at runtime, skip dispatch/collect waves and use sequential_generation instead. -->
 
 <step name="dispatch_wave_1" condition="Task tool is available">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — use `canonical_queue` items with `wave: 1` for this step.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — use `canonical_queue` items with `wave: 1` for this step.
 
-Spawn 3 parallel gsd-doc-writer agents for Wave 1 docs: README, ARCHITECTURE, CONFIGURATION.
+Spawn 3 parallel redpill-doc-writer agents for Wave 1 docs: README, ARCHITECTURE, CONFIGURATION.
 
 These are foundational docs with no cross-references needed, making them ideal for parallel generation.
 
@@ -381,7 +381,7 @@ Use `run_in_background=true` for all three to enable parallel execution.
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate README.md for target project",
@@ -403,7 +403,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate ARCHITECTURE.md for target project",
@@ -425,7 +425,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate CONFIGURATION.md for target project",
@@ -450,7 +450,7 @@ Continue to collect_wave_1.
 </step>
 
 <step name="collect_wave_1">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — update `status` to `"completed"` or `"failed"` for each Wave 1 item after collection. Write the updated manifest back to disk.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — update `status` to `"completed"` or `"failed"` for each Wave 1 item after collection. Write the updated manifest back to disk.
 
 Wait for all 3 Wave 1 agents to complete using the TaskOutput tool.
 
@@ -496,7 +496,7 @@ Continue to dispatch_wave_2.
 </step>
 
 <step name="dispatch_wave_2" condition="Task tool is available">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — use `canonical_queue` items with `wave: 2` for this step.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — use `canonical_queue` items with `wave: 2` for this step.
 
 Spawn agents for all queued Wave 2 docs: GETTING-STARTED, DEVELOPMENT, TESTING, and any conditional docs (API, DEPLOYMENT, CONTRIBUTING) that were queued in build_doc_queue.
 
@@ -508,7 +508,7 @@ Use `run_in_background=true` for all Wave 2 agents to enable parallel execution 
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate GETTING-STARTED.md for target project",
@@ -534,7 +534,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate DEVELOPMENT.md for target project",
@@ -560,7 +560,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate TESTING.md for target project",
@@ -586,7 +586,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate API.md for target project",
@@ -612,7 +612,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate DEPLOYMENT.md for target project",
@@ -639,7 +639,7 @@ Write the doc file directly. Return confirmation only — do not return doc cont
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate CONTRIBUTING.md for target project",
@@ -667,7 +667,7 @@ Continue to collect_wave_2.
 </step>
 
 <step name="collect_wave_2">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — update `status` to `"completed"` or `"failed"` for each Wave 2 item after collection. Write the updated manifest back to disk.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — update `status` to `"completed"` or `"failed"` for each Wave 2 item after collection. Write the updated manifest back to disk.
 
 Wait for all Wave 2 agents to complete using the TaskOutput tool.
 
@@ -722,11 +722,11 @@ Determine mode:
 - If `{package_dir}/README.md` exists: mode = `update`, read existing content
 - Else: mode = `create`
 
-Spawn a `gsd-doc-writer` agent with `run_in_background=true`:
+Spawn a `redpill-doc-writer` agent with `run_in_background=true`:
 
 ```
 Task(
-  subagent_type="gsd-doc-writer",
+  subagent_type="redpill-doc-writer",
   model="{doc_writer_model}",
   run_in_background=true,
   description="Generate per-package README for {package_dir}",
@@ -747,19 +747,19 @@ Write {package_dir}/README.md directly. Return confirmation only — do not retu
 
 Collect confirmations via TaskOutput for all package agents. Note failures in the final report.
 
-**Fallback when Task tool is unavailable:** Generate per-package READMEs sequentially inline after the `sequential_generation` step. For each package directory with a `package.json`, construct the equivalent `doc_assignment` block and generate the README following gsd-doc-writer instructions.
+**Fallback when Task tool is unavailable:** Generate per-package READMEs sequentially inline after the `sequential_generation` step. For each package directory with a `package.json`, construct the equivalent `doc_assignment` block and generate the README following redpill-doc-writer instructions.
 
 Continue to commit_docs.
 </step>
 
 <step name="sequential_generation" condition="Task tool is NOT available (e.g. Antigravity, Gemini CLI, Codex, Copilot)">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — use `canonical_queue` items for generation order. Update `status` after each doc is generated. Write the updated manifest back to disk after all docs are complete.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — use `canonical_queue` items for generation order. Update `status` after each doc is generated. Write the updated manifest back to disk after all docs are complete.
 
 When the `Task` tool is unavailable, generate docs sequentially in the current context. This step replaces dispatch_wave_1, collect_wave_1, dispatch_wave_2, and collect_wave_2.
 
 **IMPORTANT:** Do NOT use `browser_subagent`, `Explore`, or any browser-based tool. Use only file system tools (Read, Bash, Write, Grep, Glob, or equivalent tools available in your runtime).
 
-Read `agents/gsd-doc-writer.md` instructions once before beginning. Follow the create_mode or update_mode instructions from that agent for each doc, using the same doc_assignment fields as the parallel path.
+Read `agents/redpill-doc-writer.md` instructions once before beginning. Follow the create_mode or update_mode instructions from that agent for each doc, using the same doc_assignment fields as the parallel path.
 
 **Wave 1 (sequential — complete all three before starting Wave 2):**
 
@@ -767,18 +767,18 @@ For each Wave 1 doc, construct the equivalent doc_assignment block and generate 
 
 1. **README** — mode from resolve_modes; for update/supplement mode, include existing_content
    - Construct doc_assignment: `type: readme`, `mode: {create|update|supplement}`, `preservation_mode: {value|null}`, `project_context: {INIT JSON}`, `existing_content:` (if update/supplement)
-   - Explore the codebase (Read, Grep, Glob, Bash) following gsd-doc-writer create_mode / update_mode instructions
+   - Explore the codebase (Read, Grep, Glob, Bash) following redpill-doc-writer create_mode / update_mode instructions
    - Write the file to the resolved path (README.md)
 
 2. **ARCHITECTURE** — mode from resolve_modes; for update/supplement mode, include existing_content
    - Construct doc_assignment: `type: architecture`, `mode: {create|update|supplement}`, `preservation_mode: {value|null}`, `project_context: {INIT JSON}`, `existing_content:` (if update/supplement)
-   - Explore the codebase following gsd-doc-writer instructions
+   - Explore the codebase following redpill-doc-writer instructions
    - Write the file to the resolved path (docs/ARCHITECTURE.md, or ARCHITECTURE.md if found at root as fallback)
 
 3. **CONFIGURATION** — mode from resolve_modes; for update/supplement mode, include existing_content
    - Construct doc_assignment: `type: configuration`, `mode: {create|update|supplement}`, `preservation_mode: {value|null}`, `project_context: {INIT JSON}`, `existing_content:` (if update/supplement)
    - Apply VERIFY markers to any infrastructure claim not discoverable from the repository
-   - Explore the codebase following gsd-doc-writer instructions
+   - Explore the codebase following redpill-doc-writer instructions
    - Write the file to the resolved path (docs/CONFIGURATION.md, or CONFIGURATION.md if found at root as fallback)
 
 **Wave 2 (sequential — begin only after all Wave 1 docs are written):**
@@ -799,7 +799,7 @@ After all 9 root-level docs are written, generate per-package READMEs sequential
 For each resolved package directory (from workspace glob expansion) that contains a `package.json`:
 - Determine mode: if `{package_dir}/README.md` exists, mode = `update`; else mode = `create`
 - Construct doc_assignment: `type: readme`, `mode: {create|update}`, `scope: per_package`, `package_dir: {absolute path}`, `project_context: {INIT JSON with project_root set to package directory}`, `existing_content:` (if update)
-- Follow gsd-doc-writer instructions for per_package scope
+- Follow redpill-doc-writer instructions for per_package scope
 - Write the file to `{package_dir}/README.md`
 
 Continue to verify_docs.
@@ -811,7 +811,7 @@ Verify factual claims in ALL docs — both canonical (generated) and non-canonic
 **CRITICAL: Read the work manifest first.**
 
 ```
-Read .planning/tmp/docs-work-manifest.json
+Read .redpill/tmp/docs-work-manifest.json
 ```
 
 Extract `canonical_queue` (items with `status: "completed"`) and `review_queue` (items with `status: "pending_review"`). Both queues are verified in this step.
@@ -822,7 +822,7 @@ Extract `canonical_queue` (items with `status: "completed"`) and `review_queue` 
 
 For each doc in `canonical_queue` that was successfully written to disk:
 
-1. Spawn the `gsd-doc-verifier` agent (or invoke sequentially if Task tool is unavailable) with a `<verify_assignment>` block:
+1. Spawn the `redpill-doc-verifier` agent (or invoke sequentially if Task tool is unavailable) with a `<verify_assignment>` block:
    ```xml
    <verify_assignment>
    doc_path: {relative path to the doc file, e.g. README.md}
@@ -830,7 +830,7 @@ For each doc in `canonical_queue` that was successfully written to disk:
    </verify_assignment>
    ```
 
-2. After the verifier completes, read the result JSON from `.planning/tmp/verify-{doc_filename}.json`.
+2. After the verifier completes, read the result JSON from `.redpill/tmp/verify-{doc_filename}.json`.
 
 3. Update the manifest: set `status: "verified"` for each canonical doc processed.
 
@@ -840,11 +840,11 @@ This is NOT optional. Every doc in `review_queue` MUST be verified.
 
 For each doc in `review_queue` from the manifest:
 
-1. Spawn the `gsd-doc-verifier` agent with the same `<verify_assignment>` block as above.
-2. Read the result JSON from `.planning/tmp/verify-{doc_filename}.json`.
+1. Spawn the `redpill-doc-verifier` agent with the same `<verify_assignment>` block as above.
+2. Read the result JSON from `.redpill/tmp/verify-{doc_filename}.json`.
 3. Update the manifest: set `status: "verified"` for each review_queue doc processed.
 
-Non-canonical docs with failures ARE eligible for the fix_loop. When a non-canonical doc has `claims_failed > 0`, dispatch it to gsd-doc-writer in `fix` mode with the failures array — the writer's fix mode does surgical corrections on specific lines regardless of doc type (no template needed). The writer MUST NOT restructure, rephrase, or reformat any content beyond the failing claims.
+Non-canonical docs with failures ARE eligible for the fix_loop. When a non-canonical doc has `claims_failed > 0`, dispatch it to redpill-doc-writer in `fix` mode with the failures array — the writer's fix mode does surgical corrections on specific lines regardless of doc type (no template needed). The writer MUST NOT restructure, rephrase, or reformat any content beyond the failing claims.
 
 **Phase 3: Present combined verification summary**
 
@@ -877,7 +877,7 @@ If any doc (canonical OR non-canonical) has `claims_failed > 0`: continue to fix
 </step>
 
 <step name="fix_loop">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — identify ALL docs (canonical AND non-canonical) with `claims_failed > 0` from the verification results in `.planning/tmp/verify-*.json`. Both queues are eligible for fixes.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — identify ALL docs (canonical AND non-canonical) with `claims_failed > 0` from the verification results in `.redpill/tmp/verify-*.json`. Both queues are eligible for fixes.
 
 Correct flagged inaccuracies by re-sending failing docs to the doc-writer in fix mode. Per D-06, max 2 iterations. Per D-05, halt immediately on regression.
 
@@ -892,7 +892,7 @@ Correct flagged inaccuracies by re-sending failing docs to the doc-writer in fix
 
 1. For each doc with `claims_failed > 0` in the latest verification_results:
    a. Read the current file content from disk.
-   b. Spawn `gsd-doc-writer` agent (or invoke sequentially) with a fix assignment:
+   b. Spawn `redpill-doc-writer` agent (or invoke sequentially) with a fix assignment:
       ```xml
       <doc_assignment>
       type: {original doc type from the queue, e.g. readme}
@@ -911,7 +911,7 @@ Correct flagged inaccuracies by re-sending failing docs to the doc-writer in fix
 
 2. After all fix agents complete, re-verify ALL docs (not just the ones that were fixed):
    - Re-run the same verification process as verify_docs step.
-   - Read updated result JSONs from `.planning/tmp/verify-{doc_filename}.json`.
+   - Read updated result JSONs from `.redpill/tmp/verify-{doc_filename}.json`.
 
 3. **Regression detection (D-05):**
    For each doc in the new verification_results:
@@ -939,7 +939,7 @@ Fix loop completed ({MAX_FIX_ITERATIONS} iterations). Remaining failures:
 |-------------------|---------------|
 | {doc_path}        | {count}       |
 
-These failures require manual correction. Review the verification output in .planning/tmp/verify-*.json for details.
+These failures require manual correction. Review the verification output in .redpill/tmp/verify-*.json for details.
 ```
 
 Continue to scan_for_secrets.
@@ -948,17 +948,17 @@ Continue to scan_for_secrets.
 <step name="verify_only_report">
 **Reached when `--verify-only` is present in `$ARGUMENTS`.** This is an early-exit step — do not proceed to dispatch, generation, commit, or report steps after this step.
 
-Invoke the gsd-doc-verifier agent in read-only mode for each file in `existing_docs` from the init JSON:
+Invoke the redpill-doc-verifier agent in read-only mode for each file in `existing_docs` from the init JSON:
 
 1. For each doc in `existing_docs`:
-   a. Spawn `gsd-doc-verifier` (or invoke sequentially if Task tool is unavailable) with:
+   a. Spawn `redpill-doc-verifier` (or invoke sequentially if Task tool is unavailable) with:
       ```xml
       <verify_assignment>
       doc_path: {doc.path}
       project_root: {project_root from init JSON}
       </verify_assignment>
       ```
-   b. Read the result JSON from `.planning/tmp/verify-{doc_filename}.json`.
+   b. Read the result JSON from `.redpill/tmp/verify-{doc_filename}.json`.
 
 2. Also count VERIFY markers in each doc: grep for `<!-- VERIFY:` in the file content.
 
@@ -986,11 +986,11 @@ Failed claims:
 
 Display note:
 ```
-To fix failures automatically: /gsd:docs-update (runs generation + fix loop)
-To regenerate all docs from scratch: /gsd:docs-update --force
+To fix failures automatically: /redpill:docs-update (runs generation + fix loop)
+To regenerate all docs from scratch: /redpill:docs-update --force
 ```
 
-Clean up temp files: remove `.planning/tmp/verify-*.json` files.
+Clean up temp files: remove `.redpill/tmp/verify-*.json` files.
 
 End workflow — do not proceed to any dispatch, commit, or report steps.
 </step>
@@ -1022,7 +1022,7 @@ This would expose credentials if committed.
 Action required:
 1. Review the flagged lines above
 2. Remove any real secrets from the doc files
-3. Re-run /gsd:docs-update to regenerate clean docs
+3. Re-run /redpill:docs-update to regenerate clean docs
 ```
 
 Then confirm with AskUserQuestion:
@@ -1052,7 +1052,7 @@ Only run this step if `commit_docs` is `true` from the init JSON. If `commit_doc
 Assemble the list of files that were actually generated (do not include files that failed or were skipped):
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: generate project documentation" \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: generate project documentation" \
   --files README.md docs/ARCHITECTURE.md docs/CONFIGURATION.md docs/GETTING-STARTED.md docs/DEVELOPMENT.md docs/TESTING.md
 # Append any conditional docs that were generated:
 # --files ... docs/API.md docs/DEPLOYMENT.md CONTRIBUTING.md
@@ -1066,7 +1066,7 @@ Continue to report.
 </step>
 
 <step name="report">
-**Read the work manifest first:** `Read .planning/tmp/docs-work-manifest.json` — use the manifest to compile the complete report covering all canonical docs, review_queue results, and gap_queue results. The manifest is the source of truth for what was processed.
+**Read the work manifest first:** `Read .redpill/tmp/docs-work-manifest.json` — use the manifest to compile the complete report covering all canonical docs, review_queue results, and gap_queue results. The manifest is the source of truth for what was processed.
 
 Present a completion summary to the user.
 
@@ -1124,7 +1124,7 @@ All generated files committed.
 Remind the user they can fact-check generated docs:
 
 ```
-Run `/gsd:docs-update --verify-only` to fact-check generated docs against the codebase.
+Run `/redpill:docs-update --verify-only` to fact-check generated docs against the codebase.
 ```
 
 End workflow.
@@ -1139,15 +1139,15 @@ End workflow.
 - [ ] CHANGELOG.md was NOT generated or queued
 - [ ] Each doc was generated in correct mode (create for new, update for existing)
 - [ ] Wave 1 docs (README, ARCHITECTURE, CONFIGURATION) completed before Wave 2 started
-- [ ] Generated docs contain zero GSD methodology content
+- [ ] Generated docs contain zero REDPILL methodology content
 - [ ] docs/DEPLOYMENT.md and docs/CONFIGURATION.md use VERIFY markers for undiscoverable claims (if generated)
 - [ ] All generated files committed (if commit_docs is true)
-- [ ] Hand-written docs (no GSD marker) prompted for preserve/supplement/regenerate before dispatch (unless --force)
+- [ ] Hand-written docs (no REDPILL marker) prompted for preserve/supplement/regenerate before dispatch (unless --force)
 - [ ] --force flag skipped preservation prompts and regenerated all docs
 - [ ] --verify-only flag reported doc status without generating files
 - [ ] Per-package READMEs generated for monorepo workspaces (if applicable)
 - [ ] verify_docs step checked all generated docs against the live codebase
 - [ ] fix_loop ran at most 2 iterations and halted on regression
 - [ ] scan_for_secrets ran before commit and blocked on detected patterns
-- [ ] --verify-only invokes gsd-doc-verifier for full fact-checking (not just VERIFY marker count)
+- [ ] --verify-only invokes redpill-doc-verifier for full fact-checking (not just VERIFY marker count)
 </success_criteria>

@@ -1,5 +1,5 @@
 /**
- * GSD Forensics Tests
+ * REDPILL Forensics Tests
  *
  * Validates the forensics command and workflow files exist,
  * follow expected patterns, and cover all anomaly detection types.
@@ -22,7 +22,7 @@ describe('forensics command', () => {
 
   test('command has correct frontmatter', () => {
     const content = fs.readFileSync(commandPath, 'utf-8');
-    assert.ok(content.includes('name: gsd:forensics'), 'should have correct command name');
+    assert.ok(content.includes('name: redpill:forensics'), 'should have correct command name');
     assert.ok(content.includes('type: prompt'), 'should have type: prompt');
     assert.ok(content.includes('argument-hint'), 'should have argument-hint');
   });
@@ -109,8 +109,8 @@ describe('forensics workflow', () => {
   test('workflow writes report to forensics directory', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
     assert.ok(
-      content.includes('.planning/forensics/report-'),
-      'should write to .planning/forensics/'
+      content.includes('.redpill/forensics/report-'),
+      'should write to .redpill/forensics/'
     );
   });
 
@@ -198,14 +198,14 @@ describe('forensics fixture-based tests', () => {
 
   test('detects missing artifacts in phase structure', () => {
     // Phase 1: complete
-    const phase1 = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phase1 = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phase1, { recursive: true });
     fs.writeFileSync(path.join(phase1, '01-PLAN-A.md'), 'plan');
     fs.writeFileSync(path.join(phase1, '01-SUMMARY.md'), 'summary');
     fs.writeFileSync(path.join(phase1, '01-VERIFICATION.md'), 'verification');
 
     // Phase 2: missing SUMMARY and VERIFICATION (anomaly)
-    const phase2 = path.join(tmpDir, '.planning', 'phases', '02-core');
+    const phase2 = path.join(tmpDir, '.redpill', 'phases', '02-core');
     fs.mkdirSync(phase2, { recursive: true });
     fs.writeFileSync(path.join(phase2, '02-PLAN-A.md'), 'plan');
 
@@ -220,7 +220,7 @@ describe('forensics fixture-based tests', () => {
   });
 
   test('forensics report directory can be created', () => {
-    const forensicsDir = path.join(tmpDir, '.planning', 'forensics');
+    const forensicsDir = path.join(tmpDir, '.redpill', 'forensics');
     fs.mkdirSync(forensicsDir, { recursive: true });
     const reportPath = path.join(forensicsDir, 'report-20260321-150000.md');
     fs.writeFileSync(reportPath, '# Forensic Report\n');
@@ -231,12 +231,12 @@ describe('forensics fixture-based tests', () => {
   });
 
   test('handles project with no .planning directory', () => {
-    // No .planning/ at all
-    const planningExists = fs.existsSync(path.join(tmpDir, '.planning'));
-    assert.strictEqual(planningExists, false, 'no .planning/ should exist');
+    // No .redpill/ at all
+    const planningExists = fs.existsSync(path.join(tmpDir, '.redpill'));
+    assert.strictEqual(planningExists, false, 'no .redpill/ should exist');
 
     // Forensics should still work with git data
-    const forensicsDir = path.join(tmpDir, '.planning', 'forensics');
+    const forensicsDir = path.join(tmpDir, '.redpill', 'forensics');
     fs.mkdirSync(forensicsDir, { recursive: true });
     assert.ok(fs.existsSync(forensicsDir), 'forensics dir created on demand');
   });

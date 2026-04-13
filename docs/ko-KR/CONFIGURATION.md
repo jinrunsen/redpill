@@ -1,4 +1,4 @@
-# GSD 설정 레퍼런스
+# REDPILL 설정 레퍼런스
 
 > 전체 설정 스키마, 워크플로우 토글, 모델 프로필, git 브랜칭 옵션입니다. 기능에 대한 맥락은 [Feature Reference](FEATURES.md)를 참조하세요.
 
@@ -6,7 +6,7 @@
 
 ## 설정 파일
 
-GSD는 프로젝트 설정을 `.planning/config.json`에 저장합니다. `/gsd:new-project` 실행 시 생성되며 `/gsd:settings`를 통해 업데이트할 수 있습니다.
+GSD는 프로젝트 설정을 `.redpill/config.json`에 저장합니다. `/redpill:new-project` 실행 시 생성되며 `/redpill:settings`를 통해 업데이트할 수 있습니다.
 
 ### 전체 스키마
 
@@ -96,12 +96,12 @@ GSD는 프로젝트 설정을 `.planning/config.json`에 저장합니다. `/gsd:
 | `workflow.auto_advance` | boolean | `false` | discuss → plan → execute를 중단 없이 자동으로 연결 |
 | `workflow.nyquist_validation` | boolean | `true` | plan 단계 리서치 중 테스트 커버리지 매핑 |
 | `workflow.ui_phase` | boolean | `true` | 프론트엔드 단계를 위한 UI 디자인 계약서 생성 |
-| `workflow.ui_safety_gate` | boolean | `true` | plan 단계에서 프론트엔드 단계에 대해 /gsd:ui-phase 실행 여부 확인 |
+| `workflow.ui_safety_gate` | boolean | `true` | plan 단계에서 프론트엔드 단계에 대해 /redpill:ui-phase 실행 여부 확인 |
 | `workflow.node_repair` | boolean | `true` | 검증 실패 시 자율적 태스크 복구 |
 | `workflow.node_repair_budget` | number | `2` | 실패한 태스크당 최대 복구 시도 횟수 |
 | `workflow.research_before_questions` | boolean | `false` | 토론 질문 후가 아닌 전에 리서치 실행 |
-| `workflow.discuss_mode` | string | `'discuss'` | `/gsd:discuss-phase`의 컨텍스트 수집 방식을 제어합니다. `'discuss'` (기본값)는 질문을 하나씩 합니다. `'assumptions'`는 코드베이스를 먼저 읽고 신뢰도 수준이 있는 구조화된 가정을 생성하여 틀린 부분만 수정하도록 요청합니다. v1.28에서 추가 |
-| `workflow.skip_discuss` | boolean | `false` | `true`로 설정하면 `/gsd:autonomous`가 discuss 단계를 완전히 건너뛰고 ROADMAP 단계 목표로부터 최소한의 CONTEXT.md를 작성합니다. 개발자 선호사항이 PROJECT.md/REQUIREMENTS.md에 모두 캡처된 프로젝트에 유용합니다. v1.28에서 추가 |
+| `workflow.discuss_mode` | string | `'discuss'` | `/redpill:discuss-phase`의 컨텍스트 수집 방식을 제어합니다. `'discuss'` (기본값)는 질문을 하나씩 합니다. `'assumptions'`는 코드베이스를 먼저 읽고 신뢰도 수준이 있는 구조화된 가정을 생성하여 틀린 부분만 수정하도록 요청합니다. v1.28에서 추가 |
+| `workflow.skip_discuss` | boolean | `false` | `true`로 설정하면 `/redpill:autonomous`가 discuss 단계를 완전히 건너뛰고 ROADMAP 단계 목표로부터 최소한의 CONTEXT.md를 작성합니다. 개발자 선호사항이 PROJECT.md/REQUIREMENTS.md에 모두 캡처된 프로젝트에 유용합니다. v1.28에서 추가 |
 | `workflow.text_mode` | boolean | `false` | AskUserQuestion TUI 메뉴를 일반 텍스트 번호 목록으로 대체합니다. TUI 메뉴가 렌더링되지 않는 Claude Code 원격 세션 (`/rc` 모드)에 필요합니다. discuss 단계에서 `--text` 플래그로 세션별 설정도 가능합니다. v1.28에서 추가 |
 
 ### 권장 프리셋
@@ -118,12 +118,12 @@ GSD는 프로젝트 설정을 `.planning/config.json`에 저장합니다. `/gsd:
 
 | 설정 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
-| `planning.commit_docs` | boolean | `true` | `.planning/` 파일을 git에 커밋할지 여부 |
-| `planning.search_gitignored` | boolean | `false` | 광범위한 검색에 `--no-ignore`를 추가하여 `.planning/`을 포함 |
+| `planning.commit_docs` | boolean | `true` | `.redpill/` 파일을 git에 커밋할지 여부 |
+| `planning.search_gitignored` | boolean | `false` | 광범위한 검색에 `--no-ignore`를 추가하여 `.redpill/`을 포함 |
 
 ### 자동 감지
 
-`.planning/`이 `.gitignore`에 포함되어 있으면 config.json 설정과 무관하게 `commit_docs`가 자동으로 `false`로 설정됩니다. 이는 git 오류를 방지합니다.
+`.redpill/`이 `.gitignore`에 포함되어 있으면 config.json 설정과 무관하게 `commit_docs`가 자동으로 `false`로 설정됩니다. 이는 git 오류를 방지합니다.
 
 ---
 
@@ -132,17 +132,17 @@ GSD는 프로젝트 설정을 `.planning/config.json`에 저장합니다. `/gsd:
 | 설정 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
 | `hooks.context_warnings` | boolean | `true` | context monitor 훅을 통해 컨텍스트 윈도우 사용 경고 표시 |
-| `hooks.workflow_guard` | boolean | `false` | GSD 워크플로우 컨텍스트 밖에서 파일 편집이 발생할 때 경고 ((`/gsd:quick` 또는 `/gsd:fast` 사용 권고)) |
+| `hooks.workflow_guard` | boolean | `false` | REDPILL 워크플로우 컨텍스트 밖에서 파일 편집이 발생할 때 경고 ((`/redpill:quick` 또는 `/redpill:fast` 사용 권고)) |
 
-프롬프트 주입 방지 훅 (`gsd-prompt-guard.js`)은 항상 활성화되며 비활성화할 수 없습니다. 워크플로우 토글이 아닌 보안 기능입니다.
+프롬프트 주입 방지 훅 (`redpill-prompt-guard.js`)은 항상 활성화되며 비활성화할 수 없습니다. 워크플로우 토글이 아닌 보안 기능입니다.
 
 ### 플래닝 비공개 설정
 
 플래닝 아티팩트를 git에서 제외하려면 다음과 같이 설정합니다.
 
 1. `planning.commit_docs: false` 및 `planning.search_gitignored: true` 설정
-2. `.planning/`을 `.gitignore`에 추가
-3. 이미 추적 중인 경우: `git rm -r --cached .planning/ && git commit -m "chore: stop tracking planning docs"`
+2. `.redpill/`을 `.gitignore`에 추가
+3. 이미 추적 중인 경우: `git rm -r --cached .redpill/ && git commit -m "chore: stop tracking planning docs"`
 
 ---
 
@@ -168,7 +168,7 @@ GSD는 프로젝트 설정을 `.planning/config.json`에 저장합니다. `/gsd:
 | `git.branching_strategy` | enum | `none` | `none`, `phase`, 또는 `milestone` |
 | `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | phase 전략의 브랜치 이름 템플릿 |
 | `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | milestone 전략의 브랜치 이름 템플릿 |
-| `git.quick_branch_template` | string 또는 null | `null` | `/gsd:quick` 태스크를 위한 선택적 브랜치 이름 템플릿 |
+| `git.quick_branch_template` | string 또는 null | `null` | `/redpill:quick` 태스크를 위한 선택적 브랜치 이름 템플릿 |
 
 ### 전략 비교
 
@@ -246,18 +246,18 @@ quick 태스크 브랜칭 예시:
 
 | 에이전트 | `quality` | `balanced` | `budget` | `inherit` |
 |---------|-----------|------------|----------|-----------|
-| gsd-planner | Opus | Opus | Sonnet | Inherit |
-| gsd-roadmapper | Opus | Sonnet | Sonnet | Inherit |
-| gsd-executor | Opus | Sonnet | Sonnet | Inherit |
-| gsd-phase-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-project-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-debugger | Opus | Sonnet | Sonnet | Inherit |
-| gsd-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
-| gsd-verifier | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-planner | Opus | Opus | Sonnet | Inherit |
+| redpill-roadmapper | Opus | Sonnet | Sonnet | Inherit |
+| redpill-executor | Opus | Sonnet | Sonnet | Inherit |
+| redpill-phase-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-project-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-debugger | Opus | Sonnet | Sonnet | Inherit |
+| redpill-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
+| redpill-verifier | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
 
 ### 에이전트별 재정의
 
@@ -267,8 +267,8 @@ quick 태스크 브랜칭 예시:
 {
   "model_profile": "balanced",
   "model_overrides": {
-    "gsd-executor": "opus",
-    "gsd-planner": "haiku"
+    "redpill-executor": "opus",
+    "redpill-planner": "haiku"
   }
 }
 ```
@@ -285,10 +285,10 @@ quick 태스크 브랜칭 예시:
 {
   "resolve_model_ids": "omit",
   "model_overrides": {
-    "gsd-planner": "o3",
-    "gsd-executor": "o4-mini",
-    "gsd-debugger": "o3",
-    "gsd-codebase-mapper": "o4-mini"
+    "redpill-planner": "o3",
+    "redpill-executor": "o4-mini",
+    "redpill-debugger": "o3",
+    "redpill-codebase-mapper": "o4-mini"
   }
 }
 ```
@@ -339,4 +339,4 @@ quick 태스크 브랜칭 예시:
 
 **위치:** `~/.gsd/defaults.json`
 
-`/gsd:new-project`가 새 `config.json`을 생성할 때 전역 기본값을 읽어 초기 설정으로 병합합니다. 프로젝트별 설정은 항상 전역 설정보다 우선합니다.
+`/redpill:new-project`가 새 `config.json`을 생성할 때 전역 기본값을 읽어 초기 설정으로 병합합니다. 프로젝트별 설정은 항상 전역 설정보다 우선합니다.

@@ -7,7 +7,7 @@ Para API completa (assinaturas, argumentos e comportamento detalhado), consulte 
 
 ## Objetivo
 
-As ferramentas CLI permitem que comandos e agentes do GSD executem ações padronizadas de:
+As ferramentas CLI permitem que comandos e agentes do REDPILL executem ações padronizadas de:
 
 - leitura e escrita de artefatos
 - gerenciamento de fases e roadmap

@@ -1,5 +1,5 @@
 ---
-name: gsd:review
+name: redpill:review
 description: Request cross-AI peer review of phase plans from external AI CLIs
 argument-hint: "--phase N [--gemini] [--claude] [--codex] [--opencode] [--all]"
 allowed-tools:
@@ -13,13 +13,13 @@ allowed-tools:
 <objective>
 Invoke external AI CLIs (Gemini, Claude, Codex, OpenCode) to independently review phase plans.
 Produces a structured REVIEWS.md with per-reviewer feedback that can be fed back into
-planning via /gsd:plan-phase --reviews.
+planning via /redpill:plan-phase --reviews.
 
 **Flow:** Detect CLIs → Build review prompt → Invoke each CLI → Collect responses → Write REVIEWS.md
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/review.md
+@~/.claude/redpill/workflows/review.md
 </execution_context>
 
 <context>
@@ -34,5 +34,5 @@ Phase number: extracted from $ARGUMENTS (required)
 </context>
 
 <process>
-Execute the review workflow from @~/.claude/get-shit-done/workflows/review.md end-to-end.
+Execute the review workflow from @~/.claude/redpill/workflows/review.md end-to-end.
 </process>

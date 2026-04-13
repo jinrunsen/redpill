@@ -10,9 +10,9 @@
 
 [**English**](README.md) | [**Português**](README.pt-BR.md) | [**简体中文**](docs/zh-CN/README.md) | [**日本語**](docs/ja-JP/README.md)
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/get-shit-done/actions/workflows/test.yml)
+[![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
 [![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
@@ -22,7 +22,7 @@
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 **Mac、Windows、Linuxで動作します。**
@@ -82,7 +82,7 @@ GSDはそれを解決します。Claude Codeを信頼性の高いものにする
 ## はじめに
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 インストーラーが以下の選択を求めます：
@@ -90,11 +90,11 @@ npx get-shit-done-cc@latest
 2. **インストール先** — グローバル（全プロジェクト）またはローカル（現在のプロジェクトのみ）
 
 確認方法：
-- Claude Code / Gemini: `/gsd:help`
+- Claude Code / Gemini: `/redpill:help`
 - OpenCode: `/gsd-help`
 - Codex: `$gsd-help`
-- Copilot: `/gsd:help`
-- Antigravity: `/gsd:help`
+- Copilot: `/redpill:help`
+- Antigravity: `/redpill:help`
 
 > [!NOTE]
 > Codexのインストールでは、カスタムプロンプトではなくスキル（`skills/gsd-*/SKILL.md`）を使用します。
@@ -104,7 +104,7 @@ npx get-shit-done-cc@latest
 GSDは急速に進化しています。定期的にアップデートしてください：
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 <details>
@@ -112,33 +112,33 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global   # ~/.claude/ にインストール
-npx get-shit-done-cc --claude --local    # ./.claude/ にインストール
+npx redpill-cc --claude --global   # ~/.claude/ にインストール
+npx redpill-cc --claude --local    # ./.claude/ にインストール
 
 # OpenCode（オープンソース、無料モデル）
-npx get-shit-done-cc --opencode --global # ~/.config/opencode/ にインストール
+npx redpill-cc --opencode --global # ~/.config/opencode/ にインストール
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global   # ~/.gemini/ にインストール
+npx redpill-cc --gemini --global   # ~/.gemini/ にインストール
 
 # Codex（スキルファースト）
-npx get-shit-done-cc --codex --global    # ~/.codex/ にインストール
-npx get-shit-done-cc --codex --local     # ./.codex/ にインストール
+npx redpill-cc --codex --global    # ~/.codex/ にインストール
+npx redpill-cc --codex --local     # ./.codex/ にインストール
 
 # Copilot（GitHub Copilot CLI）
-npx get-shit-done-cc --copilot --global  # ~/.github/ にインストール
-npx get-shit-done-cc --copilot --local   # ./.github/ にインストール
+npx redpill-cc --copilot --global  # ~/.github/ にインストール
+npx redpill-cc --copilot --local   # ./.github/ にインストール
 
 # Cursor CLI
-npx get-shit-done-cc --cursor --global      # ~/.cursor/ にインストール
-npx get-shit-done-cc --cursor --local       # ./.cursor/ にインストール
+npx redpill-cc --cursor --global      # ~/.cursor/ にインストール
+npx redpill-cc --cursor --local       # ./.cursor/ にインストール
 
 # Antigravity（Google、スキルファースト、Geminiベース）
-npx get-shit-done-cc --antigravity --global # ~/.gemini/antigravity/ にインストール
-npx get-shit-done-cc --antigravity --local  # ./.agent/ にインストール
+npx redpill-cc --antigravity --global # ~/.gemini/antigravity/ にインストール
+npx redpill-cc --antigravity --local  # ./.agent/ にインストール
 
 # 全ランタイム
-npx get-shit-done-cc --all --global      # すべてのディレクトリにインストール
+npx redpill-cc --all --global      # すべてのディレクトリにインストール
 ```
 
 `--global`（`-g`）または `--local`（`-l`）でインストール先の質問をスキップできます。
@@ -209,12 +209,12 @@ claude --dangerously-skip-permissions
 
 ## 仕組み
 
-> **既存のコードがある場合は？** まず `/gsd:map-codebase` を実行してください。並列エージェントが起動し、スタック、アーキテクチャ、規約、懸念点を分析します。その後 `/gsd:new-project` がコードベースを把握した状態で動作し、質問は追加する内容に焦点を当て、計画時にはパターンが自動的に読み込まれます。
+> **既存のコードがある場合は？** まず `/redpill:map-codebase` を実行してください。並列エージェントが起動し、スタック、アーキテクチャ、規約、懸念点を分析します。その後 `/redpill:new-project` がコードベースを把握した状態で動作し、質問は追加する内容に焦点を当て、計画時にはパターンが自動的に読み込まれます。
 
 ### 1. プロジェクトの初期化
 
 ```
-/gsd:new-project
+/redpill:new-project
 ```
 
 1つのコマンド、1つのフロー。システムが以下を行います：
@@ -226,14 +226,14 @@ claude --dangerously-skip-permissions
 
 ロードマップを承認します。これでビルドの準備が整いました。
 
-**作成されるファイル：** `PROJECT.md`、`REQUIREMENTS.md`、`ROADMAP.md`、`STATE.md`、`.planning/research/`
+**作成されるファイル：** `PROJECT.md`、`REQUIREMENTS.md`、`ROADMAP.md`、`STATE.md`、`.redpill/research/`
 
 ---
 
 ### 2. フェーズの議論
 
 ```
-/gsd:discuss-phase 1
+/redpill:discuss-phase 1
 ```
 
 **ここで実装の方向性を決めます。**
@@ -256,14 +256,14 @@ claude --dangerously-skip-permissions
 
 **作成されるファイル：** `{phase_num}-CONTEXT.md`
 
-> **前提モード：** 質問よりもコードベース分析を優先したい場合は、`/gsd:settings` で `workflow.discuss_mode` を `assumptions` に設定してください。システムがコードを読み、何をなぜそうするかを提示し、間違っている部分だけ修正を求めます。詳しくは[ディスカスモード](docs/ja-JP/workflow-discuss-mode.md)をご覧ください。
+> **前提モード：** 質問よりもコードベース分析を優先したい場合は、`/redpill:settings` で `workflow.discuss_mode` を `assumptions` に設定してください。システムがコードを読み、何をなぜそうするかを提示し、間違っている部分だけ修正を求めます。詳しくは[ディスカスモード](docs/ja-JP/workflow-discuss-mode.md)をご覧ください。
 
 ---
 
 ### 3. フェーズの計画
 
 ```
-/gsd:plan-phase 1
+/redpill:plan-phase 1
 ```
 
 システムが以下を行います：
@@ -281,7 +281,7 @@ claude --dangerously-skip-permissions
 ### 4. フェーズの実行
 
 ```
-/gsd:execute-phase 1
+/redpill:execute-phase 1
 ```
 
 システムが以下を行います：
@@ -332,7 +332,7 @@ claude --dangerously-skip-permissions
 ### 5. 作業の検証
 
 ```
-/gsd:verify-work 1
+/redpill:verify-work 1
 ```
 
 **ここで実際に動作するか確認します。**
@@ -346,7 +346,7 @@ claude --dangerously-skip-permissions
 3. **障害を自動診断** — デバッグエージェントが起動し根本原因を特定
 4. **検証済みの修正プランを作成** — 即座に再実行可能
 
-すべてパスすれば次に進みます。何か壊れていれば、手動でデバッグする必要はありません — 作成された修正プランで `/gsd:execute-phase` を再度実行するだけです。
+すべてパスすれば次に進みます。何か壊れていれば、手動でデバッグする必要はありません — 作成された修正プランで `/redpill:execute-phase` を再度実行するだけです。
 
 **作成されるファイル：** `{phase_num}-UAT.md`、問題が見つかった場合は修正プラン
 
@@ -355,38 +355,38 @@ claude --dangerously-skip-permissions
 ### 6. 繰り返し → シップ → 完了 → 次のマイルストーン
 
 ```
-/gsd:discuss-phase 2
-/gsd:plan-phase 2
-/gsd:execute-phase 2
-/gsd:verify-work 2
-/gsd:ship 2                  # 検証済みの作業からPRを作成
+/redpill:discuss-phase 2
+/redpill:plan-phase 2
+/redpill:execute-phase 2
+/redpill:verify-work 2
+/redpill:ship 2                  # 検証済みの作業からPRを作成
 ...
-/gsd:complete-milestone
-/gsd:new-milestone
+/redpill:complete-milestone
+/redpill:new-milestone
 ```
 
 またはGSDに次のステップを自動判定させます：
 
 ```
-/gsd:next                    # 次のステップを自動検出して実行
+/redpill:next                    # 次のステップを自動検出して実行
 ```
 
 **discuss → plan → execute → verify → ship** のループをマイルストーン完了まで繰り返します。
 
-ディスカッション中のインプットを速くしたい場合は、`/gsd:discuss-phase <n> --batch` で1つずつではなく小さなグループにまとめた質問に一括で回答できます。`--chain` を使うと、ディスカッションからプラン+実行まで途中で止まらずに自動チェインできます。
+ディスカッション中のインプットを速くしたい場合は、`/redpill:discuss-phase <n> --batch` で1つずつではなく小さなグループにまとめた質問に一括で回答できます。`--chain` を使うと、ディスカッションからプラン+実行まで途中で止まらずに自動チェインできます。
 
 各フェーズであなたのインプット（discuss）、適切なリサーチ（plan）、クリーンな実行（execute）、人間による検証（verify）が行われます。コンテキストは常にフレッシュ。品質は常に高い。
 
-すべてのフェーズが完了したら、`/gsd:complete-milestone` でマイルストーンをアーカイブしリリースをタグ付けします。
+すべてのフェーズが完了したら、`/redpill:complete-milestone` でマイルストーンをアーカイブしリリースをタグ付けします。
 
-次に `/gsd:new-milestone` で次のバージョンを開始します — `new-project` と同じフローですが既存のコードベース向けです。次に構築したいものを説明し、システムがドメインを調査し、要件をスコーピングし、新しいロードマップを作成します。各マイルストーンはクリーンなサイクルです：定義 → 構築 → シップ。
+次に `/redpill:new-milestone` で次のバージョンを開始します — `new-project` と同じフローですが既存のコードベース向けです。次に構築したいものを説明し、システムがドメインを調査し、要件をスコーピングし、新しいロードマップを作成します。各マイルストーンはクリーンなサイクルです：定義 → 構築 → シップ。
 
 ---
 
 ### クイックモード
 
 ```
-/gsd:quick
+/redpill:quick
 ```
 
 **フル計画が不要なアドホックタスク向け。**
@@ -395,7 +395,7 @@ claude --dangerously-skip-permissions
 
 - **同じエージェント** — プランナー + エグゼキューター、同じ品質
 - **オプションステップをスキップ** — デフォルトではリサーチ、プランチェッカー、ベリファイアなし
-- **別トラッキング** — `.planning/quick/` に保存、フェーズとは別管理
+- **別トラッキング** — `.redpill/quick/` に保存、フェーズとは別管理
 
 **`--discuss` フラグ：** 計画前にグレーゾーンを洗い出す軽量ディスカッション。
 
@@ -408,11 +408,11 @@ claude --dangerously-skip-permissions
 フラグは組み合わせ可能：`--discuss --research --validate` でディスカッション + リサーチ + プランチェック + 検証が行われます。
 
 ```
-/gsd:quick
+/redpill:quick
 > What do you want to do? "Add dark mode toggle to settings"
 ```
 
-**作成されるファイル：** `.planning/quick/001-add-dark-mode-toggle/PLAN.md`、`SUMMARY.md`
+**作成されるファイル：** `.redpill/quick/001-add-dark-mode-toggle/PLAN.md`、`SUMMARY.md`
 
 ---
 
@@ -510,117 +510,117 @@ lmn012o feat(08-02): create registration endpoint
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:new-project [--auto]` | フル初期化：質問 → リサーチ → 要件定義 → ロードマップ |
-| `/gsd:discuss-phase [N] [--auto] [--analyze] [--chain]` | 計画前に実装の決定事項をキャプチャ（`--analyze` でトレードオフ分析を追加、`--chain` でプラン+実行へ自動チェイン） |
-| `/gsd:plan-phase [N] [--auto] [--reviews]` | フェーズのリサーチ + プラン + 検証（`--reviews` でコードベースレビューの発見事項を読み込み） |
-| `/gsd:execute-phase <N>` | 全プランを並列ウェーブで実行し、完了時に検証 |
-| `/gsd:verify-work [N]` | 手動ユーザー受入テスト ¹ |
-| `/gsd:ship [N] [--draft]` | 検証済みのフェーズ作業から自動生成された本文付きのPRを作成 |
-| `/gsd:next` | 次の論理的なワークフローステップに自動的に進む |
-| `/gsd:fast <text>` | インラインの軽微タスク — 計画を完全にスキップし即座に実行 |
-| `/gsd:audit-milestone` | マイルストーンが完了の定義を達成したか検証 |
-| `/gsd:complete-milestone` | マイルストーンをアーカイブし、リリースをタグ付け |
-| `/gsd:new-milestone [name]` | 次のバージョンを開始：質問 → リサーチ → 要件定義 → ロードマップ |
-| `/gsd:forensics [desc]` | 失敗したワークフロー実行の事後分析（停止ループ、欠落成果物、git異常の診断） |
-| `/gsd:milestone-summary [version]` | チームオンボーディングとレビュー向けの包括的なプロジェクトサマリーを生成 |
+| `/redpill:new-project [--auto]` | フル初期化：質問 → リサーチ → 要件定義 → ロードマップ |
+| `/redpill:discuss-phase [N] [--auto] [--analyze] [--chain]` | 計画前に実装の決定事項をキャプチャ（`--analyze` でトレードオフ分析を追加、`--chain` でプラン+実行へ自動チェイン） |
+| `/redpill:plan-phase [N] [--auto] [--reviews]` | フェーズのリサーチ + プラン + 検証（`--reviews` でコードベースレビューの発見事項を読み込み） |
+| `/redpill:execute-phase <N>` | 全プランを並列ウェーブで実行し、完了時に検証 |
+| `/redpill:verify-work [N]` | 手動ユーザー受入テスト ¹ |
+| `/redpill:ship [N] [--draft]` | 検証済みのフェーズ作業から自動生成された本文付きのPRを作成 |
+| `/redpill:next` | 次の論理的なワークフローステップに自動的に進む |
+| `/redpill:fast <text>` | インラインの軽微タスク — 計画を完全にスキップし即座に実行 |
+| `/redpill:audit-milestone` | マイルストーンが完了の定義を達成したか検証 |
+| `/redpill:complete-milestone` | マイルストーンをアーカイブし、リリースをタグ付け |
+| `/redpill:new-milestone [name]` | 次のバージョンを開始：質問 → リサーチ → 要件定義 → ロードマップ |
+| `/redpill:forensics [desc]` | 失敗したワークフロー実行の事後分析（停止ループ、欠落成果物、git異常の診断） |
+| `/redpill:milestone-summary [version]` | チームオンボーディングとレビュー向けの包括的なプロジェクトサマリーを生成 |
 
 ### ワークストリーム
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:workstreams list` | 全ワークストリームとそのステータスを表示 |
-| `/gsd:workstreams create <name>` | 並列マイルストーン作業用の名前空間付きワークストリームを作成 |
-| `/gsd:workstreams switch <name>` | アクティブなワークストリームを切り替え |
-| `/gsd:workstreams complete <name>` | ワークストリームを完了しマージ |
+| `/redpill:workstreams list` | 全ワークストリームとそのステータスを表示 |
+| `/redpill:workstreams create <name>` | 並列マイルストーン作業用の名前空間付きワークストリームを作成 |
+| `/redpill:workstreams switch <name>` | アクティブなワークストリームを切り替え |
+| `/redpill:workstreams complete <name>` | ワークストリームを完了しマージ |
 
 ### マルチプロジェクトワークスペース
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:new-workspace` | リポジトリのコピー（worktreeまたはクローン）で隔離されたワークスペースを作成 |
-| `/gsd:list-workspaces` | すべてのGSDワークスペースとそのステータスを表示 |
-| `/gsd:remove-workspace` | ワークスペースを削除しworktreeをクリーンアップ |
+| `/redpill:new-workspace` | リポジトリのコピー（worktreeまたはクローン）で隔離されたワークスペースを作成 |
+| `/redpill:list-workspaces` | すべてのGSDワークスペースとそのステータスを表示 |
+| `/redpill:remove-workspace` | ワークスペースを削除しworktreeをクリーンアップ |
 
 ### UIデザイン
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:ui-phase [N]` | フロントエンドフェーズ用のUIデザイン契約（UI-SPEC.md）を生成 |
-| `/gsd:ui-review [N]` | 実装済みフロントエンドコードの6つの柱によるビジュアル監査（遡及的） |
+| `/redpill:ui-phase [N]` | フロントエンドフェーズ用のUIデザイン契約（UI-SPEC.md）を生成 |
+| `/redpill:ui-review [N]` | 実装済みフロントエンドコードの6つの柱によるビジュアル監査（遡及的） |
 
 ### ナビゲーション
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:progress` | 今どこにいる？次は何？ |
-| `/gsd:next` | 状態を自動検出し次のステップを実行 |
-| `/gsd:help` | 全コマンドと使い方ガイドを表示 |
-| `/gsd:update` | チェンジログプレビュー付きでGSDをアップデート |
-| `/gsd:join-discord` | GSD Discordコミュニティに参加 |
-| `/gsd:manager` | 複数フェーズ管理用のインタラクティブコマンドセンター |
+| `/redpill:progress` | 今どこにいる？次は何？ |
+| `/redpill:next` | 状態を自動検出し次のステップを実行 |
+| `/redpill:help` | 全コマンドと使い方ガイドを表示 |
+| `/redpill:update` | チェンジログプレビュー付きでGSDをアップデート |
+| `/redpill:join-discord` | REDPILL Discordコミュニティに参加 |
+| `/redpill:manager` | 複数フェーズ管理用のインタラクティブコマンドセンター |
 
 ### ブラウンフィールド
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:map-codebase [area]` | new-project前に既存のコードベースを分析 |
+| `/redpill:map-codebase [area]` | new-project前に既存のコードベースを分析 |
 
 ### フェーズ管理
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:add-phase` | ロードマップにフェーズを追加 |
-| `/gsd:insert-phase [N]` | フェーズ間に緊急作業を挿入 |
-| `/gsd:remove-phase [N]` | 将来のフェーズを削除し番号を振り直し |
-| `/gsd:list-phase-assumptions [N]` | 計画前にClaudeの意図するアプローチを確認 |
-| `/gsd:plan-milestone-gaps` | 監査で見つかったギャップを埋めるフェーズを作成 |
+| `/redpill:add-phase` | ロードマップにフェーズを追加 |
+| `/redpill:insert-phase [N]` | フェーズ間に緊急作業を挿入 |
+| `/redpill:remove-phase [N]` | 将来のフェーズを削除し番号を振り直し |
+| `/redpill:list-phase-assumptions [N]` | 計画前にClaudeの意図するアプローチを確認 |
+| `/redpill:plan-milestone-gaps` | 監査で見つかったギャップを埋めるフェーズを作成 |
 
 ### セッション
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:pause-work` | フェーズ途中で停止する際の引き継ぎを作成（HANDOFF.jsonを書き込み） |
-| `/gsd:resume-work` | 前回のセッションから復元 |
-| `/gsd:session-report` | 実行した作業と結果のセッションサマリーを生成 |
+| `/redpill:pause-work` | フェーズ途中で停止する際の引き継ぎを作成（HANDOFF.jsonを書き込み） |
+| `/redpill:resume-work` | 前回のセッションから復元 |
+| `/redpill:session-report` | 実行した作業と結果のセッションサマリーを生成 |
 
 ### ワークストリーム
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:workstreams` | 並列ワークストリームを管理（list、create、switch、status、progress、complete） |
+| `/redpill:workstreams` | 並列ワークストリームを管理（list、create、switch、status、progress、complete） |
 
 ### コード品質
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:review` | 現在のフェーズまたはブランチのクロスAIピアレビュー |
-| `/gsd:pr-branch` | `.planning/` コミットをフィルタリングしたクリーンなPRブランチを作成 |
-| `/gsd:audit-uat` | 検証負債を監査 — UATが未実施のフェーズを検出 |
+| `/redpill:review` | 現在のフェーズまたはブランチのクロスAIピアレビュー |
+| `/redpill:pr-branch` | `.redpill/` コミットをフィルタリングしたクリーンなPRブランチを作成 |
+| `/redpill:audit-uat` | 検証負債を監査 — UATが未実施のフェーズを検出 |
 
 ### バックログ & スレッド
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:plant-seed <idea>` | トリガー条件付きの将来志向のアイデアをキャプチャ — 適切なマイルストーンで浮上 |
-| `/gsd:add-backlog <desc>` | バックログのパーキングロットにアイデアを追加（999.xナンバリング、アクティブシーケンス外） |
-| `/gsd:review-backlog` | バックログ項目をレビューし、アクティブマイルストーンに昇格またはstaleエントリを削除 |
-| `/gsd:thread [name]` | 永続コンテキストスレッド — 複数セッションにまたがる作業用の軽量クロスセッション知識 |
+| `/redpill:plant-seed <idea>` | トリガー条件付きの将来志向のアイデアをキャプチャ — 適切なマイルストーンで浮上 |
+| `/redpill:add-backlog <desc>` | バックログのパーキングロットにアイデアを追加（999.xナンバリング、アクティブシーケンス外） |
+| `/redpill:review-backlog` | バックログ項目をレビューし、アクティブマイルストーンに昇格またはstaleエントリを削除 |
+| `/redpill:thread [name]` | 永続コンテキストスレッド — 複数セッションにまたがる作業用の軽量クロスセッション知識 |
 
 ### ユーティリティ
 
 | コマンド | 説明 |
 |---------|--------------|
-| `/gsd:settings` | モデルプロファイルとワークフローエージェントを設定 |
-| `/gsd:set-profile <profile>` | モデルプロファイルを切り替え（quality/balanced/budget/inherit） |
-| `/gsd:add-todo [desc]` | 後で取り組むアイデアをキャプチャ |
-| `/gsd:check-todos` | 保留中のtodoを一覧表示 |
-| `/gsd:debug [desc]` | 永続状態を持つ体系的デバッグ |
-| `/gsd:do <text>` | フリーフォームテキストを適切なGSDコマンドに自動ルーティング |
-| `/gsd:note <text>` | ゼロフリクションのアイデアキャプチャ — ノートの追加、一覧、todoへの昇格 |
-| `/gsd:quick [--full] [--discuss] [--research]` | GSDの保証付きでアドホックタスクを実行（`--full` で全フェーズを有効化、`--discuss` で事前にコンテキストを収集、`--research` で計画前にアプローチを調査） |
-| `/gsd:health [--repair]` | `.planning/` ディレクトリの整合性を検証、`--repair` で自動修復 |
-| `/gsd:stats` | プロジェクト統計を表示 — フェーズ、プラン、要件、gitメトリクス |
-| `/gsd:profile-user [--questionnaire] [--refresh]` | セッション分析から開発者行動プロファイルを生成し、パーソナライズされた応答を提供 |
+| `/redpill:settings` | モデルプロファイルとワークフローエージェントを設定 |
+| `/redpill:set-profile <profile>` | モデルプロファイルを切り替え（quality/balanced/budget/inherit） |
+| `/redpill:add-todo [desc]` | 後で取り組むアイデアをキャプチャ |
+| `/redpill:check-todos` | 保留中のtodoを一覧表示 |
+| `/redpill:debug [desc]` | 永続状態を持つ体系的デバッグ |
+| `/redpill:do <text>` | フリーフォームテキストを適切なGSDコマンドに自動ルーティング |
+| `/redpill:note <text>` | ゼロフリクションのアイデアキャプチャ — ノートの追加、一覧、todoへの昇格 |
+| `/redpill:quick [--full] [--discuss] [--research]` | GSDの保証付きでアドホックタスクを実行（`--full` で全フェーズを有効化、`--discuss` で事前にコンテキストを収集、`--research` で計画前にアプローチを調査） |
+| `/redpill:health [--repair]` | `.redpill/` ディレクトリの整合性を検証、`--repair` で自動修復 |
+| `/redpill:stats` | プロジェクト統計を表示 — フェーズ、プラン、要件、gitメトリクス |
+| `/redpill:profile-user [--questionnaire] [--refresh]` | セッション分析から開発者行動プロファイルを生成し、パーソナライズされた応答を提供 |
 
 <sup>¹ Redditユーザー OracleGreyBeard による貢献</sup>
 
@@ -628,7 +628,7 @@ lmn012o feat(08-02): create registration endpoint
 
 ## 設定
 
-GSDはプロジェクト設定を `.planning/config.json` に保存します。`/gsd:new-project` 実行時に設定するか、後から `/gsd:settings` で更新できます。完全な設定スキーマ、ワークフロートグル、gitブランチオプション、エージェントごとのモデル内訳については、[ユーザーガイド](docs/ja-JP/USER-GUIDE.md#configuration-reference)をご覧ください。
+GSDはプロジェクト設定を `.redpill/config.json` に保存します。`/redpill:new-project` 実行時に設定するか、後から `/redpill:settings` で更新できます。完全な設定スキーマ、ワークフロートグル、gitブランチオプション、エージェントごとのモデル内訳については、[ユーザーガイド](docs/ja-JP/USER-GUIDE.md#configuration-reference)をご覧ください。
 
 ### コア設定
 
@@ -650,12 +650,12 @@ GSDはプロジェクト設定を `.planning/config.json` に保存します。`
 
 プロファイルの切り替え：
 ```
-/gsd:set-profile budget
+/redpill:set-profile budget
 ```
 
 非Anthropicプロバイダー（OpenRouter、ローカルモデル）を使用する場合や、現在のランタイムのモデル選択に従う場合（例：OpenCode `/model`）は `inherit` を使用してください。
 
-または `/gsd:settings` で設定できます。
+または `/redpill:settings` で設定できます。
 
 ### ワークフローエージェント
 
@@ -672,16 +672,16 @@ GSDはプロジェクト設定を `.planning/config.json` に保存します。`
 | `workflow.skip_discuss` | `false` | 自律モードでdiscuss-phaseをスキップ |
 | `workflow.text_mode` | `false` | リモートセッション用のテキスト専用モード（TUIメニューなし） |
 
-これらのトグルには `/gsd:settings` を使用するか、呼び出し時にオーバーライドできます：
-- `/gsd:plan-phase --skip-research`
-- `/gsd:plan-phase --skip-verify`
+これらのトグルには `/redpill:settings` を使用するか、呼び出し時にオーバーライドできます：
+- `/redpill:plan-phase --skip-research`
+- `/redpill:plan-phase --skip-verify`
 
 ### 実行
 
 | 設定 | デフォルト | 制御内容 |
 |---------|---------|------------------|
 | `parallelization.enabled` | `true` | 独立したプランを同時に実行 |
-| `planning.commit_docs` | `true` | `.planning/` をgitで追跡 |
+| `planning.commit_docs` | `true` | `.redpill/` をgitで追跡 |
 | `hooks.context_warnings` | `true` | コンテキストウィンドウの使用量警告を表示 |
 
 ### Gitブランチ
@@ -711,7 +711,7 @@ GSDはv1.27以降、多層防御セキュリティを備えています：
 
 - **パストラバーサル防止** — ユーザー提供のすべてのファイルパス（`--text-file`、`--prd`）がプロジェクトディレクトリ内に解決されるか検証
 - **プロンプトインジェクション検出** — 集中型 `security.cjs` モジュールが計画成果物に入る前にユーザー提供テキストのインジェクションパターンをスキャン
-- **PreToolUseプロンプトガードフック** — `gsd-prompt-guard` が `.planning/` への書き込みに埋め込まれたインジェクションベクトルをスキャン（アドバイザリー、ブロッキングではない）
+- **PreToolUseプロンプトガードフック** — `redpill-prompt-guard` が `.redpill/` への書き込みに埋め込まれたインジェクションベクトルをスキャン（アドバイザリー、ブロッキングではない）
 - **安全なJSON解析** — 不正な `--fields` 引数が状態を破損する前にキャッチ
 - **シェル引数バリデーション** — シェル補間前にユーザーテキストをサニタイズ
 - **CI対応インジェクションスキャナー** — `prompt-injection-scan.test.cjs` が全エージェント/ワークフロー/コマンドファイルの埋め込みインジェクションベクトルをスキャン
@@ -756,19 +756,19 @@ GSDのコードベースマッピングおよび分析コマンドは、プロ�
 - Codexの場合、`~/.codex/skills/gsd-*/SKILL.md`（グローバル）または `./.codex/skills/gsd-*/SKILL.md`（ローカル）にスキルが存在するか確認してください
 
 **コマンドが期待通りに動作しない？**
-- `/gsd:help` を実行してインストールを確認してください
-- `npx get-shit-done-cc` を再実行して再インストールしてください
+- `/redpill:help` を実行してインストールを確認してください
+- `npx redpill-cc` を再実行して再インストールしてください
 
 **最新バージョンへのアップデート？**
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 **Dockerまたはコンテナ化環境を使用している？**
 
 チルダパス（`~/.claude/...`）でファイル読み取りが失敗する場合、インストール前に `CLAUDE_CONFIG_DIR` を設定してください：
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx redpill-cc --global
 ```
 これにより、コンテナ内で正しく展開されない可能性がある `~` の代わりに絶対パスが使用されます。
 
@@ -778,22 +778,22 @@ GSDを完全に削除するには：
 
 ```bash
 # グローバルインストール
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
-npx get-shit-done-cc --gemini --global --uninstall
-npx get-shit-done-cc --codex --global --uninstall
-npx get-shit-done-cc --copilot --global --uninstall
-npx get-shit-done-cc --cursor --global --uninstall
-npx get-shit-done-cc --antigravity --global --uninstall
+npx redpill-cc --claude --global --uninstall
+npx redpill-cc --opencode --global --uninstall
+npx redpill-cc --gemini --global --uninstall
+npx redpill-cc --codex --global --uninstall
+npx redpill-cc --copilot --global --uninstall
+npx redpill-cc --cursor --global --uninstall
+npx redpill-cc --antigravity --global --uninstall
 
 # ローカルインストール（現在のプロジェクト）
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
-npx get-shit-done-cc --gemini --local --uninstall
-npx get-shit-done-cc --codex --local --uninstall
-npx get-shit-done-cc --copilot --local --uninstall
-npx get-shit-done-cc --cursor --local --uninstall
-npx get-shit-done-cc --antigravity --local --uninstall
+npx redpill-cc --claude --local --uninstall
+npx redpill-cc --opencode --local --uninstall
+npx redpill-cc --gemini --local --uninstall
+npx redpill-cc --codex --local --uninstall
+npx redpill-cc --copilot --local --uninstall
+npx redpill-cc --cursor --local --uninstall
+npx redpill-cc --antigravity --local --uninstall
 ```
 
 これにより、他の設定を保持しながら、すべてのGSDコマンド、エージェント、フック、設定が削除されます。
@@ -802,7 +802,7 @@ npx get-shit-done-cc --antigravity --local --uninstall
 
 ## コミュニティポート
 
-OpenCode、Gemini CLI、Codexは `npx get-shit-done-cc` でネイティブサポートされています。
+OpenCode、Gemini CLI、Codexは `npx redpill-cc` でネイティブサポートされています。
 
 以下のコミュニティポートがマルチランタイムサポートの先駆けとなりました：
 

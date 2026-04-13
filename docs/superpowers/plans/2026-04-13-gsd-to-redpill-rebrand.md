@@ -1,8 +1,8 @@
-# GSD → REDPILL Full Rebrand Implementation Plan
+# REDPILL → REDPILL Full Rebrand Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rename the entire GSD system to REDPILL — directories, commands, agents, tools binary, state directory, env vars, banners, and all cross-references — producing a fully functional `redpill` tool that passes the existing test suite.
+**Goal:** Rename the entire REDPILL system to REDPILL — directories, commands, agents, tools binary, state directory, env vars, banners, and all cross-references — producing a fully functional `redpill` tool that passes the existing test suite.
 
 **Architecture:** A 6-phase mechanical rename: (0) create isolated worktree, (1) `git mv` directory/file renames, (2) scripted bulk string replacement across ~300 files, (3) manual fixes for complex special files, (4) full verification via grep + test suite, (5) cleanup and commit. The bulk of the work is a single Node.js script that applies 50+ ordered replacement rules.
 
@@ -17,8 +17,8 @@
 This is a rename operation, not a feature build. Instead of listing every file, here are the categories:
 
 **Renamed (git mv):**
-- `get-shit-done/` → `redpill/` (entire directory tree: bin, lib, workflows, templates, references)
-- `redpill/bin/gsd-tools.cjs` → `redpill/bin/redpill-tools.cjs` (post-mv)
+- `redpill/` → `redpill/` (entire directory tree: bin, lib, workflows, templates, references)
+- `redpill/bin/redpill-tools.cjs` → `redpill/bin/redpill-tools.cjs` (post-mv)
 - `commands/gsd/` → `commands/redpill/` (63 command files)
 - `agents/gsd-*.md` → `agents/redpill-*.md` (24 agent files)
 - `hooks/gsd-*.js` → `hooks/redpill-*.js` (5 JS hook files)
@@ -28,9 +28,9 @@ This is a rename operation, not a feature build. Instead of listing every file, 
 - All `.md`, `.cjs`, `.js`, `.json`, `.ts`, `.sh` files in the repo
 
 **Manually reviewed:**
-- `redpill/bin/lib/core.cjs` — function definitions `planningDir` → `redpillDir` etc.
+- `redpill/bin/lib/core.cjs` — function definitions `redpillDir` → `redpillDir` etc.
 - `tests/helpers.cjs` — `TOOLS_PATH`, `createTempProject`, `.planning` refs
-- `bin/install.js` — heavy GSD branding, agent lists, install paths
+- `bin/install.js` — heavy REDPILL branding, agent lists, install paths
 - `package.json` — name, description, bin, files array
 
 **Deleted:**
@@ -56,7 +56,7 @@ git worktree add ../redpill-rebrand -b feat/redpill-rebrand
 cd ../redpill-rebrand
 git branch --show-current
 # Expected: feat/redpill-rebrand
-ls get-shit-done/bin/gsd-tools.cjs
+ls redpill/bin/redpill-tools.cjs
 # Expected: file exists
 ```
 
@@ -75,7 +75,7 @@ ls redpill/ 2>&1
 ### Task 2: Directory-level renames (git mv)
 
 **Files:**
-- All files under `get-shit-done/`, `commands/gsd/`, `agents/gsd-*.md`, `hooks/gsd-*`
+- All files under `redpill/`, `commands/gsd/`, `agents/gsd-*.md`, `hooks/gsd-*`
 
 - [ ] **Step 1: Rename the main package directory**
 
@@ -86,7 +86,7 @@ git mv get-shit-done redpill
 - [ ] **Step 2: Rename the tools binary**
 
 ```bash
-git mv redpill/bin/gsd-tools.cjs redpill/bin/redpill-tools.cjs
+git mv redpill/bin/redpill-tools.cjs redpill/bin/redpill-tools.cjs
 ```
 
 - [ ] **Step 3: Rename the commands directory**
@@ -122,7 +122,7 @@ Verify: `ls hooks/redpill-* | wc -l` should output `8`.
 
 ```bash
 git add -A
-git commit -m "refactor: git mv GSD → REDPILL directory and file renames"
+git commit -m "refactor: git mv REDPILL → REDPILL directory and file renames"
 ```
 
 - [ ] **Step 7: Verify no gsd- prefixed files remain**
@@ -151,7 +151,7 @@ Create `scripts/rebrand.cjs` with this exact content:
 ```javascript
 #!/usr/bin/env node
 /**
- * GSD → REDPILL bulk rename script.
+ * REDPILL → REDPILL bulk rename script.
  * Applies ordered string replacement rules to all source files.
  * Run from repo root: node scripts/rebrand.cjs
  */
@@ -163,103 +163,103 @@ const path = require('path');
 
 const rules = [
   // Path references (longest first to prevent partial matches)
-  ['$HOME/.claude/get-shit-done/', '$HOME/.claude/redpill/'],
-  ['~/.claude/get-shit-done/', '~/.claude/redpill/'],
-  ['get-shit-done/bin/gsd-tools', 'redpill/bin/redpill-tools'],
-  ['get-shit-done/', 'redpill/'],
+  ['$HOME/.claude/redpill/', '$HOME/.claude/redpill/'],
+  ['~/.claude/redpill/', '~/.claude/redpill/'],
+  ['redpill/bin/redpill-tools', 'redpill/bin/redpill-tools'],
+  ['redpill/', 'redpill/'],
 
   // Binary name
-  ['gsd-tools.cjs', 'redpill-tools.cjs'],
+  ['redpill-tools.cjs', 'redpill-tools.cjs'],
 
   // Env vars (before generic GSD_ patterns)
-  ['GSD_CODEX_HOOKS_OWNERSHIP_PREFIX', 'REDPILL_CODEX_HOOKS_OWNERSHIP_PREFIX'],
-  ['GSD_CODEX_MARKER', 'REDPILL_CODEX_MARKER'],
-  ['GSD_COPILOT_INSTRUCTIONS_CLOSE_MARKER', 'REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER'],
-  ['GSD_COPILOT_INSTRUCTIONS_MARKER', 'REDPILL_COPILOT_INSTRUCTIONS_MARKER'],
-  ['GSD_INSTALL_DIR', 'REDPILL_INSTALL_DIR'],
-  ['GSD_MARKER', 'REDPILL_MARKER'],
-  ['GSD_PROJECT', 'REDPILL_PROJECT'],
-  ['GSD_SKIP_SCHEMA_CHECK', 'REDPILL_SKIP_SCHEMA_CHECK'],
-  ['GSD_TEST_MODE', 'REDPILL_TEST_MODE'],
-  ['GSD_TOOLS', 'REDPILL_TOOLS'],
-  ['GSD_VERSION', 'REDPILL_VERSION'],
-  ['GSD_WORKSTREAM', 'REDPILL_WORKSTREAM'],
-  ['GSD_WS', 'REDPILL_WS'],
-  ['GSD_ARGS', 'REDPILL_ARGS'],
+  ['REDPILL_CODEX_HOOKS_OWNERSHIP_PREFIX', 'REDPILL_CODEX_HOOKS_OWNERSHIP_PREFIX'],
+  ['REDPILL_CODEX_MARKER', 'REDPILL_CODEX_MARKER'],
+  ['REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER', 'REDPILL_COPILOT_INSTRUCTIONS_CLOSE_MARKER'],
+  ['REDPILL_COPILOT_INSTRUCTIONS_MARKER', 'REDPILL_COPILOT_INSTRUCTIONS_MARKER'],
+  ['REDPILL_INSTALL_DIR', 'REDPILL_INSTALL_DIR'],
+  ['REDPILL_MARKER', 'REDPILL_MARKER'],
+  ['REDPILL_PROJECT', 'REDPILL_PROJECT'],
+  ['REDPILL_SKIP_SCHEMA_CHECK', 'REDPILL_SKIP_SCHEMA_CHECK'],
+  ['REDPILL_TEST_MODE', 'REDPILL_TEST_MODE'],
+  ['REDPILL_TOOLS', 'REDPILL_TOOLS'],
+  ['REDPILL_VERSION', 'REDPILL_VERSION'],
+  ['REDPILL_WORKSTREAM', 'REDPILL_WORKSTREAM'],
+  ['REDPILL_WS', 'REDPILL_WS'],
+  ['REDPILL_ARGS', 'REDPILL_ARGS'],
 
   // Hook file references (before generic gsd- agent patterns)
-  ['gsd-check-update', 'redpill-check-update'],
-  ['gsd-context-monitor', 'redpill-context-monitor'],
-  ['gsd-phase-boundary', 'redpill-phase-boundary'],
-  ['gsd-prompt-guard', 'redpill-prompt-guard'],
-  ['gsd-session-state', 'redpill-session-state'],
-  ['gsd-statusline', 'redpill-statusline'],
-  ['gsd-validate-commit', 'redpill-validate-commit'],
-  ['gsd-workflow-guard', 'redpill-workflow-guard'],
-  ['gsd-hook-version', 'redpill-hook-version'],
+  ['redpill-check-update', 'redpill-check-update'],
+  ['redpill-context-monitor', 'redpill-context-monitor'],
+  ['redpill-phase-boundary', 'redpill-phase-boundary'],
+  ['redpill-prompt-guard', 'redpill-prompt-guard'],
+  ['redpill-session-state', 'redpill-session-state'],
+  ['redpill-statusline', 'redpill-statusline'],
+  ['redpill-validate-commit', 'redpill-validate-commit'],
+  ['redpill-workflow-guard', 'redpill-workflow-guard'],
+  ['redpill-hook-version', 'redpill-hook-version'],
 
   // Agent names (alphabetical, before generic gsd- pattern)
-  ['gsd-advisor-researcher', 'redpill-advisor-researcher'],
-  ['gsd-assumptions-analyzer', 'redpill-assumptions-analyzer'],
-  ['gsd-codebase-mapper', 'redpill-codebase-mapper'],
-  ['gsd-debugger', 'redpill-debugger'],
-  ['gsd-doc-verifier', 'redpill-doc-verifier'],
-  ['gsd-doc-writer', 'redpill-doc-writer'],
-  ['gsd-executor', 'redpill-executor'],
-  ['gsd-feature-reviewer', 'redpill-feature-reviewer'],
-  ['gsd-integration-checker', 'redpill-integration-checker'],
-  ['gsd-nyquist-auditor', 'redpill-nyquist-auditor'],
-  ['gsd-phase-researcher', 'redpill-phase-researcher'],
-  ['gsd-plan-checker', 'redpill-plan-checker'],
-  ['gsd-planner', 'redpill-planner'],
-  ['gsd-project-researcher', 'redpill-project-researcher'],
-  ['gsd-research-synthesizer', 'redpill-research-synthesizer'],
-  ['gsd-roadmapper', 'redpill-roadmapper'],
-  ['gsd-security-auditor', 'redpill-security-auditor'],
-  ['gsd-step-reviewer', 'redpill-step-reviewer'],
-  ['gsd-step-writer', 'redpill-step-writer'],
-  ['gsd-ui-auditor', 'redpill-ui-auditor'],
-  ['gsd-ui-checker', 'redpill-ui-checker'],
-  ['gsd-ui-researcher', 'redpill-ui-researcher'],
-  ['gsd-user-profiler', 'redpill-user-profiler'],
-  ['gsd-verifier', 'redpill-verifier'],
+  ['redpill-advisor-researcher', 'redpill-advisor-researcher'],
+  ['redpill-assumptions-analyzer', 'redpill-assumptions-analyzer'],
+  ['redpill-codebase-mapper', 'redpill-codebase-mapper'],
+  ['redpill-debugger', 'redpill-debugger'],
+  ['redpill-doc-verifier', 'redpill-doc-verifier'],
+  ['redpill-doc-writer', 'redpill-doc-writer'],
+  ['redpill-executor', 'redpill-executor'],
+  ['redpill-feature-reviewer', 'redpill-feature-reviewer'],
+  ['redpill-integration-checker', 'redpill-integration-checker'],
+  ['redpill-nyquist-auditor', 'redpill-nyquist-auditor'],
+  ['redpill-phase-researcher', 'redpill-phase-researcher'],
+  ['redpill-plan-checker', 'redpill-plan-checker'],
+  ['redpill-planner', 'redpill-planner'],
+  ['redpill-project-researcher', 'redpill-project-researcher'],
+  ['redpill-research-synthesizer', 'redpill-research-synthesizer'],
+  ['redpill-roadmapper', 'redpill-roadmapper'],
+  ['redpill-security-auditor', 'redpill-security-auditor'],
+  ['redpill-step-reviewer', 'redpill-step-reviewer'],
+  ['redpill-step-writer', 'redpill-step-writer'],
+  ['redpill-ui-auditor', 'redpill-ui-auditor'],
+  ['redpill-ui-checker', 'redpill-ui-checker'],
+  ['redpill-ui-researcher', 'redpill-ui-researcher'],
+  ['redpill-user-profiler', 'redpill-user-profiler'],
+  ['redpill-verifier', 'redpill-verifier'],
 
   // Command namespace
-  ['name: gsd:', 'name: redpill:'],
-  ['/gsd:', '/redpill:'],
-  ['gsd:', 'redpill:'],   // catches remaining command refs like "skill: gsd:xxx"
+  ['name: redpill:', 'name: redpill:'],
+  ['/redpill:', '/redpill:'],
+  ['redpill:', 'redpill:'],   // catches remaining command refs like "skill: redpill:xxx"
 
   // State directory + core functions
-  ['planningPaths', 'redpillPaths'],
-  ['planningRoot', 'redpillRoot'],
-  ['planningDir', 'redpillDir'],
-  ['planning_exists', 'redpill_dir_exists'],
-  ['.planning/', '.redpill/'],
-  ['.planning\\\\', '.redpill\\\\'],  // Windows path in tests
-  ["'.planning'", "'.redpill'"],       // string literal in JS
-  ['".planning"', '".redpill"'],       // string literal in JS
+  ['redpillPaths', 'redpillPaths'],
+  ['redpillRoot', 'redpillRoot'],
+  ['redpillDir', 'redpillDir'],
+  ['redpill_dir_exists', 'redpill_dir_exists'],
+  ['.redpill/', '.redpill/'],
+  ['.redpill\\\\', '.redpill\\\\'],  // Windows path in tests
+  ["'.redpill'", "'.redpill'"],       // string literal in JS
+  ['".redpill"', '".redpill"'],       // string literal in JS
 
   // Banners and display
-  ['GSD ►', 'REDPILL ►'],
-  ['GSD >', 'REDPILL >'],
-  [' GSD ', ' REDPILL '],
+  ['REDPILL ►', 'REDPILL ►'],
+  ['REDPILL >', 'REDPILL >'],
+  [' REDPILL ', ' REDPILL '],
 
   // Package name
-  ['"get-shit-done-cc"', '"redpill-cc"'],
-  ['get-shit-done-cc', 'redpill-cc'],
+  ['"redpill-cc"', '"redpill-cc"'],
+  ['redpill-cc', 'redpill-cc'],
 
   // Doc marker
-  ['generated-by: gsd-doc-writer', 'generated-by: redpill-doc-writer'],
+  ['generated-by: redpill-doc-writer', 'generated-by: redpill-doc-writer'],
 
   // Test prefix
-  ['gsd-test-', 'redpill-test-'],
+  ['redpill-test-', 'redpill-test-'],
 
   // Generic catch-all for any remaining "gsd" in comments/docs
   // (applied last, only matches standalone " gsd " with spaces)
-  ['runGsdTools', 'runRedpillTools'],
-  ['GSD Tools', 'REDPILL Tools'],
-  ['GSD SDK', 'REDPILL SDK'],
-  ['gsd-sdk', 'redpill-sdk'],
+  ['runRedpillTools', 'runRedpillTools'],
+  ['REDPILL Tools', 'REDPILL Tools'],
+  ['REDPILL SDK', 'REDPILL SDK'],
+  ['redpill-sdk', 'redpill-sdk'],
 ];
 
 // ── File discovery ───────────────────────────────────────────────────────────
@@ -337,7 +337,7 @@ head -3 agents/redpill-executor.md
 # Workflow should reference redpill paths
 grep "redpill-tools" redpill/workflows/clarify-feature.md | head -3
 
-# Core function should still be named planningDir (script renames to redpillDir)
+# Core function should still be named redpillDir (script renames to redpillDir)
 grep "function redpillDir" redpill/bin/lib/core.cjs | head -1
 
 # State dir reference
@@ -353,7 +353,7 @@ All should show the new names. If any show old names, investigate.
 
 ```bash
 git add -A
-git commit -m "refactor: bulk content rename GSD → REDPILL across all source files"
+git commit -m "refactor: bulk content rename REDPILL → REDPILL across all source files"
 ```
 
 - [ ] **Step 5: Delete the temporary script**
@@ -382,12 +382,12 @@ The bulk script handles most replacements, but these files have complex structur
 grep -n "function redpillDir\|function redpillRoot\|function redpillPaths" redpill/bin/lib/core.cjs
 ```
 
-Expected: three function definitions found. If any still say `planningDir`, fix with Edit.
+Expected: three function definitions found. If any still say `redpillDir`, fix with Edit.
 
 Also verify the `.redpill` string literals inside the functions:
 
 ```bash
-grep -n "'.planning'\|\"\.planning\"" redpill/bin/lib/core.cjs
+grep -n "'.redpill'\|\"\.planning\"" redpill/bin/lib/core.cjs
 ```
 
 Expected: zero results. If any remain, fix them.
@@ -403,15 +403,15 @@ Expected: zero results (all should be `REDPILL_`). If any remain, fix them.
 - [ ] **Step 2: Verify tests/helpers.cjs**
 
 ```bash
-grep -n "get-shit-done\|gsd-tools\|\.planning\|gsd-test-\|runGsdTools" tests/helpers.cjs
+grep -n "get-shit-done\|gsd-tools\|\.planning\|redpill-test-\|runRedpillTools" tests/helpers.cjs
 ```
 
 Expected: zero results. All should be `redpill`, `redpill-tools`, `.redpill`, `redpill-test-`, `runRedpillTools`.
 
-If `runGsdTools` was renamed to `runRedpillTools` by the script, verify ALL test files that import it also use the new name:
+If `runRedpillTools` was renamed to `runRedpillTools` by the script, verify ALL test files that import it also use the new name:
 
 ```bash
-grep -rn "runGsdTools" tests/
+grep -rn "runRedpillTools" tests/
 ```
 
 Expected: zero results.
@@ -448,7 +448,7 @@ If the `files` array still has `get-shit-done`, fix it:
 - [ ] **Step 4: Verify bin/install.js**
 
 ```bash
-grep -n "get-shit-done\|gsd-executor\|gsd-planner\|GSD_MARKER\|gsd:" bin/install.js | head -20
+grep -n "get-shit-done\|redpill-executor\|redpill-planner\|REDPILL_MARKER\|redpill:" bin/install.js | head -20
 ```
 
 Expected: zero results. All should be redpill equivalents.
@@ -489,10 +489,10 @@ grep -rn "get-shit-done" --include="*.md" --include="*.cjs" --include="*.js" --i
 
 Expected: zero results (CHANGELOG.md excluded).
 
-- [ ] **Step 2: Grep scan for residual "/gsd:" command references**
+- [ ] **Step 2: Grep scan for residual "/redpill:" command references**
 
 ```bash
-grep -rn "/gsd:" --include="*.md" --include="*.cjs" | grep -v "CHANGELOG\|node_modules" | head -50
+grep -rn "/redpill:" --include="*.md" --include="*.cjs" | grep -v "CHANGELOG\|node_modules" | head -50
 ```
 
 Expected: zero results.
@@ -505,11 +505,11 @@ grep -rn "gsd-tools" --include="*.md" --include="*.cjs" --include="*.js" | grep 
 
 Expected: zero results.
 
-- [ ] **Step 4: Grep scan for residual "planningDir" / ".planning" references**
+- [ ] **Step 4: Grep scan for residual "redpillDir" / ".redpill" references**
 
 ```bash
-grep -rn "planningDir\|planningRoot\|planningPaths" --include="*.cjs" | head -20
-grep -rn "\.planning/" --include="*.md" --include="*.cjs" --include="*.json" | grep -v "CHANGELOG\|node_modules" | head -50
+grep -rn "redpillDir\|redpillRoot\|redpillPaths" --include="*.cjs" | head -20
+grep -rn "\.redpill/" --include="*.md" --include="*.cjs" --include="*.json" | grep -v "CHANGELOG\|node_modules" | head -50
 ```
 
 Expected: zero results for both.
@@ -525,7 +525,7 @@ Expected: zero results.
 - [ ] **Step 6: Grep scan for residual "gsd-" agent names**
 
 ```bash
-grep -rn "gsd-executor\|gsd-planner\|gsd-verifier\|gsd-step-writer\|gsd-debugger" --include="*.md" --include="*.cjs" | grep -v "CHANGELOG\|node_modules" | head -50
+grep -rn "redpill-executor\|redpill-planner\|redpill-verifier\|redpill-step-writer\|redpill-debugger" --include="*.md" --include="*.cjs" | grep -v "CHANGELOG\|node_modules" | head -50
 ```
 
 Expected: zero results.
@@ -560,7 +560,7 @@ For each residual found, use Edit to fix it. Then re-run the specific grep to co
 
 ```bash
 git add -A
-git commit -m "fix: clean up residual GSD references found during verification"
+git commit -m "fix: clean up residual REDPILL references found during verification"
 ```
 
 If no residuals found, skip this step.
@@ -638,7 +638,7 @@ If no test fixes needed, skip.
 - [ ] **Step 1: Verify directory structure**
 
 ```bash
-echo "=== get-shit-done should not exist ===" && ls get-shit-done/ 2>&1
+echo "=== get-shit-done should not exist ===" && ls redpill/ 2>&1
 echo "=== commands/gsd should not exist ===" && ls commands/gsd/ 2>&1
 echo "=== redpill/ should exist ===" && ls redpill/bin/redpill-tools.cjs
 echo "=== commands/redpill/ should exist ===" && ls commands/redpill/ | wc -l
@@ -649,13 +649,13 @@ Expected: first two show "No such file or directory", rest show the files.
 
 - [ ] **Step 2: Update README.md if it exists**
 
-Check if README.md has heavy GSD branding:
+Check if README.md has heavy REDPILL branding:
 
 ```bash
 grep -c "get-shit-done\|GSD\|gsd" README.md
 ```
 
-If count > 0, the bulk script should have handled it. Verify the content makes sense (e.g., installation instructions should say `npx redpill-cc` not `npx get-shit-done-cc`).
+If count > 0, the bulk script should have handled it. Verify the content makes sense (e.g., installation instructions should say `npx redpill-cc` not `npx redpill-cc`).
 
 - [ ] **Step 3: Final commit summary**
 
@@ -664,11 +664,11 @@ git log --oneline feat/redpill-rebrand --not main | head -20
 ```
 
 Review the commit chain. Should be:
-1. `refactor: git mv GSD → REDPILL directory and file renames`
-2. `refactor: bulk content rename GSD → REDPILL across all source files`
+1. `refactor: git mv REDPILL → REDPILL directory and file renames`
+2. `refactor: bulk content rename REDPILL → REDPILL across all source files`
 3. `chore: remove temporary rebrand script`
 4. `fix: manual touch-ups for special files after bulk rename` (if needed)
-5. `fix: clean up residual GSD references found during verification` (if needed)
+5. `fix: clean up residual REDPILL references found during verification` (if needed)
 6. `fix: update test expectations for REDPILL rebrand` (if needed)
 
 ---
@@ -677,22 +677,22 @@ Review the commit chain. Should be:
 
 | Spec Requirement | Task |
 |---|---|
-| `get-shit-done/` → `redpill/` | Task 2 Step 1 |
-| `gsd-tools.cjs` → `redpill-tools.cjs` | Task 2 Step 2 |
+| `redpill/` → `redpill/` | Task 2 Step 1 |
+| `redpill-tools.cjs` → `redpill-tools.cjs` | Task 2 Step 2 |
 | `commands/gsd/` → `commands/redpill/` | Task 2 Step 3 |
 | `agents/gsd-*.md` → `agents/redpill-*.md` | Task 2 Step 4 |
 | `hooks/gsd-*` → `hooks/redpill-*` | Task 2 Step 5 |
 | 42+ content replacement rules | Task 3 (script has 60+ rules covering all 42 spec rules + extras) |
-| `planningDir` → `redpillDir` | Task 3 (script) + Task 4 Step 1 (verify) |
-| `.planning/` → `.redpill/` | Task 3 (script) + Task 5 Step 4 (verify) |
+| `redpillDir` → `redpillDir` | Task 3 (script) + Task 4 Step 1 (verify) |
+| `.redpill/` → `.redpill/` | Task 3 (script) + Task 5 Step 4 (verify) |
 | `GSD_*` env vars → `REDPILL_*` | Task 3 (script) + Task 5 Step 5 (verify) |
-| `GSD ►` → `REDPILL ►` | Task 3 (script) + Task 5 (verify) |
+| `REDPILL ►` → `REDPILL ►` | Task 3 (script) + Task 5 (verify) |
 | `package.json` updates | Task 4 Step 3 |
 | `tests/helpers.cjs` updates | Task 4 Step 2 |
 | `bin/install.js` updates | Task 4 Step 4 |
 | Grep scans (8 scan patterns) | Task 5 Steps 1-8 |
 | Test suite passes | Task 6 |
-| No `get-shit-done/` directory remains | Task 7 Step 1 |
+| No `redpill/` directory remains | Task 7 Step 1 |
 | No `commands/gsd/` directory remains | Task 7 Step 1 |
 | All command frontmatter = `redpill:` | Task 5 Step 7 |
 | All agent frontmatter = `redpill-` | Task 5 Step 8 |

@@ -1,5 +1,5 @@
 /**
- * Context engine — resolves which .planning/ state files exist per phase type.
+ * Context engine — resolves which .redpill/ state files exist per phase type.
  *
  * Different phases need different subsets of context files. The execute phase
  * only needs STATE.md + config.json (minimal). Research needs STATE.md +
@@ -62,11 +62,11 @@ const PHASE_FILE_MANIFEST: Record<PhaseType, FileSpec[]> = {
 // ─── ContextEngine class ─────────────────────────────────────────────────────
 
 export class ContextEngine {
-  private readonly planningDir: string;
+  private readonly redpillDir: string;
   private readonly logger?: GSDLogger;
 
   constructor(projectDir: string, logger?: GSDLogger) {
-    this.planningDir = join(projectDir, '.planning');
+    this.redpillDir = join(projectDir, '.redpill');
     this.logger = logger;
   }
 
@@ -80,7 +80,7 @@ export class ContextEngine {
     const result: ContextFiles = {};
 
     for (const spec of manifest) {
-      const filePath = join(this.planningDir, spec.filename);
+      const filePath = join(this.redpillDir, spec.filename);
       const content = await this.readFileIfExists(filePath);
 
       if (content !== undefined) {

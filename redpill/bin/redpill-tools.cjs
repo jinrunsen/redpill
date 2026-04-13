@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * GSD Tools — CLI utility for GSD workflow operations
+ * REDPILL Tools — CLI utility for REDPILL workflow operations
  *
- * Replaces repetitive inline bash patterns across ~50 GSD command/workflow/agent files.
+ * Replaces repetitive inline bash patterns across ~50 REDPILL command/workflow/agent files.
  * Centralizes: config parsing, model resolution, phase lookup, git commits, summary verification.
  *
- * Usage: node gsd-tools.cjs <command> [args] [--raw] [--pick <field>]
+ * Usage: node redpill-tools.cjs <command> [args] [--raw] [--pick <field>]
  *
  * Atomic Commands:
  *   state load                         Load project config + state
@@ -26,7 +26,7 @@
  *   current-timestamp [format]         Get timestamp (full|date|filename)
  *   list-todos [area]                  Count and enumerate pending todos
  *   verify-path-exists <path>          Check file/directory existence
- *   config-ensure-section              Initialize .planning/config.json
+ *   config-ensure-section              Initialize .redpill/config.json
  *   history-digest                     Aggregate all SUMMARY.md data
  *   summary-extract <path> [--fields]  Extract structured data from SUMMARY.md
  *   state-snapshot                     Structured parse of STATE.md
@@ -57,8 +57,8 @@
  *
  * Validation:
  *   validate consistency               Check phase numbering, disk/roadmap sync
- *   validate health [--repair]         Check .planning/ integrity, optionally repair
- *   validate agents                    Check GSD agent installation status
+ *   validate health [--repair]         Check .redpill/ integrity, optionally repair
+ *   validate agents                    Check REDPILL agent installation status
  *
  * Progress:
  *   progress [json|table|bar]          Render progress in various formats
@@ -223,11 +223,11 @@ async function main() {
     error(`Invalid --cwd: ${cwd}`);
   }
 
-  // Resolve worktree root: in a linked worktree, .planning/ lives in the main worktree.
-  // However, in monorepo worktrees where the subdirectory itself owns .planning/,
+  // Resolve worktree root: in a linked worktree, .redpill/ lives in the main worktree.
+  // However, in monorepo worktrees where the subdirectory itself owns .redpill/,
   // skip worktree resolution — the CWD is already the correct project root.
   const { resolveWorktreeRoot } = require('./lib/core.cjs');
-  if (!fs.existsSync(path.join(cwd, '.planning'))) {
+  if (!fs.existsSync(path.join(cwd, '.redpill'))) {
     const worktreeRoot = resolveWorktreeRoot(cwd);
     if (worktreeRoot !== cwd) {
       cwd = worktreeRoot;
@@ -235,7 +235,7 @@ async function main() {
   }
 
   // Optional workstream override for parallel milestone work.
-  // Priority: --ws flag > GSD_WORKSTREAM env var > active-workstream file > null (flat mode)
+  // Priority: --ws flag > REDPILL_WORKSTREAM env var > active-workstream file > null (flat mode)
   const wsEqArg = args.find(arg => arg.startsWith('--ws='));
   const wsIdx = args.indexOf('--ws');
   let ws = null;
@@ -247,8 +247,8 @@ async function main() {
     ws = args[wsIdx + 1];
     if (!ws || ws.startsWith('--')) error('Missing value for --ws');
     args.splice(wsIdx, 2);
-  } else if (process.env.GSD_WORKSTREAM) {
-    ws = process.env.GSD_WORKSTREAM.trim();
+  } else if (process.env.REDPILL_WORKSTREAM) {
+    ws = process.env.REDPILL_WORKSTREAM.trim();
   } else {
     ws = getActiveWorkstream(cwd);
   }
@@ -256,9 +256,9 @@ async function main() {
   if (ws && !/^[a-zA-Z0-9_-]+$/.test(ws)) {
     error('Invalid workstream name: must be alphanumeric, hyphens, and underscores only');
   }
-  // Set env var so all modules (planningDir, planningPaths) auto-resolve workstream paths
+  // Set env var so all modules (redpillDir, redpillPaths) auto-resolve workstream paths
   if (ws) {
-    process.env.GSD_WORKSTREAM = ws;
+    process.env.REDPILL_WORKSTREAM = ws;
   }
 
   const rawIndex = args.indexOf('--raw');
@@ -282,8 +282,8 @@ async function main() {
     error('Usage: gsd-tools <command> [args] [--raw] [--pick <field>] [--cwd <path>] [--ws <name>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, config-new-project, init, workstream, docs-init');
   }
 
-  // Multi-repo guard: resolve project root for commands that read/write .planning/.
-  // Skip for pure-utility commands that don't touch .planning/ to avoid unnecessary
+  // Multi-repo guard: resolve project root for commands that read/write .redpill/.
+  // Skip for pure-utility commands that don't touch .redpill/ to avoid unnecessary
   // filesystem traversal on every invocation.
   const SKIP_ROOT_RESOLUTION = new Set([
     'generate-slug', 'current-timestamp', 'verify-path-exists',

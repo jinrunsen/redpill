@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { safeReadFile, loadConfig, isGitIgnored, execGit, normalizePhaseName, comparePhaseNum, getArchivedPhaseDirs, generateSlugInternal, getMilestoneInfo, getMilestonePhaseFilter, resolveModelInternal, stripShippedMilestones, extractCurrentMilestone, planningDir, planningPaths, toPosixPath, output, error, findPhaseInternal, extractOneLinerFromBody, getRoadmapPhaseInternal } = require('./core.cjs');
+const { safeReadFile, loadConfig, isGitIgnored, execGit, normalizePhaseName, comparePhaseNum, getArchivedPhaseDirs, generateSlugInternal, getMilestoneInfo, getMilestonePhaseFilter, resolveModelInternal, stripShippedMilestones, extractCurrentMilestone, redpillDir, redpillPaths, toPosixPath, output, error, findPhaseInternal, extractOneLinerFromBody, getRoadmapPhaseInternal } = require('./core.cjs');
 const { extractFrontmatter } = require('./frontmatter.cjs');
 const { MODEL_PROFILES } = require('./model-profiles.cjs');
 
@@ -71,7 +71,7 @@ function cmdCurrentTimestamp(format, raw) {
 }
 
 function cmdListTodos(cwd, area, raw) {
-  const pendingDir = path.join(planningDir(cwd), 'todos', 'pending');
+  const pendingDir = path.join(redpillDir(cwd), 'todos', 'pending');
 
   let count = 0;
   const todos = [];
@@ -131,7 +131,7 @@ function cmdVerifyPathExists(cwd, targetPath, raw) {
 }
 
 function cmdHistoryDigest(cwd, raw) {
-  const phasesDir = planningPaths(cwd).phases;
+  const phasesDir = redpillPaths(cwd).phases;
   const digest = { phases: {}, decisions: [], tech_stack: new Set() };
 
   // Collect all phase directories: archived + current
@@ -269,7 +269,7 @@ function cmdCommit(cwd, message, files, raw, amend, noVerify) {
   }
 
   // Check if .planning is gitignored
-  if (isGitIgnored(cwd, '.planning')) {
+  if (isGitIgnored(cwd, '.redpill')) {
     const result = { committed: false, hash: null, reason: 'skipped_gitignored' };
     output(result, raw, 'skipped');
     return;
@@ -313,7 +313,7 @@ function cmdCommit(cwd, message, files, raw, amend, noVerify) {
   }
 
   // Stage files
-  const filesToStage = files && files.length > 0 ? files : ['.planning/'];
+  const filesToStage = files && files.length > 0 ? files : ['.redpill/'];
   for (const file of filesToStage) {
     const fullPath = path.join(cwd, file);
     if (!fs.existsSync(fullPath)) {
@@ -355,7 +355,7 @@ function cmdCommitToSubrepo(cwd, message, files, raw) {
   const subRepos = config.sub_repos;
 
   if (!subRepos || subRepos.length === 0) {
-    error('no sub_repos configured in .planning/config.json');
+    error('no sub_repos configured in .redpill/config.json');
   }
 
   if (!files || files.length === 0) {
@@ -533,8 +533,8 @@ async function cmdWebsearch(query, options, raw) {
 }
 
 function cmdProgressRender(cwd, format, raw) {
-  const phasesDir = planningPaths(cwd).phases;
-  const roadmapPath = planningPaths(cwd).roadmap;
+  const phasesDir = redpillPaths(cwd).phases;
+  const roadmapPath = redpillPaths(cwd).roadmap;
   const milestone = getMilestoneInfo(cwd);
 
   const phases = [];
@@ -604,7 +604,7 @@ function cmdProgressRender(cwd, format, raw) {
 function cmdTodoMatchPhase(cwd, phase, raw) {
   if (!phase) { error('phase required for todo match-phase'); }
 
-  const pendingDir = path.join(planningDir(cwd), 'todos', 'pending');
+  const pendingDir = path.join(redpillDir(cwd), 'todos', 'pending');
   const todos = [];
 
   // Load pending todos
@@ -725,8 +725,8 @@ function cmdTodoComplete(cwd, filename, raw) {
     error('filename required for todo complete');
   }
 
-  const pendingDir = path.join(planningDir(cwd), 'todos', 'pending');
-  const completedDir = path.join(planningDir(cwd), 'todos', 'completed');
+  const pendingDir = path.join(redpillDir(cwd), 'todos', 'pending');
+  const completedDir = path.join(redpillDir(cwd), 'todos', 'completed');
   const sourcePath = path.join(pendingDir, filename);
 
   if (!fs.existsSync(sourcePath)) {
@@ -765,7 +765,7 @@ function cmdScaffold(cwd, type, options, raw) {
   switch (type) {
     case 'context': {
       filePath = path.join(phaseDir, `${padded}-CONTEXT.md`);
-      content = `---\nphase: "${padded}"\nname: "${name || phaseInfo?.phase_name || 'Unnamed'}"\ncreated: ${today}\n---\n\n# Phase ${phase}: ${name || phaseInfo?.phase_name || 'Unnamed'} — Context\n\n## Decisions\n\n_Decisions will be captured during /gsd:discuss-phase ${phase}_\n\n## Discretion Areas\n\n_Areas where the executor can use judgment_\n\n## Deferred Ideas\n\n_Ideas to consider later_\n`;
+      content = `---\nphase: "${padded}"\nname: "${name || phaseInfo?.phase_name || 'Unnamed'}"\ncreated: ${today}\n---\n\n# Phase ${phase}: ${name || phaseInfo?.phase_name || 'Unnamed'} — Context\n\n## Decisions\n\n_Decisions will be captured during /redpill:discuss-phase ${phase}_\n\n## Discretion Areas\n\n_Areas where the executor can use judgment_\n\n## Deferred Ideas\n\n_Ideas to consider later_\n`;
       break;
     }
     case 'uat': {
@@ -784,7 +784,7 @@ function cmdScaffold(cwd, type, options, raw) {
       }
       const slug = generateSlugInternal(name);
       const dirName = `${padded}-${slug}`;
-      const phasesParent = planningPaths(cwd).phases;
+      const phasesParent = redpillPaths(cwd).phases;
       fs.mkdirSync(phasesParent, { recursive: true });
       const dirPath = path.join(phasesParent, dirName);
       fs.mkdirSync(dirPath, { recursive: true });
@@ -806,10 +806,10 @@ function cmdScaffold(cwd, type, options, raw) {
 }
 
 function cmdStats(cwd, format, raw) {
-  const phasesDir = planningPaths(cwd).phases;
-  const roadmapPath = planningPaths(cwd).roadmap;
-  const reqPath = planningPaths(cwd).requirements;
-  const statePath = planningPaths(cwd).state;
+  const phasesDir = redpillPaths(cwd).phases;
+  const roadmapPath = redpillPaths(cwd).roadmap;
+  const reqPath = redpillPaths(cwd).requirements;
+  const statePath = redpillPaths(cwd).state;
   const milestone = getMilestoneInfo(cwd);
   const isDirInMilestone = getMilestonePhaseFilter(cwd);
 
@@ -962,7 +962,7 @@ function cmdStats(cwd, format, raw) {
 
 /**
  * Check whether a commit should be allowed based on commit_docs config.
- * When commit_docs is false, rejects commits that stage .planning/ files.
+ * When commit_docs is false, rejects commits that stage .redpill/ files.
  * Intended for use as a pre-commit hook guard.
  */
 function cmdCheckCommit(cwd, raw) {
@@ -974,14 +974,14 @@ function cmdCheckCommit(cwd, raw) {
     return;
   }
 
-  // commit_docs is false — check if any .planning/ files are staged
+  // commit_docs is false — check if any .redpill/ files are staged
   try {
     const staged = execSync('git diff --cached --name-only', { cwd, encoding: 'utf-8' }).trim();
-    const planningFiles = staged.split('\n').filter(f => f.startsWith('.planning/') || f.startsWith('.planning\\'));
+    const planningFiles = staged.split('\n').filter(f => f.startsWith('.redpill/') || f.startsWith('.redpill\\'));
 
     if (planningFiles.length > 0) {
       error(
-        `commit_docs is false but ${planningFiles.length} .planning/ file(s) are staged:\n` +
+        `commit_docs is false but ${planningFiles.length} .redpill/ file(s) are staged:\n` +
         planningFiles.map(f => `  ${f}`).join('\n') +
         `\n\nTo unstage: git reset HEAD ${planningFiles.join(' ')}`
       );

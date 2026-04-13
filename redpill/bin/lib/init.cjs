@@ -5,10 +5,10 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInternal, pathExistsInternal, generateSlugInternal, getMilestoneInfo, getMilestonePhaseFilter, stripShippedMilestones, extractCurrentMilestone, normalizePhaseName, planningPaths, planningDir, planningRoot, toPosixPath, output, error, checkAgentsInstalled } = require('./core.cjs');
+const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInternal, pathExistsInternal, generateSlugInternal, getMilestoneInfo, getMilestonePhaseFilter, stripShippedMilestones, extractCurrentMilestone, normalizePhaseName, redpillPaths, redpillDir, redpillRoot, toPosixPath, output, error, checkAgentsInstalled } = require('./core.cjs');
 
 function getLatestCompletedMilestone(cwd) {
-  const milestonesPath = path.join(planningRoot(cwd), 'MILESTONES.md');
+  const milestonesPath = path.join(redpillRoot(cwd), 'MILESTONES.md');
   if (!fs.existsSync(milestonesPath)) return null;
 
   try {
@@ -26,7 +26,7 @@ function getLatestCompletedMilestone(cwd) {
 
 /**
  * Inject `project_root` into an init result object.
- * Workflows use this to prefix `.planning/` paths correctly when Claude's CWD
+ * Workflows use this to prefix `.redpill/` paths correctly when Claude's CWD
  * differs from the project root (e.g., inside a sub-repo).
  */
 function withProjectRoot(cwd, result) {
@@ -77,8 +77,8 @@ function cmdInitExecutePhase(cwd, phase, raw) {
 
   const result = {
     // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    executor_model: resolveModelInternal(cwd, 'redpill-executor'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config flags
     commit_docs: config.commit_docs,
@@ -123,13 +123,13 @@ function cmdInitExecutePhase(cwd, phase, raw) {
     milestone_slug: generateSlugInternal(milestone.name),
 
     // File existence
-    state_exists: fs.existsSync(path.join(planningDir(cwd), 'STATE.md')),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    config_exists: fs.existsSync(path.join(planningDir(cwd), 'config.json')),
+    state_exists: fs.existsSync(path.join(redpillDir(cwd), 'STATE.md')),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    config_exists: fs.existsSync(path.join(redpillDir(cwd), 'config.json')),
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    config_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'config.json'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    config_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'config.json'))),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -171,9 +171,9 @@ function cmdInitPlanPhase(cwd, phase, raw) {
 
   const result = {
     // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-phase-researcher'),
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
+    researcher_model: resolveModelInternal(cwd, 'redpill-phase-researcher'),
+    planner_model: resolveModelInternal(cwd, 'redpill-planner'),
+    checker_model: resolveModelInternal(cwd, 'redpill-plan-checker'),
 
     // Workflow flags
     research_enabled: config.research,
@@ -199,13 +199,13 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     plan_count: phaseInfo?.plans?.length || 0,
 
     // Environment
-    planning_exists: fs.existsSync(planningDir(cwd)),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
+    redpill_dir_exists: fs.existsSync(redpillDir(cwd)),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
 
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    requirements_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'REQUIREMENTS.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    requirements_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'REQUIREMENTS.md'))),
   };
 
   if (phaseInfo?.directory) {
@@ -276,7 +276,7 @@ function cmdInitNewProject(cwd, raw) {
       '.ex', '.exs',           // Elixir
       '.clj',                  // Clojure
     ]);
-    const skipDirs = new Set(['node_modules', '.git', '.planning', '.claude', '__pycache__', 'target', 'dist', 'build']);
+    const skipDirs = new Set(['node_modules', '.git', '.redpill', '.claude', '__pycache__', 'target', 'dist', 'build']);
     function findCodeFiles(dir, depth) {
       if (depth > 3) return false;
       let entries;
@@ -311,23 +311,23 @@ function cmdInitNewProject(cwd, raw) {
 
   const result = {
     // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'gsd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'gsd-roadmapper'),
+    researcher_model: resolveModelInternal(cwd, 'redpill-project-researcher'),
+    synthesizer_model: resolveModelInternal(cwd, 'redpill-research-synthesizer'),
+    roadmapper_model: resolveModelInternal(cwd, 'redpill-roadmapper'),
 
     // Config
     commit_docs: config.commit_docs,
 
     // Existing state
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    has_codebase_map: pathExistsInternal(cwd, '.planning/codebase'),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
+    has_codebase_map: pathExistsInternal(cwd, '.redpill/codebase'),
+    redpill_dir_exists: pathExistsInternal(cwd, '.redpill'),
 
     // Brownfield detection
     has_existing_code: hasCode,
     has_package_file: hasPackageFile,
     is_brownfield: hasCode || hasPackageFile,
-    needs_codebase_map: (hasCode || hasPackageFile) && !pathExistsInternal(cwd, '.planning/codebase'),
+    needs_codebase_map: (hasCode || hasPackageFile) && !pathExistsInternal(cwd, '.redpill/codebase'),
 
     // Git state
     has_git: pathExistsInternal(cwd, '.git'),
@@ -338,7 +338,7 @@ function cmdInitNewProject(cwd, raw) {
     exa_search_available: hasExaSearch,
 
     // File paths
-    project_path: '.planning/PROJECT.md',
+    project_path: '.redpill/PROJECT.md',
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -348,7 +348,7 @@ function cmdInitNewMilestone(cwd, raw) {
   const config = loadConfig(cwd);
   const milestone = getMilestoneInfo(cwd);
   const latestCompleted = getLatestCompletedMilestone(cwd);
-  const phasesDir = path.join(planningDir(cwd), 'phases');
+  const phasesDir = path.join(redpillDir(cwd), 'phases');
   let phaseDirCount = 0;
 
   try {
@@ -361,9 +361,9 @@ function cmdInitNewMilestone(cwd, raw) {
 
   const result = {
     // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'gsd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'gsd-roadmapper'),
+    researcher_model: resolveModelInternal(cwd, 'redpill-project-researcher'),
+    synthesizer_model: resolveModelInternal(cwd, 'redpill-research-synthesizer'),
+    roadmapper_model: resolveModelInternal(cwd, 'redpill-roadmapper'),
 
     // Config
     commit_docs: config.commit_docs,
@@ -375,17 +375,17 @@ function cmdInitNewMilestone(cwd, raw) {
     latest_completed_milestone: latestCompleted?.version || null,
     latest_completed_milestone_name: latestCompleted?.name || null,
     phase_dir_count: phaseDirCount,
-    phase_archive_path: latestCompleted ? toPosixPath(path.relative(cwd, path.join(planningRoot(cwd), 'milestones', `${latestCompleted.version}-phases`))) : null,
+    phase_archive_path: latestCompleted ? toPosixPath(path.relative(cwd, path.join(redpillRoot(cwd), 'milestones', `${latestCompleted.version}-phases`))) : null,
 
     // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    state_exists: fs.existsSync(path.join(planningDir(cwd), 'STATE.md')),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    state_exists: fs.existsSync(path.join(redpillDir(cwd), 'STATE.md')),
 
     // File paths
-    project_path: '.planning/PROJECT.md',
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    project_path: '.redpill/PROJECT.md',
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -418,10 +418,10 @@ function cmdInitQuick(cwd, description, raw) {
 
   const result = {
     // Models
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    planner_model: resolveModelInternal(cwd, 'redpill-planner'),
+    executor_model: resolveModelInternal(cwd, 'redpill-executor'),
+    checker_model: resolveModelInternal(cwd, 'redpill-plan-checker'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config
     commit_docs: config.commit_docs,
@@ -437,12 +437,12 @@ function cmdInitQuick(cwd, description, raw) {
     timestamp: now.toISOString(),
 
     // Paths
-    quick_dir: '.planning/quick',
-    task_dir: slug ? `.planning/quick/${quickId}-${slug}` : null,
+    quick_dir: '.redpill/quick',
+    task_dir: slug ? `.redpill/quick/${quickId}-${slug}` : null,
 
     // File existence
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    planning_exists: fs.existsSync(planningRoot(cwd)),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    redpill_dir_exists: fs.existsSync(redpillRoot(cwd)),
 
   };
 
@@ -455,20 +455,20 @@ function cmdInitResume(cwd, raw) {
   // Check for interrupted agent
   let interruptedAgentId = null;
   try {
-    interruptedAgentId = fs.readFileSync(path.join(planningRoot(cwd), 'current-agent-id.txt'), 'utf-8').trim();
+    interruptedAgentId = fs.readFileSync(path.join(redpillRoot(cwd), 'current-agent-id.txt'), 'utf-8').trim();
   } catch { /* intentionally empty */ }
 
   const result = {
     // File existence
-    state_exists: fs.existsSync(path.join(planningDir(cwd), 'STATE.md')),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    planning_exists: fs.existsSync(planningRoot(cwd)),
+    state_exists: fs.existsSync(path.join(redpillDir(cwd), 'STATE.md')),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
+    redpill_dir_exists: fs.existsSync(redpillRoot(cwd)),
 
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    project_path: '.planning/PROJECT.md',
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    project_path: '.redpill/PROJECT.md',
 
     // Agent state
     has_interrupted_agent: !!interruptedAgentId,
@@ -512,8 +512,8 @@ function cmdInitVerifyWork(cwd, phase, raw) {
 
   const result = {
     // Models
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
+    planner_model: resolveModelInternal(cwd, 'redpill-planner'),
+    checker_model: resolveModelInternal(cwd, 'redpill-plan-checker'),
 
     // Config
     commit_docs: config.commit_docs,
@@ -603,13 +603,13 @@ function cmdInitPhaseOp(cwd, phase, raw) {
     plan_count: phaseInfo?.plans?.length || 0,
 
     // File existence
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    planning_exists: fs.existsSync(planningDir(cwd)),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    redpill_dir_exists: fs.existsSync(redpillDir(cwd)),
 
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    requirements_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'REQUIREMENTS.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    requirements_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'REQUIREMENTS.md'))),
   };
 
   if (phaseInfo?.directory) {
@@ -647,7 +647,7 @@ function cmdInitTodos(cwd, area, raw) {
   const now = new Date();
 
   // List todos (reuse existing logic)
-  const pendingDir = path.join(planningDir(cwd), 'todos', 'pending');
+  const pendingDir = path.join(redpillDir(cwd), 'todos', 'pending');
   let count = 0;
   const todos = [];
 
@@ -669,7 +669,7 @@ function cmdInitTodos(cwd, area, raw) {
           created: createdMatch ? createdMatch[1].trim() : 'unknown',
           title: titleMatch ? titleMatch[1].trim() : 'Untitled',
           area: todoArea,
-          path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'todos', 'pending', file))),
+          path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'todos', 'pending', file))),
         });
       } catch { /* intentionally empty */ }
     }
@@ -689,13 +689,13 @@ function cmdInitTodos(cwd, area, raw) {
     area_filter: area || null,
 
     // Paths
-    pending_dir: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'todos', 'pending'))),
-    completed_dir: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'todos', 'completed'))),
+    pending_dir: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'todos', 'pending'))),
+    completed_dir: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'todos', 'completed'))),
 
     // File existence
-    planning_exists: fs.existsSync(planningDir(cwd)),
-    todos_dir_exists: fs.existsSync(path.join(planningDir(cwd), 'todos')),
-    pending_dir_exists: fs.existsSync(path.join(planningDir(cwd), 'todos', 'pending')),
+    redpill_dir_exists: fs.existsSync(redpillDir(cwd)),
+    todos_dir_exists: fs.existsSync(path.join(redpillDir(cwd), 'todos')),
+    pending_dir_exists: fs.existsSync(path.join(redpillDir(cwd), 'todos', 'pending')),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -708,7 +708,7 @@ function cmdInitMilestoneOp(cwd, raw) {
   // Count phases
   let phaseCount = 0;
   let completedPhases = 0;
-  const phasesDir = path.join(planningDir(cwd), 'phases');
+  const phasesDir = path.join(redpillDir(cwd), 'phases');
   try {
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
@@ -725,7 +725,7 @@ function cmdInitMilestoneOp(cwd, raw) {
   } catch { /* intentionally empty */ }
 
   // Check archive
-  const archiveDir = path.join(planningRoot(cwd), 'archive');
+  const archiveDir = path.join(redpillRoot(cwd), 'archive');
   let archivedMilestones = [];
   try {
     archivedMilestones = fs.readdirSync(archiveDir, { withFileTypes: true })
@@ -752,11 +752,11 @@ function cmdInitMilestoneOp(cwd, raw) {
     archive_count: archivedMilestones.length,
 
     // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    state_exists: fs.existsSync(path.join(planningDir(cwd), 'STATE.md')),
-    archive_exists: fs.existsSync(path.join(planningRoot(cwd), 'archive')),
-    phases_dir_exists: fs.existsSync(path.join(planningDir(cwd), 'phases')),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    state_exists: fs.existsSync(path.join(redpillDir(cwd), 'STATE.md')),
+    archive_exists: fs.existsSync(path.join(redpillRoot(cwd), 'archive')),
+    phases_dir_exists: fs.existsSync(path.join(redpillDir(cwd), 'phases')),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -766,7 +766,7 @@ function cmdInitMapCodebase(cwd, raw) {
   const config = loadConfig(cwd);
 
   // Check for existing codebase maps
-  const codebaseDir = path.join(planningRoot(cwd), 'codebase');
+  const codebaseDir = path.join(redpillRoot(cwd), 'codebase');
   let existingMaps = [];
   try {
     existingMaps = fs.readdirSync(codebaseDir).filter(f => f.endsWith('.md'));
@@ -774,7 +774,7 @@ function cmdInitMapCodebase(cwd, raw) {
 
   const result = {
     // Models
-    mapper_model: resolveModelInternal(cwd, 'gsd-codebase-mapper'),
+    mapper_model: resolveModelInternal(cwd, 'redpill-codebase-mapper'),
 
     // Config
     commit_docs: config.commit_docs,
@@ -783,15 +783,15 @@ function cmdInitMapCodebase(cwd, raw) {
     subagent_timeout: config.subagent_timeout,
 
     // Paths
-    codebase_dir: '.planning/codebase',
+    codebase_dir: '.redpill/codebase',
 
     // Existing maps
     existing_maps: existingMaps,
     has_maps: existingMaps.length > 0,
 
     // File existence
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-    codebase_dir_exists: pathExistsInternal(cwd, '.planning/codebase'),
+    redpill_dir_exists: pathExistsInternal(cwd, '.redpill'),
+    codebase_dir_exists: pathExistsInternal(cwd, '.redpill/codebase'),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -801,15 +801,15 @@ function cmdInitManager(cwd, raw) {
   const config = loadConfig(cwd);
   const milestone = getMilestoneInfo(cwd);
 
-  // Use planningPaths for forward-compatibility with workstream scoping (#1268)
-  const paths = planningPaths(cwd);
+  // Use redpillPaths for forward-compatibility with workstream scoping (#1268)
+  const paths = redpillPaths(cwd);
 
   // Validate prerequisites
   if (!fs.existsSync(paths.roadmap)) {
-    error('No ROADMAP.md found. Run /gsd:new-milestone first.');
+    error('No ROADMAP.md found. Run /redpill:new-milestone first.');
   }
   if (!fs.existsSync(paths.state)) {
-    error('No STATE.md found. Run /gsd:new-milestone first.');
+    error('No STATE.md found. Run /redpill:new-milestone first.');
   }
   const rawContent = fs.readFileSync(paths.roadmap, 'utf-8');
   const content = extractCurrentMilestone(rawContent, cwd);
@@ -949,7 +949,7 @@ function cmdInitManager(cwd, raw) {
   // Check for WAITING.json signal
   let waitingSignal = null;
   try {
-    const waitingPath = path.join(cwd, '.planning', 'WAITING.json');
+    const waitingPath = path.join(cwd, '.redpill', 'WAITING.json');
     if (fs.existsSync(waitingPath)) {
       waitingSignal = JSON.parse(fs.readFileSync(waitingPath, 'utf-8'));
     }
@@ -966,7 +966,7 @@ function cmdInitManager(cwd, raw) {
         phase_name: phase.name,
         action: 'execute',
         reason: `${phase.plan_count} plans ready, dependencies met`,
-        command: `/gsd:execute-phase ${phase.number}`,
+        command: `/redpill:execute-phase ${phase.number}`,
       });
     } else if (phase.disk_status === 'discussed' || phase.disk_status === 'researched') {
       recommendedActions.push({
@@ -974,7 +974,7 @@ function cmdInitManager(cwd, raw) {
         phase_name: phase.name,
         action: 'plan',
         reason: 'Context gathered, ready for planning',
-        command: `/gsd:plan-phase ${phase.number}`,
+        command: `/redpill:plan-phase ${phase.number}`,
       });
     } else if ((phase.disk_status === 'empty' || phase.disk_status === 'no_directory') && phase.is_next_to_discuss) {
       recommendedActions.push({
@@ -982,7 +982,7 @@ function cmdInitManager(cwd, raw) {
         phase_name: phase.name,
         action: 'discuss',
         reason: 'Unblocked, ready to gather context',
-        command: `/gsd:discuss-phase ${phase.number}`,
+        command: `/redpill:discuss-phase ${phase.number}`,
       });
     }
   }
@@ -1036,7 +1036,7 @@ function cmdInitManager(cwd, raw) {
     recommended_actions: filteredActions,
     waiting_signal: waitingSignal,
     all_complete: completedCount === phases.length && phases.length > 0,
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
     roadmap_exists: true,
     state_exists: true,
   };
@@ -1049,7 +1049,7 @@ function cmdInitProgress(cwd, raw) {
   const milestone = getMilestoneInfo(cwd);
 
   // Analyze phases — filter to current milestone and include ROADMAP-only phases
-  const phasesDir = path.join(planningDir(cwd), 'phases');
+  const phasesDir = path.join(redpillDir(cwd), 'phases');
   const phases = [];
   let currentPhase = null;
   let nextPhase = null;
@@ -1059,7 +1059,7 @@ function cmdInitProgress(cwd, raw) {
   const roadmapPhaseNames = new Map();
   try {
     const roadmapContent = extractCurrentMilestone(
-      fs.readFileSync(path.join(planningDir(cwd), 'ROADMAP.md'), 'utf-8'), cwd
+      fs.readFileSync(path.join(redpillDir(cwd), 'ROADMAP.md'), 'utf-8'), cwd
     );
     const headingPattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:\s*([^\n]+)/gi;
     let hm;
@@ -1103,7 +1103,7 @@ function cmdInitProgress(cwd, raw) {
       const phaseInfo = {
         number: phaseNumber,
         name: phaseName,
-        directory: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'phases', dir))),
+        directory: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'phases', dir))),
         status,
         plan_count: plans.length,
         summary_count: summaries.length,
@@ -1148,15 +1148,15 @@ function cmdInitProgress(cwd, raw) {
   // Check for paused work
   let pausedAt = null;
   try {
-    const state = fs.readFileSync(path.join(planningDir(cwd), 'STATE.md'), 'utf-8');
+    const state = fs.readFileSync(path.join(redpillDir(cwd), 'STATE.md'), 'utf-8');
     const pauseMatch = state.match(/\*\*Paused At:\*\*\s*(.+)/);
     if (pauseMatch) pausedAt = pauseMatch[1].trim();
   } catch { /* intentionally empty */ }
 
   const result = {
     // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
+    executor_model: resolveModelInternal(cwd, 'redpill-executor'),
+    planner_model: resolveModelInternal(cwd, 'redpill-planner'),
 
     // Config
     commit_docs: config.commit_docs,
@@ -1178,14 +1178,14 @@ function cmdInitProgress(cwd, raw) {
     has_work_in_progress: !!currentPhase,
 
     // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
-    state_exists: fs.existsSync(path.join(planningDir(cwd), 'STATE.md')),
+    project_exists: pathExistsInternal(cwd, '.redpill/PROJECT.md'),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
+    state_exists: fs.existsSync(path.join(redpillDir(cwd), 'STATE.md')),
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    project_path: '.planning/PROJECT.md',
-    config_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'config.json'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    project_path: '.redpill/PROJECT.md',
+    config_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'config.json'))),
   };
 
   output(withProjectRoot(cwd, result), raw);
@@ -1267,7 +1267,7 @@ function cmdInitListWorkspaces(cwd, raw) {
         const tableRows = manifest.split('\n').filter(l => l.match(/^\|\s*\w/) && !l.includes('Repo') && !l.includes('---'));
         repoCount = tableRows.length;
       } catch { /* best-effort */ }
-      hasProject = fs.existsSync(path.join(wsPath, '.planning', 'PROJECT.md'));
+      hasProject = fs.existsSync(path.join(wsPath, '.redpill', 'PROJECT.md'));
 
       workspaces.push({
         name: entry.name,
@@ -1358,7 +1358,7 @@ function cmdInitRemoveWorkspace(cwd, name, raw) {
  * string if no skills are configured.
  *
  * @param {object} config - Loaded project config
- * @param {string} agentType - The agent type (e.g., 'gsd-executor', 'gsd-planner')
+ * @param {string} agentType - The agent type (e.g., 'redpill-executor', 'redpill-planner')
  * @param {string} projectRoot - Absolute path to project root (for path validation)
  * @returns {string} Formatted skills block or empty string
  */
@@ -1403,7 +1403,7 @@ function buildAgentSkillsBlock(config, agentType, projectRoot) {
 
 /**
  * Command: output the agent skills block for a given agent type.
- * Used by workflows: SKILLS=$(node "$TOOLS" agent-skills gsd-executor 2>/dev/null)
+ * Used by workflows: SKILLS=$(node "$TOOLS" agent-skills redpill-executor 2>/dev/null)
  */
 function cmdAgentSkills(cwd, agentType, raw) {
   if (!agentType) {
@@ -1506,10 +1506,10 @@ function cmdInitBddPhase(cwd, phase, raw) {
 
   const result = {
     // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    step_writer_model: resolveModelInternal(cwd, 'gsd-step-writer'),
-    step_reviewer_model: resolveModelInternal(cwd, 'gsd-step-reviewer'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    executor_model: resolveModelInternal(cwd, 'redpill-executor'),
+    step_writer_model: resolveModelInternal(cwd, 'redpill-step-writer'),
+    step_reviewer_model: resolveModelInternal(cwd, 'redpill-step-reviewer'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config flags
     commit_docs: config.commit_docs,
@@ -1525,13 +1525,13 @@ function cmdInitBddPhase(cwd, phase, raw) {
     phase_req_ids,
 
     // Environment
-    planning_exists: fs.existsSync(planningDir(cwd)),
-    roadmap_exists: fs.existsSync(path.join(planningDir(cwd), 'ROADMAP.md')),
+    redpill_dir_exists: fs.existsSync(redpillDir(cwd)),
+    roadmap_exists: fs.existsSync(path.join(redpillDir(cwd), 'ROADMAP.md')),
 
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    roadmap_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'ROADMAP.md'))),
-    requirements_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'REQUIREMENTS.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    roadmap_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'ROADMAP.md'))),
+    requirements_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'REQUIREMENTS.md'))),
 
     // BDD defaults (overridden below if phase directory exists)
     has_bdd_progress: false,
@@ -1596,25 +1596,25 @@ function cmdInitRunBdd(cwd, raw) {
 
   const result = {
     // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    step_writer_model: resolveModelInternal(cwd, 'gsd-step-writer'),
-    step_reviewer_model: resolveModelInternal(cwd, 'gsd-step-reviewer'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    executor_model: resolveModelInternal(cwd, 'redpill-executor'),
+    step_writer_model: resolveModelInternal(cwd, 'redpill-step-writer'),
+    step_reviewer_model: resolveModelInternal(cwd, 'redpill-step-reviewer'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config flags
     commit_docs: config.commit_docs,
     text_mode: config.text_mode,
 
     // Environment
-    planning_exists: fs.existsSync(planningDir(cwd)),
+    redpill_dir_exists: fs.existsSync(redpillDir(cwd)),
 
     // File paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
-    bdd_dir: '.planning/bdd',
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    bdd_dir: '.redpill/bdd',
   };
 
-  // Check for existing BDD-PROGRESS.json in .planning/bdd/
-  const bddDir = path.join(planningDir(cwd), 'bdd');
+  // Check for existing BDD-PROGRESS.json in .redpill/bdd/
+  const bddDir = path.join(redpillDir(cwd), 'bdd');
   const progressPath = path.join(bddDir, 'BDD-PROGRESS.json');
   result.has_bdd_progress = fs.existsSync(progressPath);
   result.bdd_progress_path = toPosixPath(path.relative(cwd, progressPath));
@@ -1653,11 +1653,11 @@ function cmdInitRunBdd(cwd, raw) {
 }
 
 /**
- * Init handler for /gsd:clarify-feature.
+ * Init handler for /redpill:clarify-feature.
  *
  * Returns context needed by the clarify-feature workflow: a fresh
  * task_id (YYMMDD-xxx), existing feature inventory, tech stack hints,
- * and review config knobs. Lenient about missing .planning/.
+ * and review config knobs. Lenient about missing .redpill/.
  */
 function cmdInitClarifyFeature(cwd, raw) {
   const config = loadConfig(cwd);
@@ -1692,18 +1692,18 @@ function cmdInitClarifyFeature(cwd, raw) {
   // Review knobs come from config.workflow.* via loadConfig's flattened schema.
   const result = {
     // Models
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config flags
     text_mode: config.text_mode,
 
     // Environment
-    planning_exists: fs.existsSync(planningRoot(cwd)),
+    redpill_dir_exists: fs.existsSync(redpillRoot(cwd)),
 
     // Paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
     claude_md_path: './CLAUDE.md',
-    features_task_dir_base: '.planning/features',
+    features_task_dir_base: '.redpill/features',
 
     // Task identity
     task_id: taskId,

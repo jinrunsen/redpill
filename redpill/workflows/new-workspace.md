@@ -1,5 +1,5 @@
 <purpose>
-Create an isolated workspace directory with git repo copies (worktrees or clones) and an independent `.planning/` directory. Supports multi-repo orchestration and single-repo feature branch isolation.
+Create an isolated workspace directory with git repo copies (worktrees or clones) and an independent `.redpill/` directory. Supports multi-repo orchestration and single-repo feature branch isolation.
 </purpose>
 
 <required_reading>
@@ -13,7 +13,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 **MANDATORY FIRST STEP — Execute init command:**
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init new-workspace)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init new-workspace)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -71,7 +71,7 @@ Error:
 No git repos found in the current directory and this is not a git repo.
 
 Run this command from a directory containing git repos, or specify repos explicitly:
-  /gsd:new-workspace --name my-workspace --repos /path/to/repo1,/path/to/repo2
+  /redpill:new-workspace --name my-workspace --repos /path/to/repo1,/path/to/repo2
 ```
 Exit.
 
@@ -82,7 +82,7 @@ Error:
 Error: --auto requires --repos to specify which repos to include.
 
 Usage:
-  /gsd:new-workspace --name my-workspace --repos repo1,repo2 --auto
+  /redpill:new-workspace --name my-workspace --repos repo1,repo2 --auto
 ```
 Exit.
 
@@ -182,7 +182,7 @@ Strategy: $STRATEGY
 [Add context about what this workspace is for]
 ```
 
-## 8. Initialize .planning/
+## 8. Initialize .redpill/
 
 ```bash
 mkdir -p "$TARGET_PATH/.planning"
@@ -201,7 +201,7 @@ Workspace created: $TARGET_PATH
 
 Next steps:
   cd $TARGET_PATH
-  /gsd:new-project    # Initialize GSD in the workspace
+  /redpill:new-project    # Initialize REDPILL in the workspace
 ```
 
 **If some repos failed:**
@@ -214,16 +214,16 @@ Workspace created with $SUCCESS_COUNT of $TOTAL_COUNT repos: $TARGET_PATH
 
 Next steps:
   cd $TARGET_PATH
-  /gsd:new-project    # Initialize GSD in the workspace
+  /redpill:new-project    # Initialize REDPILL in the workspace
 ```
 
-**Offer to initialize GSD (if not `--auto`):**
+**Offer to initialize REDPILL (if not `--auto`):**
 
 Use AskUserQuestion:
 - header: "Initialize GSD"
-- question: "Would you like to initialize a GSD project in the new workspace?"
+- question: "Would you like to initialize a REDPILL project in the new workspace?"
 - options:
-  - "Yes — run /gsd:new-project" → tell user to `cd $TARGET_PATH` first, then run `/gsd:new-project`
+  - "Yes — run /redpill:new-project" → tell user to `cd $TARGET_PATH` first, then run `/redpill:new-project`
   - "No — I'll set it up later" → done
 
 </process>
@@ -232,6 +232,6 @@ Use AskUserQuestion:
 - [ ] Workspace directory created at target path
 - [ ] All specified repos copied (worktree or clone) into workspace
 - [ ] WORKSPACE.md manifest written with correct repo table
-- [ ] `.planning/` directory initialized at workspace root
+- [ ] `.redpill/` directory initialized at workspace root
 - [ ] User informed of workspace path and next steps
 </success_criteria>

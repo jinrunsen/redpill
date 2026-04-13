@@ -1,12 +1,12 @@
 <purpose>
-Detect project environment and generate or validate `.planning/DEV-SETUP.md`.
+Detect project environment and generate or validate `.redpill/DEV-SETUP.md`.
 Two modes: generate (create from project detection) and validate (verify service runs locally).
-Called standalone via `/gsd:check-env` or automatically at the end of `/gsd:new-project`.
+Called standalone via `/redpill:check-env` or automatically at the end of `/redpill:new-project`.
 </purpose>
 
 <required_reading>
 Read the DEV-SETUP.md template before generating:
-@~/.claude/get-shit-done/templates/dev-setup.md
+@~/.claude/redpill/templates/dev-setup.md
 </required_reading>
 
 <process>
@@ -18,7 +18,7 @@ If $ARGUMENTS contains "--generate":
   MODE = "generate"
 Else if $ARGUMENTS contains "--validate":
   MODE = "validate"
-Else if .planning/DEV-SETUP.md exists:
+Else if .redpill/DEV-SETUP.md exists:
   MODE = "validate"
 Else:
   MODE = "generate"
@@ -28,7 +28,7 @@ Display banner:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► CHECK-ENV ({MODE})
+ REDPILL ► CHECK-ENV ({MODE})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -126,7 +126,7 @@ Detected:
 Use AskUserQuestion:
 
 - header: "DEV-SETUP"
-- question: "Does this look correct? I'll generate .planning/DEV-SETUP.md from this."
+- question: "Does this look correct? I'll generate .redpill/DEV-SETUP.md from this."
 - options:
   - "Generate" — Create DEV-SETUP.md with these settings
   - "Adjust" — Let me correct some details first
@@ -137,22 +137,22 @@ Use AskUserQuestion:
 
 ### 2f. Write DEV-SETUP.md
 
-Generate `.planning/DEV-SETUP.md` with:
+Generate `.redpill/DEV-SETUP.md` with:
 - YAML frontmatter from detected values
 - Markdown body with human-readable documentation for each section
 
-Follow the template structure from `~/.claude/get-shit-done/templates/dev-setup.md`.
+Follow the template structure from `~/.claude/redpill/templates/dev-setup.md`.
 
 Commit:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: add local development setup" --files .planning/DEV-SETUP.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: add local development setup" --files .redpill/DEV-SETUP.md
 ```
 
 Display:
 
 ```
-✓ Generated .planning/DEV-SETUP.md
+✓ Generated .redpill/DEV-SETUP.md
 ```
 
 Then proceed to Step 3 (validate).
@@ -161,12 +161,12 @@ Then proceed to Step 3 (validate).
 
 ### 3a. Parse Frontmatter
 
-Read `.planning/DEV-SETUP.md` and extract YAML frontmatter.
+Read `.redpill/DEV-SETUP.md` and extract YAML frontmatter.
 
 If parse fails:
 ```
 ❌ DEV-SETUP.md frontmatter is not valid YAML.
-  → Fix the YAML syntax in .planning/DEV-SETUP.md
+  → Fix the YAML syntax in .redpill/DEV-SETUP.md
 ```
 Exit.
 
@@ -175,8 +175,8 @@ Check required fields exist: `install`, `build`, `start`, `verify`.
 If missing:
 ```
 ❌ DEV-SETUP.md missing required field: {field}
-  → Add '{field}' to the YAML frontmatter in .planning/DEV-SETUP.md
-  → See template: ~/.claude/get-shit-done/templates/dev-setup.md
+  → Add '{field}' to the YAML frontmatter in .redpill/DEV-SETUP.md
+  → See template: ~/.claude/redpill/templates/dev-setup.md
 ```
 Exit.
 
@@ -304,7 +304,7 @@ If not verified:
   Expected: {verify.expected or "exit code 0"}
   Last result: {RESULT}
   → Check that the service starts correctly on the expected port
-  → Review .planning/DEV-SETUP.md start and verify fields
+  → Review .redpill/DEV-SETUP.md start and verify fields
 ```
 
 Kill background service:
@@ -319,7 +319,7 @@ Exit if not verified.
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► CHECK-ENV PASSED ✓
+ REDPILL ► CHECK-ENV PASSED ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  ✓ Prerequisites:  {count} checks passed

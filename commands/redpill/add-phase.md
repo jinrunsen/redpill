@@ -1,5 +1,5 @@
 ---
-name: gsd:add-phase
+name: redpill:add-phase
 description: Add phase to end of current milestone in roadmap
 argument-hint: <description>
 allowed-tools:
@@ -19,7 +19,7 @@ Routes to the add-phase workflow which handles:
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/add-phase.md
+@~/.claude/redpill/workflows/add-phase.md
 </execution_context>
 
 <context>
@@ -29,7 +29,7 @@ Roadmap and state are resolved in-workflow via `init phase-op` and targeted tool
 </context>
 
 <process>
-**Follow the add-phase workflow** from `@~/.claude/get-shit-done/workflows/add-phase.md`.
+**Follow the add-phase workflow** from `@~/.claude/redpill/workflows/add-phase.md`.
 
 The workflow handles all logic including:
 1. Argument parsing and validation

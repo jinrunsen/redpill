@@ -1,15 +1,15 @@
 #!/bin/bash
-# gsd-validate-commit.sh — PreToolUse hook: enforce Conventional Commits format
+# redpill-validate-commit.sh — PreToolUse hook: enforce Conventional Commits format
 # Blocks git commit commands with non-conforming messages (exit 2).
 # Allows conforming messages and all non-commit commands (exit 0).
-# Uses Node.js for JSON parsing (always available in GSD projects, no jq dependency).
+# Uses Node.js for JSON parsing (always available in REDPILL projects, no jq dependency).
 #
 # OPT-IN: This hook is a no-op unless config.json has hooks.community: true.
-# Enable with: "hooks": { "community": true } in .planning/config.json
+# Enable with: "hooks": { "community": true } in .redpill/config.json
 
 # Check opt-in config — exit silently if not enabled
-if [ -f .planning/config.json ]; then
-  ENABLED=$(node -e "try{const c=require('./.planning/config.json');process.stdout.write(c.hooks?.community===true?'1':'0')}catch{process.stdout.write('0')}" 2>/dev/null)
+if [ -f .redpill/config.json ]; then
+  ENABLED=$(node -e "try{const c=require('./.redpill/config.json');process.stdout.write(c.hooks?.community===true?'1':'0')}catch{process.stdout.write('0')}" 2>/dev/null)
   if [ "$ENABLED" != "1" ]; then exit 0; fi
 else
   exit 0

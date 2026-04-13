@@ -4,7 +4,7 @@
  *
  * Patterns removed:
  * - @file:... references (file injection directives)
- * - /gsd:... slash commands
+ * - /redpill:... slash commands
  * - AskUserQuestion(...) calls
  * - STOP directives in interactive contexts
  * - SlashCommand() calls
@@ -22,8 +22,8 @@ const LINE_PATTERNS: RegExp[] = [
   // @file:path/to/something references — entire line
   /^.*@file:\S+.*$/gm,
 
-  // /gsd:command references — entire line containing a slash command
-  /^.*\/gsd:\S+.*$/gm,
+  // /redpill:command references — entire line containing a slash command
+  /^.*\/redpill:\S+.*$/gm,
 
   // AskUserQuestion(...) calls — entire line
   /^.*AskUserQuestion\s*\(.*$/gm,

@@ -5,21 +5,21 @@
 ## 解析模式
 
 ```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
+MODEL_PROFILE=$(cat .redpill/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
 ```
 
 默认值：未设置或缺少 config 时为 `balanced`。
 
 ## 查找表
 
-@~/.claude/get-shit-done/references/model-profiles.md
+@~/.claude/redpill/references/model-profiles.md
 
 在表中查找已解析配置对应的代理。将 model 参数传递给 Task 调用：
 
 ```
 Task(
   prompt="...",
-  subagent_type="gsd-planner",
+  subagent_type="redpill-planner",
   model="{resolved_model}"  # "inherit"、"sonnet" 或 "haiku"
 )
 ```

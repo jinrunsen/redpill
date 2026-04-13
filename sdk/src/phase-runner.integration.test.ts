@@ -1,7 +1,7 @@
 /**
- * Integration test — proves PhaseRunner state machine works against real gsd-tools.cjs.
+ * Integration test — proves PhaseRunner state machine works against real redpill-tools.cjs.
  *
- * Creates a temp `.planning/` directory structure, instantiates real GSDTools,
+ * Creates a temp `.redpill/` directory structure, instantiates real GSDTools,
  * and exercises the state machine. Sessions will fail (no Claude CLI in CI) but
  * the state machine's control flow, event emission, and error capture are proven.
  */
@@ -24,21 +24,21 @@ import { GSDEventType, PhaseStepType } from './types.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const GSD_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+const REDPILL_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs');
 
 async function createTempPlanningDir(): Promise<string> {
-  const tmpDir = await mkdtemp(join(tmpdir(), 'gsd-sdk-phase-int-'));
+  const tmpDir = await mkdtemp(join(tmpdir(), 'redpill-sdk-phase-int-'));
 
   // Create .planning structure
-  const planningDir = join(tmpDir, '.planning');
-  const phasesDir = join(planningDir, 'phases');
+  const redpillDir = join(tmpDir, '.redpill');
+  const phasesDir = join(redpillDir, 'phases');
   const phaseDir = join(phasesDir, '01-integration-test');
 
   await mkdir(phaseDir, { recursive: true });
 
   // config.json
   await writeFile(
-    join(planningDir, 'config.json'),
+    join(redpillDir, 'config.json'),
     JSON.stringify({
       model_profile: 'balanced',
       commit_docs: false,
@@ -52,7 +52,7 @@ async function createTempPlanningDir(): Promise<string> {
   );
 
   // ROADMAP.md — required for roadmap_exists
-  await writeFile(join(planningDir, 'ROADMAP.md'), '# Roadmap\n\n## Phase 01: Integration Test\n');
+  await writeFile(join(redpillDir, 'ROADMAP.md'), '# Roadmap\n\n## Phase 01: Integration Test\n');
 
   // CONTEXT.md in phase dir — triggers has_context=true → discuss is skipped
   await writeFile(
@@ -65,7 +65,7 @@ async function createTempPlanningDir(): Promise<string> {
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
-describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
+describe('Integration: PhaseRunner against real redpill-tools.cjs', () => {
   let tmpDir: string;
   let tools: GSDTools;
 
@@ -73,7 +73,7 @@ describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
     tmpDir = await createTempPlanningDir();
     tools = new GSDTools({
       projectDir: tmpDir,
-      gsdToolsPath: GSD_TOOLS_PATH,
+      gsdToolsPath: REDPILL_TOOLS_PATH,
       timeoutMs: 10_000,
     });
   });
@@ -92,12 +92,12 @@ describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
     expect(info.phase_found).toBe(true);
     expect(info.phase_number).toBe('01');
     expect(info.phase_name).toBe('integration-test');
-    expect(info.phase_dir).toBe('.planning/phases/01-integration-test');
+    expect(info.phase_dir).toBe('.redpill/phases/01-integration-test');
     expect(info.has_context).toBe(true);
     expect(info.has_plans).toBe(false);
     expect(info.plan_count).toBe(0);
     expect(info.roadmap_exists).toBe(true);
-    expect(info.planning_exists).toBe(true);
+    expect(info.redpill_dir_exists).toBe(true);
   });
 
   it('initPhaseOp returns phase_found=false for nonexistent phase', async () => {
@@ -201,8 +201,8 @@ describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
   // ── Test 4: GSD.runPhase() public API delegates correctly ──
 
   it('GSD.runPhase() creates collaborators and delegates to PhaseRunner', { timeout: 300_000 }, async () => {
-    // Import GSD here to test the public API wiring
-    const { GSD } = await import('./index.js');
+    // Import REDPILL here to test the public API wiring
+    const { REDPILL } = await import('./index.js');
 
     const gsd = new GSD({ projectDir: tmpDir });
     const events: GSDEvent[] = [];
@@ -213,7 +213,7 @@ describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
       maxBudgetPerStep: 0.10,
     });
 
-    // Proves the full wiring works: GSD → PhaseRunner → GSDTools → gsd-tools.cjs
+    // Proves the full wiring works: REDPILL → PhaseRunner → GSDTools → redpill-tools.cjs
     expect(result.phaseNumber).toBe('01');
     expect(result.phaseName).toBe('integration-test');
     expect(result.steps.length).toBeGreaterThanOrEqual(1);
@@ -225,21 +225,21 @@ describe('Integration: PhaseRunner against real gsd-tools.cjs', () => {
 // ─── Wave / phasePlanIndex Integration Tests ─────────────────────────────────
 
 /**
- * Creates a temp `.planning/` directory with multi-wave plan files.
+ * Creates a temp `.redpill/` directory with multi-wave plan files.
  * - Plans 01 and 02 are wave 1 (parallel)
  * - Plan 03 is wave 2 (depends on wave 1)
  * - Plan 01 has a SUMMARY.md (marks it as completed)
  */
 async function createMultiWavePlanningDir(): Promise<string> {
-  const tmpDir = await mkdtemp(join(tmpdir(), 'gsd-sdk-wave-int-'));
+  const tmpDir = await mkdtemp(join(tmpdir(), 'redpill-sdk-wave-int-'));
 
-  const planningDir = join(tmpDir, '.planning');
-  const phaseDir = join(planningDir, 'phases', '01-wave-test');
+  const redpillDir = join(tmpDir, '.redpill');
+  const phaseDir = join(redpillDir, 'phases', '01-wave-test');
   await mkdir(phaseDir, { recursive: true });
 
   // config.json — with parallelization enabled
   await writeFile(
-    join(planningDir, 'config.json'),
+    join(redpillDir, 'config.json'),
     JSON.stringify({
       model_profile: 'balanced',
       commit_docs: false,
@@ -254,7 +254,7 @@ async function createMultiWavePlanningDir(): Promise<string> {
   );
 
   // ROADMAP.md
-  await writeFile(join(planningDir, 'ROADMAP.md'), '# Roadmap\n\n## Phase 01: Wave Test\n');
+  await writeFile(join(redpillDir, 'ROADMAP.md'), '# Roadmap\n\n## Phase 01: Wave Test\n');
 
   const planTemplate = (id: string, wave: number, dependsOn: string[] = []) => `---
 phase: "01"
@@ -311,7 +311,7 @@ describe('Integration: phasePlanIndex and wave execution', () => {
     tmpDir = await createMultiWavePlanningDir();
     tools = new GSDTools({
       projectDir: tmpDir,
-      gsdToolsPath: GSD_TOOLS_PATH,
+      gsdToolsPath: REDPILL_TOOLS_PATH,
       timeoutMs: 10_000,
     });
   });

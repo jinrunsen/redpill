@@ -311,7 +311,7 @@ export class PhaseRunner {
 
   /**
    * Run the plan-check step.
-   * Loads the gsd-plan-checker agent definition, runs a Verify-scoped session,
+   * Loads the redpill-plan-checker agent definition, runs a Verify-scoped session,
    * and parses output for PASS/FAIL signals.
    */
   private async runPlanCheckStep(

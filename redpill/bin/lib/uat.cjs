@@ -7,12 +7,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const { output, error, getMilestonePhaseFilter, planningDir, toPosixPath } = require('./core.cjs');
+const { output, error, getMilestonePhaseFilter, redpillDir, toPosixPath } = require('./core.cjs');
 const { extractFrontmatter } = require('./frontmatter.cjs');
 const { requireSafePath, sanitizeForDisplay } = require('./security.cjs');
 
 function cmdAuditUat(cwd, raw) {
-  const phasesDir = path.join(planningDir(cwd), 'phases');
+  const phasesDir = path.join(redpillDir(cwd), 'phases');
   if (!fs.existsSync(phasesDir)) {
     error('No phases directory found in planning directory');
   }

@@ -74,16 +74,16 @@ test('does the thing', () => {
 Import helpers from `tests/helpers.cjs` instead of inlining temp directory creation:
 
 ```javascript
-const { createTempProject, createTempGitProject, createTempDir, cleanup, runGsdTools } = require('./helpers.cjs');
+const { createTempProject, createTempGitProject, createTempDir, cleanup, runRedpillTools } = require('./helpers.cjs');
 ```
 
 | Helper | Creates | Use When |
 |--------|---------|----------|
-| `createTempProject(prefix?)` | tmpDir with `.planning/phases/` | Testing GSD tools that need planning structure |
+| `createTempProject(prefix?)` | tmpDir with `.redpill/phases/` | Testing REDPILL tools that need planning structure |
 | `createTempGitProject(prefix?)` | Same + git init + initial commit | Testing git-dependent features |
-| `createTempDir(prefix?)` | Bare temp directory | Testing features that don't need `.planning/` |
+| `createTempDir(prefix?)` | Bare temp directory | Testing features that don't need `.redpill/` |
 | `cleanup(tmpDir)` | Removes directory recursively | Always use in `afterEach` |
-| `runGsdTools(args, cwd, env?)` | Executes gsd-tools.cjs | Testing CLI commands |
+| `runRedpillTools(args, cwd, env?)` | Executes redpill-tools.cjs | Testing CLI commands |
 
 ### Test Structure
 
@@ -170,14 +170,14 @@ npm run test:coverage
 ## Code Style
 
 - **CommonJS** (`.cjs`) — the project uses `require()`, not ESM `import`
-- **No external dependencies in core** — `gsd-tools.cjs` and all lib files use only Node.js built-ins
+- **No external dependencies in core** — `redpill-tools.cjs` and all lib files use only Node.js built-ins
 - **Conventional commits** — `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `ci:`
 
 ## File Structure
 
 ```
 bin/install.js          — Installer (multi-runtime)
-get-shit-done/
+redpill/
   bin/lib/              — Core library modules (.cjs)
   workflows/            — Workflow definitions (.md)
   references/           — Reference documentation (.md)

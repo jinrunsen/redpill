@@ -1,5 +1,5 @@
 /**
- * GSD Event Stream — maps SDKMessage variants to typed GSD events.
+ * REDPILL Event Stream — maps SDKMessage variants to typed REDPILL events.
  *
  * Extends EventEmitter to provide a typed event bus. Includes:
  * - SDKMessage → GSDEvent mapping
@@ -97,7 +97,7 @@ export class GSDEventStream extends EventEmitter {
 
   // ─── Event emission ──────────────────────────────────────────────────
 
-  /** Emit a typed GSD event to all listeners and transports. */
+  /** Emit a typed REDPILL event to all listeners and transports. */
   emitEvent(event: GSDEvent): void {
     // Emit via EventEmitter for listener-based consumers
     this.emit('event', event);

@@ -1,6 +1,6 @@
 # PROJECT.md Template
 
-Template for `.planning/PROJECT.md` — the living project context document.
+Template for `.redpill/PROJECT.md` — the living project context document.
 
 <template>
 
@@ -149,7 +149,7 @@ and implemented by workflows/transition.md and workflows/complete-milestone.md.
 
 For existing codebases:
 
-1. **Map codebase first** via `/gsd:map-codebase`
+1. **Map codebase first** via `/redpill:map-codebase`
 
 2. **Infer Validated requirements** from existing code:
    - What does the codebase actually do?
@@ -175,7 +175,7 @@ STATE.md references PROJECT.md:
 ```markdown
 ## Project Reference
 
-See: .planning/PROJECT.md (updated [date])
+See: .redpill/PROJECT.md (updated [date])
 
 **Core value:** [One-liner from Core Value section]
 **Current focus:** [Current phase name]

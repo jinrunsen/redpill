@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Init Clarify Feature
+ * REDPILL Tools Tests - Init Clarify Feature
  *
  * Validates the init clarify-feature handler and its feature-scanning
  * helpers. Exercises real filesystem fixtures via createTempProject().
@@ -9,10 +9,10 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // Helpers are internal — loaded directly for unit testing.
-const initLib = require('../get-shit-done/bin/lib/init.cjs');
+const initLib = require('../redpill/bin/lib/init.cjs');
 
 describe('scanFeatureFiles helper', () => {
   let tmpDir;
@@ -111,7 +111,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns task_id in YYMMDD-xxx format', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -120,12 +120,12 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns standard paths and verifier_model', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.features_task_dir_base, '.planning/features');
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
+    assert.strictEqual(output.features_task_dir_base, '.redpill/features');
+    assert.strictEqual(output.state_path, '.redpill/STATE.md');
     assert.strictEqual(output.claude_md_path, './CLAUDE.md');
     assert.strictEqual(typeof output.verifier_model, 'string', 'verifier_model should be a string');
     assert.notStrictEqual(output.verifier_model, '', 'verifier_model should not be empty');
@@ -133,7 +133,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns empty existing_features when features/ missing', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -148,7 +148,7 @@ describe('init clarify-feature handler', () => {
     fs.writeFileSync(path.join(authDir, 'login.feature'), 'Feature: Login');
     fs.writeFileSync(path.join(tmpDir, 'features', 'health.feature'), 'Feature: Health');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -157,29 +157,29 @@ describe('init clarify-feature handler', () => {
     assert.deepStrictEqual(output.existing_feature_domains, ['auth']);
   });
 
-  test('returns planning_exists true when .planning/ present', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+  test('returns redpill_dir_exists true when .redpill/ present', () => {
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.planning_exists, true);
+    assert.strictEqual(output.redpill_dir_exists, true);
   });
 
-  test('tolerates missing .planning/ directory', () => {
-    // createTempProject creates .planning/phases — remove it
-    fs.rmSync(path.join(tmpDir, '.planning'), { recursive: true, force: true });
+  test('tolerates missing .redpill/ directory', () => {
+    // createTempProject creates .redpill/phases — remove it
+    fs.rmSync(path.join(tmpDir, '.redpill'), { recursive: true, force: true });
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.planning_exists, false);
+    assert.strictEqual(output.redpill_dir_exists, false);
   });
 
   test('detects pyproject.toml in tech_stack_hint', () => {
     fs.writeFileSync(path.join(tmpDir, 'pyproject.toml'), '[project]\nname = "x"\n');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -191,7 +191,7 @@ describe('init clarify-feature handler', () => {
   test('detects package.json in tech_stack_hint', () => {
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{"name":"x"}');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -199,7 +199,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns default review config values', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -208,7 +208,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('honors feature_review_max_rounds and feature_auto_scenario_cap from config.json', () => {
-    const configPath = path.join(tmpDir, '.planning', 'config.json');
+    const configPath = path.join(tmpDir, '.redpill', 'config.json');
     fs.writeFileSync(configPath, JSON.stringify({
       workflow: {
         feature_review_max_rounds: 5,
@@ -216,7 +216,7 @@ describe('init clarify-feature handler', () => {
       },
     }));
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);

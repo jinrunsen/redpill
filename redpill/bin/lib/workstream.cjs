@@ -2,23 +2,23 @@
  * Workstream — CRUD operations for workstream namespacing
  *
  * Workstreams enable parallel milestones by scoping ROADMAP.md, STATE.md,
- * REQUIREMENTS.md, and phases/ into .planning/workstreams/{name}/ directories.
+ * REQUIREMENTS.md, and phases/ into .redpill/workstreams/{name}/ directories.
  *
- * When no workstreams/ directory exists, GSD operates in "flat mode" with
- * everything at .planning/ — backward compatible with pre-workstream installs.
+ * When no workstreams/ directory exists, REDPILL operates in "flat mode" with
+ * everything at .redpill/ — backward compatible with pre-workstream installs.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { output, error, planningPaths, planningRoot, toPosixPath, getMilestoneInfo, generateSlugInternal, setActiveWorkstream, getActiveWorkstream, filterPlanFiles, filterSummaryFiles, readSubdirectories } = require('./core.cjs');
+const { output, error, redpillPaths, redpillRoot, toPosixPath, getMilestoneInfo, generateSlugInternal, setActiveWorkstream, getActiveWorkstream, filterPlanFiles, filterSummaryFiles, readSubdirectories } = require('./core.cjs');
 const { stateExtractField } = require('./state.cjs');
 
 // ─── Migration ──────────────────────────────────────────────────────────────
 
 /**
- * Migrate flat .planning/ layout to workstream mode.
+ * Migrate flat .redpill/ layout to workstream mode.
  * Moves per-workstream files (ROADMAP.md, STATE.md, REQUIREMENTS.md, phases/)
- * into .planning/workstreams/{name}/. Shared files (PROJECT.md, config.json,
+ * into .redpill/workstreams/{name}/. Shared files (PROJECT.md, config.json,
  * milestones/, research/, codebase/, todos/) stay in place.
  */
 function migrateToWorkstreams(cwd, workstreamName) {
@@ -26,11 +26,11 @@ function migrateToWorkstreams(cwd, workstreamName) {
     throw new Error('Invalid workstream name for migration');
   }
 
-  const baseDir = planningRoot(cwd);
+  const baseDir = redpillRoot(cwd);
   const wsDir = path.join(baseDir, 'workstreams', workstreamName);
 
   if (fs.existsSync(path.join(baseDir, 'workstreams'))) {
-    throw new Error('Already in workstream mode — .planning/workstreams/ exists');
+    throw new Error('Already in workstream mode — .redpill/workstreams/ exists');
   }
 
   const toMove = [
@@ -76,9 +76,9 @@ function cmdWorkstreamCreate(cwd, name, options, raw) {
     error('Invalid workstream name — must contain at least one alphanumeric character');
   }
 
-  const baseDir = planningRoot(cwd);
+  const baseDir = redpillRoot(cwd);
   if (!fs.existsSync(baseDir)) {
-    error('.planning/ directory not found — run /gsd:new-project first');
+    error('.redpill/ directory not found — run /redpill:new-project first');
   }
 
   const wsRoot = path.join(baseDir, 'workstreams');
@@ -169,7 +169,7 @@ function cmdWorkstreamCreate(cwd, name, options, raw) {
 }
 
 function cmdWorkstreamList(cwd, raw) {
-  const wsRoot = path.join(planningRoot(cwd), 'workstreams');
+  const wsRoot = path.join(redpillRoot(cwd), 'workstreams');
 
   if (!fs.existsSync(wsRoot)) {
     output({ mode: 'flat', workstreams: [], message: 'No workstreams — operating in flat mode' }, raw);
@@ -223,13 +223,13 @@ function cmdWorkstreamStatus(cwd, name, raw) {
   if (!name) error('workstream name required. Usage: workstream status <name>');
   if (/[/\\]/.test(name) || name === '.' || name === '..') error('Invalid workstream name');
 
-  const wsDir = path.join(planningRoot(cwd), 'workstreams', name);
+  const wsDir = path.join(redpillRoot(cwd), 'workstreams', name);
   if (!fs.existsSync(wsDir)) {
     output({ found: false, workstream: name }, raw);
     return;
   }
 
-  const p = planningPaths(cwd, name);
+  const p = redpillPaths(cwd, name);
   const relPath = toPosixPath(path.relative(cwd, wsDir));
 
   const files = {
@@ -280,7 +280,7 @@ function cmdWorkstreamComplete(cwd, name, options, raw) {
   if (!name) error('workstream name required. Usage: workstream complete <name>');
   if (/[/\\]/.test(name) || name === '.' || name === '..') error('Invalid workstream name');
 
-  const root = planningRoot(cwd);
+  const root = redpillRoot(cwd);
   const wsRoot = path.join(root, 'workstreams');
   const wsDir = path.join(wsRoot, name);
 
@@ -354,7 +354,7 @@ function cmdWorkstreamSet(cwd, name, raw) {
     return;
   }
 
-  const wsDir = path.join(planningRoot(cwd), 'workstreams', name);
+  const wsDir = path.join(redpillRoot(cwd), 'workstreams', name);
   if (!fs.existsSync(wsDir)) {
     output({ active: null, error: 'not_found', workstream: name }, raw);
     return;
@@ -366,12 +366,12 @@ function cmdWorkstreamSet(cwd, name, raw) {
 
 function cmdWorkstreamGet(cwd, raw) {
   const active = getActiveWorkstream(cwd);
-  const wsRoot = path.join(planningRoot(cwd), 'workstreams');
+  const wsRoot = path.join(redpillRoot(cwd), 'workstreams');
   output({ active, mode: fs.existsSync(wsRoot) ? 'workstream' : 'flat' }, raw, active || 'none');
 }
 
 function cmdWorkstreamProgress(cwd, raw) {
-  const root = planningRoot(cwd);
+  const root = redpillRoot(cwd);
   const wsRoot = path.join(root, 'workstreams');
 
   if (!fs.existsSync(wsRoot)) {
@@ -439,7 +439,7 @@ function cmdWorkstreamProgress(cwd, raw) {
  * when a workstream finishes its last phase.
  */
 function getOtherActiveWorkstreams(cwd, excludeWs) {
-  const wsRoot = path.join(planningRoot(cwd), 'workstreams');
+  const wsRoot = path.join(redpillRoot(cwd), 'workstreams');
   if (!fs.existsSync(wsRoot)) return [];
 
   const entries = fs.readdirSync(wsRoot, { withFileTypes: true });

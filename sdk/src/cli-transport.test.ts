@@ -118,7 +118,7 @@ describe('CLITransport', () => {
 
     const output = readOutput(stream);
     const lines = output.split('\n');
-    expect(lines[0]).toBe(`${BOLD}${CYAN}━━━ GSD ► PHASE 01: Authentication ━━━${RESET}`);
+    expect(lines[0]).toBe(`${BOLD}${CYAN}━━━ REDPILL ► PHASE 01: Authentication ━━━${RESET}`);
     expect(lines[1]).toBe('[14:30:45] [PHASE] Phase 01 complete — success: true, cost: $2.50, running: $0.00');
   });
 
@@ -167,7 +167,7 @@ describe('CLITransport', () => {
     const lines = output.split('\n');
     // MilestoneStart emits 3 lines (top bar, text, bottom bar)
     expect(lines[0]).toBe(`${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}`);
-    expect(lines[1]).toBe(`${BOLD}  GSD Milestone — 3 phases${RESET}`);
+    expect(lines[1]).toBe(`${BOLD}  REDPILL Milestone — 3 phases${RESET}`);
     expect(lines[2]).toBe(`${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}`);
     expect(lines[3]).toBe(`${BOLD}━━━ Milestone complete — success: true, cost: $8.75, running: $0.00 ━━━${RESET}`);
   });

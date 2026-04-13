@@ -1,4 +1,4 @@
-# GSD Documentation
+# REDPILL Documentation
 
 Comprehensive documentation for the Get Shit Done (GSD) framework — a meta-prompting, context engineering, and spec-driven development system for AI coding agents.
 
@@ -12,7 +12,7 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 | [Feature Reference](FEATURES.md) | All users | Complete feature and function documentation with requirements |
 | [Command Reference](COMMANDS.md) | All users | Every command with syntax, flags, options, and examples |
 | [Configuration Reference](CONFIGURATION.md) | All users | Full config schema, workflow toggles, model profiles, git branching |
-| [CLI Tools Reference](CLI-TOOLS.md) | Contributors, agent authors | `gsd-tools.cjs` programmatic API for workflows and agents |
+| [CLI Tools Reference](CLI-TOOLS.md) | Contributors, agent authors | `redpill-tools.cjs` programmatic API for workflows and agents |
 | [Agent Reference](AGENTS.md) | Contributors, advanced users | All 15 specialized agents — roles, tools, spawn patterns |
 | [User Guide](USER-GUIDE.md) | All users | Workflow walkthroughs, troubleshooting, and recovery |
 | [Context Monitor](context-monitor.md) | All users | Context window monitoring hook architecture |
@@ -21,7 +21,7 @@ Language versions: [English](README.md) · [Português (pt-BR)](pt-BR/README.md)
 ## Quick Links
 
 - **What's new in v1.28:** Forensics, milestone summary, workstreams, assumptions mode, UI auto-detect, manager dashboard
-- **Getting started:** [README](../README.md) → install → `/gsd:new-project`
+- **Getting started:** [README](../README.md) → install → `/redpill:new-project`
 - **Full workflow walkthrough:** [User Guide](USER-GUIDE.md)
 - **All commands at a glance:** [Command Reference](COMMANDS.md)
 - **Configuring GSD:** [Configuration Reference](CONFIGURATION.md)

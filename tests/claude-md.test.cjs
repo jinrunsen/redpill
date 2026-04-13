@@ -6,7 +6,7 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 describe('generate-claude-md', () => {
   let tmpDir;
@@ -21,11 +21,11 @@ describe('generate-claude-md', () => {
 
   test('creates CLAUDE.md with workflow enforcement section', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'PROJECT.md'),
+      path.join(tmpDir, '.redpill', 'PROJECT.md'),
       '# Test Project\n\n## What This Is\n\nA small test project.\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -35,21 +35,21 @@ describe('generate-claude-md', () => {
 
     const claudePath = path.join(tmpDir, 'CLAUDE.md');
     const content = fs.readFileSync(claudePath, 'utf-8');
-    assert.ok(content.includes('## GSD Workflow Enforcement'));
-    assert.ok(content.includes('/gsd:quick'));
-    assert.ok(content.includes('/gsd:debug'));
-    assert.ok(content.includes('/gsd:execute-phase'));
-    assert.ok(content.includes('Do not make direct repo edits outside a GSD workflow'));
+    assert.ok(content.includes('## REDPILL Workflow Enforcement'));
+    assert.ok(content.includes('/redpill:quick'));
+    assert.ok(content.includes('/redpill:debug'));
+    assert.ok(content.includes('/redpill:execute-phase'));
+    assert.ok(content.includes('Do not make direct repo edits outside a REDPILL workflow'));
   });
 
   test('adds workflow enforcement section when updating an existing CLAUDE.md', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'PROJECT.md'),
+      path.join(tmpDir, '.redpill', 'PROJECT.md'),
       '# Test Project\n\n## What This Is\n\nA small test project.\n'
     );
     fs.writeFileSync(path.join(tmpDir, 'CLAUDE.md'), '## Local Notes\n\nKeep this intro.\n');
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -57,7 +57,7 @@ describe('generate-claude-md', () => {
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
     assert.ok(content.includes('## Local Notes'));
-    assert.ok(content.includes('## GSD Workflow Enforcement'));
+    assert.ok(content.includes('## REDPILL Workflow Enforcement'));
   });
 });
 
@@ -68,7 +68,7 @@ describe('new-project workflow includes CLAUDE.md generation', () => {
   test('new-project workflow generates CLAUDE.md before final commit', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
     assert.ok(content.includes('generate-claude-md'));
-    assert.ok(content.includes('--files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md CLAUDE.md'));
+    assert.ok(content.includes('--files .redpill/ROADMAP.md .redpill/STATE.md .redpill/REQUIREMENTS.md CLAUDE.md'));
   });
 
   test('new-project artifacts mention CLAUDE.md', () => {
@@ -87,7 +87,7 @@ describe('generate-claude-md skills section', () => {
   beforeEach(() => {
     tmpDir = createTempProject();
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'PROJECT.md'),
+      path.join(tmpDir, '.redpill', 'PROJECT.md'),
       '# Test Project\n\n## What This Is\n\nA test project.\n'
     );
   });
@@ -97,7 +97,7 @@ describe('generate-claude-md skills section', () => {
   });
 
   test('includes skills fallback when no skills directories exist', () => {
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -117,7 +117,7 @@ describe('generate-claude-md skills section', () => {
       '---\nname: api-payments\ndescription: Payment gateway integration.\n---\n\n# API Payments\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -138,7 +138,7 @@ describe('generate-claude-md skills section', () => {
       '---\nname: data-sync\ndescription: ERP synchronization flows.\n---\n\n# Data Sync\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
@@ -153,14 +153,14 @@ describe('generate-claude-md skills section', () => {
     fs.mkdirSync(userSkillDir, { recursive: true });
     fs.writeFileSync(
       path.join(gsdSkillDir, 'SKILL.md'),
-      '---\nname: gsd-plan-phase\ndescription: GSD internal skill.\n---\n'
+      '---\nname: gsd-plan-phase\ndescription: REDPILL internal skill.\n---\n'
     );
     fs.writeFileSync(
       path.join(userSkillDir, 'SKILL.md'),
       '---\nname: my-feature\ndescription: Custom project skill.\n---\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
@@ -177,7 +177,7 @@ describe('generate-claude-md skills section', () => {
       '---\nname: complex-skill\ndescription: First line of description.\n  Continued on second line.\n  And a third line.\n---\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
@@ -196,7 +196,7 @@ describe('generate-claude-md skills section', () => {
     fs.writeFileSync(path.join(dir1, 'SKILL.md'), skillContent);
     fs.writeFileSync(path.join(dir2, 'SKILL.md'), skillContent);
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
@@ -207,7 +207,7 @@ describe('generate-claude-md skills section', () => {
 
   test('updates existing skills section on regeneration', () => {
     // First generation — no skills
-    runGsdTools('generate-claude-md', tmpDir);
+    runRedpillTools('generate-claude-md', tmpDir);
     let content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
     assert.ok(content.includes('No project skills found'));
 
@@ -219,7 +219,7 @@ describe('generate-claude-md skills section', () => {
       '---\nname: new-skill\ndescription: Just added.\n---\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
@@ -236,13 +236,13 @@ describe('generate-claude-md skills section', () => {
       '---\nname: ordering-test\ndescription: Verify section order.\n---\n'
     );
 
-    const result = runGsdTools('generate-claude-md', tmpDir);
+    const result = runRedpillTools('generate-claude-md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
     const archIdx = content.indexOf('## Architecture');
     const skillsIdx = content.indexOf('## Project Skills');
-    const workflowIdx = content.indexOf('## GSD Workflow Enforcement');
+    const workflowIdx = content.indexOf('## REDPILL Workflow Enforcement');
     assert.ok(archIdx < skillsIdx, 'Skills section should come after Architecture');
     assert.ok(skillsIdx < workflowIdx, 'Skills section should come before Workflow Enforcement');
   });

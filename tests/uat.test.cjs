@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - UAT Audit
+ * REDPILL Tools Tests - UAT Audit
  */
 
 'use strict';
@@ -8,7 +8,7 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 describe('audit-uat command', () => {
   let tmpDir;
@@ -23,10 +23,10 @@ describe('audit-uat command', () => {
 
   test('returns empty results when no UAT files exist', () => {
     // Create a phase directory with no UAT files
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'), { recursive: true });
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'phases', '01-foundation', '.gitkeep'), '');
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-foundation'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'phases', '01-foundation', '.gitkeep'), '');
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -36,7 +36,7 @@ describe('audit-uat command', () => {
   });
 
   test('detects UAT with pending items', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '01-UAT.md'), `---
@@ -57,7 +57,7 @@ expected: Submitting shows loading state
 result: pending
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -69,7 +69,7 @@ result: pending
   });
 
   test('detects UAT with blocked items and categorizes blocked_by', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '02-api');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '02-api');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '02-UAT.md'), `---
@@ -88,7 +88,7 @@ blocked_by: server
 reason: Server not running locally
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -99,7 +99,7 @@ reason: Server not running locally
   });
 
   test('detects false completion (complete status with pending items)', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '03-ui');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '03-ui');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '03-UAT.md'), `---
@@ -120,7 +120,7 @@ expected: Grid collapses to single column on mobile
 result: pending
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -130,7 +130,7 @@ result: pending
   });
 
   test('extracts human_needed items from VERIFICATION files', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '04-auth');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '04-auth');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '04-VERIFICATION.md'), `---
@@ -149,7 +149,7 @@ All passed.
 3. Verify MFA enrollment on new device
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -162,7 +162,7 @@ All passed.
 
   test('scans and aggregates across multiple phases', () => {
     // Phase 1 with pending
-    const phase1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phase1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phase1, { recursive: true });
     fs.writeFileSync(path.join(phase1, '01-UAT.md'), `---
 status: partial
@@ -179,7 +179,7 @@ result: pending
 `);
 
     // Phase 2 with blocked
-    const phase2 = path.join(tmpDir, '.planning', 'phases', '02-api');
+    const phase2 = path.join(tmpDir, '.redpill', 'phases', '02-api');
     fs.mkdirSync(phase2, { recursive: true });
     fs.writeFileSync(path.join(phase2, '02-UAT.md'), `---
 status: partial
@@ -201,7 +201,7 @@ result: skipped
 reason: device not available
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -213,14 +213,14 @@ reason: device not available
 
   test('milestone scoping filters phases to current milestone', () => {
     // Create a ROADMAP.md that only references Phase 2
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), `# Roadmap
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), `# Roadmap
 
 ### Phase 2: API Layer
 **Goal:** Build API
 `);
 
     // Phase 1 (not in current milestone) with pending
-    const phase1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phase1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phase1, { recursive: true });
     fs.writeFileSync(path.join(phase1, '01-UAT.md'), `---
 status: partial
@@ -237,7 +237,7 @@ result: pending
 `);
 
     // Phase 2 (in current milestone) with pending
-    const phase2 = path.join(tmpDir, '.planning', 'phases', '02-api');
+    const phase2 = path.join(tmpDir, '.redpill', 'phases', '02-api');
     fs.mkdirSync(phase2, { recursive: true });
     fs.writeFileSync(path.join(phase2, '02-UAT.md'), `---
 status: partial
@@ -253,7 +253,7 @@ expected: New behavior
 result: pending
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -263,7 +263,7 @@ result: pending
   });
 
   test('summary by_category counts are correct', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '05-billing');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '05-billing');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '05-UAT.md'), `---
@@ -294,7 +294,7 @@ expected: Processes refund
 result: pending
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -305,7 +305,7 @@ result: pending
   });
 
   test('ignores VERIFICATION files without human_needed or gaps_found status', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(path.join(phaseDir, '01-VERIFICATION.md'), `---
@@ -318,7 +318,7 @@ phase: 01-foundation
 All checks passed.
 `);
 
-    const result = runGsdTools('audit-uat --raw', tmpDir);
+    const result = runRedpillTools('audit-uat --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -333,7 +333,7 @@ describe('uat render-checkpoint', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-test-phase');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-test-phase');
     fs.mkdirSync(phaseDir, { recursive: true });
     uatPath = path.join(phaseDir, '01-UAT.md');
   });
@@ -358,7 +358,7 @@ expected: |
 awaiting: user response
 `);
 
-    const result = runGsdTools(['uat', 'render-checkpoint', '--file', '.planning/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
+    const result = runRedpillTools(['uat', 'render-checkpoint', '--file', '.redpill/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
     assert.strictEqual(result.success, true, `render-checkpoint failed: ${result.error}`);
     assert.ok(result.output.includes('**Test 2: Submit form validation**'));
     assert.ok(result.output.includes('Empty submit keeps controls visible.'));
@@ -382,7 +382,7 @@ expected: |
 awaiting: user response
 `);
 
-    const result = runGsdTools(['uat', 'render-checkpoint', '--file', '.planning/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
+    const result = runRedpillTools(['uat', 'render-checkpoint', '--file', '.redpill/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
     assert.strictEqual(result.success, true, `render-checkpoint failed: ${result.error}`);
     assert.ok(!result.output.includes('user to=all:final code'));
     assert.ok(!result.output.includes('彩票平台'));
@@ -406,7 +406,7 @@ expected: |
 awaiting: user response
 `);
 
-    const result = runGsdTools(['uat', 'render-checkpoint', '--file', '.planning/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
+    const result = runRedpillTools(['uat', 'render-checkpoint', '--file', '.redpill/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
     assert.strictEqual(result.success, true, `render-checkpoint failed: ${result.error}`);
     assert.ok(result.output.includes('Timezone abbreviation shows CET.'),
       'Expected text before Z-containing word should be present');
@@ -429,7 +429,7 @@ expected: |
   It ends at the section boundary.
 `);
 
-    const result = runGsdTools(['uat', 'render-checkpoint', '--file', '.planning/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
+    const result = runRedpillTools(['uat', 'render-checkpoint', '--file', '.redpill/phases/01-test-phase/01-UAT.md', '--raw'], tmpDir);
     assert.strictEqual(result.success, true, `render-checkpoint failed: ${result.error}`);
     assert.ok(result.output.includes('This block has no trailing YAML key.'));
     assert.ok(result.output.includes('It ends at the section boundary.'));
@@ -446,7 +446,7 @@ phase: 01-test-phase
 [testing complete]
 `);
 
-    const result = runGsdTools(['uat', 'render-checkpoint', '--file', '.planning/phases/01-test-phase/01-UAT.md'], tmpDir);
+    const result = runRedpillTools(['uat', 'render-checkpoint', '--file', '.redpill/phases/01-test-phase/01-UAT.md'], tmpDir);
     assert.strictEqual(result.success, false, 'Should fail when no current test exists');
     assert.ok(result.error.includes('already complete'));
   });

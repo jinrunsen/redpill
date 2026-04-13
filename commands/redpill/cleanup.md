@@ -1,18 +1,18 @@
 ---
-name: gsd:cleanup
+name: redpill:cleanup
 description: Archive accumulated phase directories from completed milestones
 ---
 <objective>
-Archive phase directories from completed milestones into `.planning/milestones/v{X.Y}-phases/`.
+Archive phase directories from completed milestones into `.redpill/milestones/v{X.Y}-phases/`.
 
-Use when `.planning/phases/` has accumulated directories from past milestones.
+Use when `.redpill/phases/` has accumulated directories from past milestones.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/cleanup.md
+@~/.claude/redpill/workflows/cleanup.md
 </execution_context>
 
 <process>
-Follow the cleanup workflow at @~/.claude/get-shit-done/workflows/cleanup.md.
+Follow the cleanup workflow at @~/.claude/redpill/workflows/cleanup.md.
 Identify completed milestones, show a dry-run summary, and archive on confirmation.
 </process>

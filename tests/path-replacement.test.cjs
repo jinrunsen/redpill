@@ -1,5 +1,5 @@
 /**
- * GSD Tests - path replacement in install.js
+ * REDPILL Tests - path replacement in install.js
  *
  * Verifies that global installs produce $HOME/ paths in .md files,
  * so that shell commands expand correctly inside double quotes.

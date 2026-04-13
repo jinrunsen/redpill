@@ -1,7 +1,7 @@
 /**
- * GSD Tools Bridge — shells out to `gsd-tools.cjs` for state management.
+ * REDPILL Tools Bridge — shells out to `redpill-tools.cjs` for state management.
  *
- * All `.planning/` state operations go through gsd-tools.cjs rather than
+ * All `.redpill/` state operations go through redpill-tools.cjs rather than
  * reimplementing 12K+ lines of logic.
  */
 
@@ -231,7 +231,7 @@ export class GSDTools {
   }
 
   /**
-   * Query phase state from gsd-tools.cjs `init phase-op`.
+   * Query phase state from redpill-tools.cjs `init phase-op`.
    * Returns a typed PhaseOpInfo describing what exists on disk for this phase.
    */
   async initPhaseOp(phaseNumber: string): Promise<PhaseOpInfo> {
@@ -240,7 +240,7 @@ export class GSDTools {
   }
 
   /**
-   * Get a config value from gsd-tools.cjs.
+   * Get a config value from redpill-tools.cjs.
    */
   async configGet(key: string): Promise<string | null> {
     const result = await this.exec('config', ['get', key]);
@@ -248,7 +248,7 @@ export class GSDTools {
   }
 
   /**
-   * Begin phase state tracking in gsd-tools.cjs.
+   * Begin phase state tracking in redpill-tools.cjs.
    */
   async stateBeginPhase(phaseNumber: string): Promise<string> {
     return this.execRaw('state', ['begin-phase', '--phase', phaseNumber]);
@@ -264,7 +264,7 @@ export class GSDTools {
   }
 
   /**
-   * Query new-project init state from gsd-tools.cjs `init new-project`.
+   * Query new-project init state from redpill-tools.cjs `init new-project`.
    * Returns project metadata, model configs, brownfield detection, etc.
    */
   async initNewProject(): Promise<InitNewProjectInfo> {
@@ -273,7 +273,7 @@ export class GSDTools {
   }
 
   /**
-   * Set a config value via gsd-tools.cjs `config-set`.
+   * Set a config value via redpill-tools.cjs `config-set`.
    * Handles type coercion (booleans, numbers, JSON) on the gsd-tools side.
    * Note: config-set returns `key=value` text, not JSON, so we use execRaw.
    */
@@ -285,11 +285,11 @@ export class GSDTools {
 // ─── Path resolution ────────────────────────────────────────────────────────
 
 /**
- * Resolve gsd-tools.cjs path with repo-local fallback.
+ * Resolve redpill-tools.cjs path with repo-local fallback.
  * Probe order: repo-local → global home directory.
  */
 export function resolveGsdToolsPath(projectDir: string): string {
-  const localPath = join(projectDir, '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+  const localPath = join(projectDir, '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs');
   if (existsSync(localPath)) return localPath;
-  return join(homedir(), '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+  return join(homedir(), '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs');
 }

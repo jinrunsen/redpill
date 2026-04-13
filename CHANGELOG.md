@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to GSD will be documented in this file.
+All notable changes to REDPILL will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -10,21 +10,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - **Claude Code 2.1.88+ skills migration** — Commands now install as `skills/gsd-*/SKILL.md` instead of deprecated `commands/gsd/`. Auto-cleans legacy directory on install
-- **`/gsd:docs-update` command** — Verified documentation generation with doc-writer and doc-verifier agents
+- **`/redpill:docs-update` command** — Verified documentation generation with doc-writer and doc-verifier agents
 - **`--chain` flag for discuss-phase** — Interactive discuss that auto-chains into plan+execute
 - **`--only N` flag for autonomous** — Execute a single phase instead of all remaining
 - **Schema drift detection** — Prevents false-positive verification when ORM schema files change without migration
-- **`/gsd:secure-phase` command** — Security enforcement layer with threat-model-anchored verification
+- **`/redpill:secure-phase` command** — Security enforcement layer with threat-model-anchored verification
 - **Claim provenance tagging** — Researcher marks claims with source evidence
 - **Scope reduction detection** — Planner blocked from silently dropping requirements
 - **`workflow.use_worktrees` config** — Toggle to disable worktree isolation
 - **`project_code` config** — Prefix phase directories with project code
 - **Project skills discovery** — CLAUDE.md generation now includes project-specific skills section
 - **CodeRabbit integration** — Added to cross-AI review workflow
-- **GSD SDK enhancements** — Auto `--init` flag, headless prompts, prompt sanitizer
+- **REDPILL SDK enhancements** — Auto `--init` flag, headless prompts, prompt sanitizer
 
 ### Changed
-- **`/gsd:quick --full` flag** — Now enables all phases (discussion + research + plan-checking + verification). New `--validate` flag covers previous `--full` behavior (plan-checking + verification only)
+- **`/redpill:quick --full` flag** — Now enables all phases (discussion + research + plan-checking + verification). New `--validate` flag covers previous `--full` behavior (plan-checking + verification only)
 
 ### Fixed
 - **Gemini CLI agent loading** — Removed `permissionMode` that broke agent frontmatter parsing
@@ -44,7 +44,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Verifier loads all ROADMAP SCs** — Regardless of PLAN must_haves
 - **Verifier human_needed status** — Enforced when human verification items exist
 - **Hooks shared cache dir** — Correct stale hooks path
-- **Plan file naming** — Convention enforced in gsd-planner agent
+- **Plan file naming** — Convention enforced in redpill-planner agent
 - **Copilot path replacement** — Fixed ~/.claude to ~/.github
 - **Windsurf trailing slash** — Removed from .windsurf/rules path
 - **Slug sanitization** — Added --raw flag, capped length to 60 chars
@@ -52,8 +52,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.30.0] - 2026-03-26
 
 ### Added
-- **GSD SDK** — Headless TypeScript SDK (`@gsd-build/sdk`) with `gsd-sdk init` and `gsd-sdk auto` CLI commands for autonomous project execution
-- **`--sdk` installer flag** — Optionally install the GSD SDK during setup (interactive prompt or `--sdk` flag)
+- **REDPILL SDK** — Headless TypeScript SDK (`@gsd-build/sdk`) with `redpill-sdk init` and `redpill-sdk auto` CLI commands for autonomous project execution
+- **`--sdk` installer flag** — Optionally install the REDPILL SDK during setup (interactive prompt or `--sdk` flag)
 
 ## [1.29.0] - 2026-03-25
 
@@ -72,10 +72,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - Frontmatter `must_haves` parser handles any YAML indentation width
-- `findProjectRoot` returns startDir when it already contains `.planning/`
+- `findProjectRoot` returns startDir when it already contains `.redpill/`
 - Agent workflows include `<available_agent_types>` for named agent spawning
 - Begin-phase preserves Status/LastActivity/Progress in Current Position
-- Missing GSD agents detected with warning when `subagent_type` falls back to general-purpose
+- Missing REDPILL agents detected with warning when `subagent_type` falls back to general-purpose
 - Codex re-install repairs trapped non-boolean keys under `[features]`
 - Invalid `\Z` regex anchor replaced and redundant pattern removed
 - Hook field validation prevents silent `settings.json` rejection
@@ -89,10 +89,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.28.0] - 2026-03-22
 
 ### Added
-- **Workstream namespacing** — Parallel milestone work via `/gsd:workstreams`
-- **Multi-project workspace commands** — Manage multiple GSD projects from a single root
-- **`/gsd:forensics` command** — Post-mortem workflow investigation
-- **`/gsd:milestone-summary` command** — Post-build onboarding for completed milestones
+- **Workstream namespacing** — Parallel milestone work via `/redpill:workstreams`
+- **Multi-project workspace commands** — Manage multiple REDPILL projects from a single root
+- **`/redpill:forensics` command** — Post-mortem workflow investigation
+- **`/redpill:milestone-summary` command** — Post-build onboarding for completed milestones
 - **`workflow.skip_discuss` setting** — Bypass discuss-phase in autonomous mode
 - **`workflow.discuss_mode` assumptions config** — Control discuss-phase behavior
 - **UI-phase recommendation** — Automatically surfaced for UI-heavy phases
@@ -100,8 +100,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Data-flow tracing, environment audit, and behavioral spot-checks** in verification
 - **Multi-runtime selection** in interactive installer
 - **Text mode support** for plan-phase workflow
-- **"Follow the Indirection" debugging technique** in gsd-debugger
-- **`--reviews` flag** for `gsd:plan-phase`
+- **"Follow the Indirection" debugging technique** in redpill-debugger
+- **`--reviews` flag** for `redpill:plan-phase`
 - **Temp file reaper** — Prevents unbounded /tmp accumulation
 
 ### Changed
@@ -112,7 +112,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - Windows 8.3 short path failures in worktree tests
 - Worktree isolation enforced for code-writing agents
-- Linked worktrees respect `.planning/` before resolving to main repo
+- Linked worktrees respect `.redpill/` before resolving to main repo
 - Path traversal prevention via workstream name sanitization
 - Strategy branch created before first commit (not at execute-phase)
 - `ProviderModelNotFoundError` on non-Claude runtimes
@@ -132,15 +132,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Advisor mode** — Research-backed discussion with parallel agents evaluating gray areas before you decide
 - **Multi-repo workspace support** — Auto-detection and project root resolution for monorepos and multi-repo setups
 - **Cursor CLI runtime support** — Full installation and command conversion for Cursor
-- **`/gsd:fast` command** — Trivial inline tasks that skip planning entirely
-- **`/gsd:review` command** — Cross-AI peer review of current phase or branch
-- **`/gsd:plant-seed` command** — Backlog parking lot for ideas and persistent context threads
-- **`/gsd:pr-branch` command** — Clean PR branches filtering `.planning/` commits
-- **`/gsd:audit-uat` command** — Verification debt tracking across phases
+- **`/redpill:fast` command** — Trivial inline tasks that skip planning entirely
+- **`/redpill:review` command** — Cross-AI peer review of current phase or branch
+- **`/redpill:plant-seed` command** — Backlog parking lot for ideas and persistent context threads
+- **`/redpill:pr-branch` command** — Clean PR branches filtering `.redpill/` commits
+- **`/redpill:audit-uat` command** — Verification debt tracking across phases
 - **`--analyze` flag for discuss-phase** — Trade-off analysis during discussion
 - **`research_before_questions` config option** — Run research before discussion questions instead of after
 - **Ticket-based phase identifiers** — Support for team workflows using ticket IDs
-- **Worktree-aware `.planning/` resolution** — File locking for safe parallel access
+- **Worktree-aware `.redpill/` resolution** — File locking for safe parallel access
 - **Discussion audit trail** — Auto-generated `DISCUSSION-LOG.md` during discuss-phase
 - **Context window size awareness** — Optimized behavior for 1M+ context models
 - **Exa and Firecrawl MCP support** — Additional research tools for research agents
@@ -148,12 +148,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Quick-task branch support** — Isolated branches for quick-mode tasks
 - **Decision IDs** — Discuss-to-plan traceability via decision identifiers
 - **Stub detection** — Verifier and executor detect incomplete implementations
-- **Security hardening** — Centralized `security.cjs` module with path traversal prevention, prompt injection detection/sanitization, safe JSON parsing, field name validation, and shell argument validation. PreToolUse `gsd-prompt-guard` hook scans writes to `.planning/` for injection patterns
+- **Security hardening** — Centralized `security.cjs` module with path traversal prevention, prompt injection detection/sanitization, safe JSON parsing, field name validation, and shell argument validation. PreToolUse `redpill-prompt-guard` hook scans writes to `.redpill/` for injection patterns
 
 ### Changed
 - CI matrix updated to Node 20, 22, 24 — dropped EOL Node 18
 - GitHub Actions upgraded for Node 24 compatibility
-- Consolidated `planningPaths()` helper across 4 modules — eliminated 34 inline path constructions
+- Consolidated `redpillPaths()` helper across 4 modules — eliminated 34 inline path constructions
 - Deduplicated code, annotated empty catches, consolidated STATE.md field helpers
 - Materialize full config on new-project initialization
 - Workflow enforcement guidance embedded in generated CLAUDE.md
@@ -181,27 +181,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.26.0] - 2026-03-18
 
 ### Added
-- **Developer profiling pipeline** — `/gsd:profile-user` analyzes Claude Code session history to build behavioral profiles across 8 dimensions (communication, decisions, debugging, UX, vendor choices, frustrations, learning style, explanation depth). Generates `USER-PROFILE.md`, `/gsd:dev-preferences`, and `CLAUDE.md` profile section. Includes `--questionnaire` fallback and `--refresh` for re-analysis (#1084)
-- **`/gsd:ship` command** — PR creation from verified phase work. Auto-generates rich PR body from planning artifacts, pushes branch, creates PR via `gh`, and updates STATE.md (#829)
-- **`/gsd:next` command** — Automatic workflow advancement to the next logical step (#927)
+- **Developer profiling pipeline** — `/redpill:profile-user` analyzes Claude Code session history to build behavioral profiles across 8 dimensions (communication, decisions, debugging, UX, vendor choices, frustrations, learning style, explanation depth). Generates `USER-PROFILE.md`, `/redpill:dev-preferences`, and `CLAUDE.md` profile section. Includes `--questionnaire` fallback and `--refresh` for re-analysis (#1084)
+- **`/redpill:ship` command** — PR creation from verified phase work. Auto-generates rich PR body from planning artifacts, pushes branch, creates PR via `gh`, and updates STATE.md (#829)
+- **`/redpill:next` command** — Automatic workflow advancement to the next logical step (#927)
 - **Cross-phase regression gate** — Execute-phase runs prior phases' test suites after execution, catching regressions before they compound (#945)
 - **Requirements coverage gate** — Plan-phase verifies all phase requirements are covered by at least one plan before proceeding (#984)
-- **Structured session handoff artifact** — `/gsd:pause-work` writes `.planning/HANDOFF.json` for machine-readable cross-session continuity (#940)
+- **Structured session handoff artifact** — `/redpill:pause-work` writes `.redpill/HANDOFF.json` for machine-readable cross-session continuity (#940)
 - **WAITING.json signal file** — Machine-readable signal for decision points requiring user input (#1034)
 - **Interactive executor mode** — Pair-programming style execution with step-by-step user involvement (#963)
-- **MCP tool awareness** — GSD subagents can discover and use MCP server tools (#973)
+- **MCP tool awareness** — REDPILL subagents can discover and use MCP server tools (#973)
 - **Codex hooks support** — SessionStart hook support for Codex runtime (#1020)
 - **Model alias-to-full-ID resolution** — Task API compatibility for model alias strings (#991)
 - **Execution hardening** — Pre-wave dependency checks, cross-plan data contracts, and export-level spot checks (#1082)
 - **Markdown normalization** — Generated markdown conforms to markdownlint standards (#1112)
-- **`/gsd:audit-uat` command** — Cross-phase audit of all outstanding UAT and verification items. Scans every phase for pending, skipped, blocked, and human_needed items. Cross-references against codebase to detect stale documentation. Produces prioritized human test plan grouped by testability
+- **`/redpill:audit-uat` command** — Cross-phase audit of all outstanding UAT and verification items. Scans every phase for pending, skipped, blocked, and human_needed items. Cross-references against codebase to detect stale documentation. Produces prioritized human test plan grouped by testability
 - **Verification debt tracking** — Five structural improvements to prevent silent loss of UAT/verification items when projects advance:
-  - Cross-phase health check in `/gsd:progress` (Step 1.6) surfaces outstanding items from ALL prior phases
+  - Cross-phase health check in `/redpill:progress` (Step 1.6) surfaces outstanding items from ALL prior phases
   - `status: partial` in UAT files distinguishes incomplete testing from completed sessions
   - `result: blocked` with `blocked_by` tag for tests blocked by external dependencies (server, device, build, third-party)
   - `human_needed` verification items now persist as HUMAN-UAT.md files (trackable across sessions)
   - Phase completion and transition warnings surface verification debt non-blockingly
-- **Advisor mode for discuss-phase** — Spawns parallel research agents during `/gsd:discuss-phase` to evaluate gray areas before user decides. Returns structured comparison tables calibrated to user's vendor philosophy. Activates only when `USER-PROFILE.md` exists (#1211)
+- **Advisor mode for discuss-phase** — Spawns parallel research agents during `/redpill:discuss-phase` to evaluate gray areas before user decides. Returns structured comparison tables calibrated to user's vendor philosophy. Activates only when `USER-PROFILE.md` exists (#1211)
 
 ### Changed
 - Test suite consolidated: runtime converters deduplicated, helpers standardized (#1169)
@@ -209,7 +209,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Documented `inherit` profile for non-Anthropic providers (#1036)
 
 ### Fixed
-- Agent suggests non-existent `/gsd:transition` — replaced with real commands (#1081, #1100)
+- Agent suggests non-existent `/redpill:transition` — replaced with real commands (#1081, #1100)
 - PROJECT.md drift and phase completion counter accuracy (#956)
 - Copilot executor stuck issue — runtime compatibility fallback added (#1128)
 - Explicit agent type listings prevent fallback after `/clear` (#949)
@@ -229,14 +229,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - **Antigravity runtime support** — Full installation support for the Antigravity AI agent runtime (`--antigravity`), alongside Claude Code, OpenCode, Gemini, Codex, and Copilot
-- **`/gsd:do` command** — Freeform text router that dispatches natural language to the right GSD command
-- **`/gsd:note` command** — Zero-friction idea capture with append, list, and promote-to-todo subcommands
+- **`/redpill:do` command** — Freeform text router that dispatches natural language to the right REDPILL command
+- **`/redpill:note` command** — Zero-friction idea capture with append, list, and promote-to-todo subcommands
 - **Context window warning toggle** — Config option to disable context monitor warnings (`hooks.context_monitor: false`)
 - **Comprehensive documentation** — New `docs/` directory with feature, architecture, agent, command, CLI, and configuration guides
 
 ### Changed
-- `/gsd:discuss-phase` shows remaining discussion areas when asking to continue or move on
-- `/gsd:plan-phase` asks user about research instead of silently deciding
+- `/redpill:discuss-phase` shows remaining discussion areas when asking to continue or move on
+- `/redpill:plan-phase` asks user about research instead of silently deciding
 - Improved GitHub issue and PR templates with industry best practices
 - Settings clarify balanced profile uses Sonnet for research
 
@@ -253,43 +253,43 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.24.0] - 2026-03-15
 
 ### Added
-- **`/gsd:quick --research` flag** — Spawns focused research agent before planning, composable with `--discuss` and `--full` (#317)
+- **`/redpill:quick --research` flag** — Spawns focused research agent before planning, composable with `--discuss` and `--full` (#317)
 - **`inherit` model profile** for OpenCode — agents inherit the user's selected runtime model via `/model`
-- **Persistent debug knowledge base** — resolved debug sessions append to `.planning/debug/knowledge-base.md`, eliminating cold-start investigation on recurring issues
-- **Programmatic `/gsd:set-profile`** — runs as a script instead of LLM-driven workflow, executes in seconds instead of 30-40s
+- **Persistent debug knowledge base** — resolved debug sessions append to `.redpill/debug/knowledge-base.md`, eliminating cold-start investigation on recurring issues
+- **Programmatic `/redpill:set-profile`** — runs as a script instead of LLM-driven workflow, executes in seconds instead of 30-40s
 
 ### Fixed
 - ROADMAP.md searches scoped to current milestone — multi-milestone projects no longer match phases from archived milestones
 - OpenCode agent frontmatter conversion — agents get correct `name:`, `model: inherit`, `mode: subagent`
 - `opencode.jsonc` config files respected during install (previously only `.json` was detected) (#1053)
 - Windows installer crash on EPERM/EACCES when scanning protected directories (#964)
-- `gsd-tools.cjs` uses absolute paths in all install types (#820)
+- `redpill-tools.cjs` uses absolute paths in all install types (#820)
 - Invalid `skills:` frontmatter removed from UI agent files
 
 ## [1.23.0] - 2026-03-15
 
 ### Added
-- `/gsd:ui-phase` + `/gsd:ui-review` — UI design contract generation and retroactive 6-pillar visual audit for frontend phases (closes #986)
-- `/gsd:stats` — project statistics dashboard: phases, plans, requirements, git metrics, and timeline
+- `/redpill:ui-phase` + `/redpill:ui-review` — UI design contract generation and retroactive 6-pillar visual audit for frontend phases (closes #986)
+- `/redpill:stats` — project statistics dashboard: phases, plans, requirements, git metrics, and timeline
 - **Copilot CLI** runtime support — install with `--copilot`, maps Claude Code tools to GitHub Copilot tools
-- **`gsd-autonomous` skill** for Codex runtime — enables autonomous GSD execution
+- **`gsd-autonomous` skill** for Codex runtime — enables autonomous REDPILL execution
 - **Node repair operator** — autonomous recovery when task verification fails: RETRY, DECOMPOSE, or PRUNE before escalating to user. Configurable via `workflow.node_repair_budget` (default: 2 attempts). Disable with `workflow.node_repair: false`
 - Mandatory `read_first` and `acceptance_criteria` sections in plans to prevent shallow execution
 - Mandatory `canonical_refs` section in CONTEXT.md for traceable decisions
 - Quick mode uses `YYMMDD-xxx` timestamp IDs instead of auto-increment numbers
 
 ### Changed
-- `/gsd:discuss-phase` supports explicit `--batch` mode for grouped question intake
+- `/redpill:discuss-phase` supports explicit `--batch` mode for grouped question intake
 
 ### Fixed
-- `/gsd:new-milestone` no longer resets `workflow.research` config during milestone transitions
-- `/gsd:update` is runtime-aware and targets the correct runtime directory
+- `/redpill:new-milestone` no longer resets `workflow.research` config during milestone transitions
+- `/redpill:update` is runtime-aware and targets the correct runtime directory
 - Phase-complete properly updates REQUIREMENTS.md traceability (closes #848)
 - Auto-advance no longer triggers without `--auto` flag (closes #1026, #932)
 - `--auto` flag correctly skips interactive discussion questions (closes #1025)
 - Decimal phase numbers correctly padded in init.cjs (closes #915)
 - Empty-answer validation guards added to discuss-phase (closes #912)
-- Tilde paths in templates prevent PII leak in `.planning/` files (closes #987)
+- Tilde paths in templates prevent PII leak in `.redpill/` files (closes #987)
 - Invalid `commit-docs` command replaced with `commit` in workflows (closes #968)
 - Uninstall mode indicator shown in banner output (closes #1024)
 - WSL + Windows Node.js mismatch detected with user warning (closes #1021)
@@ -303,11 +303,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.22.4] - 2026-03-03
 
 ### Added
-- `--discuss` flag for `/gsd:quick` — lightweight pre-planning discussion to gather context before quick tasks
+- `--discuss` flag for `/redpill:quick` — lightweight pre-planning discussion to gather context before quick tasks
 
 ### Fixed
 - Windows: `@file:` protocol resolution for large init payloads (>50KB) — all 32 workflow/agent files now resolve temp file paths instead of letting agents hallucinate `/tmp` paths (#841)
-- Missing `skills` frontmatter on gsd-nyquist-auditor agent
+- Missing `skills` frontmatter on redpill-nyquist-auditor agent
 
 ## [1.22.3] - 2026-03-03
 
@@ -366,7 +366,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Codex multi-agent support: `request_user_input` mapping, multi-agent config, and agent role generation for Codex runtime
 - Analysis paralysis guard in agents to prevent over-deliberation during planning
 - Exhaustive cross-check and task-level TDD patterns in agent workflows
-- Code-aware discuss phase with codebase scouting — `/gsd:discuss-phase` now analyzes relevant source files before asking questions
+- Code-aware discuss phase with codebase scouting — `/redpill:discuss-phase` now analyzes relevant source files before asking questions
 
 ### Fixed
 - Update checker clears both cache paths to prevent stale version notifications
@@ -397,21 +397,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - YAML frontmatter sync to STATE.md for machine-readable status tracking
-- `/gsd:add-tests` command for post-phase test generation
+- `/redpill:add-tests` command for post-phase test generation
 - Codex runtime support with skills-first installation
-- Standard `project_context` block in gsd-verifier output
+- Standard `project_context` block in redpill-verifier output
 - Codex changelog and usage documentation
 
 ### Changed
-- Improved onboarding UX: installer now suggests `/gsd:new-project` instead of `/gsd:help`
+- Improved onboarding UX: installer now suggests `/redpill:new-project` instead of `/redpill:help`
 - Updated Discord invite to vanity URL (discord.gg/gsd)
-- Compressed Nyquist validation layer to align with GSD meta-prompt conventions
+- Compressed Nyquist validation layer to align with REDPILL meta-prompt conventions
 - Requirements propagation now includes `phase_req_ids` from ROADMAP to workflow agents
 - Debug sessions require human verification before resolution
 
 ### Fixed
 - Multi-level decimal phase handling (e.g., 72.1.1) with proper regex escaping
-- `/gsd:update` always installs latest package version
+- `/redpill:update` always installs latest package version
 - STATE.md decision corruption and dollar sign handling
 - STATE.md frontmatter mapping for requirements-completed status
 - Progress bar percent clamping to prevent RangeError crashes
@@ -435,7 +435,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.20.5] - 2026-02-19
 
 ### Fixed
-- `/gsd:health --repair` now creates timestamped backup before regenerating STATE.md (#657)
+- `/redpill:health --repair` now creates timestamped backup before regenerating STATE.md (#657)
 
 ### Changed
 - Subagents now discover and load project CLAUDE.md and skills at spawn time for better project context (#671, #672)
@@ -483,21 +483,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.20.0] - 2026-02-15
 
 ### Added
-- `/gsd:health` command — validates `.planning/` directory integrity with `--repair` flag for auto-fixing config.json and STATE.md
-- `--full` flag for `/gsd:quick` — enables plan-checking (max 2 iterations) and post-execution verification on quick tasks
-- `--auto` flag wired from `/gsd:new-project` through the full phase chain (discuss → plan → execute)
+- `/redpill:health` command — validates `.redpill/` directory integrity with `--repair` flag for auto-fixing config.json and STATE.md
+- `--full` flag for `/redpill:quick` — enables plan-checking (max 2 iterations) and post-execution verification on quick tasks
+- `--auto` flag wired from `/redpill:new-project` through the full phase chain (discuss → plan → execute)
 - Auto-advance chains phase execution across full milestones when `workflow.auto_advance` is enabled
 
 ### Fixed
-- Plans created without user context — `/gsd:plan-phase` warns when no CONTEXT.md exists, `/gsd:discuss-phase` warns when plans already exist (#253)
+- Plans created without user context — `/redpill:plan-phase` warns when no CONTEXT.md exists, `/redpill:discuss-phase` warns when plans already exist (#253)
 - OpenCode installer converts `general-purpose` subagent type to OpenCode's `general`
-- `/gsd:complete-milestone` respects `commit_docs` setting when merging branches
+- `/redpill:complete-milestone` respects `commit_docs` setting when merging branches
 - Phase directories tracked in git via `.gitkeep` files
 
 ## [1.19.2] - 2026-02-15
 
 ### Added
-- User-level default settings via `~/.gsd/defaults.json` — set GSD defaults across all projects
+- User-level default settings via `~/.gsd/defaults.json` — set REDPILL defaults across all projects
 - Per-agent model overrides — customize which Claude model each agent uses
 
 ### Changed
@@ -548,12 +548,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.18.0] - 2026-02-08
 
 ### Added
-- `--auto` flag for `/gsd:new-project` — runs research → requirements → roadmap automatically after config questions. Expects idea document via @ reference (e.g., `/gsd:new-project --auto @prd.md`)
+- `--auto` flag for `/redpill:new-project` — runs research → requirements → roadmap automatically after config questions. Expects idea document via @ reference (e.g., `/redpill:new-project --auto @prd.md`)
 
 ### Fixed
 - Windows: SessionStart hook now spawns detached process correctly
 - Windows: Replaced HEREDOC with literal newlines for git commit compatibility
-- Research decision from `/gsd:new-milestone` now persists to config.json
+- Research decision from `/redpill:new-milestone` now persists to config.json
 
 ## [1.17.0] - 2026-02-08
 
@@ -562,12 +562,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **gsd-tools frontmatter CRUD**: `frontmatter get/set/merge/validate` — safe YAML frontmatter operations with schema validation
 - **gsd-tools template fill**: `template fill summary/plan/verification` — pre-filled document skeletons
 - **gsd-tools state progression**: `state advance-plan`, `state update-progress`, `state record-metric`, `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` — automates STATE.md updates
-- **Local patch preservation**: Installer now detects locally modified GSD files, backs them up to `gsd-local-patches/`, and creates a manifest for restoration
-- `/gsd:reapply-patches` command to merge local modifications back after GSD updates
+- **Local patch preservation**: Installer now detects locally modified REDPILL files, backs them up to `gsd-local-patches/`, and creates a manifest for restoration
+- `/redpill:reapply-patches` command to merge local modifications back after REDPILL updates
 
 ### Changed
 - Agents (executor, planner, plan-checker, verifier) now use gsd-tools for state updates and verification instead of manual markdown parsing
-- `/gsd:update` workflow now notifies about backed-up local patches and suggests `/gsd:reapply-patches`
+- `/redpill:update` workflow now notifies about backed-up local patches and suggests `/redpill:reapply-patches`
 
 ### Fixed
 - Added workaround for Claude Code `classifyHandoffIfNeeded` bug that causes false agent failures — execute-phase and quick workflows now spot-check actual output before reporting failure
@@ -596,8 +596,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - `progress.md`: roadmap parsing delegated to `roadmap analyze`
 
 ### Fixed
-- Execute-phase now correctly spawns `gsd-executor` subagents instead of generic task agents
-- `commit_docs=false` setting now respected in all `.planning/` commit paths (execute-plan, debugger, reference docs all route through gsd-tools CLI)
+- Execute-phase now correctly spawns `redpill-executor` subagents instead of generic task agents
+- `commit_docs=false` setting now respected in all `.redpill/` commit paths (execute-plan, debugger, reference docs all route through gsd-tools CLI)
 - Execute-phase orchestrator no longer bloats context by embedding file content — passes paths instead, letting subagents read in their fresh context
 - Windows: Normalized backslash paths in gsd-tools invocations (contributed by @rmindel)
 
@@ -641,12 +641,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - **Architecture: Thin orchestrator pattern** — Commands now delegate to workflows, reducing command file size by ~75% and improving maintainability
-- **Centralized utilities** — New `gsd-tools.cjs` (11 functions) replaces repetitive bash patterns across 50+ files
+- **Centralized utilities** — New `redpill-tools.cjs` (11 functions) replaces repetitive bash patterns across 50+ files
 - **Token reduction** — ~22k characters removed from affected command/workflow/agent files
 - **Condensed agent prompts** — Same behavior with fewer words (executor, planner, verifier, researcher agents)
 
 ### Added
-- `gsd-tools.cjs` CLI utility with functions: state load/update, resolve-model, find-phase, commit, verify-summary, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section
+- `redpill-tools.cjs` CLI utility with functions: state load/update, resolve-model, find-phase, commit, verify-summary, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section
 
 ## [1.11.2] - 2026-02-05
 
@@ -657,11 +657,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Install respects `attribution.commit` setting for OpenCode compatibility (#286)
 
 ### Fixed
-- **CRITICAL:** Prevent API keys from being committed via `/gsd:map-codebase` (#429)
+- **CRITICAL:** Prevent API keys from being committed via `/redpill:map-codebase` (#429)
 - Enforce context fidelity in planning pipeline - agents now honor CONTEXT.md decisions (#326, #216, #206)
 - Executor verifies task completion to prevent hallucinated success (#315)
-- Auto-create `config.json` when missing during `/gsd:settings` (#264)
-- `/gsd:update` respects local vs global install location
+- Auto-create `config.json` when missing during `/redpill:settings` (#264)
+- `/redpill:update` respects local vs global install location
 - Researcher writes RESEARCH.md regardless of `commit_docs` setting
 - Statusline crash handling, color validation, git staging rules
 - Statusline.js reference updated during install (#330)
@@ -680,7 +680,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Context compliance verification dimension in plan checker — flags if plans contradict user decisions
 
 ### Fixed
-- CONTEXT.md from `/gsd:discuss-phase` now properly flows to all downstream agents (researcher, planner, checker, revision loop)
+- CONTEXT.md from `/redpill:discuss-phase` now properly flows to all downstream agents (researcher, planner, checker, revision loop)
 
 ## [1.10.1] - 2025-01-30
 
@@ -699,7 +699,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.12] - 2025-01-23
 
 ### Removed
-- `/gsd:whats-new` command — use `/gsd:update` instead (shows changelog with cancel option)
+- `/redpill:whats-new` command — use `/redpill:update` instead (shows changelog with cancel option)
 
 ### Fixed
 - Restored auto-release GitHub Actions workflow
@@ -720,12 +720,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.9] - 2026-01-23
 
 ### Added
-- `/gsd:join-discord` command to quickly access the GSD Discord community invite link
+- `/redpill:join-discord` command to quickly access the REDPILL Discord community invite link
 
 ## [1.9.8] - 2025-01-22
 
 ### Added
-- Uninstall flag (`--uninstall`) to cleanly remove GSD from global or local installations
+- Uninstall flag (`--uninstall`) to cleanly remove REDPILL from global or local installations
 
 ### Fixed
 - Context file detection now matches filename variants (handles both `CONTEXT.md` and `{phase}-CONTEXT.md` patterns)
@@ -741,9 +741,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - Interactive runtime selection: installer now prompts to choose Claude Code, OpenCode, or both
-- Native OpenCode support: `--opencode` flag converts GSD to OpenCode format automatically
+- Native OpenCode support: `--opencode` flag converts REDPILL to OpenCode format automatically
 - `--both` flag to install for both Claude Code and OpenCode in one command
-- Auto-configures `~/.opencode.json` permissions for seamless GSD doc access
+- Auto-configures `~/.opencode.json` permissions for seamless REDPILL doc access
 
 ### Changed
 - Installation flow now asks for runtime first, then location
@@ -755,7 +755,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Subagents can now access MCP tools (Context7, etc.) - workaround for Claude Code bug #13898
 - Installer: Escape/Ctrl+C now cancels instead of installing globally
 - Installer: Fixed hook paths on Windows
-- Removed stray backticks in `/gsd:new-project` output
+- Removed stray backticks in `/redpill:new-project` output
 
 ### Changed
 - Condensed verbose documentation in templates and workflows (-170 lines)
@@ -774,8 +774,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 - **Codebase Intelligence System** — Removed due to overengineering concerns
-  - Deleted `/gsd:analyze-codebase` command
-  - Deleted `/gsd:query-intel` command
+  - Deleted `/redpill:analyze-codebase` command
+  - Deleted `/redpill:query-intel` command
   - Removed SQLite graph database and sql.js dependency (21MB)
   - Removed intel hooks (gsd-intel-index.js, gsd-intel-session.js, gsd-intel-prune.js)
   - Removed entity file generation and templates
@@ -786,19 +786,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.0] - 2025-01-20
 
 ### Added
-- **Model Profiles** — `/gsd:set-profile` for quality/balanced/budget agent configurations
-- **Workflow Settings** — `/gsd:settings` command for toggling workflow behaviors interactively
+- **Model Profiles** — `/redpill:set-profile` for quality/balanced/budget agent configurations
+- **Workflow Settings** — `/redpill:settings` command for toggling workflow behaviors interactively
 
 ### Fixed
 - Orchestrators now inline file contents in Task prompts (fixes context issues with @ references)
 - Tech debt from milestone audit addressed
-- All hooks now use `gsd-` prefix for consistency (statusline.js → gsd-statusline.js)
+- All hooks now use `gsd-` prefix for consistency (statusline.js → redpill-statusline.js)
 
 ## [1.8.0] - 2026-01-19
 
 ### Added
-- Uncommitted planning mode: Keep `.planning/` local-only (not committed to git) via `planning.commit_docs: false` in config.json. Useful for OSS contributions, client work, or privacy preferences.
-- `/gsd:new-project` now asks about git tracking during initial setup, letting you opt out of committing planning docs from the start
+- Uncommitted planning mode: Keep `.redpill/` local-only (not committed to git) via `planning.commit_docs: false` in config.json. Useful for OSS contributions, client work, or privacy preferences.
+- `/redpill:new-project` now asks about git tracking during initial setup, letting you opt out of committing planning docs from the start
 
 ## [1.7.1] - 2026-01-19
 
@@ -808,7 +808,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.7.0] - 2026-01-19
 
 ### Added
-- **Quick Mode** (`/gsd:quick`) — Execute small, ad-hoc tasks with GSD guarantees but skip optional agents (researcher, checker, verifier). Quick tasks live in `.planning/quick/` with their own tracking in STATE.md.
+- **Quick Mode** (`/redpill:quick`) — Execute small, ad-hoc tasks with REDPILL guarantees but skip optional agents (researcher, checker, verifier). Quick tasks live in `.redpill/quick/` with their own tracking in STATE.md.
 
 ### Changed
 - Improved progress bar calculation to clamp values within 0-100 range
@@ -836,7 +836,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.6.3] - 2025-01-17
 
 ### Added
-- `--gaps-only` flag for `/gsd:execute-phase` — executes only gap closure plans after verify-work finds issues, eliminating redundant state discovery
+- `--gaps-only` flag for `/redpill:execute-phase` — executes only gap closure plans after verify-work finds issues, eliminating redundant state discovery
 
 ## [1.6.2] - 2025-01-17
 
@@ -850,29 +850,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.6.1] - 2025-01-17
 
 ### Changed
-- Installer performs clean install of GSD folders, removing orphaned files from previous versions
-- `/gsd:update` shows changelog and asks for confirmation before updating, with clear warning about what gets replaced
+- Installer performs clean install of REDPILL folders, removing orphaned files from previous versions
+- `/redpill:update` shows changelog and asks for confirmation before updating, with clear warning about what gets replaced
 
 ## [1.6.0] - 2026-01-17
 
 ### Changed
-- **BREAKING:** Unified `/gsd:new-milestone` flow — now mirrors `/gsd:new-project` with questioning → research → requirements → roadmap in a single command
+- **BREAKING:** Unified `/redpill:new-milestone` flow — now mirrors `/redpill:new-project` with questioning → research → requirements → roadmap in a single command
 - Roadmapper agent now references templates instead of inline structures for easier maintenance
 
 ### Removed
-- **BREAKING:** `/gsd:discuss-milestone` — consolidated into `/gsd:new-milestone`
-- **BREAKING:** `/gsd:create-roadmap` — integrated into project/milestone flows
-- **BREAKING:** `/gsd:define-requirements` — integrated into project/milestone flows
-- **BREAKING:** `/gsd:research-project` — integrated into project/milestone flows
+- **BREAKING:** `/redpill:discuss-milestone` — consolidated into `/redpill:new-milestone`
+- **BREAKING:** `/redpill:create-roadmap` — integrated into project/milestone flows
+- **BREAKING:** `/redpill:define-requirements` — integrated into project/milestone flows
+- **BREAKING:** `/redpill:research-project` — integrated into project/milestone flows
 
 ### Added
-- `/gsd:verify-work` now includes next-step routing after verification completes
+- `/redpill:verify-work` now includes next-step routing after verification completes
 
 ## [1.5.30] - 2026-01-17
 
 ### Fixed
 - Output templates in `plan-phase`, `execute-phase`, and `audit-milestone` now render markdown correctly instead of showing literal backticks
-- Next-step suggestions now consistently recommend `/gsd:discuss-phase` before `/gsd:plan-phase` across all routing paths
+- Next-step suggestions now consistently recommend `/redpill:discuss-phase` before `/redpill:plan-phase` across all routing paths
 
 ## [1.5.29] - 2025-01-16
 
@@ -889,7 +889,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - Consolidated milestone workflow into single command
 - Merged domain expertise skills into agent configurations
-- **BREAKING:** Removed `/gsd:execute-plan` command (use `/gsd:execute-phase` instead)
+- **BREAKING:** Removed `/redpill:execute-plan` command (use `/redpill:execute-phase` instead)
 
 ### Fixed
 - Phase directory matching now handles both zero-padded (05-*) and unpadded (5-*) folder names
@@ -927,12 +927,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Consistent zero-padding for phase directories (01-name, not 1-name)
 - Plan file naming: `{phase}-{plan}-PLAN.md` pattern restored across all agents
 - Double-path bug in researcher git add command
-- Removed `/gsd:research-phase` from next-step suggestions (use `/gsd:plan-phase` instead)
+- Removed `/redpill:research-phase` from next-step suggestions (use `/redpill:plan-phase` instead)
 
 ## [1.5.22] - 2025-01-16
 
 ### Added
-- Statusline update indicator — shows `⬆ /gsd:update` when a new version is available
+- Statusline update indicator — shows `⬆ /redpill:update` when a new version is available
 
 ### Fixed
 - Planner now updates ROADMAP.md placeholders after planning completes
@@ -940,13 +940,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.21] - 2026-01-16
 
 ### Added
-- GSD brand system for consistent UI (checkpoint boxes, stage banners, status symbols)
+- REDPILL brand system for consistent UI (checkpoint boxes, stage banners, status symbols)
 - Research synthesizer agent that consolidates parallel research into SUMMARY.md
 
 ### Changed
-- **Unified `/gsd:new-project` flow** — Single command now handles questions → research → requirements → roadmap (~10 min)
+- **Unified `/redpill:new-project` flow** — Single command now handles questions → research → requirements → roadmap (~10 min)
 - Simplified README to reflect streamlined workflow: new-project → plan-phase → execute-phase
-- Added optional `/gsd:discuss-phase` documentation for UI/UX/behavior decisions before planning
+- Added optional `/redpill:discuss-phase` documentation for UI/UX/behavior decisions before planning
 
 ### Fixed
 - verify-work now shows clear checkpoint box with action prompt ("Type 'pass' or describe what's wrong")
@@ -969,31 +969,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.19] - 2026-01-16
 
 ### Changed
-- `/gsd:discuss-phase` redesigned with intelligent gray area analysis — analyzes phase to identify discussable areas (UI, UX, Behavior, etc.), presents multi-select for user control, deep-dives each area with focused questioning
+- `/redpill:discuss-phase` redesigned with intelligent gray area analysis — analyzes phase to identify discussable areas (UI, UX, Behavior, etc.), presents multi-select for user control, deep-dives each area with focused questioning
 - Explicit scope guardrail prevents scope creep during discussion — captures deferred ideas without acting on them
 - CONTEXT.md template restructured for decisions (domain boundary, decisions by category, Claude's discretion, deferred ideas)
 - Downstream awareness: discuss-phase now explicitly documents that CONTEXT.md feeds researcher and planner agents
-- `/gsd:plan-phase` now integrates research — spawns `gsd-phase-researcher` before planning unless research exists or `--skip-research` flag used
+- `/redpill:plan-phase` now integrates research — spawns `redpill-phase-researcher` before planning unless research exists or `--skip-research` flag used
 
 ## [1.5.18] - 2026-01-16
 
 ### Added
 - **Plan verification loop** — Plans are now verified before execution with a planner → checker → revise cycle
-  - New `gsd-plan-checker` agent (744 lines) validates plans will achieve phase goals
+  - New `redpill-plan-checker` agent (744 lines) validates plans will achieve phase goals
   - Six verification dimensions: requirement coverage, task completeness, dependency correctness, key links, scope sanity, must_haves derivation
   - Max 3 revision iterations before user escalation
   - `--skip-verify` flag for experienced users who want to bypass verification
-- **Dedicated planner agent** — `gsd-planner` (1,319 lines) consolidates all planning expertise
+- **Dedicated planner agent** — `redpill-planner` (1,319 lines) consolidates all planning expertise
   - Complete methodology: discovery levels, task breakdown, dependency graphs, scope estimation, goal-backward analysis
   - Revision mode for handling checker feedback
   - TDD integration and checkpoint patterns
 - **Statusline integration** — Context usage, model, and current task display
 
 ### Changed
-- `/gsd:plan-phase` refactored to thin orchestrator pattern (310 lines)
-  - Spawns `gsd-planner` for planning, `gsd-plan-checker` for verification
+- `/redpill:plan-phase` refactored to thin orchestrator pattern (310 lines)
+  - Spawns `redpill-planner` for planning, `redpill-plan-checker` for verification
   - User sees status between agent spawns (not a black box)
-- Planning references deprecated with redirects to `gsd-planner` agent sections
+- Planning references deprecated with redirects to `redpill-planner` agent sections
   - `plan-format.md`, `scope-estimation.md`, `goal-backward.md`, `principles.md`
   - `workflows/plan-phase.md`
 
@@ -1006,48 +1006,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.17] - 2026-01-15
 
 ### Added
-- New `/gsd:update` command — check for updates, install, and display changelog of what changed (better UX than raw `npx get-shit-done-cc`)
+- New `/redpill:update` command — check for updates, install, and display changelog of what changed (better UX than raw `npx redpill-cc`)
 
 ## [1.5.16] - 2026-01-15
 
 ### Added
 - New `gsd-researcher` agent (915 lines) with comprehensive research methodology, 4 research modes (ecosystem, feasibility, implementation, comparison), source hierarchy, and verification protocols
-- New `gsd-debugger` agent (990 lines) with scientific debugging methodology, hypothesis testing, and 7+ investigation techniques
-- New `gsd-codebase-mapper` agent for brownfield codebase analysis
+- New `redpill-debugger` agent (990 lines) with scientific debugging methodology, hypothesis testing, and 7+ investigation techniques
+- New `redpill-codebase-mapper` agent for brownfield codebase analysis
 - Research subagent prompt template for context-only spawning
 
 ### Changed
-- `/gsd:research-phase` refactored to thin orchestrator — now injects rich context (key insight framing, downstream consumer info, quality gates) to gsd-researcher agent
-- `/gsd:research-project` refactored to spawn 4 parallel gsd-researcher agents with milestone-aware context (greenfield vs v1.1+) and roadmap implications guidance
-- `/gsd:debug` refactored to thin orchestrator (149 lines) — spawns gsd-debugger agent with full debugging expertise
-- `/gsd:new-milestone` now explicitly references MILESTONE-CONTEXT.md
+- `/redpill:research-phase` refactored to thin orchestrator — now injects rich context (key insight framing, downstream consumer info, quality gates) to gsd-researcher agent
+- `/redpill:research-project` refactored to spawn 4 parallel gsd-researcher agents with milestone-aware context (greenfield vs v1.1+) and roadmap implications guidance
+- `/redpill:debug` refactored to thin orchestrator (149 lines) — spawns redpill-debugger agent with full debugging expertise
+- `/redpill:new-milestone` now explicitly references MILESTONE-CONTEXT.md
 
 ### Deprecated
 - `workflows/research-phase.md` — consolidated into gsd-researcher agent
 - `workflows/research-project.md` — consolidated into gsd-researcher agent
-- `workflows/debug.md` — consolidated into gsd-debugger agent
+- `workflows/debug.md` — consolidated into redpill-debugger agent
 - `references/research-pitfalls.md` — consolidated into gsd-researcher agent
-- `references/debugging.md` — consolidated into gsd-debugger agent
-- `references/debug-investigation.md` — consolidated into gsd-debugger agent
+- `references/debugging.md` — consolidated into redpill-debugger agent
+- `references/debug-investigation.md` — consolidated into redpill-debugger agent
 
 ## [1.5.15] - 2025-01-15
 
 ### Fixed
-- **Agents now install correctly** — The `agents/` folder (gsd-executor, gsd-verifier, gsd-integration-checker, gsd-milestone-auditor) was missing from npm package, now included
+- **Agents now install correctly** — The `agents/` folder (redpill-executor, redpill-verifier, redpill-integration-checker, gsd-milestone-auditor) was missing from npm package, now included
 
 ### Changed
-- Consolidated `/gsd:plan-fix` into `/gsd:plan-phase --gaps` for simpler workflow
+- Consolidated `/redpill:plan-fix` into `/redpill:plan-phase --gaps` for simpler workflow
 - UAT file writes now batched instead of per-response for better performance
 
 ## [1.5.14] - 2025-01-15
 
 ### Fixed
-- Plan-phase now always routes to `/gsd:execute-phase` after planning, even for single-plan phases
+- Plan-phase now always routes to `/redpill:execute-phase` after planning, even for single-plan phases
 
 ## [1.5.13] - 2026-01-15
 
 ### Fixed
-- `/gsd:new-milestone` now presents research and requirements paths as equal options, matching `/gsd:new-project` format
+- `/redpill:new-milestone` now presents research and requirements paths as equal options, matching `/redpill:new-project` format
 
 ## [1.5.12] - 2025-01-15
 
@@ -1062,7 +1062,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - `MILESTONE-AUDIT.md` now versioned as `v{version}-MILESTONE-AUDIT.md` and archived on completion
-- `progress` now correctly routes to `/gsd:discuss-milestone` when between milestones (Route F)
+- `progress` now correctly routes to `/redpill:discuss-milestone` when between milestones (Route F)
 
 ## [1.5.11] - 2025-01-15
 
@@ -1080,12 +1080,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.9] - 2025-01-15
 
 ### Added
-- Milestone audit system (`/gsd:audit-milestone`) for verifying milestone completion with parallel verification agents
+- Milestone audit system (`/redpill:audit-milestone`) for verifying milestone completion with parallel verification agents
 
 ### Changed
 - Checkpoint display format improved with box headers and unmissable "→ YOUR ACTION:" prompts
 - Subagent colors updated (executor: yellow, integration-checker: blue)
-- Execute-phase now recommends `/gsd:audit-milestone` when milestone completes
+- Execute-phase now recommends `/redpill:audit-milestone` when milestone completes
 
 ### Fixed
 - Research-phase no longer gatekeeps by domain type
@@ -1099,25 +1099,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Verification loop: When gaps are found, verifier generates fix plans that execute automatically before re-verifying
 
 ### Changed
-- `gsd-executor` subagent color changed from red to blue
+- `redpill-executor` subagent color changed from red to blue
 
 ## [1.5.7] - 2025-01-15
 
 ### Added
-- `gsd-executor` subagent: Dedicated agent for plan execution with full workflow logic built-in
-- `gsd-verifier` subagent: Goal-backward verification that checks if phase goals are actually achieved (not just tasks completed)
+- `redpill-executor` subagent: Dedicated agent for plan execution with full workflow logic built-in
+- `redpill-verifier` subagent: Goal-backward verification that checks if phase goals are actually achieved (not just tasks completed)
 - Phase verification: Automatic verification runs when a phase completes to catch stubs and incomplete implementations
 - Goal-backward planning reference: Documentation for deriving must-haves from goals
 
 ### Changed
-- execute-plan and execute-phase now spawn `gsd-executor` subagent instead of using inline workflow
+- execute-plan and execute-phase now spawn `redpill-executor` subagent instead of using inline workflow
 - Roadmap and planning workflows enhanced with goal-backward analysis
 
 ### Removed
 - Obsolete templates (`checkpoint-resume.md`, `subagent-task-prompt.md`) — logic now lives in subagents
 
 ### Fixed
-- Updated remaining `general-purpose` subagent references to use `gsd-executor`
+- Updated remaining `general-purpose` subagent references to use `redpill-executor`
 
 ## [1.5.6] - 2025-01-15
 
@@ -1148,7 +1148,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **define-requirements**: Works without prior research. Gathers requirements through conversation when FEATURES.md doesn't exist.
 
 ### Removed
-- Dead `/gsd:status` command (referenced abandoned background agent model)
+- Dead `/redpill:status` command (referenced abandoned background agent model)
 - Unused `agent-history.md` template
 - `_archive/` directory with old execute-phase version
 
@@ -1176,8 +1176,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.0] - 2026-01-14
 
 ### Added
-- New `/gsd:research-project` command for pre-roadmap ecosystem research — spawns parallel agents to investigate stack, features, architecture, and pitfalls before you commit to a roadmap
-- New `/gsd:define-requirements` command for scoping v1 requirements from research findings — transforms "what exists in this domain" into "what we're building"
+- New `/redpill:research-project` command for pre-roadmap ecosystem research — spawns parallel agents to investigate stack, features, architecture, and pitfalls before you commit to a roadmap
+- New `/redpill:define-requirements` command for scoping v1 requirements from research findings — transforms "what exists in this domain" into "what we're building"
 - Requirements traceability: phases now map to specific requirement IDs with 100% coverage validation
 
 ### Changed
@@ -1213,7 +1213,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.25] - 2026-01-14
 
 ### Added
-- New `/gsd:whats-new` command shows changes since your installed version
+- New `/redpill:whats-new` command shows changes since your installed version
 - VERSION file written during installation for version tracking
 - CHANGELOG.md now included in package installation
 
@@ -1346,7 +1346,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.3] - 2026-01-13
 
 ### Added
-- `/gsd:debug` command for systematic debugging with persistent state
+- `/redpill:debug` command for systematic debugging with persistent state
 
 ## [1.4.2] - 2026-01-13
 
@@ -1356,9 +1356,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.1] - 2026-01-13
 
 ### Added
-- Parallel phase execution via `/gsd:execute-phase`
-- Parallel-aware planning in `/gsd:plan-phase`
-- `/gsd:status` command for parallel agent monitoring
+- Parallel phase execution via `/redpill:execute-phase`
+- Parallel-aware planning in `/redpill:plan-phase`
+- `/redpill:status` command for parallel agent monitoring
 - Parallelization configuration in config.json
 - Wave-based parallel execution with dependency graphs
 
@@ -1381,7 +1381,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.34] - 2026-01-11
 
 ### Added
-- `/gsd:add-todo` and `/gsd:check-todos` for mid-session idea capture
+- `/redpill:add-todo` and `/redpill:check-todos` for mid-session idea capture
 
 ## [1.3.33] - 2026-01-11
 
@@ -1394,7 +1394,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.32] - 2026-01-10
 
 ### Added
-- `/gsd:resume-task` for resuming interrupted subagent executions
+- `/redpill:resume-task` for resuming interrupted subagent executions
 
 ## [1.3.31] - 2026-01-08
 
@@ -1410,15 +1410,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.29] - 2026-01-08
 
 ### Added
-- `/gsd:verify-work` for conversational UAT validation
-- `/gsd:plan-fix` for fixing UAT issues
+- `/redpill:verify-work` for conversational UAT validation
+- `/redpill:plan-fix` for fixing UAT issues
 - UAT issues template
 
 ## [1.3.28] - 2026-01-07
 
 ### Added
 - `--config-dir` CLI argument for multi-account setups
-- `/gsd:remove-phase` command
+- `/redpill:remove-phase` command
 
 ### Fixed
 - Validation for --config-dir edge cases
@@ -1556,7 +1556,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.3] - 2025-12-17
 
 ### Fixed
-- Check PROJECT.md not .planning/ directory for existing project detection
+- Check PROJECT.md not .redpill/ directory for existing project detection
 
 ## [1.3.2] - 2025-12-17
 
@@ -1566,15 +1566,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.1] - 2025-12-17
 
 ### Added
-- `/gsd:map-codebase` documentation in help and README
+- `/redpill:map-codebase` documentation in help and README
 
 ## [1.3.0] - 2025-12-17
 
 ### Added
-- `/gsd:map-codebase` command for brownfield project analysis
+- `/redpill:map-codebase` command for brownfield project analysis
 - Codebase map templates (stack, architecture, structure, conventions, testing, integrations, concerns)
 - Parallel Explore agent orchestration for codebase analysis
-- Brownfield integration into GSD workflows
+- Brownfield integration into REDPILL workflows
 
 ### Changed
 - Improved continuation UI with context and visual hierarchy
@@ -1667,9 +1667,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - Pre-roadmap research workflow
-- `/gsd:research-phase` for niche domain ecosystem discovery
-- `/gsd:research-project` command with workflow and templates
-- `/gsd:create-roadmap` command with research-aware workflow
+- `/redpill:research-phase` for niche domain ecosystem discovery
+- `/redpill:research-project` command with workflow and templates
+- `/redpill:create-roadmap` command with research-aware workflow
 - Research subagent prompt templates
 
 ### Changed
@@ -1679,7 +1679,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.11] - 2025-12-15
 
 ### Added
-- `/gsd:research-phase` for niche domain ecosystem discovery
+- `/redpill:research-phase` for niche domain ecosystem discovery
 
 ## [1.0.10] - 2025-12-15
 
@@ -1738,192 +1738,192 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.0] - 2025-12-14
 
 ### Added
-- Initial release of GSD (Get Shit Done) meta-prompting system
-- Core slash commands: `/gsd:new-project`, `/gsd:discuss-phase`, `/gsd:plan-phase`, `/gsd:execute-phase`
+- Initial release of REDPILL (Get Shit Done) meta-prompting system
+- Core slash commands: `/redpill:new-project`, `/redpill:discuss-phase`, `/redpill:plan-phase`, `/redpill:execute-phase`
 - PROJECT.md and STATE.md templates
 - Phase-based development workflow
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/gsd-build/get-shit-done/compare/v1.30.0...HEAD
-[1.30.0]: https://github.com/gsd-build/get-shit-done/releases/tag/v1.30.0
-[1.29.0]: https://github.com/gsd-build/get-shit-done/releases/tag/v1.29.0
-[1.28.0]: https://github.com/gsd-build/get-shit-done/releases/tag/v1.28.0
-[1.27.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.27.0
-[1.26.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.26.0
-[1.25.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.25.0
-[1.24.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.24.0
-[1.23.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.23.0
-[1.22.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.4
-[1.22.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.3
-[1.22.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.2
-[1.22.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.1
-[1.22.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.0
-[1.21.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.21.1
-[1.21.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.21.0
-[1.20.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.6
-[1.20.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.5
-[1.20.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.4
-[1.20.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.3
-[1.20.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.2
-[1.20.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.1
-[1.20.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.0
-[1.19.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.2
-[1.19.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.1
-[1.19.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.0
-[1.18.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.18.0
-[1.17.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.17.0
-[1.16.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.16.0
-[1.15.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.15.0
-[1.14.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.14.0
-[1.13.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.13.0
-[1.12.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.1
-[1.12.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.0
-[1.11.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.2
-[1.11.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.0
-[1.10.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.1
-[1.10.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.0
-[1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
-[1.9.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.11
-[1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10
-[1.9.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.9
-[1.9.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.8
-[1.9.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.7
-[1.9.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.6
-[1.9.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.5
-[1.9.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.4
-[1.9.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.2
-[1.9.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.0
-[1.8.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.8.0
-[1.7.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.1
-[1.7.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.0
-[1.6.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.4
-[1.6.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.3
-[1.6.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.2
-[1.6.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.1
-[1.6.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.0
-[1.5.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.30
-[1.5.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.29
-[1.5.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.28
-[1.5.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.27
-[1.5.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.26
-[1.5.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.25
-[1.5.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.24
-[1.5.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.23
-[1.5.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.22
-[1.5.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.21
-[1.5.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.20
-[1.5.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.19
-[1.5.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.18
-[1.5.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.17
-[1.5.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.16
-[1.5.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.15
-[1.5.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.14
-[1.5.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.13
-[1.5.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.12
-[1.5.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.11
-[1.5.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.10
-[1.5.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.9
-[1.5.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.8
-[1.5.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.7
-[1.5.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.6
-[1.5.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.5
-[1.5.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.4
-[1.5.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.3
-[1.5.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.2
-[1.5.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.1
-[1.5.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.0
-[1.4.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.29
-[1.4.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.28
-[1.4.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.27
-[1.4.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.26
-[1.4.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.25
-[1.4.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.24
-[1.4.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.23
-[1.4.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.22
-[1.4.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.21
-[1.4.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.20
-[1.4.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.19
-[1.4.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.18
-[1.4.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.17
-[1.4.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.16
-[1.4.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.15
-[1.4.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.14
-[1.4.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.13
-[1.4.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.12
-[1.4.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.11
-[1.4.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.10
-[1.4.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.9
-[1.4.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.8
-[1.4.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.7
-[1.4.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.6
-[1.4.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.5
-[1.4.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.4
-[1.4.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.3
-[1.4.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.2
-[1.4.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.1
-[1.4.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.0
-[1.3.34]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.34
-[1.3.33]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.33
-[1.3.32]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.32
-[1.3.31]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.31
-[1.3.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.30
-[1.3.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.29
-[1.3.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.28
-[1.3.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.27
-[1.3.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.26
-[1.3.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.25
-[1.3.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.24
-[1.3.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.23
-[1.3.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.22
-[1.3.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.21
-[1.3.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.20
-[1.3.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.19
-[1.3.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.18
-[1.3.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.17
-[1.3.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.16
-[1.3.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.15
-[1.3.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.14
-[1.3.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.13
-[1.3.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.12
-[1.3.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.11
-[1.3.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.10
-[1.3.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.9
-[1.3.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.8
-[1.3.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.7
-[1.3.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.6
-[1.3.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.5
-[1.3.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.4
-[1.3.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.3
-[1.3.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.2
-[1.3.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.1
-[1.3.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.0
-[1.2.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.13
-[1.2.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.12
-[1.2.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.11
-[1.2.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.10
-[1.2.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.9
-[1.2.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.8
-[1.2.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.7
-[1.2.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.6
-[1.2.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.5
-[1.2.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.4
-[1.2.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.3
-[1.2.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.2
-[1.2.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.1
-[1.2.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.0
-[1.1.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.2
-[1.1.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.1
-[1.1.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.0
-[1.0.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.11
-[1.0.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.10
-[1.0.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.9
-[1.0.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.8
-[1.0.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.7
-[1.0.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.6
-[1.0.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.5
-[1.0.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.4
-[1.0.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.3
-[1.0.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.2
-[1.0.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.1
-[1.0.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.0
+[Unreleased]: https://github.com/gsd-build/redpill/compare/v1.30.0...HEAD
+[1.30.0]: https://github.com/gsd-build/redpill/releases/tag/v1.30.0
+[1.29.0]: https://github.com/gsd-build/redpill/releases/tag/v1.29.0
+[1.28.0]: https://github.com/gsd-build/redpill/releases/tag/v1.28.0
+[1.27.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.27.0
+[1.26.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.26.0
+[1.25.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.25.0
+[1.24.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.24.0
+[1.23.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.23.0
+[1.22.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.22.4
+[1.22.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.22.3
+[1.22.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.22.2
+[1.22.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.22.1
+[1.22.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.22.0
+[1.21.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.21.1
+[1.21.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.21.0
+[1.20.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.6
+[1.20.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.5
+[1.20.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.4
+[1.20.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.3
+[1.20.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.2
+[1.20.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.1
+[1.20.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.20.0
+[1.19.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.19.2
+[1.19.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.19.1
+[1.19.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.19.0
+[1.18.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.18.0
+[1.17.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.17.0
+[1.16.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.16.0
+[1.15.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.15.0
+[1.14.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.14.0
+[1.13.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.13.0
+[1.12.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.12.1
+[1.12.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.12.0
+[1.11.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.11.2
+[1.11.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.11.0
+[1.10.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.10.1
+[1.10.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.10.0
+[1.9.12]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.12
+[1.9.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.11
+[1.9.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.10
+[1.9.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.9
+[1.9.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.8
+[1.9.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.7
+[1.9.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.6
+[1.9.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.5
+[1.9.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.4
+[1.9.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.2
+[1.9.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.9.0
+[1.8.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.8.0
+[1.7.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.7.1
+[1.7.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.7.0
+[1.6.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.6.4
+[1.6.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.6.3
+[1.6.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.6.2
+[1.6.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.6.1
+[1.6.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.6.0
+[1.5.30]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.30
+[1.5.29]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.29
+[1.5.28]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.28
+[1.5.27]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.27
+[1.5.26]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.26
+[1.5.25]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.25
+[1.5.24]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.24
+[1.5.23]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.23
+[1.5.22]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.22
+[1.5.21]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.21
+[1.5.20]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.20
+[1.5.19]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.19
+[1.5.18]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.18
+[1.5.17]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.17
+[1.5.16]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.16
+[1.5.15]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.15
+[1.5.14]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.14
+[1.5.13]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.13
+[1.5.12]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.12
+[1.5.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.11
+[1.5.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.10
+[1.5.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.9
+[1.5.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.8
+[1.5.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.7
+[1.5.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.6
+[1.5.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.5
+[1.5.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.4
+[1.5.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.3
+[1.5.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.2
+[1.5.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.1
+[1.5.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.5.0
+[1.4.29]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.29
+[1.4.28]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.28
+[1.4.27]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.27
+[1.4.26]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.26
+[1.4.25]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.25
+[1.4.24]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.24
+[1.4.23]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.23
+[1.4.22]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.22
+[1.4.21]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.21
+[1.4.20]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.20
+[1.4.19]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.19
+[1.4.18]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.18
+[1.4.17]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.17
+[1.4.16]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.16
+[1.4.15]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.15
+[1.4.14]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.14
+[1.4.13]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.13
+[1.4.12]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.12
+[1.4.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.11
+[1.4.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.10
+[1.4.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.9
+[1.4.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.8
+[1.4.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.7
+[1.4.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.6
+[1.4.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.5
+[1.4.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.4
+[1.4.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.3
+[1.4.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.2
+[1.4.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.1
+[1.4.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.4.0
+[1.3.34]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.34
+[1.3.33]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.33
+[1.3.32]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.32
+[1.3.31]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.31
+[1.3.30]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.30
+[1.3.29]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.29
+[1.3.28]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.28
+[1.3.27]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.27
+[1.3.26]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.26
+[1.3.25]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.25
+[1.3.24]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.24
+[1.3.23]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.23
+[1.3.22]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.22
+[1.3.21]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.21
+[1.3.20]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.20
+[1.3.19]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.19
+[1.3.18]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.18
+[1.3.17]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.17
+[1.3.16]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.16
+[1.3.15]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.15
+[1.3.14]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.14
+[1.3.13]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.13
+[1.3.12]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.12
+[1.3.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.11
+[1.3.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.10
+[1.3.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.9
+[1.3.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.8
+[1.3.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.7
+[1.3.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.6
+[1.3.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.5
+[1.3.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.4
+[1.3.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.3
+[1.3.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.2
+[1.3.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.1
+[1.3.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.3.0
+[1.2.13]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.13
+[1.2.12]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.12
+[1.2.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.11
+[1.2.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.10
+[1.2.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.9
+[1.2.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.8
+[1.2.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.7
+[1.2.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.6
+[1.2.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.5
+[1.2.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.4
+[1.2.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.3
+[1.2.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.2
+[1.2.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.1
+[1.2.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.2.0
+[1.1.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.1.2
+[1.1.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.1.1
+[1.1.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.1.0
+[1.0.11]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.11
+[1.0.10]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.10
+[1.0.9]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.9
+[1.0.8]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.8
+[1.0.7]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.7
+[1.0.6]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.6
+[1.0.5]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.5
+[1.0.4]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.4
+[1.0.3]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.3
+[1.0.2]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.2
+[1.0.1]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.1
+[1.0.0]: https://github.com/glittercowboy/redpill/releases/tag/v1.0.0

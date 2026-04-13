@@ -1,5 +1,5 @@
 ---
-name: gsd:manager
+name: redpill:manager
 description: Interactive command center for managing multiple phases from one terminal
 allowed-tools:
   - Read
@@ -17,24 +17,24 @@ Single-terminal command center for managing a milestone. Shows a dashboard of al
 Designed for power users who want to parallelize work across phases from one terminal: discuss a phase while another plans or executes in the background.
 
 **Creates/Updates:**
-- No files created directly — dispatches to existing GSD commands via Skill() and background Task agents.
-- Reads `.planning/STATE.md`, `.planning/ROADMAP.md`, phase directories for status.
+- No files created directly — dispatches to existing REDPILL commands via Skill() and background Task agents.
+- Reads `.redpill/STATE.md`, `.redpill/ROADMAP.md`, phase directories for status.
 
 **After:** User exits when done managing, or all phases complete and milestone lifecycle is suggested.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/manager.md
-@~/.claude/get-shit-done/references/ui-brand.md
+@~/.claude/redpill/workflows/manager.md
+@~/.claude/redpill/references/ui-brand.md
 </execution_context>
 
 <context>
 No arguments required. Requires an active milestone with ROADMAP.md and STATE.md.
 
-Project context, phase list, dependencies, and recommendations are resolved inside the workflow using `gsd-tools.cjs init manager`. No upfront context loading needed.
+Project context, phase list, dependencies, and recommendations are resolved inside the workflow using `redpill-tools.cjs init manager`. No upfront context loading needed.
 </context>
 
 <process>
-Execute the manager workflow from @~/.claude/get-shit-done/workflows/manager.md end-to-end.
+Execute the manager workflow from @~/.claude/redpill/workflows/manager.md end-to-end.
 Maintain the dashboard refresh loop until the user exits or all phases complete.
 </process>

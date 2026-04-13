@@ -1,9 +1,9 @@
 {
-  "name": "get-shit-done-cc",
+  "name": "redpill-cc",
   "version": "1.31.0",
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES.",
   "bin": {
-    "get-shit-done-cc": "bin/install.js"
+    "redpill-cc": "bin/install.js"
   },
   "files": [
     "bin",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/gsd-build/get-shit-done",
   "bugs": {
-    "url": "https://github.com/gsd-build/get-shit-done/issues"
+    "url": "https://github.com/gsd-build/redpill/issues"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -47,6 +47,6 @@
     "build:hooks": "node scripts/build-hooks.js",
     "prepublishOnly": "npm run build:hooks",
     "test": "node scripts/run-tests.cjs",
-    "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'get-shit-done/bin/lib/*.cjs' --exclude 'tests/**' --all node scripts/run-tests.cjs"
+    "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'redpill/bin/lib/*.cjs' --exclude 'tests/**' --all node scripts/run-tests.cjs"
   }
 }

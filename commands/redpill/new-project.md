@@ -1,5 +1,5 @@
 ---
-name: gsd:new-project
+name: redpill:new-project
 description: Initialize a new project with deep context gathering and PROJECT.md
 argument-hint: "[--auto]"
 allowed-tools:
@@ -18,25 +18,25 @@ allowed-tools:
 Initialize a new project through unified flow: questioning → research (optional) → requirements → roadmap.
 
 **Creates:**
-- `.planning/PROJECT.md` — project context
-- `.planning/config.json` — workflow preferences
-- `.planning/research/` — domain research (optional)
-- `.planning/REQUIREMENTS.md` — scoped requirements
-- `.planning/ROADMAP.md` — phase structure
-- `.planning/STATE.md` — project memory
+- `.redpill/PROJECT.md` — project context
+- `.redpill/config.json` — workflow preferences
+- `.redpill/research/` — domain research (optional)
+- `.redpill/REQUIREMENTS.md` — scoped requirements
+- `.redpill/ROADMAP.md` — phase structure
+- `.redpill/STATE.md` — project memory
 
-**After this command:** Run `/gsd:plan-phase 1` to start execution.
+**After this command:** Run `/redpill:plan-phase 1` to start execution.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/new-project.md
-@~/.claude/get-shit-done/references/questioning.md
-@~/.claude/get-shit-done/references/ui-brand.md
-@~/.claude/get-shit-done/templates/project.md
-@~/.claude/get-shit-done/templates/requirements.md
+@~/.claude/redpill/workflows/new-project.md
+@~/.claude/redpill/references/questioning.md
+@~/.claude/redpill/references/ui-brand.md
+@~/.claude/redpill/templates/project.md
+@~/.claude/redpill/templates/requirements.md
 </execution_context>
 
 <process>
-Execute the new-project workflow from @~/.claude/get-shit-done/workflows/new-project.md end-to-end.
+Execute the new-project workflow from @~/.claude/redpill/workflows/new-project.md end-to-end.
 Preserve all workflow gates (validation, approvals, commits, routing).
 </process>

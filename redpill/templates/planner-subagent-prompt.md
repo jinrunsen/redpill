@@ -1,6 +1,6 @@
 # Planner Subagent Prompt Template
 
-Template for spawning gsd-planner agent. The agent contains all planning expertise - this template provides planning context only.
+Template for spawning redpill-planner agent. The agent contains all planning expertise - this template provides planning context only.
 
 ---
 
@@ -13,28 +13,28 @@ Template for spawning gsd-planner agent. The agent contains all planning experti
 **Mode:** {standard | gap_closure}
 
 **Project State:**
-@.planning/STATE.md
+@.redpill/STATE.md
 
 **Roadmap:**
-@.planning/ROADMAP.md
+@.redpill/ROADMAP.md
 
 **Requirements (if exists):**
-@.planning/REQUIREMENTS.md
+@.redpill/REQUIREMENTS.md
 
 **Phase Context (if exists):**
-@.planning/phases/{phase_dir}/{phase_num}-CONTEXT.md
+@.redpill/phases/{phase_dir}/{phase_num}-CONTEXT.md
 
 **Research (if exists):**
-@.planning/phases/{phase_dir}/{phase_num}-RESEARCH.md
+@.redpill/phases/{phase_dir}/{phase_num}-RESEARCH.md
 
 **Gap Closure (if --gaps mode):**
-@.planning/phases/{phase_dir}/{phase_num}-VERIFICATION.md
-@.planning/phases/{phase_dir}/{phase_num}-UAT.md
+@.redpill/phases/{phase_dir}/{phase_num}-VERIFICATION.md
+@.redpill/phases/{phase_dir}/{phase_num}-UAT.md
 
 </planning_context>
 
 <downstream_consumer>
-Output consumed by /gsd:execute-phase
+Output consumed by /redpill:execute-phase
 Plans must be executable prompts with:
 - Frontmatter (wave, depends_on, files_modified, autonomous)
 - Tasks in XML format
@@ -68,20 +68,20 @@ Before returning PLANNING COMPLETE:
 
 ## Usage
 
-**From /gsd:plan-phase (standard mode):**
+**From /redpill:plan-phase (standard mode):**
 ```python
 Task(
   prompt=filled_template,
-  subagent_type="gsd-planner",
+  subagent_type="redpill-planner",
   description="Plan Phase {phase}"
 )
 ```
 
-**From /gsd:plan-phase --gaps (gap closure mode):**
+**From /redpill:plan-phase --gaps (gap closure mode):**
 ```python
 Task(
   prompt=filled_template,  # with mode: gap_closure
-  subagent_type="gsd-planner",
+  subagent_type="redpill-planner",
   description="Plan gaps for Phase {phase}"
 )
 ```
@@ -98,8 +98,8 @@ Continue planning for Phase {phase_number}: {phase_name}
 </objective>
 
 <prior_state>
-Phase directory: @.planning/phases/{phase_dir}/
-Existing plans: @.planning/phases/{phase_dir}/*-PLAN.md
+Phase directory: @.redpill/phases/{phase_dir}/
+Existing plans: @.redpill/phases/{phase_dir}/*-PLAN.md
 </prior_state>
 
 <checkpoint_response>
@@ -114,4 +114,4 @@ Continue: {standard | gap_closure}
 
 ---
 
-**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward derivation are baked into the gsd-planner agent. This template only passes context.
+**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward derivation are baked into the redpill-planner agent. This template only passes context.

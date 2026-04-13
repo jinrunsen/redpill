@@ -1,20 +1,20 @@
 <purpose>
-Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the GSD phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .planning/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
+Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the REDPILL phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .redpill/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
 </purpose>
 
 <required_reading>
 Read STATE.md before any operation to load project context (if it exists).
 Read config.json for behavior settings (if it exists).
 
-@~/.claude/get-shit-done/references/git-integration.md
+@~/.claude/redpill/references/git-integration.md
 </required_reading>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-step-writer — Writes BDD step definitions (Python/behave), never writes production code
-- gsd-step-reviewer — Reviews step definitions against Gherkin intent and API contract; read-only
-- gsd-executor — Executes implementation tasks, commits work
-- gsd-verifier — Verifies implementation quality and design alignment
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-step-writer — Writes BDD step definitions (Python/behave), never writes production code
+- redpill-step-reviewer — Reviews step definitions against Gherkin intent and API contract; read-only
+- redpill-executor — Executes implementation tasks, commits work
+- redpill-verifier — Verifies implementation quality and design alignment
 </available_agent_types>
 
 <process>
@@ -22,11 +22,11 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 1. Initialize
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init run-bdd)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init run-bdd)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `planning_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
+Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `redpill_dir_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
 
 ## 2. Parse Arguments
 
@@ -46,16 +46,16 @@ Set `TEXT_MODE=true` if `text_mode` from init JSON is `true`.
 
 ## 3. Pre-flight Checks
 
-**Check 1:** DEV-SETUP.md exists — verify `.planning/DEV-SETUP.md` is present:
+**Check 1:** DEV-SETUP.md exists — verify `.redpill/DEV-SETUP.md` is present:
 ```bash
-if [[ ! -f ".planning/DEV-SETUP.md" ]]; then
-  echo "DEV-SETUP gate failed: .planning/DEV-SETUP.md not found."
+if [[ ! -f ".redpill/DEV-SETUP.md" ]]; then
+  echo "DEV-SETUP gate failed: .redpill/DEV-SETUP.md not found."
   echo ""
   echo "  BDD requires a local development setup document before proceeding."
   echo "  This file describes how to build, run, and verify the service locally."
   echo ""
-  echo "  Create .planning/DEV-SETUP.md with local build/run instructions."
-  echo "  See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+  echo "  Create .redpill/DEV-SETUP.md with local build/run instructions."
+  echo "  See template: ~/.claude/redpill/templates/dev-setup.md"
   echo ""
   echo "  The file must include YAML frontmatter with: prerequisites, install,"
   echo "  build, start, and verify fields. Optionally include middleware"
@@ -65,11 +65,11 @@ fi
 ```
 Also verify the frontmatter is parseable (contains required fields):
 ```bash
-FRONTMATTER=$(sed -n '/^---$/,/^---$/p' .planning/DEV-SETUP.md)
+FRONTMATTER=$(sed -n '/^---$/,/^---$/p' .redpill/DEV-SETUP.md)
 for field in install build start verify; do
   if ! echo "$FRONTMATTER" | grep -q "^${field}:"; then
     echo "DEV-SETUP gate failed: missing required field '${field}' in frontmatter."
-    echo "  See template: ~/.claude/get-shit-done/templates/dev-setup.md"
+    echo "  See template: ~/.claude/redpill/templates/dev-setup.md"
     exit 1
   fi
 done
@@ -119,7 +119,7 @@ DEV-SETUP gate failed at [verify]:
   Expected: {verify.expected or "exit code 0"}
   Result: {output or "connection refused"}
   Check that the service starts correctly on the expected port.
-  Review .planning/DEV-SETUP.md start and verify fields.
+  Review .redpill/DEV-SETUP.md start and verify fields.
 ```
 After verification (pass or fail), kill the background service process.
 
@@ -141,7 +141,7 @@ done
 If `has_feature_files` is false and no specific files provided:
 ```
 No .feature files found in features/ directory (including subdirectories).
-Write your Gherkin scenarios first, then re-run /gsd:run-bdd.
+Write your Gherkin scenarios first, then re-run /redpill:run-bdd.
 ```
 
 **Check 4:** `behave_available` is false:
@@ -159,16 +159,16 @@ fi
 
 ## 4. Initialize Progress Tracking
 
-Ensure `.planning/bdd/` directory exists:
+Ensure `.redpill/bdd/` directory exists:
 ```bash
-mkdir -p .planning/bdd
+mkdir -p .redpill/bdd
 ```
 
 **If `has_bdd_progress` is true (resuming):**
 Read `BDD-PROGRESS.json` from `bdd_progress_path`. Display:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD RESUMING
+ REDPILL ► BDD RESUMING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Previously passed: {passed_count} scenarios
@@ -176,7 +176,7 @@ Read `BDD-PROGRESS.json` from `bdd_progress_path`. Display:
 ```
 
 **If `has_bdd_progress` is false (fresh start):**
-Create `BDD-PROGRESS.json` in `.planning/bdd/`:
+Create `BDD-PROGRESS.json` in `.redpill/bdd/`:
 ```json
 {
   "total_scenarios": 0,
@@ -192,7 +192,7 @@ Create `BDD-PROGRESS.json` in `.planning/bdd/`:
 Display banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD RUN
+ REDPILL ► BDD RUN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Mode: Scenario-driven development (phase-independent)
@@ -281,7 +281,7 @@ Undefined indicators (any one triggers):
 
 Track `step_writer_dispatched = false`. It flips to `true` in 7b if the step-writer is invoked; 7d uses it to decide whether a review is needed.
 
-### 7b. If undefined steps → dispatch gsd-step-writer
+### 7b. If undefined steps → dispatch redpill-step-writer
 
 Set `step_writer_dispatched = true`.
 
@@ -289,7 +289,7 @@ Display: `Spawning step-writer for: {scenario_name}`
 
 ```
 Agent(
-  subagent_type="gsd-step-writer",
+  subagent_type="redpill-step-writer",
   model="{step_writer_model}",
   description="Write steps for: {scenario_name}",
   prompt="
@@ -343,7 +343,7 @@ If user selects "Abort" → go to step 12 (Completion) with partial results.
 **Skip if:** `step_writer_dispatched` is false (steps were already defined from a prior iteration; already reviewed).
 **Skip if:** `--skip-review` flag is set.
 
-Otherwise, dispatch `gsd-step-reviewer` to audit the steps the writer just produced. This catches contract mismatches, missing assertions, and intent-level bugs **before** the executor wastes cycles implementing against a broken spec.
+Otherwise, dispatch `redpill-step-reviewer` to audit the steps the writer just produced. This catches contract mismatches, missing assertions, and intent-level bugs **before** the executor wastes cycles implementing against a broken spec.
 
 Build the design context block:
 - If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design / API contract)`
@@ -353,7 +353,7 @@ Display: `Spawning step-reviewer for: {scenario_name}`
 
 ```
 Agent(
-  subagent_type="gsd-step-reviewer",
+  subagent_type="redpill-step-reviewer",
   model="{step_reviewer_model}",
   description="Review steps for: {scenario_name}",
   prompt="
@@ -387,11 +387,11 @@ Agent(
 
 - **`VERDICT: APPROVED`** → proceed to step 7e.
 - **MINOR defects only** → log findings to `review_log` with tag `step-review`, proceed to step 7e.
-- **`VERDICT: REJECTED` (CRITICAL or IMPORTANT defects)** → re-dispatch `gsd-step-writer` with the reviewer's defect list as feedback (max 1 fix round):
+- **`VERDICT: REJECTED` (CRITICAL or IMPORTANT defects)** → re-dispatch `redpill-step-writer` with the reviewer's defect list as feedback (max 1 fix round):
 
 ```
 Agent(
-  subagent_type="gsd-step-writer",
+  subagent_type="redpill-step-writer",
   model="{step_writer_model}",
   description="Fix step review defects: {scenario_name}",
   prompt="
@@ -455,7 +455,7 @@ Build the design context block:
 
 ```
 Agent(
-  subagent_type="gsd-executor",
+  subagent_type="redpill-executor",
   model="{executor_model}",
   description="Implement backend for: {scenario_name}",
   prompt="
@@ -502,7 +502,7 @@ Re-dispatch executor with previous attempt context:
 
 ```
 Agent(
-  subagent_type="gsd-executor",
+  subagent_type="redpill-executor",
   model="{executor_model}",
   description="Fix failing scenario: {scenario_name}",
   prompt="
@@ -556,7 +556,7 @@ Display: `Spawning reviewer for: {scenario_name}`
 
 ```
 Agent(
-  subagent_type="gsd-verifier",
+  subagent_type="redpill-verifier",
   model="{verifier_model}",
   description="Review implementation: {scenario_name}",
   prompt="
@@ -598,7 +598,7 @@ Agent(
 
 ```
 Agent(
-  subagent_type="gsd-executor",
+  subagent_type="redpill-executor",
   model="{executor_model}",
   description="Fix review issues: {scenario_name}",
   prompt="
@@ -665,13 +665,13 @@ Update `BDD-PROGRESS.json`:
 - Increment `iteration`
 - Reset `stuck_count` to 0
 
-Update STATE.md (if `.planning/` exists):
+Update STATE.md (if `.redpill/` exists):
 ```bash
 SCENARIO_END_EPOCH=$(date +%s)
 SCENARIO_DURATION_SEC=$(( SCENARIO_END_EPOCH - SCENARIO_START_EPOCH ))
 SCENARIO_DURATION_MIN=$(( SCENARIO_DURATION_SEC / 60 ))
 
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state record-metric \
   --plan "bdd" \
   --duration "${SCENARIO_DURATION_MIN}m" \
   --tasks "1" --files "$(git diff --name-only {SCENARIO_START_COMMIT}..HEAD | wc -l)"
@@ -680,7 +680,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
 Display progress:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PROGRESS
+ REDPILL ► BDD PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  {passed_count}/{total_count} scenarios passing
@@ -732,7 +732,7 @@ fi
 
 ### 12b. Generate BDD-SUMMARY.md
 
-Write `BDD-SUMMARY.md` in `.planning/bdd/`:
+Write `BDD-SUMMARY.md` in `.redpill/bdd/`:
 
 ```markdown
 ---
@@ -754,7 +754,7 @@ key-files:
 
 # BDD Run Summary
 
-Scenario-driven implementation via /gsd:run-bdd.
+Scenario-driven implementation via /redpill:run-bdd.
 
 ## Input
 
@@ -782,23 +782,23 @@ Scenario-driven implementation via /gsd:run-bdd.
 {failed/skipped scenarios with reasons, or "None"}
 ```
 
-### 12c. Update GSD state
+### 12c. Update REDPILL state
 
-If `.planning/STATE.md` exists, update it with total metrics. **Do NOT update ROADMAP.md or REQUIREMENTS.md.**
+If `.redpill/STATE.md` exists, update it with total metrics. **Do NOT update ROADMAP.md or REQUIREMENTS.md.**
 
 ### 12d. Commit metadata
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "docs(bdd): complete BDD run summary" \
-  --files ".planning/bdd/BDD-SUMMARY.md" ".planning/bdd/BDD-PROGRESS.json" .planning/STATE.md
+  --files ".redpill/bdd/BDD-SUMMARY.md" ".redpill/bdd/BDD-PROGRESS.json" .redpill/STATE.md
 ```
 
 ### 12e. Display completion
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD RUN COMPLETE
+ REDPILL ► BDD RUN COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 {passed}/{total} scenarios passing
@@ -807,7 +807,7 @@ Duration: {TOTAL_DURATION}
 Commits: {commit_count}
 Files changed: {file_count}
 
-Summary: .planning/bdd/BDD-SUMMARY.md
+Summary: .redpill/bdd/BDD-SUMMARY.md
 
 ───────────────────────────────────────────────────
 ```
@@ -817,19 +817,19 @@ Summary: .planning/bdd/BDD-SUMMARY.md
 <success_criteria>
 - [ ] Pre-flight checks all pass before entering loop (DEV-SETUP, behave, feature files)
 - [ ] Arguments parsed correctly (feature paths, tags, scenario names, design path)
-- [ ] BDD-PROGRESS.json created/loaded in .planning/bdd/
+- [ ] BDD-PROGRESS.json created/loaded in .redpill/bdd/
 - [ ] Scenarios discovered via behave --dry-run with correct filters
 - [ ] Each scenario iterated: RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
-- [ ] gsd-step-writer dispatched for undefined steps
-- [ ] gsd-step-reviewer dispatched after step-writer (unless --skip-review) and its verdict honored
-- [ ] gsd-executor dispatched for implementation
-- [ ] gsd-verifier dispatched for review (unless --skip-review)
+- [ ] redpill-step-writer dispatched for undefined steps
+- [ ] redpill-step-reviewer dispatched after step-writer (unless --skip-review) and its verdict honored
+- [ ] redpill-executor dispatched for implementation
+- [ ] redpill-verifier dispatched for review (unless --skip-review)
 - [ ] Design document passed to agents when --design is provided
 - [ ] Design document gracefully omitted when not provided
 - [ ] Regression check runs all previously passed scenarios
 - [ ] BDD-PROGRESS.json updated after each scenario
 - [ ] STATE.md updated with metrics (no ROADMAP/REQUIREMENTS updates)
-- [ ] BDD-SUMMARY.md generated on completion in .planning/bdd/
+- [ ] BDD-SUMMARY.md generated on completion in .redpill/bdd/
 - [ ] Stuck detection triggers after 5 iterations without progress
 - [ ] Resume works correctly from BDD-PROGRESS.json
 </success_criteria>

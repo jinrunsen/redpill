@@ -2,7 +2,7 @@
  * Docs — Commands for the docs-update workflow
  *
  * Provides `cmdDocsInit` which returns project signals, existing doc inventory
- * with GSD marker detection, doc tooling detection, monorepo awareness, and
+ * with REDPILL marker detection, doc tooling detection, monorepo awareness, and
  * model resolution. Used by Phase 2 to route doc generation appropriately.
  */
 
@@ -12,10 +12,10 @@ const { output, loadConfig, resolveModelInternal, pathExistsInternal, toPosixPat
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const GSD_MARKER = '<!-- generated-by: gsd-doc-writer -->';
+const REDPILL_MARKER = '<!-- generated-by: redpill-doc-writer -->';
 
 const SKIP_DIRS = new Set([
-  'node_modules', '.git', '.planning', '.claude', '__pycache__',
+  'node_modules', '.git', '.redpill', '.claude', '__pycache__',
   'target', 'dist', 'build', '.next', '.nuxt', 'coverage',
   '.vscode', '.idea',
 ]);
@@ -23,7 +23,7 @@ const SKIP_DIRS = new Set([
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
 /**
- * Check whether a file begins with the GSD doc writer marker.
+ * Check whether a file begins with the REDPILL doc writer marker.
  * Reads the first 500 bytes only — avoids loading large files.
  *
  * @param {string} filePath - Absolute path to the file
@@ -35,7 +35,7 @@ function hasGsdMarker(filePath) {
     const fd = fs.openSync(filePath, 'r');
     const bytesRead = fs.readSync(fd, buf, 0, 500, 0);
     fs.closeSync(fd);
-    return buf.slice(0, bytesRead).toString('utf-8').includes(GSD_MARKER);
+    return buf.slice(0, bytesRead).toString('utf-8').includes(REDPILL_MARKER);
   } catch {
     return false;
   }
@@ -240,7 +240,7 @@ function detectMonorepoWorkspaces(cwd) {
  * resolution. Follows the cmdInitMapCodebase pattern.
  *
  * @example
- * node gsd-tools.cjs docs-init --raw
+ * node redpill-tools.cjs docs-init --raw
  *
  * @param {string} cwd - Project root directory
  * @param {boolean} raw - Pass raw JSON flag through to output()
@@ -248,13 +248,13 @@ function detectMonorepoWorkspaces(cwd) {
 function cmdDocsInit(cwd, raw) {
   const config = loadConfig(cwd);
   const result = {
-    doc_writer_model: resolveModelInternal(cwd, 'gsd-doc-writer'),
+    doc_writer_model: resolveModelInternal(cwd, 'redpill-doc-writer'),
     commit_docs: config.commit_docs,
     existing_docs: scanExistingDocs(cwd),
     project_type: detectProjectType(cwd),
     doc_tooling: detectDocTooling(cwd),
     monorepo_workspaces: detectMonorepoWorkspaces(cwd),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
+    redpill_dir_exists: pathExistsInternal(cwd, '.redpill'),
   };
   // Inject project_root and agent installation status (mirrors withProjectRoot in init.cjs)
   result.project_root = cwd;

@@ -6,7 +6,7 @@
 
 ```bash
 # 获取阶段 6 之后的下一个小数阶段
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase next-decimal 6
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase next-decimal 6
 ```
 
 输出：
@@ -32,14 +32,14 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase next-decimal 6
 ## 提取值
 
 ```bash
-DECIMAL_INFO=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase next-decimal "${AFTER_PHASE}")
+DECIMAL_INFO=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase next-decimal "${AFTER_PHASE}")
 DECIMAL_PHASE=$(printf '%s\n' "$DECIMAL_INFO" | jq -r '.next')
 BASE_PHASE=$(printf '%s\n' "$DECIMAL_INFO" | jq -r '.base_phase')
 ```
 
 或使用 --raw 标志：
 ```bash
-DECIMAL_PHASE=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase next-decimal "${AFTER_PHASE}" --raw)
+DECIMAL_PHASE=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase next-decimal "${AFTER_PHASE}" --raw)
 # 返回: 06.1
 ```
 
@@ -57,9 +57,9 @@ DECIMAL_PHASE=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase next-
 小数阶段目录使用完整的小数编号：
 
 ```bash
-SLUG=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" generate-slug "$DESCRIPTION" --raw)
-PHASE_DIR=".planning/phases/${DECIMAL_PHASE}-${SLUG}"
+SLUG=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" generate-slug "$DESCRIPTION" --raw)
+PHASE_DIR=".redpill/phases/${DECIMAL_PHASE}-${SLUG}"
 mkdir -p "$PHASE_DIR"
 ```
 
-示例：`.planning/phases/06.1-fix-critical-auth-bug/`
+示例：`.redpill/phases/06.1-fix-critical-auth-bug/`

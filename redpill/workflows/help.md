@@ -1,35 +1,35 @@
 <purpose>
-Display the complete GSD command reference. Output ONLY the reference content. Do NOT add project-specific analysis, git status, next-step suggestions, or any commentary beyond the reference.
+Display the complete REDPILL command reference. Output ONLY the reference content. Do NOT add project-specific analysis, git status, next-step suggestions, or any commentary beyond the reference.
 </purpose>
 
 <reference>
-# GSD Command Reference
+# REDPILL Command Reference
 
 **GSD** (Get Shit Done) creates hierarchical project plans optimized for solo agentic development with Claude Code.
 
 ## Quick Start
 
-1. `/gsd:new-project` - Initialize project (includes research, requirements, roadmap)
-2. `/gsd:plan-phase 1` - Create detailed plan for first phase
-3. `/gsd:execute-phase 1` - Execute the phase
+1. `/redpill:new-project` - Initialize project (includes research, requirements, roadmap)
+2. `/redpill:plan-phase 1` - Create detailed plan for first phase
+3. `/redpill:execute-phase 1` - Execute the phase
 
 ## Staying Updated
 
 GSD evolves fast. Update periodically:
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 ## Core Workflow
 
 ```
-/gsd:new-project → /gsd:plan-phase → /gsd:execute-phase → repeat
+/redpill:new-project → /redpill:plan-phase → /redpill:execute-phase → repeat
 ```
 
 ### Project Initialization
 
-**`/gsd:new-project`**
+**`/redpill:new-project`**
 Initialize new project through unified flow.
 
 One command takes you from idea to ready-for-planning:
@@ -38,7 +38,7 @@ One command takes you from idea to ready-for-planning:
 - Requirements definition with v1/v2/out-of-scope scoping
 - Roadmap creation with phase breakdown and success criteria
 
-Creates all `.planning/` artifacts:
+Creates all `.redpill/` artifacts:
 - `PROJECT.md` — vision and requirements
 - `config.json` — workflow mode (interactive/yolo)
 - `research/` — domain research (if selected)
@@ -46,21 +46,21 @@ Creates all `.planning/` artifacts:
 - `ROADMAP.md` — phases mapped to requirements
 - `STATE.md` — project memory
 
-Usage: `/gsd:new-project`
+Usage: `/redpill:new-project`
 
-**`/gsd:map-codebase`**
+**`/redpill:map-codebase`**
 Map an existing codebase for brownfield projects.
 
 - Analyzes codebase with parallel Explore agents
-- Creates `.planning/codebase/` with 7 focused documents
+- Creates `.redpill/codebase/` with 7 focused documents
 - Covers stack, architecture, structure, conventions, testing, integrations, concerns
-- Use before `/gsd:new-project` on existing codebases
+- Use before `/redpill:new-project` on existing codebases
 
-Usage: `/gsd:map-codebase`
+Usage: `/redpill:map-codebase`
 
 ### Phase Planning
 
-**`/gsd:discuss-phase <number>`**
+**`/redpill:discuss-phase <number>`**
 Help articulate your vision for a phase before planning.
 
 - Captures how you imagine this phase working
@@ -68,11 +68,11 @@ Help articulate your vision for a phase before planning.
 - Use when you have ideas about how something should look/feel
 - Optional `--batch` asks 2-5 related questions at a time instead of one-by-one
 
-Usage: `/gsd:discuss-phase 2`
-Usage: `/gsd:discuss-phase 2 --batch`
-Usage: `/gsd:discuss-phase 2 --batch=3`
+Usage: `/redpill:discuss-phase 2`
+Usage: `/redpill:discuss-phase 2 --batch`
+Usage: `/redpill:discuss-phase 2 --batch=3`
 
-**`/gsd:research-phase <number>`**
+**`/redpill:research-phase <number>`**
 Comprehensive ecosystem research for niche/complex domains.
 
 - Discovers standard stack, architecture patterns, pitfalls
@@ -80,33 +80,33 @@ Comprehensive ecosystem research for niche/complex domains.
 - Use for 3D, games, audio, shaders, ML, and other specialized domains
 - Goes beyond "which library" to ecosystem knowledge
 
-Usage: `/gsd:research-phase 3`
+Usage: `/redpill:research-phase 3`
 
-**`/gsd:list-phase-assumptions <number>`**
+**`/redpill:list-phase-assumptions <number>`**
 See what Claude is planning to do before it starts.
 
 - Shows Claude's intended approach for a phase
 - Lets you course-correct if Claude misunderstood your vision
 - No files created - conversational output only
 
-Usage: `/gsd:list-phase-assumptions 3`
+Usage: `/redpill:list-phase-assumptions 3`
 
-**`/gsd:plan-phase <number>`**
+**`/redpill:plan-phase <number>`**
 Create detailed execution plan for a specific phase.
 
-- Generates `.planning/phases/XX-phase-name/XX-YY-PLAN.md`
+- Generates `.redpill/phases/XX-phase-name/XX-YY-PLAN.md`
 - Breaks phase into concrete, actionable tasks
 - Includes verification criteria and success measures
 - Multiple plans per phase supported (XX-01, XX-02, etc.)
 
-Usage: `/gsd:plan-phase 1`
-Result: Creates `.planning/phases/01-foundation/01-01-PLAN.md`
+Usage: `/redpill:plan-phase 1`
+Result: Creates `.redpill/phases/01-foundation/01-01-PLAN.md`
 
 **PRD Express Path:** Pass `--prd path/to/requirements.md` to skip discuss-phase entirely. Your PRD becomes locked decisions in CONTEXT.md. Useful when you already have clear acceptance criteria.
 
 ### Execution
 
-**`/gsd:execute-phase <phase-number>`**
+**`/redpill:execute-phase <phase-number>`**
 Execute all plans in a phase, or run a specific wave.
 
 - Groups plans by wave (from frontmatter), executes waves sequentially
@@ -115,31 +115,31 @@ Execute all plans in a phase, or run a specific wave.
 - Verifies phase goal after all plans complete
 - Updates REQUIREMENTS.md, ROADMAP.md, STATE.md
 
-Usage: `/gsd:execute-phase 5`
-Usage: `/gsd:execute-phase 5 --wave 2`
+Usage: `/redpill:execute-phase 5`
+Usage: `/redpill:execute-phase 5 --wave 2`
 
 ### Smart Router
 
-**`/gsd:do <description>`**
-Route freeform text to the right GSD command automatically.
+**`/redpill:do <description>`**
+Route freeform text to the right REDPILL command automatically.
 
-- Analyzes natural language input to find the best matching GSD command
+- Analyzes natural language input to find the best matching REDPILL command
 - Acts as a dispatcher — never does the work itself
 - Resolves ambiguity by asking you to pick between top matches
-- Use when you know what you want but don't know which `/gsd:*` command to run
+- Use when you know what you want but don't know which `/redpill:*` command to run
 
-Usage: `/gsd:do fix the login button`
-Usage: `/gsd:do refactor the auth system`
-Usage: `/gsd:do I want to start a new milestone`
+Usage: `/redpill:do fix the login button`
+Usage: `/redpill:do refactor the auth system`
+Usage: `/redpill:do I want to start a new milestone`
 
 ### Quick Mode
 
-**`/gsd:quick [--full] [--validate] [--discuss] [--research]`**
-Execute small, ad-hoc tasks with GSD guarantees but skip optional agents.
+**`/redpill:quick [--full] [--validate] [--discuss] [--research]`**
+Execute small, ad-hoc tasks with REDPILL guarantees but skip optional agents.
 
 Quick mode uses the same system with a shorter path:
 - Spawns planner + executor (skips researcher, checker, verifier by default)
-- Quick tasks live in `.planning/quick/` separate from planned phases
+- Quick tasks live in `.redpill/quick/` separate from planned phases
 - Updates STATE.md tracking (not ROADMAP.md)
 
 Flags enable additional quality steps:
@@ -150,48 +150,48 @@ Flags enable additional quality steps:
 
 Granular flags are composable: `--discuss --research --validate` gives the same as `--full`.
 
-Usage: `/gsd:quick`
-Usage: `/gsd:quick --full`
-Usage: `/gsd:quick --research --validate`
-Result: Creates `.planning/quick/NNN-slug/PLAN.md`, `.planning/quick/NNN-slug/SUMMARY.md`
+Usage: `/redpill:quick`
+Usage: `/redpill:quick --full`
+Usage: `/redpill:quick --research --validate`
+Result: Creates `.redpill/quick/NNN-slug/PLAN.md`, `.redpill/quick/NNN-slug/SUMMARY.md`
 
 ---
 
-**`/gsd:fast [description]`**
+**`/redpill:fast [description]`**
 Execute a trivial task inline — no subagents, no planning files, no overhead.
 
 For tasks too small to justify planning: typo fixes, config changes, forgotten commits, simple additions. Runs in the current context, makes the change, commits, and logs to STATE.md.
 
 - No PLAN.md or SUMMARY.md created
 - No subagent spawned (runs inline)
-- ≤ 3 file edits — redirects to `/gsd:quick` if task is non-trivial
+- ≤ 3 file edits — redirects to `/redpill:quick` if task is non-trivial
 - Atomic commit with conventional message
 
-Usage: `/gsd:fast "fix the typo in README"`
-Usage: `/gsd:fast "add .env to gitignore"`
+Usage: `/redpill:fast "fix the typo in README"`
+Usage: `/redpill:fast "add .env to gitignore"`
 
 ### Roadmap Management
 
-**`/gsd:add-phase <description>`**
+**`/redpill:add-phase <description>`**
 Add new phase to end of current milestone.
 
 - Appends to ROADMAP.md
 - Uses next sequential number
 - Updates phase directory structure
 
-Usage: `/gsd:add-phase "Add admin dashboard"`
+Usage: `/redpill:add-phase "Add admin dashboard"`
 
-**`/gsd:insert-phase <after> <description>`**
+**`/redpill:insert-phase <after> <description>`**
 Insert urgent work as decimal phase between existing phases.
 
 - Creates intermediate phase (e.g., 7.1 between 7 and 8)
 - Useful for discovered work that must happen mid-milestone
 - Maintains phase ordering
 
-Usage: `/gsd:insert-phase 7 "Fix critical auth bug"`
+Usage: `/redpill:insert-phase 7 "Fix critical auth bug"`
 Result: Creates Phase 7.1
 
-**`/gsd:remove-phase <number>`**
+**`/redpill:remove-phase <number>`**
 Remove a future phase and renumber subsequent phases.
 
 - Deletes phase directory and all references
@@ -199,12 +199,12 @@ Remove a future phase and renumber subsequent phases.
 - Only works on future (unstarted) phases
 - Git commit preserves historical record
 
-Usage: `/gsd:remove-phase 17`
+Usage: `/redpill:remove-phase 17`
 Result: Phase 17 deleted, phases 18-20 become 17-19
 
 ### Milestone Management
 
-**`/gsd:new-milestone <name>`**
+**`/redpill:new-milestone <name>`**
 Start a new milestone through unified flow.
 
 - Deep questioning to understand what you're building next
@@ -213,12 +213,12 @@ Start a new milestone through unified flow.
 - Roadmap creation with phase breakdown
 - Optional `--reset-phase-numbers` flag restarts numbering at Phase 1 and archives old phase dirs first for safety
 
-Mirrors `/gsd:new-project` flow for brownfield projects (existing PROJECT.md).
+Mirrors `/redpill:new-project` flow for brownfield projects (existing PROJECT.md).
 
-Usage: `/gsd:new-milestone "v2.0 Features"`
-Usage: `/gsd:new-milestone --reset-phase-numbers "v2.0 Features"`
+Usage: `/redpill:new-milestone "v2.0 Features"`
+Usage: `/redpill:new-milestone --reset-phase-numbers "v2.0 Features"`
 
-**`/gsd:complete-milestone <version>`**
+**`/redpill:complete-milestone <version>`**
 Archive completed milestone and prepare for next version.
 
 - Creates MILESTONES.md entry with stats
@@ -226,11 +226,11 @@ Archive completed milestone and prepare for next version.
 - Creates git tag for the release
 - Prepares workspace for next version
 
-Usage: `/gsd:complete-milestone 1.0.0`
+Usage: `/redpill:complete-milestone 1.0.0`
 
 ### Progress Tracking
 
-**`/gsd:progress`**
+**`/redpill:progress`**
 Check project status and intelligently route to next action.
 
 - Shows visual progress bar and completion percentage
@@ -240,86 +240,86 @@ Check project status and intelligently route to next action.
 - Offers to execute next plan or create it if missing
 - Detects 100% milestone completion
 
-Usage: `/gsd:progress`
+Usage: `/redpill:progress`
 
 ### Session Management
 
-**`/gsd:resume-work`**
+**`/redpill:resume-work`**
 Resume work from previous session with full context restoration.
 
 - Reads STATE.md for project context
 - Shows current position and recent progress
 - Offers next actions based on project state
 
-Usage: `/gsd:resume-work`
+Usage: `/redpill:resume-work`
 
-**`/gsd:pause-work`**
+**`/redpill:pause-work`**
 Create context handoff when pausing work mid-phase.
 
 - Creates .continue-here file with current state
 - Updates STATE.md session continuity section
 - Captures in-progress work context
 
-Usage: `/gsd:pause-work`
+Usage: `/redpill:pause-work`
 
 ### Debugging
 
-**`/gsd:debug [issue description]`**
+**`/redpill:debug [issue description]`**
 Systematic debugging with persistent state across context resets.
 
 - Gathers symptoms through adaptive questioning
-- Creates `.planning/debug/[slug].md` to track investigation
+- Creates `.redpill/debug/[slug].md` to track investigation
 - Investigates using scientific method (evidence → hypothesis → test)
-- Survives `/clear` — run `/gsd:debug` with no args to resume
-- Archives resolved issues to `.planning/debug/resolved/`
+- Survives `/clear` — run `/redpill:debug` with no args to resume
+- Archives resolved issues to `.redpill/debug/resolved/`
 
-Usage: `/gsd:debug "login button doesn't work"`
-Usage: `/gsd:debug` (resume active session)
+Usage: `/redpill:debug "login button doesn't work"`
+Usage: `/redpill:debug` (resume active session)
 
 ### Quick Notes
 
-**`/gsd:note <text>`**
+**`/redpill:note <text>`**
 Zero-friction idea capture — one command, instant save, no questions.
 
-- Saves timestamped note to `.planning/notes/` (or `~/.claude/notes/` globally)
+- Saves timestamped note to `.redpill/notes/` (or `~/.claude/notes/` globally)
 - Three subcommands: append (default), list, promote
 - Promote converts a note into a structured todo
 - Works without a project (falls back to global scope)
 
-Usage: `/gsd:note refactor the hook system`
-Usage: `/gsd:note list`
-Usage: `/gsd:note promote 3`
-Usage: `/gsd:note --global cross-project idea`
+Usage: `/redpill:note refactor the hook system`
+Usage: `/redpill:note list`
+Usage: `/redpill:note promote 3`
+Usage: `/redpill:note --global cross-project idea`
 
 ### Todo Management
 
-**`/gsd:add-todo [description]`**
+**`/redpill:add-todo [description]`**
 Capture idea or task as todo from current conversation.
 
 - Extracts context from conversation (or uses provided description)
-- Creates structured todo file in `.planning/todos/pending/`
+- Creates structured todo file in `.redpill/todos/pending/`
 - Infers area from file paths for grouping
 - Checks for duplicates before creating
 - Updates STATE.md todo count
 
-Usage: `/gsd:add-todo` (infers from conversation)
-Usage: `/gsd:add-todo Add auth token refresh`
+Usage: `/redpill:add-todo` (infers from conversation)
+Usage: `/redpill:add-todo Add auth token refresh`
 
-**`/gsd:check-todos [area]`**
+**`/redpill:check-todos [area]`**
 List pending todos and select one to work on.
 
 - Lists all pending todos with title, area, age
-- Optional area filter (e.g., `/gsd:check-todos api`)
+- Optional area filter (e.g., `/redpill:check-todos api`)
 - Loads full context for selected todo
 - Routes to appropriate action (work now, add to phase, brainstorm)
 - Moves todo to done/ when work begins
 
-Usage: `/gsd:check-todos`
-Usage: `/gsd:check-todos api`
+Usage: `/redpill:check-todos`
+Usage: `/redpill:check-todos api`
 
 ### User Acceptance Testing
 
-**`/gsd:verify-work [phase]`**
+**`/redpill:verify-work [phase]`**
 Validate built features through conversational UAT.
 
 - Extracts testable deliverables from SUMMARY.md files
@@ -327,11 +327,11 @@ Validate built features through conversational UAT.
 - Automatically diagnoses failures and creates fix plans
 - Ready for re-execution if issues found
 
-Usage: `/gsd:verify-work 3`
+Usage: `/redpill:verify-work 3`
 
 ### Ship Work
 
-**`/gsd:ship [phase]`**
+**`/redpill:ship [phase]`**
 Create a PR from completed phase work with an auto-generated body.
 
 - Pushes branch to remote
@@ -341,57 +341,57 @@ Create a PR from completed phase work with an auto-generated body.
 
 Prerequisites: Phase verified, `gh` CLI installed and authenticated.
 
-Usage: `/gsd:ship 4` or `/gsd:ship 4 --draft`
+Usage: `/redpill:ship 4` or `/redpill:ship 4 --draft`
 
 ---
 
-**`/gsd:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`**
+**`/redpill:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`**
 Cross-AI peer review — invoke external AI CLIs to independently review phase plans.
 
 - Detects available CLIs (gemini, claude, codex, coderabbit)
 - Each CLI reviews plans independently with the same structured prompt
 - CodeRabbit reviews the current git diff (not a prompt) — may take up to 5 minutes
 - Produces REVIEWS.md with per-reviewer feedback and consensus summary
-- Feed reviews back into planning: `/gsd:plan-phase N --reviews`
+- Feed reviews back into planning: `/redpill:plan-phase N --reviews`
 
-Usage: `/gsd:review --phase 3 --all`
+Usage: `/redpill:review --phase 3 --all`
 
 ---
 
-**`/gsd:pr-branch [target]`**
-Create a clean branch for pull requests by filtering out .planning/ commits.
+**`/redpill:pr-branch [target]`**
+Create a clean branch for pull requests by filtering out .redpill/ commits.
 
-- Classifies commits: code-only (include), planning-only (exclude), mixed (include sans .planning/)
+- Classifies commits: code-only (include), planning-only (exclude), mixed (include sans .redpill/)
 - Cherry-picks code commits onto a clean branch
-- Reviewers see only code changes, no GSD artifacts
+- Reviewers see only code changes, no REDPILL artifacts
 
-Usage: `/gsd:pr-branch` or `/gsd:pr-branch main`
+Usage: `/redpill:pr-branch` or `/redpill:pr-branch main`
 
 ---
 
-**`/gsd:plant-seed [idea]`**
+**`/redpill:plant-seed [idea]`**
 Capture a forward-looking idea with trigger conditions for automatic surfacing.
 
 - Seeds preserve WHY, WHEN to surface, and breadcrumbs to related code
-- Auto-surfaces during `/gsd:new-milestone` when trigger conditions match
+- Auto-surfaces during `/redpill:new-milestone` when trigger conditions match
 - Better than deferred items — triggers are checked, not forgotten
 
-Usage: `/gsd:plant-seed "add real-time notifications when we build the events system"`
+Usage: `/redpill:plant-seed "add real-time notifications when we build the events system"`
 
 ---
 
-**`/gsd:audit-uat`**
+**`/redpill:audit-uat`**
 Cross-phase audit of all outstanding UAT and verification items.
 - Scans every phase for pending, skipped, blocked, and human_needed items
 - Cross-references against codebase to detect stale documentation
 - Produces prioritized human test plan grouped by testability
 - Use before starting a new milestone to clear verification debt
 
-Usage: `/gsd:audit-uat`
+Usage: `/redpill:audit-uat`
 
 ### Milestone Auditing
 
-**`/gsd:audit-milestone [version]`**
+**`/redpill:audit-milestone [version]`**
 Audit milestone completion against original intent.
 
 - Reads all phase VERIFICATION.md files
@@ -399,77 +399,77 @@ Audit milestone completion against original intent.
 - Spawns integration checker for cross-phase wiring
 - Creates MILESTONE-AUDIT.md with gaps and tech debt
 
-Usage: `/gsd:audit-milestone`
+Usage: `/redpill:audit-milestone`
 
-**`/gsd:plan-milestone-gaps`**
+**`/redpill:plan-milestone-gaps`**
 Create phases to close gaps identified by audit.
 
 - Reads MILESTONE-AUDIT.md and groups gaps into phases
 - Prioritizes by requirement priority (must/should/nice)
 - Adds gap closure phases to ROADMAP.md
-- Ready for `/gsd:plan-phase` on new phases
+- Ready for `/redpill:plan-phase` on new phases
 
-Usage: `/gsd:plan-milestone-gaps`
+Usage: `/redpill:plan-milestone-gaps`
 
 ### Configuration
 
-**`/gsd:settings`**
+**`/redpill:settings`**
 Configure workflow toggles and model profile interactively.
 
 - Toggle researcher, plan checker, verifier agents
 - Select model profile (quality/balanced/budget/inherit)
-- Updates `.planning/config.json`
+- Updates `.redpill/config.json`
 
-Usage: `/gsd:settings`
+Usage: `/redpill:settings`
 
-**`/gsd:set-profile <profile>`**
-Quick switch model profile for GSD agents.
+**`/redpill:set-profile <profile>`**
+Quick switch model profile for REDPILL agents.
 
 - `quality` — Opus everywhere except verification
 - `balanced` — Opus for planning, Sonnet for execution (default)
 - `budget` — Sonnet for writing, Haiku for research/verification
 - `inherit` — Use current session model for all agents (OpenCode `/model`)
 
-Usage: `/gsd:set-profile budget`
+Usage: `/redpill:set-profile budget`
 
 ### Utility Commands
 
-**`/gsd:cleanup`**
+**`/redpill:cleanup`**
 Archive accumulated phase directories from completed milestones.
 
-- Identifies phases from completed milestones still in `.planning/phases/`
+- Identifies phases from completed milestones still in `.redpill/phases/`
 - Shows dry-run summary before moving anything
-- Moves phase dirs to `.planning/milestones/v{X.Y}-phases/`
-- Use after multiple milestones to reduce `.planning/phases/` clutter
+- Moves phase dirs to `.redpill/milestones/v{X.Y}-phases/`
+- Use after multiple milestones to reduce `.redpill/phases/` clutter
 
-Usage: `/gsd:cleanup`
+Usage: `/redpill:cleanup`
 
-**`/gsd:help`**
+**`/redpill:help`**
 Show this command reference.
 
-**`/gsd:update`**
-Update GSD to latest version with changelog preview.
+**`/redpill:update`**
+Update REDPILL to latest version with changelog preview.
 
 - Shows installed vs latest version comparison
 - Displays changelog entries for versions you've missed
 - Highlights breaking changes
 - Confirms before running install
-- Better than raw `npx get-shit-done-cc`
+- Better than raw `npx redpill-cc`
 
-Usage: `/gsd:update`
+Usage: `/redpill:update`
 
-**`/gsd:join-discord`**
-Join the GSD Discord community.
+**`/redpill:join-discord`**
+Join the REDPILL Discord community.
 
 - Get help, share what you're building, stay updated
-- Connect with other GSD users
+- Connect with other REDPILL users
 
-Usage: `/gsd:join-discord`
+Usage: `/redpill:join-discord`
 
 ## Files & Structure
 
 ```
-.planning/
+.redpill/
 ├── PROJECT.md            # Project vision
 ├── ROADMAP.md            # Current phase breakdown
 ├── STATE.md              # Project memory & context
@@ -483,7 +483,7 @@ Usage: `/gsd:join-discord`
 ├── milestones/
 │   ├── v1.0-ROADMAP.md       # Archived roadmap snapshot
 │   ├── v1.0-REQUIREMENTS.md  # Archived requirements
-│   └── v1.0-phases/          # Archived phase dirs (via /gsd:cleanup or --archive-phases)
+│   └── v1.0-phases/          # Archived phase dirs (via /redpill:cleanup or --archive-phases)
 │       ├── 01-foundation/
 │       └── 02-core-features/
 ├── codebase/             # Codebase map (brownfield projects)
@@ -505,7 +505,7 @@ Usage: `/gsd:join-discord`
 
 ## Workflow Modes
 
-Set during `/gsd:new-project`:
+Set during `/redpill:new-project`:
 
 **Interactive Mode**
 
@@ -519,24 +519,24 @@ Set during `/gsd:new-project`:
 - Executes plans without confirmation
 - Only stops for critical checkpoints
 
-Change anytime by editing `.planning/config.json`
+Change anytime by editing `.redpill/config.json`
 
 ## Planning Configuration
 
-Configure how planning artifacts are managed in `.planning/config.json`:
+Configure how planning artifacts are managed in `.redpill/config.json`:
 
 **`planning.commit_docs`** (default: `true`)
 - `true`: Planning artifacts committed to git (standard workflow)
 - `false`: Planning artifacts kept local-only, not committed
 
 When `commit_docs: false`:
-- Add `.planning/` to your `.gitignore`
+- Add `.redpill/` to your `.gitignore`
 - Useful for OSS contributions, client projects, or keeping planning private
 - All planning files still work normally, just not tracked in git
 
 **`planning.search_gitignored`** (default: `false`)
 - `true`: Add `--no-ignore` to broad ripgrep searches
-- Only needed when `.planning/` is gitignored and you want project-wide searches to include it
+- Only needed when `.redpill/` is gitignored and you want project-wide searches to include it
 
 Example config:
 ```json
@@ -553,57 +553,57 @@ Example config:
 **Starting a new project:**
 
 ```
-/gsd:new-project        # Unified flow: questioning → research → requirements → roadmap
+/redpill:new-project        # Unified flow: questioning → research → requirements → roadmap
 /clear
-/gsd:plan-phase 1       # Create plans for first phase
+/redpill:plan-phase 1       # Create plans for first phase
 /clear
-/gsd:execute-phase 1    # Execute all plans in phase
+/redpill:execute-phase 1    # Execute all plans in phase
 ```
 
 **Resuming work after a break:**
 
 ```
-/gsd:progress  # See where you left off and continue
+/redpill:progress  # See where you left off and continue
 ```
 
 **Adding urgent mid-milestone work:**
 
 ```
-/gsd:insert-phase 5 "Critical security fix"
-/gsd:plan-phase 5.1
-/gsd:execute-phase 5.1
+/redpill:insert-phase 5 "Critical security fix"
+/redpill:plan-phase 5.1
+/redpill:execute-phase 5.1
 ```
 
 **Completing a milestone:**
 
 ```
-/gsd:complete-milestone 1.0.0
+/redpill:complete-milestone 1.0.0
 /clear
-/gsd:new-milestone  # Start next milestone (questioning → research → requirements → roadmap)
+/redpill:new-milestone  # Start next milestone (questioning → research → requirements → roadmap)
 ```
 
 **Capturing ideas during work:**
 
 ```
-/gsd:add-todo                    # Capture from conversation context
-/gsd:add-todo Fix modal z-index  # Capture with explicit description
-/gsd:check-todos                 # Review and work on todos
-/gsd:check-todos api             # Filter by area
+/redpill:add-todo                    # Capture from conversation context
+/redpill:add-todo Fix modal z-index  # Capture with explicit description
+/redpill:check-todos                 # Review and work on todos
+/redpill:check-todos api             # Filter by area
 ```
 
 **Debugging an issue:**
 
 ```
-/gsd:debug "form submission fails silently"  # Start debug session
+/redpill:debug "form submission fails silently"  # Start debug session
 # ... investigation happens, context fills up ...
 /clear
-/gsd:debug                                    # Resume from where you left off
+/redpill:debug                                    # Resume from where you left off
 ```
 
 ## Getting Help
 
-- Read `.planning/PROJECT.md` for project vision
-- Read `.planning/STATE.md` for current context
-- Check `.planning/ROADMAP.md` for phase status
-- Run `/gsd:progress` to check where you're up to
+- Read `.redpill/PROJECT.md` for project vision
+- Read `.redpill/STATE.md` for current context
+- Check `.redpill/ROADMAP.md` for phase status
+- Run `/redpill:progress` to check where you're up to
 </reference>

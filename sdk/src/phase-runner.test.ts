@@ -32,7 +32,7 @@ const mockRunPhaseStepSession = vi.mocked(runPhaseStepSession);
 function makePhaseOp(overrides: Partial<PhaseOpInfo> = {}): PhaseOpInfo {
   return {
     phase_found: true,
-    phase_dir: '/tmp/project/.planning/phases/01-auth',
+    phase_dir: '/tmp/project/.redpill/phases/01-auth',
     phase_number: '1',
     phase_name: 'Authentication',
     phase_slug: 'auth',
@@ -43,10 +43,10 @@ function makePhaseOp(overrides: Partial<PhaseOpInfo> = {}): PhaseOpInfo {
     has_verification: false,
     plan_count: 1,
     roadmap_exists: true,
-    planning_exists: true,
+    redpill_dir_exists: true,
     commit_docs: true,
-    context_path: '/tmp/project/.planning/phases/01-auth/CONTEXT.md',
-    research_path: '/tmp/project/.planning/phases/01-auth/RESEARCH.md',
+    context_path: '/tmp/project/.redpill/phases/01-auth/CONTEXT.md',
+    research_path: '/tmp/project/.redpill/phases/01-auth/RESEARCH.md',
     ...overrides,
   };
 }

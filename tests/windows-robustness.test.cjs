@@ -7,10 +7,10 @@
  * 1. Workflow shell robustness: informational commands guarded with || true
  * 2. Glob loops guarded with [ -e "$var" ] || continue
  * 3. Hook stdin timeout patterns present in all JS hooks
- * 4. findProjectRoot detects .git at same level as .planning/
+ * 4. findProjectRoot detects .git at same level as .redpill/
  * 5. @file: handoff present in all workflows that call init
  *
- * Regression tests for: https://github.com/gsd-build/get-shit-done/issues/1343
+ * Regression tests for: https://github.com/gsd-build/redpill/issues/1343
  */
 
 const { test, describe } = require('node:test');
@@ -124,7 +124,7 @@ describe('workflow shell robustness', () => {
     const blocks = extractBashBlocks(content);
 
     for (const block of blocks) {
-      // Look for `for ... in .planning/` glob loops
+      // Look for `for ... in .redpill/` glob loops
       const forLoopMatch = block.code.match(/for\s+\w+\s+in\s+\.planning\/[^;]+;\s*do/);
       if (forLoopMatch) {
         // The loop body should contain [ -e "$var" ] || continue
@@ -187,7 +187,7 @@ describe('@file: handoff in workflows', () => {
     for (const wf of workflowFiles) {
       const content = fs.readFileSync(path.join(WORKFLOWS_DIR, wf), 'utf-8');
 
-      // Check if this workflow calls gsd-tools.cjs init
+      // Check if this workflow calls redpill-tools.cjs init
       if (/INIT=\$\(node.*gsd-tools.*\binit\b/.test(content)) {
         // Must have @file: handler
         if (!content.includes('@file:')) {

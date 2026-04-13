@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Concurrency Safety
+ * REDPILL Tools Tests - Concurrency Safety
  *
  * Tests for fix/concurrency-safety-1473a:
  *   - Planning lock integration (withPlanningLock in phase/roadmap operations)
@@ -20,11 +20,11 @@ const os = require('os');
 const { execSync, exec } = require('child_process');
 const { promisify } = require('util');
 const { performance } = require('perf_hooks');
-const { runGsdTools, createTempProject, cleanup, TOOLS_PATH } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup, TOOLS_PATH } = require('./helpers.cjs');
 
 const {
   normalizeMd,
-} = require('../get-shit-done/bin/lib/core.cjs');
+} = require('../redpill/bin/lib/core.cjs');
 
 const execAsync = promisify(exec);
 
@@ -33,7 +33,7 @@ const execAsync = promisify(exec);
 function writeMinimalRoadmap(tmpDir, phases = ['1']) {
   const lines = phases.map(n => `### Phase ${n}: Phase ${n} Description`).join('\n');
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    path.join(tmpDir, '.redpill', 'ROADMAP.md'),
     `# Roadmap\n\n${lines}\n`
   );
 }
@@ -41,7 +41,7 @@ function writeMinimalRoadmap(tmpDir, phases = ['1']) {
 function writeMinimalStateMd(tmpDir, content) {
   const defaultContent = content || `# Session State\n\n## Current Position\n\nPhase: 1\n`;
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'STATE.md'),
+    path.join(tmpDir, '.redpill', 'STATE.md'),
     defaultContent
   );
 }
@@ -50,7 +50,7 @@ function writeMinimalProjectMd(tmpDir) {
   const sections = ['## What This Is', '## Core Value', '## Requirements'];
   const content = sections.map(s => `${s}\n\nContent here.\n`).join('\n');
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'PROJECT.md'),
+    path.join(tmpDir, '.redpill', 'PROJECT.md'),
     `# Project\n\n${content}`
   );
 }
@@ -58,7 +58,7 @@ function writeMinimalProjectMd(tmpDir) {
 function writeValidConfigJson(tmpDir, overrides = {}) {
   const base = { model_profile: 'balanced', commit_docs: true };
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'config.json'),
+    path.join(tmpDir, '.redpill', 'config.json'),
     JSON.stringify({ ...base, ...overrides }, null, 2)
   );
 }
@@ -81,11 +81,11 @@ function create50PhaseProject(tmpDir, completedCount = 25) {
     roadmapContent += `Plans:\n- [${i <= completedCount ? 'x' : ' '}] ${pad}-01-PLAN.md\n\n`;
   }
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    path.join(tmpDir, '.redpill', 'ROADMAP.md'),
     roadmapContent
   );
 
-  const phasesDir = path.join(tmpDir, '.planning', 'phases');
+  const phasesDir = path.join(tmpDir, '.redpill', 'phases');
   for (let i = 1; i <= 50; i++) {
     const pad = String(i).padStart(2, '0');
     const dirName = `${pad}-feature-${i}`;
@@ -119,86 +119,86 @@ describe('planning lock integration', () => {
     cleanup(tmpDir);
   });
 
-  test('phase add creates and releases .planning/.lock during ROADMAP write', () => {
+  test('phase add creates and releases .redpill/.lock during ROADMAP write', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0\n\n### Phase 1: Foundation\n**Goal:** Setup\n\n---\n`
     );
 
-    const result = runGsdTools('phase add Testing', tmpDir);
+    const result = runRedpillTools('phase add Testing', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const lockPath = path.join(tmpDir, '.planning', '.lock');
+    const lockPath = path.join(tmpDir, '.redpill', '.lock');
     assert.ok(!fs.existsSync(lockPath), '.lock file should be released after phase add');
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.phase_number, 2, 'should be phase 2');
   });
 
-  test('phase complete creates and releases .planning/.lock', () => {
+  test('phase complete creates and releases .redpill/.lock', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap\n\n- [ ] Phase 1: Foundation\n\n### Phase 1: Foundation\n**Goal:** Setup\n**Plans:** 1 plans\n\n### Phase 2: API\n**Goal:** Build\n`
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# State\n\n**Current Phase:** 01\n**Current Phase Name:** Foundation\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
     );
 
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '02-api'), { recursive: true });
 
-    const result = runGsdTools('phase complete 1', tmpDir);
+    const result = runRedpillTools('phase complete 1', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const lockPath = path.join(tmpDir, '.planning', '.lock');
+    const lockPath = path.join(tmpDir, '.redpill', '.lock');
     assert.ok(!fs.existsSync(lockPath), '.lock file should be released after phase complete');
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.completed_phase, '1', 'phase should be completed');
   });
 
-  test('roadmap update-plan-progress creates and releases .planning/.lock', () => {
+  test('roadmap update-plan-progress creates and releases .redpill/.lock', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap\n\n| Phase | Plans | Status | Updated |\n|-------|-------|--------|---------|\n| 1 | 0/0 | Not started | - |\n\n### Phase 1: Foundation\n**Goal:** Setup\n`
     );
 
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary');
 
-    const result = runGsdTools('roadmap update-plan-progress 1', tmpDir);
+    const result = runRedpillTools('roadmap update-plan-progress 1', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const lockPath = path.join(tmpDir, '.planning', '.lock');
+    const lockPath = path.join(tmpDir, '.redpill', '.lock');
     assert.ok(!fs.existsSync(lockPath), '.lock file should be released after roadmap update');
   });
 
   test('lock file does NOT persist after successful phase operations', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0\n`
     );
 
-    runGsdTools('phase add First Phase', tmpDir);
-    runGsdTools('phase add Second Phase', tmpDir);
+    runRedpillTools('phase add First Phase', tmpDir);
+    runRedpillTools('phase add Second Phase', tmpDir);
 
-    const lockPath = path.join(tmpDir, '.planning', '.lock');
+    const lockPath = path.join(tmpDir, '.redpill', '.lock');
     assert.ok(!fs.existsSync(lockPath), '.lock file should not persist after multiple operations');
   });
 
   test('phase add still works correctly with lock (behavioral regression)', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0\n\n### Phase 1: Foundation\n**Goal:** Setup\n\n### Phase 2: API\n**Goal:** Build API\n\n---\n`
     );
 
-    const result = runGsdTools('phase add User Dashboard', tmpDir);
+    const result = runRedpillTools('phase add User Dashboard', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -206,11 +206,11 @@ describe('planning lock integration', () => {
     assert.strictEqual(output.slug, 'user-dashboard');
 
     assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '03-user-dashboard')),
+      fs.existsSync(path.join(tmpDir, '.redpill', 'phases', '03-user-dashboard')),
       'directory should be created'
     );
 
-    const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
+    const roadmap = fs.readFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), 'utf-8');
     assert.ok(roadmap.includes('### Phase 3: User Dashboard'), 'roadmap should include new phase');
   });
 });
@@ -232,30 +232,30 @@ describe('readModifyWriteStateMd (via state patch)', () => {
 
   test('transforms content atomically (read + modify + write under lock)', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 03\n**Status:** Planning\n**Current Plan:** 03-01\n`
     );
 
-    const result = runGsdTools('state patch --Status "In progress" --"Current Plan" 03-02', tmpDir);
+    const result = runRedpillTools('state patch --Status "In progress" --"Current Plan" 03-02', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.includes('**Status:** In progress'), 'Status should be updated');
     assert.ok(content.includes('03-02'), 'Current Plan should be updated');
 
-    const lockPath = path.join(tmpDir, '.planning', 'STATE.md.lock');
+    const lockPath = path.join(tmpDir, '.redpill', 'STATE.md.lock');
     assert.ok(!fs.existsSync(lockPath), 'STATE.md.lock should be released after patch');
   });
 
   test('lock file cleaned up after state patch operation', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 01\n**Status:** Ready\n`
     );
 
-    runGsdTools('state patch --Status "In progress"', tmpDir);
+    runRedpillTools('state patch --Status "In progress"', tmpDir);
 
-    const lockPath = path.join(tmpDir, '.planning', 'STATE.md.lock');
+    const lockPath = path.join(tmpDir, '.redpill', 'STATE.md.lock');
     assert.ok(!fs.existsSync(lockPath), 'STATE.md.lock should not persist after operation');
   });
 
@@ -269,29 +269,29 @@ describe('readModifyWriteStateMd (via state patch)', () => {
       '**Last Activity:** 2024-01-15',
     ].join('\n') + '\n';
 
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools('state patch --Status Complete --"Current Phase" 04', tmpDir);
+    const result = runRedpillTools('state patch --Status Complete --"Current Phase" 04', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('**Status:** Complete'), 'Status should be updated to Complete');
     assert.ok(updated.includes('**Last Activity:** 2024-01-15'), 'Last Activity should be unchanged');
   });
 
   test('two sequential state patches both persist (patch A then patch B)', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 01\n**Status:** Planning\n**Current Plan:** 01-01\n**Last Activity:** 2024-01-01\n`
     );
 
-    const resultA = runGsdTools('state patch --Status "In progress"', tmpDir);
+    const resultA = runRedpillTools('state patch --Status "In progress"', tmpDir);
     assert.ok(resultA.success, `Patch A failed: ${resultA.error}`);
 
-    const resultB = runGsdTools('state patch --"Current Plan" 01-02', tmpDir);
+    const resultB = runRedpillTools('state patch --"Current Plan" 01-02', tmpDir);
     assert.ok(resultB.success, `Patch B failed: ${resultB.error}`);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.includes('**Status:** In progress'), 'Patch A (Status) should persist');
     assert.ok(content.includes('01-02'), 'Patch B (Current Plan) should persist');
     assert.ok(content.includes('**Last Activity:** 2024-01-01'), 'Untouched field should be preserved');
@@ -299,15 +299,15 @@ describe('readModifyWriteStateMd (via state patch)', () => {
 
   test('lock file does not persist after rapid sequential patches', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 01\n**Status:** Planning\n**Current Plan:** 01-01\n`
     );
 
-    runGsdTools('state patch --Status "In progress"', tmpDir);
-    runGsdTools('state patch --"Current Plan" 01-02', tmpDir);
-    runGsdTools('state patch --Status Complete', tmpDir);
+    runRedpillTools('state patch --Status "In progress"', tmpDir);
+    runRedpillTools('state patch --"Current Plan" 01-02', tmpDir);
+    runRedpillTools('state patch --Status Complete', tmpDir);
 
-    const lockPath = path.join(tmpDir, '.planning', 'STATE.md.lock');
+    const lockPath = path.join(tmpDir, '.redpill', 'STATE.md.lock');
     assert.ok(!fs.existsSync(lockPath), 'STATE.md.lock should not persist after rapid sequential patches');
   });
 });
@@ -329,7 +329,7 @@ describe('multi-process concurrent write tests', () => {
 
   test('two concurrent state patches to DIFFERENT fields both persist', async () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       [
         '# Project State',
         '',
@@ -355,7 +355,7 @@ describe('multi-process concurrent write tests', () => {
     const bOk = !(resultB instanceof Error);
     assert.ok(aOk || bOk, 'At least one concurrent patch should succeed');
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
 
     assert.ok(
       content.includes('Complete') || content.includes('01-02'),
@@ -372,7 +372,7 @@ describe('multi-process concurrent write tests', () => {
 
   test('lock file does not persist after concurrent operations', async () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       [
         '# Project State',
         '',
@@ -392,7 +392,7 @@ describe('multi-process concurrent write tests', () => {
       execAsync(cmdB, { encoding: 'utf-8' }).catch(() => {}),
     ]);
 
-    const lockPath = path.join(tmpDir, '.planning', 'STATE.md.lock');
+    const lockPath = path.join(tmpDir, '.redpill', 'STATE.md.lock');
     assert.ok(
       !fs.existsSync(lockPath),
       'STATE.md.lock should not persist after concurrent operations complete'
@@ -401,7 +401,7 @@ describe('multi-process concurrent write tests', () => {
 
   test('three rapid sequential patches all persist', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       [
         '# Project State',
         '',
@@ -413,16 +413,16 @@ describe('multi-process concurrent write tests', () => {
       ].join('\n')
     );
 
-    const r1 = runGsdTools('state patch --Status "In progress"', tmpDir);
+    const r1 = runRedpillTools('state patch --Status "In progress"', tmpDir);
     assert.ok(r1.success, `Patch 1 failed: ${r1.error}`);
 
-    const r2 = runGsdTools('state patch --"Current Plan" 01-02', tmpDir);
+    const r2 = runRedpillTools('state patch --"Current Plan" 01-02', tmpDir);
     assert.ok(r2.success, `Patch 2 failed: ${r2.error}`);
 
-    const r3 = runGsdTools('state patch --"Last Activity" 2025-06-15', tmpDir);
+    const r3 = runRedpillTools('state patch --"Last Activity" 2025-06-15', tmpDir);
     assert.ok(r3.success, `Patch 3 failed: ${r3.error}`);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.includes('In progress'), 'Patch 1 (Status) should persist');
     assert.ok(content.includes('01-02'), 'Patch 2 (Current Plan) should persist');
     assert.ok(content.includes('2025-06-15'), 'Patch 3 (Last Activity) should persist');
@@ -672,7 +672,7 @@ describe('warnings', () => {
   });
 
   test('must_haves parse warning fires for block with content but 0 items', () => {
-    const planDir = path.join(tmpDir, '.planning', 'phases', '01-test');
+    const planDir = path.join(tmpDir, '.redpill', 'phases', '01-test');
     fs.mkdirSync(planDir, { recursive: true });
     fs.writeFileSync(
       path.join(planDir, '01-01-PLAN.md'),
@@ -689,7 +689,7 @@ must_haves:
 `
     );
 
-    const result = runGsdTools(
+    const result = runRedpillTools(
       ['frontmatter', 'get', path.join(planDir, '01-01-PLAN.md'), 'must_haves'],
       tmpDir
     );
@@ -704,11 +704,11 @@ must_haves:
 
   test('stateReplaceFieldWithFallback logs warning on miss', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 01\n**Current Plan:** 1\n**Total Plans in Phase:** 3\n`
     );
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -733,16 +733,16 @@ describe('malformed input resilience', () => {
 
   test('STATE.md with invalid bold format -- state patch returns gracefully', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Current Phase: 01\n**Status:** Planning\n'
     );
 
-    const result = runGsdTools('state patch --Status "In progress"', tmpDir);
+    const result = runRedpillTools('state patch --Status "In progress"', tmpDir);
     const didNotCrash = result.success || (result.output !== undefined);
     assert.ok(didNotCrash, `state patch should not crash on malformed bold format: ${result.error}`);
 
     if (result.success) {
-      const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+      const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
       assert.ok(
         content.includes('In progress'),
         'Status field (with valid bold format) should be updated'
@@ -752,11 +752,11 @@ describe('malformed input resilience', () => {
 
   test('STATE.md with only frontmatter, no body -- state patch handles gracefully', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '---\nphase: "01"\n---\n'
     );
 
-    const result = runGsdTools('state patch --Status "In progress"', tmpDir);
+    const result = runRedpillTools('state patch --Status "In progress"', tmpDir);
     const didNotCrash = result.success || (result.output !== undefined);
     assert.ok(didNotCrash, `state patch should not crash on frontmatter-only STATE.md: ${result.error}`);
   });
@@ -781,7 +781,7 @@ describe('stress tests with 50+ phases', () => {
     create50PhaseProject(tmpDir, 25);
 
     const start = performance.now();
-    const result = runGsdTools('roadmap analyze', tmpDir);
+    const result = runRedpillTools('roadmap analyze', tmpDir);
     const elapsed = performance.now() - start;
 
     assert.ok(result.success, `roadmap analyze should succeed: ${result.error}`);
@@ -799,17 +799,17 @@ describe('stress tests with 50+ phases', () => {
     create50PhaseProject(tmpDir, 25);
     writeMinimalStateMd(tmpDir, '# Session State\n\n**Current Phase:** 26\n**Status:** In progress\n');
 
-    const phase26Dir = path.join(tmpDir, '.planning', 'phases', '26-feature-26');
+    const phase26Dir = path.join(tmpDir, '.redpill', 'phases', '26-feature-26');
     fs.writeFileSync(
       path.join(phase26Dir, '26-01-SUMMARY.md'),
       '# Phase 26 Plan 1 Summary\n\nFeature 26 completed.\n'
     );
 
-    const result = runGsdTools('phase complete 26', tmpDir);
+    const result = runRedpillTools('phase complete 26', tmpDir);
     assert.ok(result.success, `phase complete 26 should succeed: ${result.error}`);
 
     const roadmapContent = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       'utf-8'
     );
     const phase26Checkbox = roadmapContent.match(/-\s*\[(x| )\]\s*.*Phase\s+26/i);

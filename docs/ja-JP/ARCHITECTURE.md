@@ -1,4 +1,4 @@
-# GSD アーキテクチャ
+# REDPILL アーキテクチャ
 
 > コントリビューターおよび上級ユーザー向けのシステムアーキテクチャ文書です。ユーザー向けドキュメントは[機能リファレンス](FEATURES.md)または[ユーザーガイド](USER-GUIDE.md)をご覧ください。
 
@@ -31,7 +31,7 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 ```
 ┌──────────────────────────────────────────────────────┐
 │                      USER                            │
-│            /gsd:command [args]                        │
+│            /redpill:command [args]                        │
 └─────────────────────┬────────────────────────────────┘
                       │
 ┌─────────────────────▼────────────────────────────────┐
@@ -42,7 +42,7 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
                       │
 ┌─────────────────────▼────────────────────────────────┐
 │              WORKFLOW LAYER                           │
-│   get-shit-done/workflows/*.md — Orchestration logic  │
+│   redpill/workflows/*.md — Orchestration logic  │
 │   (Reads references, spawns agents, manages state)    │
 └──────┬──────────────┬─────────────────┬──────────────┘
        │              │                 │
@@ -54,12 +54,12 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
        │              │                 │
 ┌──────▼──────────────▼─────────────────▼──────────────┐
 │              CLI TOOLS LAYER                          │
-│   get-shit-done/bin/gsd-tools.cjs                     │
+│   redpill/bin/redpill-tools.cjs                     │
 │   (State, config, phase, roadmap, verify, templates)  │
 └──────────────────────┬───────────────────────────────┘
                        │
 ┌──────────────────────▼───────────────────────────────┐
-│              FILE SYSTEM (.planning/)                 │
+│              FILE SYSTEM (.redpill/)                 │
 │   PROJECT.md | REQUIREMENTS.md | ROADMAP.md          │
 │   STATE.md | config.json | phases/ | research/       │
 └──────────────────────────────────────────────────────┘
@@ -75,15 +75,15 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 
 ### 2. 軽量オーケストレーター
 
-ワークフローファイル（`get-shit-done/workflows/*.md`）は重い処理を行いません。以下の役割に徹します：
-- `gsd-tools.cjs init <workflow>` でコンテキストを読み込む
+ワークフローファイル（`redpill/workflows/*.md`）は重い処理を行いません。以下の役割に徹します：
+- `redpill-tools.cjs init <workflow>` でコンテキストを読み込む
 - 焦点を絞ったプロンプトで専門エージェントを起動する
 - 結果を収集し、次のステップにルーティングする
 - ステップ間で状態を更新する
 
 ### 3. ファイルベースの状態管理
 
-すべての状態は `.planning/` 内に人間が読めるMarkdownとJSONとして保存されます。データベースもサーバーも外部依存もありません。これにより：
+すべての状態は `.redpill/` 内に人間が読めるMarkdownとJSONとして保存されます。データベースもサーバーも外部依存もありません。これにより：
 - コンテキストリセット（`/clear`）後も状態が維持される
 - 人間とエージェントの両方が状態を確認できる
 - チームでの可視性のためにgitにコミットできる
@@ -107,18 +107,18 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 ### コマンド（`commands/gsd/*.md`）
 
 ユーザー向けのエントリーポイントです。各ファイルにはYAMLフロントマター（name、description、allowed-tools）とワークフローをブートストラップするプロンプト本文が含まれています。コマンドは以下の形式でインストールされます：
-- **Claude Code:** カスタムスラッシュコマンド（`/gsd:command-name`）
+- **Claude Code:** カスタムスラッシュコマンド（`/redpill:command-name`）
 - **OpenCode:** スラッシュコマンド（`/gsd-command-name`）
 - **Codex:** スキル（`$gsd-command-name`）
-- **Copilot:** スラッシュコマンド（`/gsd:command-name`）
+- **Copilot:** スラッシュコマンド（`/redpill:command-name`）
 - **Antigravity:** スキル
 
 **コマンド総数:** 44
 
-### ワークフロー（`get-shit-done/workflows/*.md`）
+### ワークフロー（`redpill/workflows/*.md`）
 
 コマンドが参照するオーケストレーションロジックです。以下を含むステップバイステップのプロセスが記述されています：
-- `gsd-tools.cjs init` によるコンテキスト読み込み
+- `redpill-tools.cjs init` によるコンテキスト読み込み
 - モデル解決を伴うエージェント起動の指示
 - ゲート/チェックポイントの定義
 - 状態更新パターン
@@ -136,7 +136,7 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 
 **エージェント総数:** 16
 
-### リファレンス（`get-shit-done/references/*.md`）
+### リファレンス（`redpill/references/*.md`）
 
 ワークフローとエージェントが `@-reference` で参照する共有知識ドキュメント：
 - `checkpoints.md` — チェックポイントタイプの定義とインタラクションパターン
@@ -148,9 +148,9 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 - `tdd.md` — テスト駆動開発の統合パターン
 - `ui-brand.md` — 視覚的な出力フォーマットパターン
 
-### テンプレート（`get-shit-done/templates/`）
+### テンプレート（`redpill/templates/`）
 
-すべてのプランニングアーティファクト用のMarkdownテンプレートです。`gsd-tools.cjs template fill` および `scaffold` コマンドにより、事前構造化されたファイルを作成するために使用されます：
+すべてのプランニングアーティファクト用のMarkdownテンプレートです。`redpill-tools.cjs template fill` および `scaffold` コマンドにより、事前構造化されたファイルを作成するために使用されます：
 - `project.md`、`requirements.md`、`roadmap.md`、`state.md` — コアプロジェクトファイル
 - `phase-prompt.md` — フェーズ実行プロンプトテンプレート
 - `summary.md`（+ `summary-minimal.md`、`summary-standard.md`、`summary-complex.md`）— 粒度対応のサマリーテンプレート
@@ -166,15 +166,15 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 
 | フック | イベント | 目的 |
 |------|-------|---------|
-| `gsd-statusline.js` | `statusLine` | モデル、タスク、ディレクトリ、コンテキスト使用量バーを表示 |
-| `gsd-context-monitor.js` | `PostToolUse` / `AfterTool` | コンテキスト残量35%/25%でエージェント向け警告を注入 |
-| `gsd-check-update.js` | `SessionStart` | GSDの新バージョンをバックグラウンドで確認 |
-| `gsd-prompt-guard.js` | `PreToolUse` | `.planning/` への書き込みにプロンプトインジェクションパターンがないかスキャン（アドバイザリー） |
-| `gsd-workflow-guard.js` | `PreToolUse` | GSDワークフローコンテキスト外でのファイル編集を検出（アドバイザリー、`hooks.workflow_guard` によるオプトイン） |
+| `redpill-statusline.js` | `statusLine` | モデル、タスク、ディレクトリ、コンテキスト使用量バーを表示 |
+| `redpill-context-monitor.js` | `PostToolUse` / `AfterTool` | コンテキスト残量35%/25%でエージェント向け警告を注入 |
+| `redpill-check-update.js` | `SessionStart` | GSDの新バージョンをバックグラウンドで確認 |
+| `redpill-prompt-guard.js` | `PreToolUse` | `.redpill/` への書き込みにプロンプトインジェクションパターンがないかスキャン（アドバイザリー） |
+| `redpill-workflow-guard.js` | `PreToolUse` | GSDワークフローコンテキスト外でのファイル編集を検出（アドバイザリー、`hooks.workflow_guard` によるオプトイン） |
 
-### CLIツール（`get-shit-done/bin/`）
+### CLIツール（`redpill/bin/`）
 
-17のドメインモジュールを持つNode.js CLIユーティリティ（`gsd-tools.cjs`）：
+17のドメインモジュールを持つNode.js CLIユーティリティ（`redpill-tools.cjs`）：
 
 | モジュール | 責務 |
 |--------|---------------|
@@ -202,10 +202,10 @@ GSDは、ユーザーとAIコーディングエージェント（Claude Code、G
 ```
 Orchestrator (workflow .md)
     │
-    ├── Load context: gsd-tools.cjs init <workflow> <phase>
+    ├── Load context: redpill-tools.cjs init <workflow> <phase>
     │   Returns JSON with: project info, config, state, phase details
     │
-    ├── Resolve model: gsd-tools.cjs resolve-model <agent-name>
+    ├── Resolve model: redpill-tools.cjs resolve-model <agent-name>
     │   Returns: opus | sonnet | haiku | inherit
     │
     ├── Spawn Agent (Task/SubAgent call)
@@ -216,22 +216,22 @@ Orchestrator (workflow .md)
     │
     ├── Collect result
     │
-    └── Update state: gsd-tools.cjs state update/patch/advance-plan
+    └── Update state: redpill-tools.cjs state update/patch/advance-plan
 ```
 
 ### エージェント起動カテゴリ
 
 | カテゴリ | エージェント | 並列実行 |
 |----------|--------|-------------|
-| **リサーチャー** | gsd-project-researcher, gsd-phase-researcher, gsd-ui-researcher, gsd-advisor-researcher | 4並列（stack、features、architecture、pitfalls）; advisorはdiscuss-phase中に起動 |
-| **シンセサイザー** | gsd-research-synthesizer | 逐次（リサーチャー完了後） |
-| **プランナー** | gsd-planner, gsd-roadmapper | 逐次 |
-| **チェッカー** | gsd-plan-checker, gsd-integration-checker, gsd-ui-checker, gsd-nyquist-auditor | 逐次（検証ループ、最大3回反復） |
-| **エグゼキューター** | gsd-executor | ウェーブ内は並列、ウェーブ間は逐次 |
-| **ベリファイアー** | gsd-verifier | 逐次（全エグゼキューター完了後） |
-| **マッパー** | gsd-codebase-mapper | 4並列（tech、arch、quality、concerns） |
-| **デバッガー** | gsd-debugger | 逐次（インタラクティブ） |
-| **オーディター** | gsd-ui-auditor | 逐次 |
+| **リサーチャー** | redpill-project-researcher, redpill-phase-researcher, redpill-ui-researcher, redpill-advisor-researcher | 4並列（stack、features、architecture、pitfalls）; advisorはdiscuss-phase中に起動 |
+| **シンセサイザー** | redpill-research-synthesizer | 逐次（リサーチャー完了後） |
+| **プランナー** | redpill-planner, redpill-roadmapper | 逐次 |
+| **チェッカー** | redpill-plan-checker, redpill-integration-checker, redpill-ui-checker, redpill-nyquist-auditor | 逐次（検証ループ、最大3回反復） |
+| **エグゼキューター** | redpill-executor | ウェーブ内は並列、ウェーブ間は逐次 |
+| **ベリファイアー** | redpill-verifier | 逐次（全エグゼキューター完了後） |
+| **マッパー** | redpill-codebase-mapper | 4並列（tech、arch、quality、concerns） |
+| **デバッガー** | redpill-debugger | 逐次（インタラクティブ） |
+| **オーディター** | redpill-ui-auditor | 逐次 |
 
 ### ウェーブ実行モデル
 
@@ -345,17 +345,17 @@ UI-SPEC.md (per phase) ───────────────────
 ```
 ~/.claude/                          # Claude Code (global install)
 ├── commands/gsd/*.md               # 37 slash commands
-├── get-shit-done/
-│   ├── bin/gsd-tools.cjs           # CLI utility
+├── redpill/
+│   ├── bin/redpill-tools.cjs           # CLI utility
 │   ├── bin/lib/*.cjs               # 15 domain modules
 │   ├── workflows/*.md              # 42 workflow definitions
 │   ├── references/*.md             # 13 shared reference docs
 │   └── templates/                  # Planning artifact templates
 ├── agents/*.md                     # 15 agent definitions
 ├── hooks/
-│   ├── gsd-statusline.js           # Statusline hook
-│   ├── gsd-context-monitor.js      # Context warning hook
-│   └── gsd-check-update.js         # Update check hook
+│   ├── redpill-statusline.js           # Statusline hook
+│   ├── redpill-context-monitor.js      # Context warning hook
+│   └── redpill-check-update.js         # Update check hook
 ├── settings.json                   # Hook registrations
 └── VERSION                         # Installed version number
 ```
@@ -367,23 +367,23 @@ UI-SPEC.md (per phase) ───────────────────
 - **Copilot:** `~/.github/`
 - **Antigravity:** `~/.gemini/antigravity/`（グローバル）または `./.agent/`（ローカル）
 
-### プロジェクトファイル（`.planning/`）
+### プロジェクトファイル（`.redpill/`）
 
 ```
-.planning/
+.redpill/
 ├── PROJECT.md              # プロジェクトビジョン、制約、決定事項、発展ルール
 ├── REQUIREMENTS.md         # スコープ付き要件（v1/v2/スコープ外）
 ├── ROADMAP.md              # ステータス追跡付きフェーズ分解
 ├── STATE.md                # 生きたメモリ：位置、決定事項、ブロッカー、メトリクス
 ├── config.json             # ワークフロー設定
 ├── MILESTONES.md           # 完了済みマイルストーンのアーカイブ
-├── research/               # /gsd:new-project によるドメインリサーチ
+├── research/               # /redpill:new-project によるドメインリサーチ
 │   ├── SUMMARY.md
 │   ├── STACK.md
 │   ├── FEATURES.md
 │   ├── ARCHITECTURE.md
 │   └── PITFALLS.md
-├── codebase/               # ブラウンフィールドマッピング（/gsd:map-codebase から）
+├── codebase/               # ブラウンフィールドマッピング（/redpill:map-codebase から）
 │   ├── STACK.md
 │   ├── ARCHITECTURE.md
 │   ├── CONVENTIONS.md
@@ -409,13 +409,13 @@ UI-SPEC.md (per phase) ───────────────────
 ├── todos/
 │   ├── pending/            # キャプチャされたアイデア
 │   └── done/               # 完了済みtodo
-├── threads/               # 永続コンテキストスレッド（/gsd:thread から）
-├── seeds/                 # 将来に向けたアイデア（/gsd:plant-seed から）
+├── threads/               # 永続コンテキストスレッド（/redpill:thread から）
+├── seeds/                 # 将来に向けたアイデア（/redpill:plant-seed から）
 ├── debug/                  # アクティブなデバッグセッション
 │   ├── *.md                # アクティブセッション
 │   ├── resolved/           # アーカイブ済みセッション
 │   └── knowledge-base.md   # 永続的なデバッグ知見
-├── ui-reviews/             # /gsd:ui-review からのスクリーンショット（gitignore対象）
+├── ui-reviews/             # /redpill:ui-review からのスクリーンショット（gitignore対象）
 └── continue-here.md        # コンテキスト引き継ぎ（pause-work から）
 ```
 
@@ -437,7 +437,7 @@ UI-SPEC.md (per phase) ───────────────────
    - Antigravity: Googleモデル同等品によるスキルファースト
 5. **パス正規化** — `~/.claude/` パスをランタイム固有のパスに置換
 6. **設定統合** — ランタイムの `settings.json` にフックを登録
-7. **パッチバックアップ** — v1.17以降、ローカルで変更されたファイルを `/gsd:reapply-patches` 用に `gsd-local-patches/` へバックアップ
+7. **パッチバックアップ** — v1.17以降、ローカルで変更されたファイルを `/redpill:reapply-patches` 用に `gsd-local-patches/` へバックアップ
 8. **マニフェスト追跡** — クリーンアンインストールのために `gsd-file-manifest.json` を書き込み
 9. **アンインストールモード** — `--uninstall` ですべてのGSDファイル、フック、設定を削除
 
@@ -456,15 +456,15 @@ UI-SPEC.md (per phase) ───────────────────
 ```
 Runtime Engine (Claude Code / Gemini CLI)
     │
-    ├── statusLine event ──► gsd-statusline.js
+    ├── statusLine event ──► redpill-statusline.js
     │   Reads: stdin (session JSON)
     │   Writes: stdout (formatted status), /tmp/claude-ctx-{session}.json (bridge)
     │
-    ├── PostToolUse/AfterTool event ──► gsd-context-monitor.js
+    ├── PostToolUse/AfterTool event ──► redpill-context-monitor.js
     │   Reads: stdin (tool event JSON), /tmp/claude-ctx-{session}.json (bridge)
     │   Writes: stdout (hookSpecificOutput with additionalContext warning)
     │
-    └── SessionStart event ──► gsd-check-update.js
+    └── SessionStart event ──► redpill-check-update.js
         Reads: VERSION file
         Writes: ~/.claude/cache/gsd-update-check.json (spawns background process)
 ```
@@ -489,16 +489,16 @@ Runtime Engine (Claude Code / Gemini CLI)
 
 ### セキュリティフック（v1.27）
 
-**Prompt Guard**（`gsd-prompt-guard.js`）：
-- `.planning/` ファイルへのWrite/Edit時にトリガー
+**Prompt Guard**（`redpill-prompt-guard.js`）：
+- `.redpill/` ファイルへのWrite/Edit時にトリガー
 - プロンプトインジェクションパターン（ロールオーバーライド、指示バイパス、systemタグインジェクション）をスキャン
 - アドバイザリーのみ — 検出をログに記録するが、ブロックはしない
 - フックの独立性のため、パターンはインライン化（`security.cjs` のサブセット）
 
-**Workflow Guard**（`gsd-workflow-guard.js`）：
-- `.planning/` 以外のファイルへのWrite/Edit時にトリガー
-- GSDワークフローコンテキスト外での編集を検出（アクティブな `/gsd:` コマンドやTaskサブエージェントがない場合）
-- 状態追跡される変更には `/gsd:quick` や `/gsd:fast` の使用をアドバイス
+**Workflow Guard**（`redpill-workflow-guard.js`）：
+- `.redpill/` 以外のファイルへのWrite/Edit時にトリガー
+- GSDワークフローコンテキスト外での編集を検出（アクティブな `/redpill:` コマンドやTaskサブエージェントがない場合）
+- 状態追跡される変更には `/redpill:quick` や `/redpill:fast` の使用をアドバイス
 - `hooks.workflow_guard: true` によるオプトイン（デフォルト: false）
 
 ---
@@ -509,11 +509,11 @@ GSDは統一されたコマンド/ワークフローアーキテクチャを通�
 
 | ランタイム | コマンド形式 | エージェントシステム | 設定場所 |
 |---------|---------------|--------------|-----------------|
-| Claude Code | `/gsd:command` | Task起動 | `~/.claude/` |
+| Claude Code | `/redpill:command` | Task起動 | `~/.claude/` |
 | OpenCode | `/gsd-command` | サブエージェントモード | `~/.config/opencode/` |
-| Gemini CLI | `/gsd:command` | Task起動 | `~/.gemini/` |
+| Gemini CLI | `/redpill:command` | Task起動 | `~/.gemini/` |
 | Codex | `$gsd-command` | スキル | `~/.codex/` |
-| Copilot | `/gsd:command` | エージェント委譲 | `~/.github/` |
+| Copilot | `/redpill:command` | エージェント委譲 | `~/.github/` |
 | Antigravity | スキル | スキル | `~/.gemini/antigravity/` |
 
 ### 抽象化ポイント

@@ -63,7 +63,7 @@ describe('Phase lifecycle types', () => {
     it('accepts a valid phase-op output object', () => {
       const info: PhaseOpInfo = {
         phase_found: true,
-        phase_dir: '.planning/phases/05-Skill-Scaffolding',
+        phase_dir: '.redpill/phases/05-Skill-Scaffolding',
         phase_number: '5',
         phase_name: 'Skill Scaffolding',
         phase_slug: 'skill-scaffolding',
@@ -74,10 +74,10 @@ describe('Phase lifecycle types', () => {
         has_verification: false,
         plan_count: 0,
         roadmap_exists: true,
-        planning_exists: true,
+        redpill_dir_exists: true,
         commit_docs: true,
-        context_path: '.planning/phases/05-Skill-Scaffolding/CONTEXT.md',
-        research_path: '.planning/phases/05-Skill-Scaffolding/RESEARCH.md',
+        context_path: '.redpill/phases/05-Skill-Scaffolding/CONTEXT.md',
+        research_path: '.redpill/phases/05-Skill-Scaffolding/RESEARCH.md',
       };
 
       expect(info.phase_found).toBe(true);
@@ -87,10 +87,10 @@ describe('Phase lifecycle types', () => {
     });
 
     it('matches the documented init phase-op JSON shape', () => {
-      // Simulate parsing JSON from gsd-tools.cjs
+      // Simulate parsing JSON from redpill-tools.cjs
       const raw = JSON.parse(JSON.stringify({
         phase_found: true,
-        phase_dir: '.planning/phases/03-Auth',
+        phase_dir: '.redpill/phases/03-Auth',
         phase_number: '3',
         phase_name: 'Auth',
         phase_slug: 'auth',
@@ -101,10 +101,10 @@ describe('Phase lifecycle types', () => {
         has_verification: false,
         plan_count: 2,
         roadmap_exists: true,
-        planning_exists: true,
+        redpill_dir_exists: true,
         commit_docs: true,
-        context_path: '.planning/phases/03-Auth/CONTEXT.md',
-        research_path: '.planning/phases/03-Auth/RESEARCH.md',
+        context_path: '.redpill/phases/03-Auth/CONTEXT.md',
+        research_path: '.redpill/phases/03-Auth/RESEARCH.md',
       }));
 
       const info = raw as PhaseOpInfo;
@@ -277,7 +277,7 @@ describe('GSDTools typed methods', () => {
     tmpDir = join(tmpdir(), `gsd-tools-phase-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     fixtureDir = join(tmpDir, 'fixtures');
     await mkdir(fixtureDir, { recursive: true });
-    await mkdir(join(tmpDir, '.planning'), { recursive: true });
+    await mkdir(join(tmpDir, '.redpill'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -294,7 +294,7 @@ describe('GSDTools typed methods', () => {
     it('returns typed PhaseOpInfo from gsd-tools output', async () => {
       const mockOutput: PhaseOpInfo = {
         phase_found: true,
-        phase_dir: '.planning/phases/05-Skill-Scaffolding',
+        phase_dir: '.redpill/phases/05-Skill-Scaffolding',
         phase_number: '5',
         phase_name: 'Skill Scaffolding',
         phase_slug: 'skill-scaffolding',
@@ -305,10 +305,10 @@ describe('GSDTools typed methods', () => {
         has_verification: false,
         plan_count: 3,
         roadmap_exists: true,
-        planning_exists: true,
+        redpill_dir_exists: true,
         commit_docs: true,
-        context_path: '.planning/phases/05-Skill-Scaffolding/CONTEXT.md',
-        research_path: '.planning/phases/05-Skill-Scaffolding/RESEARCH.md',
+        context_path: '.redpill/phases/05-Skill-Scaffolding/CONTEXT.md',
+        research_path: '.redpill/phases/05-Skill-Scaffolding/RESEARCH.md',
       };
 
       const scriptPath = await createScript(

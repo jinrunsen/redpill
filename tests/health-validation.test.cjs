@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Health Validation
+ * REDPILL Tools Tests - Health Validation
  *
  * Tests for fix/health-validation-1473c:
  *   - W011: STATE/ROADMAP cross-validation (phase divergence detection)
@@ -15,14 +15,14 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function writeMinimalRoadmap(tmpDir, phases = ['1']) {
   const lines = phases.map(n => `### Phase ${n}: Phase ${n} Description`).join('\n');
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    path.join(tmpDir, '.redpill', 'ROADMAP.md'),
     `# Roadmap\n\n${lines}\n`
   );
 }
@@ -30,7 +30,7 @@ function writeMinimalRoadmap(tmpDir, phases = ['1']) {
 function writeMinimalStateMd(tmpDir, content) {
   const defaultContent = content || `# Session State\n\n## Current Position\n\nPhase: 1\n`;
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'STATE.md'),
+    path.join(tmpDir, '.redpill', 'STATE.md'),
     defaultContent
   );
 }
@@ -39,7 +39,7 @@ function writeMinimalProjectMd(tmpDir) {
   const sections = ['## What This Is', '## Core Value', '## Requirements'];
   const content = sections.map(s => `${s}\n\nContent here.\n`).join('\n');
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'PROJECT.md'),
+    path.join(tmpDir, '.redpill', 'PROJECT.md'),
     `# Project\n\n${content}`
   );
 }
@@ -47,7 +47,7 @@ function writeMinimalProjectMd(tmpDir) {
 function writeValidConfigJson(tmpDir, overrides = {}) {
   const base = { model_profile: 'balanced', commit_docs: true };
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'config.json'),
+    path.join(tmpDir, '.redpill', 'config.json'),
     JSON.stringify({ ...base, ...overrides }, null, 2)
   );
 }
@@ -70,17 +70,17 @@ describe('W011: STATE/ROADMAP cross-validation', () => {
   test('STATE says current phase but ROADMAP shows it as complete -> warning', () => {
     writeMinimalProjectMd(tmpDir);
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap\n\n- [x] Phase 3: Database Layer\n\n### Phase 3: Database Layer\n**Goal:** DB setup\n`
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Session State\n\n**Current Phase:** 03\n**Current Phase Name:** Database Layer\n**Status:** In progress\n`
     );
     writeValidConfigJson(tmpDir);
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-database-layer'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '03-database-layer'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -93,17 +93,17 @@ describe('W011: STATE/ROADMAP cross-validation', () => {
   test('STATE and ROADMAP agree (phase not checked off) -> no W011 warning', () => {
     writeMinimalProjectMd(tmpDir);
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap\n\n- [ ] Phase 2: API Layer\n\n### Phase 2: API Layer\n**Goal:** Build API\n`
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Session State\n\n**Current Phase:** 2\n**Status:** In progress\n`
     );
     writeValidConfigJson(tmpDir);
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api-layer'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '02-api-layer'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -134,9 +134,9 @@ describe('config field validation', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { branching_strategy: 'banana' });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -151,9 +151,9 @@ describe('config field validation', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { context_window: -500 });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -168,9 +168,9 @@ describe('config field validation', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { phase_branch_template: 'gsd/no-placeholder-{slug}' });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -185,9 +185,9 @@ describe('config field validation', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { milestone_branch_template: 'release/no-placeholder' });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -218,9 +218,9 @@ describe('boundary conditions', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { context_window: 500000 });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -235,9 +235,9 @@ describe('boundary conditions', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir, { context_window: 200000 });
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -252,9 +252,9 @@ describe('boundary conditions', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1 in progress.\n');
     writeValidConfigJson(tmpDir);
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -269,9 +269,9 @@ describe('boundary conditions', () => {
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir, '# Session State\n\nSome content but no phase reference.\n');
     writeValidConfigJson(tmpDir);
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command should not crash: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -282,12 +282,12 @@ describe('boundary conditions', () => {
 
   test('health check handles empty ROADMAP.md (no crash)', () => {
     writeMinimalProjectMd(tmpDir);
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), '');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), '');
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1.\n');
     writeValidConfigJson(tmpDir);
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `Command should not crash on empty ROADMAP.md: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -299,17 +299,17 @@ describe('boundary conditions', () => {
   test('config.json with trailing comma -- validate health reports parse error', () => {
     writeMinimalProjectMd(tmpDir);
     writeMinimalStateMd(tmpDir, '# Session State\n\nPhase 1.\n');
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-a'), { recursive: true });
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       '{"model_profile": "balanced",}'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 1: Test Phase\n'
     );
 
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     assert.ok(result.success, `validate health should not crash on invalid JSON: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -335,11 +335,11 @@ describe('stateReplaceFieldWithFallback field-miss warning', () => {
 
   test('advance-plan completes even when fields are missing (non-fatal)', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n**Current Phase:** 01\n**Current Plan:** 1\n**Total Plans in Phase:** 3\n`
     );
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -357,13 +357,13 @@ describe('stateReplaceFieldWithFallback field-miss warning', () => {
       const pad = String(i).padStart(2, '0');
       roadmapContent += `### Phase ${i}: Feature ${i}\n\n**Goal:** Build feature ${i}\n**Plans:** 1 plans\n\n`;
     }
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmapContent);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), roadmapContent);
 
     writeMinimalProjectMd(tmpDir);
     writeMinimalStateMd(tmpDir, '# Session State\n\n**Current Phase:** 26\n**Status:** Planning\n');
     writeValidConfigJson(tmpDir);
 
-    const phasesDir = path.join(tmpDir, '.planning', 'phases');
+    const phasesDir = path.join(tmpDir, '.redpill', 'phases');
     for (let i = 1; i <= 50; i++) {
       const pad = String(i).padStart(2, '0');
       const phaseDir = path.join(phasesDir, `${pad}-feature-${i}`);
@@ -376,7 +376,7 @@ describe('stateReplaceFieldWithFallback field-miss warning', () => {
 
     const { performance } = require('perf_hooks');
     const start = performance.now();
-    const result = runGsdTools('validate health', tmpDir);
+    const result = runRedpillTools('validate health', tmpDir);
     const elapsed = performance.now() - start;
 
     assert.ok(result.success, `validate health should succeed: ${result.error}`);

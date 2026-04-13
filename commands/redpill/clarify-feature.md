@@ -1,6 +1,6 @@
 ---
-name: gsd:clarify-feature
-description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with gsd-feature-reviewer. Output staged in .planning/features/{task_id}-{slug}/.
+name: redpill:clarify-feature
+description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with redpill-feature-reviewer. Output staged in .redpill/features/{task_id}-{slug}/.
 argument-hint: "<description> [--auto] [--domain <name>] [--extends <path-to-feature>]"
 allowed-tools:
   - Read
@@ -14,7 +14,7 @@ allowed-tools:
 ---
 <objective>
 Clarify a feature idea into a Gherkin .feature file, then validate it with
-gsd-feature-reviewer. All work is staged in .planning/features/{task_id}-{slug}/
+redpill-feature-reviewer. All work is staged in .redpill/features/{task_id}-{slug}/
 until later promoted to features/ by a future archive step.
 
 Two modes:
@@ -31,7 +31,7 @@ Modification flow:
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/clarify-feature.md
+@~/.claude/redpill/workflows/clarify-feature.md
 </execution_context>
 
 <context>
@@ -50,7 +50,7 @@ $ARGUMENTS
 
 <process>
 Execute the clarify-feature workflow from
-@~/.claude/get-shit-done/workflows/clarify-feature.md end-to-end.
+@~/.claude/redpill/workflows/clarify-feature.md end-to-end.
 Follow all steps: init, argument parsing, context loading, intent
 understanding, domain selection, feature generation, task workspace setup,
 feature-reviewer loop (max 2 rounds), and commit.

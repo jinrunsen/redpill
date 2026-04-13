@@ -1,4 +1,4 @@
-# マルチプロジェクトワークスペース (`/gsd:new-workspace`)
+# マルチプロジェクトワークスペース (`/redpill:new-workspace`)
 
 **Issue:** #1241
 **Date:** 2026-03-20
@@ -6,11 +6,11 @@
 
 ## 課題
 
-GSD は作業ディレクトリごとに1つの `.planning/` ディレクトリに紐づいています。複数の独立したプロジェクトを持つユーザー（20以上の子リポジトリを含むモノレポ構成など）や、同一リポジトリ内でフィーチャーブランチの分離が必要なユーザーは、手動でのクローンや状態管理なしに並行して GSD セッションを実行することができません。
+GSD は作業ディレクトリごとに1つの `.redpill/` ディレクトリに紐づいています。複数の独立したプロジェクトを持つユーザー（20以上の子リポジトリを含むモノレポ構成など）や、同一リポジトリ内でフィーチャーブランチの分離が必要なユーザーは、手動でのクローンや状態管理なしに並行して REDPILL セッションを実行することができません。
 
 ## 解決策
 
-3つの新しいコマンドで**物理的なワークスペースディレクトリ**を作成・一覧表示・削除します。各ワークスペースにはリポジトリのコピー（git worktree またはクローン）と独立した `.planning/` ディレクトリが含まれます。
+3つの新しいコマンドで**物理的なワークスペースディレクトリ**を作成・一覧表示・削除します。各ワークスペースにはリポジトリのコピー（git worktree またはクローン）と独立した `.redpill/` ディレクトリが含まれます。
 
 これにより2つのユースケースに対応します：
 - **マルチリポジトリオーケストレーション (A):** 親ディレクトリから複数のリポジトリにまたがるワークスペース
@@ -18,13 +18,13 @@ GSD は作業ディレクトリごとに1つの `.planning/` ディレクトリ�
 
 ## コマンド
 
-### `/gsd:new-workspace`
+### `/redpill:new-workspace`
 
-リポジトリのコピーと独自の `.planning/` を持つワークスペースディレクトリを作成します。
+リポジトリのコピーと独自の `.redpill/` を持つワークスペースディレクトリを作成します。
 
 ```
-/gsd:new-workspace --name feature-b --repos hr-ui,ZeymoAPI --path ~/workspaces/feature-b
-/gsd:new-workspace --name feature-b --repos . --strategy worktree   # same-repo isolation
+/redpill:new-workspace --name feature-b --repos hr-ui,ZeymoAPI --path ~/workspaces/feature-b
+/redpill:new-workspace --name feature-b --repos . --strategy worktree   # same-repo isolation
 ```
 
 **引数:**
@@ -38,11 +38,11 @@ GSD は作業ディレクトリごとに1つの `.planning/` ディレクトリ�
 | `--branch` | いいえ | `workspace/<name>` | チェックアウトするブランチ |
 | `--auto` | いいえ | false | 対話的な質問をスキップし、デフォルト値を使用 |
 
-### `/gsd:list-workspaces`
+### `/redpill:list-workspaces`
 
 `~/gsd-workspaces/*/WORKSPACE.md` をスキャンしてワークスペースマニフェストを検索します。名前、パス、リポジトリ数、GSD ステータス（PROJECT.md の有無、現在のフェーズ）をテーブル形式で表示します。
 
-### `/gsd:remove-workspace`
+### `/redpill:remove-workspace`
 
 確認後にワークスペースディレクトリを削除します。worktree 戦略の場合、まず各メンバーリポジトリに対して `git worktree remove` を実行します。コミットされていない変更があるリポジトリがある場合は削除を拒否します。
 
@@ -51,8 +51,8 @@ GSD は作業ディレクトリごとに1つの `.planning/` ディレクトリ�
 ```
 ~/gsd-workspaces/feature-b/          # workspace root
 ├── WORKSPACE.md                      # manifest
-├── .planning/                        # independent GSD planning directory
-│   ├── PROJECT.md                    # (if user ran /gsd:new-project)
+├── .redpill/                        # independent REDPILL planning directory
+│   ├── PROJECT.md                    # (if user ran /redpill:new-project)
 │   ├── STATE.md
 │   └── config.json
 ├── hr-ui/                            # git worktree of source repo
@@ -62,9 +62,9 @@ GSD は作業ディレクトリごとに1つの `.planning/` ディレクトリ�
 ```
 
 主要な特性：
-- `.planning/` はワークスペースのルートに配置され、個々のリポジトリ内には配置されない
+- `.redpill/` はワークスペースのルートに配置され、個々のリポジトリ内には配置されない
 - 各リポジトリはワークスペースルート直下の対等なディレクトリ
-- `WORKSPACE.md` はルートにある唯一の GSD 固有ファイル（`.planning/` を除く）
+- `WORKSPACE.md` はルートにある唯一の REDPILL 固有ファイル（`.redpill/` を除く）
 - `--strategy clone` の場合も同じ構造だが、リポジトリは完全なクローンとなる
 
 ## WORKSPACE.md のフォーマット
@@ -89,7 +89,7 @@ Strategy: worktree
 
 ## ワークフロー
 
-### `/gsd:new-workspace` のワークフロー手順
+### `/redpill:new-workspace` のワークフロー手順
 
 1. **セットアップ** — `init new-workspace` を呼び出し、JSON コンテキストを解析する
 2. **入力の収集** — `--name`/`--repos`/`--path` が指定されていない場合、対話的に質問する。リポジトリの選択時は、カレントディレクトリ内の子 `.git` ディレクトリを選択肢として表示する
@@ -99,8 +99,8 @@ Strategy: worktree
    - Worktree: `git worktree add <workspace>/<repo-name> -b workspace/<name>`
    - Clone: `git clone <source> <workspace>/<repo-name>`
 6. **WORKSPACE.md の書き込み** — ソースパス、戦略、ブランチを含むマニフェスト
-7. **.planning/ の初期化** — `mkdir -p <workspace>/.planning`
-8. **/gsd:new-project の提案** — 新しいワークスペースでプロジェクト初期化を実行するか確認する
+7. **.redpill/ の初期化** — `mkdir -p <workspace>/.planning`
+8. **/redpill:new-project の提案** — 新しいワークスペースでプロジェクト初期化を実行するか確認する
 9. **コミット** — commit_docs が有効な場合、WORKSPACE.md のアトミックコミット
 10. **完了** — ワークスペースのパスと次のステップを表示する
 
@@ -166,20 +166,20 @@ Strategy: worktree
 | コマンド: new-workspace | `commands/gsd/new-workspace.md` |
 | コマンド: list-workspaces | `commands/gsd/list-workspaces.md` |
 | コマンド: remove-workspace | `commands/gsd/remove-workspace.md` |
-| ワークフロー: new-workspace | `get-shit-done/workflows/new-workspace.md` |
-| ワークフロー: list-workspaces | `get-shit-done/workflows/list-workspaces.md` |
-| ワークフロー: remove-workspace | `get-shit-done/workflows/remove-workspace.md` |
-| Init 関数 | `get-shit-done/bin/lib/init.cjs`（`cmdInitNewWorkspace`、`cmdInitListWorkspaces`、`cmdInitRemoveWorkspace` を追加） |
-| ルーティング | `get-shit-done/bin/gsd-tools.cjs`（init switch にケースを追加） |
+| ワークフロー: new-workspace | `redpill/workflows/new-workspace.md` |
+| ワークフロー: list-workspaces | `redpill/workflows/list-workspaces.md` |
+| ワークフロー: remove-workspace | `redpill/workflows/remove-workspace.md` |
+| Init 関数 | `redpill/bin/lib/init.cjs`（`cmdInitNewWorkspace`、`cmdInitListWorkspaces`、`cmdInitRemoveWorkspace` を追加） |
+| ルーティング | `redpill/bin/redpill-tools.cjs`（init switch にケースを追加） |
 | テスト | `tests/workspace.test.cjs` |
 
 ## 設計上の決定
 
 | 決定事項 | 根拠 |
 |----------|-----------|
-| 論理的なレジストリではなく物理ディレクトリを採用 | ファイルシステムを信頼の源とする — GSD の既存の cwd ベースの検出パターンと一致する |
+| 論理的なレジストリではなく物理ディレクトリを採用 | ファイルシステムを信頼の源とする — REDPILL の既存の cwd ベースの検出パターンと一致する |
 | Worktree をデフォルト戦略とする | 軽量（.git オブジェクトを共有）、作成が高速、クリーンアップが容易 |
-| `.planning/` をワークスペースルートに配置 | 個々のリポジトリの planning から完全に分離できる。各ワークスペースは独立した GSD プロジェクトとなる |
+| `.redpill/` をワークスペースルートに配置 | 個々のリポジトリの planning から完全に分離できる。各ワークスペースは独立した REDPILL プロジェクトとなる |
 | 中央レジストリを使用しない | 状態の乖離を回避する。`list-workspaces` はファイルシステムを直接スキャンする |
 | ケース B を A の特殊ケースとする | `--repos .` で同じ仕組みを再利用し、フィーチャーブランチ専用のコードが不要 |
 | デフォルトパスを `~/gsd-workspaces/<name>` とする | `list-workspaces` がスキャンしやすい予測可能な場所に配置し、ワークスペースをソースリポジトリの外に保つ |

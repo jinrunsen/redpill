@@ -7,7 +7,7 @@ Fonte canônica: `docs/superpowers/plans/2026-03-18-materialize-new-project-conf
 
 ## Contexto
 
-Este plano formaliza a materialização explícita da configuração do projeto durante `/gsd:new-project`, garantindo que escolhas feitas na inicialização sejam persistidas de forma determinística em `.planning/config.json`.
+Este plano formaliza a materialização explícita da configuração do projeto durante `/redpill:new-project`, garantindo que escolhas feitas na inicialização sejam persistidas de forma determinística em `.redpill/config.json`.
 
 ## Objetivos
 
@@ -20,7 +20,7 @@ Este plano formaliza a materialização explícita da configuração do projeto 
 Inclui:
 
 - mapeamento de respostas de setup para chaves de configuração
-- escrita idempotente de `.planning/config.json`
+- escrita idempotente de `.redpill/config.json`
 - validação mínima de schema antes de persistir
 
 Não inclui:
@@ -37,7 +37,7 @@ Não inclui:
 
 ## Critérios de aceitação
 
-- após `/gsd:new-project`, `config.json` reflete as escolhas feitas
+- após `/redpill:new-project`, `config.json` reflete as escolhas feitas
 - rerun não duplica nem corrompe campos
 - comandos subsequentes observam os valores persistidos
 

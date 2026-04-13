@@ -12,10 +12,10 @@ VERSION="$ARGUMENTS"
 ```
 
 If `$ARGUMENTS` is empty:
-1. Check `.planning/STATE.md` for current milestone version
-2. Check `.planning/milestones/` for the latest archived version
-3. If neither found, check if `.planning/ROADMAP.md` exists (project may be mid-milestone)
-4. If nothing found: error "No milestone found. Run /gsd:new-project or /gsd:new-milestone first."
+1. Check `.redpill/STATE.md` for current milestone version
+2. Check `.redpill/milestones/` for the latest archived version
+3. If neither found, check if `.redpill/ROADMAP.md` exists (project may be mid-milestone)
+4. If nothing found: error "No milestone found. Run /redpill:new-project or /redpill:new-milestone first."
 
 Set `VERSION` to the resolved version (e.g., "1.0").
 
@@ -23,27 +23,27 @@ Set `VERSION` to the resolved version (e.g., "1.0").
 
 Determine whether the milestone is **archived** or **current**:
 
-**Archived milestone** (`.planning/milestones/v{VERSION}-ROADMAP.md` exists):
+**Archived milestone** (`.redpill/milestones/v{VERSION}-ROADMAP.md` exists):
 ```
-ROADMAP_PATH=".planning/milestones/v${VERSION}-ROADMAP.md"
-REQUIREMENTS_PATH=".planning/milestones/v${VERSION}-REQUIREMENTS.md"
-AUDIT_PATH=".planning/milestones/v${VERSION}-MILESTONE-AUDIT.md"
+ROADMAP_PATH=".redpill/milestones/v${VERSION}-ROADMAP.md"
+REQUIREMENTS_PATH=".redpill/milestones/v${VERSION}-REQUIREMENTS.md"
+AUDIT_PATH=".redpill/milestones/v${VERSION}-MILESTONE-AUDIT.md"
 ```
 
 **Current/in-progress milestone** (no archive yet):
 ```
-ROADMAP_PATH=".planning/ROADMAP.md"
-REQUIREMENTS_PATH=".planning/REQUIREMENTS.md"
-AUDIT_PATH=".planning/v${VERSION}-MILESTONE-AUDIT.md"
+ROADMAP_PATH=".redpill/ROADMAP.md"
+REQUIREMENTS_PATH=".redpill/REQUIREMENTS.md"
+AUDIT_PATH=".redpill/v${VERSION}-MILESTONE-AUDIT.md"
 ```
 
-Note: The audit file moves to `.planning/milestones/` on archive (per `complete-milestone` workflow). Check both locations as a fallback.
+Note: The audit file moves to `.redpill/milestones/` on archive (per `complete-milestone` workflow). Check both locations as a fallback.
 
 **Always available:**
 ```
-PROJECT_PATH=".planning/PROJECT.md"
-RETRO_PATH=".planning/RETROSPECTIVE.md"
-STATE_PATH=".planning/STATE.md"
+PROJECT_PATH=".redpill/PROJECT.md"
+RETRO_PATH=".redpill/RETROSPECTIVE.md"
+STATE_PATH=".redpill/STATE.md"
 ```
 
 Read all files that exist. Missing files are fine — the summary adapts to what's available.
@@ -53,7 +53,7 @@ Read all files that exist. Missing files are fine — the summary adapts to what
 Find all phase directories:
 
 ```bash
-gsd-tools.cjs init progress
+redpill-tools.cjs init progress
 ```
 
 This returns phase metadata. For each phase in the milestone scope:
@@ -88,9 +88,9 @@ git log --oneline --since="<started_at_date>" | wc -l
 ```
 
 **Method 3 — Earliest phase commit** (if STATE.md has no date):
-Find the earliest `.planning/phases/` commit:
+Find the earliest `.redpill/phases/` commit:
 ```bash
-git log --oneline --diff-filter=A -- ".planning/phases/" | tail -1
+git log --oneline --diff-filter=A -- ".redpill/phases/" | tail -1
 ```
 Use that commit's date as the start boundary.
 
@@ -105,7 +105,7 @@ Extract (when available):
 
 ## Step 5: Generate Summary Document
 
-Write to `.planning/reports/MILESTONE_SUMMARY-v${VERSION}.md`:
+Write to `.redpill/reports/MILESTONE_SUMMARY-v${VERSION}.md`:
 
 ```markdown
 # Milestone v{VERSION} — Project Summary
@@ -178,19 +178,19 @@ Present as a bulleted list of decisions with brief rationale:
 
 ## Step 6: Write and Commit
 
-**Overwrite guard:** If `.planning/reports/MILESTONE_SUMMARY-v${VERSION}.md` already exists, ask the user:
+**Overwrite guard:** If `.redpill/reports/MILESTONE_SUMMARY-v${VERSION}.md` already exists, ask the user:
 > "A milestone summary for v{VERSION} already exists. Overwrite it, or view the existing one?"
 If "view": display existing file and skip to Step 8 (interactive mode). If "overwrite": proceed.
 
 Create the reports directory if needed:
 ```bash
-mkdir -p .planning/reports
+mkdir -p .redpill/reports
 ```
 
 Write the summary, then commit:
 ```bash
-gsd-tools.cjs commit "docs(v${VERSION}): generate milestone summary for onboarding" \
-  --files ".planning/reports/MILESTONE_SUMMARY-v${VERSION}.md"
+redpill-tools.cjs commit "docs(v${VERSION}): generate milestone summary for onboarding" \
+  --files ".redpill/reports/MILESTONE_SUMMARY-v${VERSION}.md"
 ```
 
 ## Step 7: Present Summary
@@ -201,7 +201,7 @@ Display the full summary document inline.
 
 After presenting the summary:
 
-> "Summary written to `.planning/reports/MILESTONE_SUMMARY-v{VERSION}.md`.
+> "Summary written to `.redpill/reports/MILESTONE_SUMMARY-v{VERSION}.md`.
 >
 > I have full context from the build artifacts. Want to ask anything about the project?
 > Architecture decisions, specific phases, requirements, tech debt — ask away."
@@ -212,12 +212,12 @@ If the user asks questions:
 - Stay grounded in what was actually built (not speculation)
 
 If the user is done:
-- Suggest next steps: `/gsd:new-milestone`, `/gsd:progress`, or sharing the summary with the team
+- Suggest next steps: `/redpill:new-milestone`, `/redpill:progress`, or sharing the summary with the team
 
 ## Step 9: Update STATE.md
 
 ```bash
-gsd-tools.cjs state record-session \
+redpill-tools.cjs state record-session \
   --stopped-at "Milestone v${VERSION} summary generated" \
-  --resume-file ".planning/reports/MILESTONE_SUMMARY-v${VERSION}.md"
+  --resume-file ".redpill/reports/MILESTONE_SUMMARY-v${VERSION}.md"
 ```

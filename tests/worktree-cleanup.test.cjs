@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - worktree cleanup after executor completes
+ * REDPILL Tools Tests - worktree cleanup after executor completes
  *
  * Validates that execute-phase.md and quick.md include post-execution
  * worktree cleanup logic (merge branch, remove worktree, delete branch).

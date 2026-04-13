@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Hook Field Validation
+ * REDPILL Tools Tests - Hook Field Validation
  *
  * Tests for validateHookFields() which prevents silent settings.json
  * rejection by removing hook entries that fail Claude Code's Zod schema.
@@ -7,7 +7,7 @@
 
 'use strict';
 
-process.env.GSD_TEST_MODE = '1';
+process.env.REDPILL_TEST_MODE = '1';
 
 const { test, describe } = require('node:test');
 const assert = require('node:assert');

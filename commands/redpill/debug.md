@@ -1,5 +1,5 @@
 ---
-name: gsd:debug
+name: redpill:debug
 description: Systematic debugging with persistent state across context resets
 argument-hint: [--diagnose] [issue description]
 allowed-tools:
@@ -12,7 +12,7 @@ allowed-tools:
 <objective>
 Debug issues using scientific method with subagent isolation.
 
-**Orchestrator role:** Gather symptoms, spawn gsd-debugger agent, handle checkpoints, spawn continuations.
+**Orchestrator role:** Gather symptoms, spawn redpill-debugger agent, handle checkpoints, spawn continuations.
 
 **Why subagent:** Investigation burns context fast (reading files, forming hypotheses, testing). Fresh 200k context per investigation. Main context stays lean for user interaction.
 
@@ -21,8 +21,8 @@ Debug issues using scientific method with subagent isolation.
 </objective>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-debugger — Diagnoses and fixes issues
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-debugger — Diagnoses and fixes issues
 </available_agent_types>
 
 <context>
@@ -34,7 +34,7 @@ Parse flags from $ARGUMENTS:
 
 Check for active sessions:
 ```bash
-ls .planning/debug/*.md 2>/dev/null | grep -v resolved | head -5
+ls .redpill/debug/*.md 2>/dev/null | grep -v resolved | head -5
 ```
 </context>
 
@@ -43,13 +43,13 @@ ls .planning/debug/*.md 2>/dev/null | grep -v resolved | head -5
 ## 0. Initialize Context
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state load)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
 Extract `commit_docs` from init JSON. Resolve debugger model:
 ```bash
-debugger_model=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-debugger --raw)
+debugger_model=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" resolve-model redpill-debugger --raw)
 ```
 
 ## 1. Check Active Sessions
@@ -73,7 +73,7 @@ Use AskUserQuestion for each:
 
 After all gathered, confirm ready to investigate.
 
-## 3. Spawn gsd-debugger Agent
+## 3. Spawn redpill-debugger Agent
 
 Fill prompt and spawn:
 
@@ -98,14 +98,14 @@ goal: {if diagnose_only: "find_root_cause_only", else: "find_and_fix"}
 </mode>
 
 <debug_file>
-Create: .planning/debug/{slug}.md
+Create: .redpill/debug/{slug}.md
 </debug_file>
 ```
 
 ```
 Task(
   prompt=filled_prompt,
-  subagent_type="gsd-debugger",
+  subagent_type="redpill-debugger",
   model="{debugger_model}",
   description="Debug {slug}"
 )
@@ -117,13 +117,13 @@ Task(
 - Display root cause, confidence level, files involved, and suggested fix strategies
 - Offer options:
   - "Fix now" — spawn a continuation agent with `goal: find_and_fix` to apply the fix (see step 5)
-  - "Plan fix" — suggest `/gsd:plan-phase --gaps`
+  - "Plan fix" — suggest `/redpill:plan-phase --gaps`
   - "Manual fix" — done
 
 **If `## DEBUG COMPLETE` (find_and_fix mode):**
 - Display root cause and fix summary
 - Offer options:
-  - "Plan fix" — suggest `/gsd:plan-phase --gaps` if further work needed
+  - "Plan fix" — suggest `/redpill:plan-phase --gaps` if further work needed
   - "Done" — mark resolved
 
 **If `## CHECKPOINT REACHED`:**
@@ -152,7 +152,7 @@ Continue debugging {slug}. Evidence is in the debug file.
 
 <prior_state>
 <files_to_read>
-- .planning/debug/{slug}.md (Debug session state)
+- .redpill/debug/{slug}.md (Debug session state)
 </files_to_read>
 </prior_state>
 
@@ -169,7 +169,7 @@ goal: find_and_fix
 ```
 Task(
   prompt=continuation_prompt,
-  subagent_type="gsd-debugger",
+  subagent_type="redpill-debugger",
   model="{debugger_model}",
   description="Continue debug {slug}"
 )
@@ -180,7 +180,7 @@ Task(
 <success_criteria>
 - [ ] Active sessions checked
 - [ ] Symptoms gathered (if new)
-- [ ] gsd-debugger spawned with context
+- [ ] redpill-debugger spawned with context
 - [ ] Checkpoints handled correctly
 - [ ] Root cause confirmed before fixing
 </success_criteria>

@@ -1,34 +1,34 @@
 ---
-title: "/gsd:clarify-feature — 设计文档"
+title: "/redpill:clarify-feature — 设计文档"
 date: 2026-04-11
 status: draft
 author: jinrunsen
 ---
 
-# /gsd:clarify-feature — 设计文档
+# /redpill:clarify-feature — 设计文档
 
 ## 目标
 
 将 redpill 的 `clarify-feature`（交互式）和 `auto-feature`（自主式）两个
-workflow 融合为一个 GSD 原生命令，满足以下要求：
+workflow 融合为一个 REDPILL 原生命令，满足以下要求：
 
 1. 从一段自由文本描述产出 Gherkin `.feature` 文件。
-2. 通过单一的 `--auto` flag 同时支持交互式与自主式两种模式，遵循 GSD 在
-   `/gsd:discuss-phase` 中确立的约定。
-3. 将所有工作暂存在独立的 `.planning/features/{task_id}-{slug}/` 工作区，
+2. 通过单一的 `--auto` flag 同时支持交互式与自主式两种模式，遵循 REDPILL 在
+   `/redpill:discuss-phase` 中确立的约定。
+3. 将所有工作暂存在独立的 `.redpill/features/{task_id}-{slug}/` 工作区，
    使同一个目录后续可以承载设计文档、BDD 进度文档、BDD 总结文档，构成
    一次 feature 的完整生命周期。
-4. 用新建的 `gsd-feature-reviewer` 子 agent 校验产出的 spec，并对**技术类**
+4. 用新建的 `redpill-feature-reviewer` 子 agent 校验产出的 spec，并对**技术类**
    与**产品决策类**问题采取不同的处理策略，评审循环上限为 2 轮。
 
 ## 非目标
 
 - 把 staging 的 feature 归档/升级到正式的 `features/` 目录。归档流程不在
   本次范围；本 spec 仅在 `TASK.md` 中保留足够元数据，供未来的
-  `/gsd:archive-feature` 命令接续。
-- 设计后续的 `/gsd:design-feature` 和 BDD-feature 命令。这些命令将共享同一
+  `/redpill:archive-feature` 命令接续。
+- 设计后续的 `/redpill:design-feature` 和 BDD-feature 命令。这些命令将共享同一
   工作区——本 spec 只保证目录结构为它们预留空间。
-- 生成 BDD step 定义或生产代码——那仍是 `/gsd:bdd-phase` / `/gsd:run-bdd`
+- 生成 BDD step 定义或生产代码——那仍是 `/redpill:bdd-phase` / `/redpill:run-bdd`
   的职责。
 
 ## 范围
@@ -38,15 +38,15 @@ workflow 融合为一个 GSD 原生命令，满足以下要求：
 | 文件 | 用途 |
 |---|---|
 | `commands/gsd/clarify-feature.md` | 命令入口（新增） |
-| `get-shit-done/workflows/clarify-feature.md` | Workflow 主体（新增） |
-| `agents/gsd-feature-reviewer.md` | Gherkin 质量审查子 agent（新增） |
-| `get-shit-done/bin/gsd-tools.cjs` | 新增 `init clarify-feature` handler（修改） |
-| `get-shit-done/templates/config.json` | 新增两个 workflow 配置项（修改） |
+| `redpill/workflows/clarify-feature.md` | Workflow 主体（新增） |
+| `agents/redpill-feature-reviewer.md` | Gherkin 质量审查子 agent（新增） |
+| `redpill/bin/redpill-tools.cjs` | 新增 `init clarify-feature` handler（修改） |
+| `redpill/templates/config.json` | 新增两个 workflow 配置项（修改） |
 
 ## 命令形态
 
 ```
-/gsd:clarify-feature <description> [--auto] [--domain <name>] [--extends <path>]
+/redpill:clarify-feature <description> [--auto] [--domain <name>] [--extends <path>]
 ```
 
 **Flag 说明：**
@@ -61,16 +61,16 @@ workflow 融合为一个 GSD 原生命令，满足以下要求：
 ## 目录布局
 
 ```
-.planning/features/
+.redpill/features/
   251011-a3f-user-login/              ← 一个 feature task workspace
     TASK.md                            ← 元数据 frontmatter + 备注
     user-login.feature                 ← clarify-feature 的产出（本 spec 范围）
-    user-login-DESIGN.md               ← 未来 /gsd:design-feature 的产出
+    user-login-DESIGN.md               ← 未来 /redpill:design-feature 的产出
     user-login-BDD-PROGRESS.json       ← 未来 BDD 迭代状态
     user-login-BDD-SUMMARY.md          ← 未来 BDD 完成总结
 ```
 
-- `{task_id}` 使用与 `.planning/quick/` 相同的 `YYMMDD-xxx` Base36 方案。
+- `{task_id}` 使用与 `.redpill/quick/` 相同的 `YYMMDD-xxx` Base36 方案。
 - `{slug}` 是 feature 名的 kebab-case，最长 40 字符。
 - `TASK.md` 是该 workspace 状态的单一真相源，每个下游命令都会读取它。
 
@@ -105,19 +105,19 @@ open_questions: 2
 - [ambiguity] "快速响应" 未被量化：...
 ```
 
-## Workflow 步骤（`get-shit-done/workflows/clarify-feature.md`）
+## Workflow 步骤（`redpill/workflows/clarify-feature.md`）
 
-Workflow 主体遵循 GSD 惯例（标题、Init JSON 解析、banner、AskUserQuestion
+Workflow 主体遵循 REDPILL 惯例（标题、Init JSON 解析、banner、AskUserQuestion
 结构）。auto vs. interactive 分支通过 `$AUTO_MODE` 变量控制。
 
 ### 1. 初始化
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init clarify-feature)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init clarify-feature)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-解析 JSON，提取：`verifier_model`、`text_mode`、`planning_exists`、
+解析 JSON，提取：`verifier_model`、`text_mode`、`redpill_dir_exists`、
 `state_path`、`claude_md_path`、`features_task_dir_base`、`task_id`、
 `existing_features[]`、`existing_feature_domains[]`、`has_existing_features`、
 `tech_stack_hint`、`feature_review_max_rounds`、`feature_auto_scenario_cap`。
@@ -137,7 +137,7 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ### 3. 加载上下文
 
 尽力读取（失败时继续）：
-- 若 `planning_exists` 为真，读 `$state_path`
+- 若 `redpill_dir_exists` 为真，读 `$state_path`
 - 若存在，读 `$claude_md_path`
 - `existing_features[]` 中的每个文件（避免重复场景、复用 step 措辞）
 - 若 `$EXTENDS` 已设置：读取目标文件作为当前基线
@@ -200,11 +200,11 @@ mkdir -p "$TASK_DIR"
 
 ### 8. Feature Reviewer — 第 1 轮
 
-Spawn `gsd-feature-reviewer`：
+Spawn `redpill-feature-reviewer`：
 
 ```
 Agent(
-  subagent_type="gsd-feature-reviewer",
+  subagent_type="redpill-feature-reviewer",
   model="${verifier_model}",
   description="Review feature: ${SLUG}",
   prompt="
@@ -293,10 +293,10 @@ Agent(
 - `open_questions: <记录的产品类 issue 数量>`
 - `status: clarified`
 
-通过 `gsd-tools.cjs commit` 提交，消息形如
+通过 `redpill-tools.cjs commit` 提交，消息形如
 `feat(feature): clarify ${SLUG} [${task_id}]`，暂存 `${TASK_DIR}/` 整个目录。
 
-若 `.planning/STATE.md` 存在，通过 `gsd-tools.cjs state record-feature-task`
+若 `.redpill/STATE.md` 存在，通过 `redpill-tools.cjs state record-feature-task`
 helper 将任务追加到新的 "Feature Tasks" 表（最小 schema：id、slug、status、
 created、scenarios、domain）。若该 helper 尚不存在，workflow 在输出中暴露一条
 deferred TODO，而不是失败。
@@ -305,10 +305,10 @@ deferred TODO，而不是失败。
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► FEATURE CLARIFIED
+ REDPILL ► FEATURE CLARIFIED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  Task: ${task_id}-${slug}
- Workspace: .planning/features/${task_id}-${slug}/
+ Workspace: .redpill/features/${task_id}-${slug}/
  Feature: ${slug}.feature (N scenarios)
  Target on archive: ${target_path}
  Extends: ${extends or "none"}
@@ -317,14 +317,14 @@ deferred TODO，而不是失败。
  Open questions: ${y} (see TODO block + TASK.md)
 
  Next:
-   /gsd:run-bdd .planning/features/${task_id}-${slug}/${slug}.feature
-   /gsd:design-feature ${task_id}    — 技术设计（未来）
-   /gsd:archive-feature ${task_id}   — 归档到 features/（未来）
+   /redpill:run-bdd .redpill/features/${task_id}-${slug}/${slug}.feature
+   /redpill:design-feature ${task_id}    — 技术设计（未来）
+   /redpill:archive-feature ${task_id}   — 归档到 features/（未来）
 ```
 
-## `gsd-feature-reviewer` Agent
+## `redpill-feature-reviewer` Agent
 
-**文件：** `agents/gsd-feature-reviewer.md`
+**文件：** `agents/redpill-feature-reviewer.md`
 
 ### 职责
 
@@ -409,9 +409,9 @@ summary: "一段话的整体评估"
 - 无 CRITICAL 或 IMPORTANT issue 时为 `APPROVED`（MINOR 可接受）。
 - 否则为 `NEEDS_REVISION`。
 
-## `gsd-tools.cjs init clarify-feature` Handler
+## `redpill-tools.cjs init clarify-feature` Handler
 
-**输入：** `node gsd-tools.cjs init clarify-feature`（无额外参数）
+**输入：** `node redpill-tools.cjs init clarify-feature`（无额外参数）
 
 **输出 JSON：**
 
@@ -419,10 +419,10 @@ summary: "一段话的整体评估"
 {
   "verifier_model": "<从 model profile 解析>",
   "text_mode": false,
-  "planning_exists": true,
-  "state_path": ".planning/STATE.md",
+  "redpill_dir_exists": true,
+  "state_path": ".redpill/STATE.md",
   "claude_md_path": "./CLAUDE.md",
-  "features_task_dir_base": ".planning/features",
+  "features_task_dir_base": ".redpill/features",
   "task_id": "251011-a3f",
   "existing_features": ["features/auth/login.feature", "..."],
   "existing_feature_domains": ["auth", "billing"],
@@ -439,14 +439,14 @@ summary: "一段话的整体评估"
 
 **实现要点：**
 
-- `task_id`：复用驱动 `.planning/quick/` 的现有 `YYMMDD-xxx` Base36 helper。
+- `task_id`：复用驱动 `.redpill/quick/` 的现有 `YYMMDD-xxx` Base36 helper。
   不要另起炉灶。
 - `existing_features[]`：递归扫描 `features/**/*.feature`（与 db37b70 中
   引入的递归修复逻辑一致）。
 - `existing_feature_domains[]`：提取每个条目的一级子目录（对应 DDD 的
   领域/子域）；去重；忽略根目录下的 feature。
 - `verifier_model`：沿用 `init bdd-phase` 中 `verifier_model` 的解析路径。
-- `planning_exists`：宽松处理 —— `clarify-feature` 在 `/gsd:new-project`
+- `redpill_dir_exists`：宽松处理 —— `clarify-feature` 在 `/redpill:new-project`
   未运行的情况下也必须能工作（与 `run-bdd` 一致）。
 - `tech_stack_hint`：快速检查项目根目录下的 `package.json`、`pyproject.toml`、
   `Cargo.toml`、`go.mod`。尽力而为，失败时返回 `null`。
@@ -465,7 +465,7 @@ handler 复用。
 
 ## Config 新增项
 
-在 `get-shit-done/templates/config.json` 的 `workflow` 段下：
+在 `redpill/templates/config.json` 的 `workflow` 段下：
 
 ```json
 {
@@ -481,12 +481,12 @@ handler 复用。
 
 ## 命令入口（`commands/gsd/clarify-feature.md`）
 
-标准 GSD 命令 frontmatter：
+标准 REDPILL 命令 frontmatter：
 
 ```markdown
 ---
-name: gsd:clarify-feature
-description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with gsd-feature-reviewer
+name: redpill:clarify-feature
+description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with redpill-feature-reviewer
 argument-hint: "<description> [--auto] [--domain <name>] [--extends <path-to-feature>]"
 allowed-tools:
   - Read
@@ -500,18 +500,18 @@ allowed-tools:
 ---
 ```
 
-命令正文通过 `<execution_context>` 引入 `@~/.claude/get-shit-done/workflows/clarify-feature.md`，
+命令正文通过 `<execution_context>` 引入 `@~/.claude/redpill/workflows/clarify-feature.md`，
 通过 `<context>` 暴露 `$ARGUMENTS`，通过 `<process>` 指示主会话端到端执行
 workflow。
 
 ## 成功标准
 
-- [ ] 不带 `--auto` 运行 `/gsd:clarify-feature "..."` 时，引导用户完成澄清
-      提问，并在 `.planning/features/{task_id}-{slug}/` 下产出 `.feature`
+- [ ] 不带 `--auto` 运行 `/redpill:clarify-feature "..."` 时，引导用户完成澄清
+      提问，并在 `.redpill/features/{task_id}-{slug}/` 下产出 `.feature`
       文件。
-- [ ] 带 `--auto` 运行 `/gsd:clarify-feature "..." --auto` 时，不提问、
+- [ ] 带 `--auto` 运行 `/redpill:clarify-feature "..." --auto` 时，不提问、
       产出同一文件，每个 feature 的场景数上限为 `feature_auto_scenario_cap`。
-- [ ] 两种模式在写入文件后都至少调用一次 `gsd-feature-reviewer`。
+- [ ] 两种模式在写入文件后都至少调用一次 `redpill-feature-reviewer`。
 - [ ] Reviewer 返回的 `<FEATURE_REVIEW>` 块中每条 issue 都带有 `category`
       字段。
 - [ ] Reviewer 的 `quality_scores` 包含 `data_authenticity` 评分。
@@ -526,20 +526,20 @@ workflow。
 - [ ] `--extends <path>` 将目标文件作为基线拷贝到 task workspace，原文件
       保持不被修改。
 - [ ] `TASK.md` 写入完整的 frontmatter 和评审指标。
-- [ ] 所有产出通过 `gsd-tools.cjs commit` 一次原子提交。
+- [ ] 所有产出通过 `redpill-tools.cjs commit` 一次原子提交。
 - [ ] 若 STATE.md 存在，在 "Feature Tasks" 表中记录该任务。
-- [ ] 命令在 `.planning/` 不存在时也能工作（与 `run-bdd` 一致的宽松模式）。
-- [ ] `gsd-feature-reviewer` 是只读的 —— `allowed-tools: [Read, Glob, Grep]`。
-- [ ] `gsd-tools.cjs` 中新增 `init clarify-feature` handler，包含可复用的
+- [ ] 命令在 `.redpill/` 不存在时也能工作（与 `run-bdd` 一致的宽松模式）。
+- [ ] `redpill-feature-reviewer` 是只读的 —— `allowed-tools: [Read, Glob, Grep]`。
+- [ ] `redpill-tools.cjs` 中新增 `init clarify-feature` handler，包含可复用的
       `scanFeatureFiles` / `extractFeatureDomains` helper。
 
 ## 风险与开放项
 
-- **`gsd-tools.cjs state record-feature-task` helper 可能尚未存在。**
+- **`redpill-tools.cjs state record-feature-task` helper 可能尚未存在。**
   Workflow 在输出中暴露 TODO 作为 graceful degradation，直到该 helper 被加上。
   添加该 helper 作为后续工作。
-- **归档流程未实现。** Task 目录会在 `.planning/features/` 中积累，直到未来
-  的 `/gsd:archive-feature` 命令或 `/gsd:run-bdd` 完成钩子落地。
+- **归档流程未实现。** Task 目录会在 `.redpill/features/` 中积累，直到未来
+  的 `/redpill:archive-feature` 命令或 `/redpill:run-bdd` 完成钩子落地。
   `TASK.md.status` 使得孤立状态可见。
 - **`--extends` 的合并语义基于名称匹配。** 若用户在新版本中重命名了场景，
   合并将变为追加而非替换。作为已记录的局限；未来工作可通过模糊匹配改进。

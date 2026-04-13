@@ -38,19 +38,19 @@ function detectSubRepos(cwd) {
 }
 
 /**
- * Walk up from `startDir` to find the project root that owns `.planning/`.
+ * Walk up from `startDir` to find the project root that owns `.redpill/`.
  *
  * In multi-repo workspaces, Claude may open inside a sub-repo (e.g. `backend/`)
- * instead of the project root. This function prevents `.planning/` from being
+ * instead of the project root. This function prevents `.redpill/` from being
  * created inside the sub-repo by locating the nearest ancestor that already has
- * a `.planning/` directory.
+ * a `.redpill/` directory.
  *
  * Detection strategy (checked in order for each ancestor):
- * 1. Parent has `.planning/config.json` with `sub_repos` listing this directory
- * 2. Parent has `.planning/config.json` with `multiRepo: true` (legacy format)
- * 3. Parent has `.planning/` and current dir has its own `.git` (heuristic)
+ * 1. Parent has `.redpill/config.json` with `sub_repos` listing this directory
+ * 2. Parent has `.redpill/config.json` with `multiRepo: true` (legacy format)
+ * 3. Parent has `.redpill/` and current dir has its own `.git` (heuristic)
  *
- * Returns `startDir` unchanged when no ancestor `.planning/` is found (first-run
+ * Returns `startDir` unchanged when no ancestor `.redpill/` is found (first-run
  * or single-repo projects).
  */
 function findProjectRoot(startDir) {
@@ -58,9 +58,9 @@ function findProjectRoot(startDir) {
   const root = path.parse(resolved).root;
   const homedir = require('os').homedir();
 
-  // If startDir already contains .planning/, it IS the project root.
-  // Do not walk up to a parent workspace that also has .planning/ (#1362).
-  const ownPlanning = path.join(resolved, '.planning');
+  // If startDir already contains .redpill/, it IS the project root.
+  // Do not walk up to a parent workspace that also has .redpill/ (#1362).
+  const ownPlanning = path.join(resolved, '.redpill');
   if (fs.existsSync(ownPlanning) && fs.statSync(ownPlanning).isDirectory()) {
     return startDir;
   }
@@ -68,7 +68,7 @@ function findProjectRoot(startDir) {
   // Check if startDir or any of its ancestors (up to AND including the
   // candidate project root) contains a .git directory. This handles both
   // `backend/` (direct sub-repo) and `backend/src/modules/` (nested inside),
-  // as well as the common case where .git lives at the same level as .planning/.
+  // as well as the common case where .git lives at the same level as .redpill/.
   function isInsideGitRepo(candidateParent) {
     let d = resolved;
     while (d !== root) {
@@ -85,7 +85,7 @@ function findProjectRoot(startDir) {
     if (parent === dir) break; // filesystem root
     if (parent === homedir) break; // never go above home
 
-    const parentPlanning = path.join(parent, '.planning');
+    const parentPlanning = path.join(parent, '.redpill');
     if (fs.existsSync(parentPlanning) && fs.statSync(parentPlanning).isDirectory()) {
       const configPath = path.join(parentPlanning, 'config.json');
       try {
@@ -109,7 +109,7 @@ function findProjectRoot(startDir) {
         // config.json missing or malformed — fall back to .git heuristic
       }
 
-      // Heuristic: parent has .planning/ and we're inside a git repo
+      // Heuristic: parent has .redpill/ and we're inside a git repo
       if (isInsideGitRepo(parent)) {
         return parent;
       }
@@ -195,7 +195,7 @@ function safeReadFile(filePath) {
 }
 
 function loadConfig(cwd) {
-  const configPath = path.join(planningDir(cwd), 'config.json');
+  const configPath = path.join(redpillDir(cwd), 'config.json');
   const defaults = {
     model_profile: 'balanced',
     commit_docs: true,
@@ -289,9 +289,9 @@ function loadConfig(cwd) {
         const explicit = get('commit_docs', { section: 'planning', field: 'commit_docs' });
         // If explicitly set in config, respect the user's choice
         if (explicit !== undefined) return explicit;
-        // Auto-detection: when no explicit value and .planning/ is gitignored,
+        // Auto-detection: when no explicit value and .redpill/ is gitignored,
         // default to false instead of true
-        if (isGitIgnored(cwd, '.planning/')) return false;
+        if (isGitIgnored(cwd, '.redpill/')) return false;
         return defaults.commit_docs;
       })(),
       search_gitignored: get('search_gitignored', { section: 'planning', field: 'search_gitignored' }) ?? defaults.search_gitignored,
@@ -330,7 +330,7 @@ function isGitIgnored(cwd, targetPath) {
   try {
     // --no-index checks .gitignore rules regardless of whether the file is tracked.
     // Without it, git check-ignore returns "not ignored" for tracked files even when
-    // .gitignore explicitly lists them — a common source of confusion when .planning/
+    // .gitignore explicitly lists them — a common source of confusion when .redpill/
     // was committed before being added to .gitignore.
     // Use execFileSync (array args) to prevent shell interpretation of special characters
     // in file paths — avoids command injection via crafted path names.
@@ -348,7 +348,7 @@ function isGitIgnored(cwd, targetPath) {
 
 /**
  * Normalize markdown to fix common markdownlint violations.
- * Applied at write points so GSD-generated .planning/ files are IDE-friendly.
+ * Applied at write points so GSD-generated .redpill/ files are IDE-friendly.
  *
  * Rules enforced:
  *   MD022 — Blank lines around headings
@@ -471,13 +471,13 @@ function execGit(cwd, args) {
 
 /**
  * Resolve the main worktree root when running inside a git worktree.
- * In a linked worktree, .planning/ lives in the main worktree, not in the linked one.
+ * In a linked worktree, .redpill/ lives in the main worktree, not in the linked one.
  * Returns the main worktree path, or cwd if not in a worktree.
  */
 function resolveWorktreeRoot(cwd) {
-  // If the current directory already has its own .planning/, respect it.
+  // If the current directory already has its own .redpill/, respect it.
   // This handles linked worktrees with independent planning state (e.g., Conductor workspaces).
-  if (fs.existsSync(path.join(cwd, '.planning'))) {
+  if (fs.existsSync(path.join(cwd, '.redpill'))) {
     return cwd;
   }
 
@@ -502,18 +502,18 @@ function resolveWorktreeRoot(cwd) {
 }
 
 /**
- * Acquire a file-based lock for .planning/ writes.
+ * Acquire a file-based lock for .redpill/ writes.
  * Prevents concurrent worktrees from corrupting shared planning files.
  * Lock is auto-released after the callback completes.
  */
 function withPlanningLock(cwd, fn) {
-  const lockPath = path.join(planningDir(cwd), '.lock');
+  const lockPath = path.join(redpillDir(cwd), '.lock');
   const lockTimeout = 10000; // 10 seconds
   const retryDelay = 100;
   const start = Date.now();
 
-  // Ensure .planning/ exists
-  try { fs.mkdirSync(planningDir(cwd), { recursive: true }); } catch { /* ok */ }
+  // Ensure .redpill/ exists
+  try { fs.mkdirSync(redpillDir(cwd), { recursive: true }); } catch { /* ok */ }
 
   while (Date.now() - start < lockTimeout) {
     try {
@@ -557,52 +557,52 @@ function withPlanningLock(cwd, fn) {
  * Get the .planning directory path, project- and workstream-aware.
  *
  * Resolution order:
- * 1. If GSD_PROJECT is set (env var or explicit `project` arg), routes to
- *    `.planning/{project}/` — supports multi-project workspaces where several
- *    independent projects share a single `.planning/` root directory (e.g.,
+ * 1. If REDPILL_PROJECT is set (env var or explicit `project` arg), routes to
+ *    `.redpill/{project}/` — supports multi-project workspaces where several
+ *    independent projects share a single `.redpill/` root directory (e.g.,
  *    an Obsidian vault or monorepo knowledge base used as a command center).
- * 2. If GSD_WORKSTREAM is set, routes to `.planning/workstreams/{ws}/`.
- * 3. Otherwise returns `.planning/`.
+ * 2. If REDPILL_WORKSTREAM is set, routes to `.redpill/workstreams/{ws}/`.
+ * 3. Otherwise returns `.redpill/`.
  *
- * GSD_PROJECT and GSD_WORKSTREAM can be combined:
- *   `.planning/{project}/workstreams/{ws}/`
+ * REDPILL_PROJECT and REDPILL_WORKSTREAM can be combined:
+ *   `.redpill/{project}/workstreams/{ws}/`
  *
  * @param {string} cwd - project root
- * @param {string} [ws] - explicit workstream name; if omitted, checks GSD_WORKSTREAM env var
- * @param {string} [project] - explicit project name; if omitted, checks GSD_PROJECT env var
+ * @param {string} [ws] - explicit workstream name; if omitted, checks REDPILL_WORKSTREAM env var
+ * @param {string} [project] - explicit project name; if omitted, checks REDPILL_PROJECT env var
  */
-function planningDir(cwd, ws, project) {
-  if (project === undefined) project = process.env.GSD_PROJECT || null;
-  if (ws === undefined) ws = process.env.GSD_WORKSTREAM || null;
+function redpillDir(cwd, ws, project) {
+  if (project === undefined) project = process.env.REDPILL_PROJECT || null;
+  if (ws === undefined) ws = process.env.REDPILL_WORKSTREAM || null;
 
   // Reject path separators and traversal components in project/workstream names
   const BAD_SEGMENT = /[/\\]|\.\./;
   if (project && BAD_SEGMENT.test(project)) {
-    throw new Error(`GSD_PROJECT contains invalid path characters: ${project}`);
+    throw new Error(`REDPILL_PROJECT contains invalid path characters: ${project}`);
   }
   if (ws && BAD_SEGMENT.test(ws)) {
-    throw new Error(`GSD_WORKSTREAM contains invalid path characters: ${ws}`);
+    throw new Error(`REDPILL_WORKSTREAM contains invalid path characters: ${ws}`);
   }
 
-  let base = path.join(cwd, '.planning');
+  let base = path.join(cwd, '.redpill');
   if (project) base = path.join(base, project);
   if (ws) base = path.join(base, 'workstreams', ws);
   return base;
 }
 
-/** Always returns the root .planning/ path, ignoring workstreams and projects. For shared resources. */
-function planningRoot(cwd) {
-  return path.join(cwd, '.planning');
+/** Always returns the root .redpill/ path, ignoring workstreams and projects. For shared resources. */
+function redpillRoot(cwd) {
+  return path.join(cwd, '.redpill');
 }
 
 /**
  * Get common .planning file paths, workstream-aware.
  * Scoped paths (state, roadmap, phases, requirements) resolve to the active workstream.
- * Shared paths (project, config) always resolve to the root .planning/.
+ * Shared paths (project, config) always resolve to the root .redpill/.
  */
-function planningPaths(cwd, ws) {
-  const base = planningDir(cwd, ws);
-  const root = path.join(cwd, '.planning');
+function redpillPaths(cwd, ws) {
+  const base = redpillDir(cwd, ws);
+  const root = path.join(cwd, '.redpill');
   return {
     planning: base,
     state: path.join(base, 'STATE.md'),
@@ -617,15 +617,15 @@ function planningPaths(cwd, ws) {
 // ─── Active Workstream Detection ─────────────────────────────────────────────
 
 /**
- * Get the active workstream name from .planning/active-workstream file.
+ * Get the active workstream name from .redpill/active-workstream file.
  * Returns null if no active workstream or file doesn't exist.
  */
 function getActiveWorkstream(cwd) {
-  const filePath = path.join(planningRoot(cwd), 'active-workstream');
+  const filePath = path.join(redpillRoot(cwd), 'active-workstream');
   try {
     const name = fs.readFileSync(filePath, 'utf-8').trim();
     if (!name || !/^[a-zA-Z0-9_-]+$/.test(name)) return null;
-    const wsDir = path.join(planningRoot(cwd), 'workstreams', name);
+    const wsDir = path.join(redpillRoot(cwd), 'workstreams', name);
     if (!fs.existsSync(wsDir)) return null;
     return name;
   } catch {
@@ -637,7 +637,7 @@ function getActiveWorkstream(cwd) {
  * Set the active workstream. Pass null to clear.
  */
 function setActiveWorkstream(cwd, name) {
-  const filePath = path.join(planningRoot(cwd), 'active-workstream');
+  const filePath = path.join(redpillRoot(cwd), 'active-workstream');
   if (!name) {
     try { fs.unlinkSync(filePath); } catch {}
     return;
@@ -760,7 +760,7 @@ function searchPhaseInDir(baseDir, relBase, normalized) {
 function findPhaseInternal(cwd, phase) {
   if (!phase) return null;
 
-  const phasesDir = path.join(planningDir(cwd), 'phases');
+  const phasesDir = path.join(redpillDir(cwd), 'phases');
   const normalized = normalizePhaseName(phase);
 
   // Search current phases first
@@ -769,7 +769,7 @@ function findPhaseInternal(cwd, phase) {
   if (current) return current;
 
   // Search archived milestone phases (newest first)
-  const milestonesDir = path.join(cwd, '.planning', 'milestones');
+  const milestonesDir = path.join(cwd, '.redpill', 'milestones');
   if (!fs.existsSync(milestonesDir)) return null;
 
   try {
@@ -783,7 +783,7 @@ function findPhaseInternal(cwd, phase) {
     for (const archiveName of archiveDirs) {
       const version = archiveName.match(/^(v[\d.]+)-phases$/)[1];
       const archivePath = path.join(milestonesDir, archiveName);
-      const relBase = '.planning/milestones/' + archiveName;
+      const relBase = '.redpill/milestones/' + archiveName;
       const result = searchPhaseInDir(archivePath, relBase, normalized);
       if (result) {
         result.archived = version;
@@ -796,7 +796,7 @@ function findPhaseInternal(cwd, phase) {
 }
 
 function getArchivedPhaseDirs(cwd) {
-  const milestonesDir = path.join(cwd, '.planning', 'milestones');
+  const milestonesDir = path.join(cwd, '.redpill', 'milestones');
   const results = [];
 
   if (!fs.existsSync(milestonesDir)) return results;
@@ -819,7 +819,7 @@ function getArchivedPhaseDirs(cwd) {
         results.push({
           name: dir,
           milestone: version,
-          basePath: path.join('.planning', 'milestones', archiveName),
+          basePath: path.join('.redpill', 'milestones', archiveName),
           fullPath: path.join(archivePath, dir),
         });
       }
@@ -863,7 +863,7 @@ function extractCurrentMilestone(content, cwd) {
   // 1. Get current milestone version from STATE.md frontmatter
   let version = null;
   try {
-    const statePath = path.join(planningDir(cwd), 'STATE.md');
+    const statePath = path.join(redpillDir(cwd), 'STATE.md');
     if (fs.existsSync(statePath)) {
       const stateRaw = fs.readFileSync(statePath, 'utf-8');
       const milestoneMatch = stateRaw.match(/^milestone:\s*(.+)/m);
@@ -946,7 +946,7 @@ function replaceInCurrentMilestone(content, pattern, replacement) {
 
 function getRoadmapPhaseInternal(cwd, phaseNum) {
   if (!phaseNum) return null;
-  const roadmapPath = path.join(planningDir(cwd), 'ROADMAP.md');
+  const roadmapPath = path.join(redpillDir(cwd), 'ROADMAP.md');
   if (!fs.existsSync(roadmapPath)) return null;
 
   try {
@@ -982,19 +982,19 @@ function getRoadmapPhaseInternal(cwd, phaseNum) {
 // ─── Agent installation validation (#1371) ───────────────────────────────────
 
 /**
- * Resolve the agents directory from the GSD install location.
- * gsd-tools.cjs lives at <configDir>/get-shit-done/bin/gsd-tools.cjs,
+ * Resolve the agents directory from the REDPILL install location.
+ * redpill-tools.cjs lives at <configDir>/redpill/bin/redpill-tools.cjs,
  * so agents/ is at <configDir>/agents/.
  *
  * @returns {string} Absolute path to the agents directory
  */
 function getAgentsDir() {
-  // __dirname is get-shit-done/bin/lib/ → go up 3 levels to configDir
+  // __dirname is redpill/bin/lib/ → go up 3 levels to configDir
   return path.join(__dirname, '..', '..', '..', 'agents');
 }
 
 /**
- * Check which GSD agents are installed on disk.
+ * Check which REDPILL agents are installed on disk.
  * Returns an object with installation status and details.
  *
  * @returns {{ agents_installed: boolean, missing_agents: string[], installed_agents: string[], agents_dir: string }}
@@ -1113,7 +1113,7 @@ function generateSlugInternal(text) {
 
 function getMilestoneInfo(cwd) {
   try {
-    const roadmap = fs.readFileSync(path.join(planningDir(cwd), 'ROADMAP.md'), 'utf-8');
+    const roadmap = fs.readFileSync(path.join(redpillDir(cwd), 'ROADMAP.md'), 'utf-8');
 
     // First: check for list-format roadmaps using 🚧 (in-progress) marker
     // e.g. "- 🚧 **v2.1 Belgium** — Phases 24-28 (in progress)"
@@ -1156,7 +1156,7 @@ function getMilestoneInfo(cwd) {
 function getMilestonePhaseFilter(cwd) {
   const milestonePhaseNums = new Set();
   try {
-    const roadmap = extractCurrentMilestone(fs.readFileSync(path.join(planningDir(cwd), 'ROADMAP.md'), 'utf-8'), cwd);
+    const roadmap = extractCurrentMilestone(fs.readFileSync(path.join(redpillDir(cwd), 'ROADMAP.md'), 'utf-8'), cwd);
     // Match both numeric phases (Phase 1:) and custom IDs (Phase PROJ-42:)
     const phasePattern = /#{2,4}\s*Phase\s+([\w][\w.-]*)\s*:/gi;
     let m;
@@ -1263,9 +1263,9 @@ module.exports = {
   detectSubRepos,
   reapStaleTempFiles,
   MODEL_ALIAS_MAP,
-  planningDir,
-  planningRoot,
-  planningPaths,
+  redpillDir,
+  redpillRoot,
+  redpillPaths,
   getActiveWorkstream,
   setActiveWorkstream,
   filterPlanFiles,

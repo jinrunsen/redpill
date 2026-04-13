@@ -1,5 +1,5 @@
 ---
-name: gsd:ui-phase
+name: redpill:ui-phase
 description: Generate UI design contract (UI-SPEC.md) for frontend phases
 argument-hint: "[phase]"
 allowed-tools:
@@ -15,13 +15,13 @@ allowed-tools:
 ---
 <objective>
 Create a UI design contract (UI-SPEC.md) for a frontend phase.
-Orchestrates gsd-ui-researcher and gsd-ui-checker.
+Orchestrates redpill-ui-researcher and redpill-ui-checker.
 Flow: Validate → Research UI → Verify UI-SPEC → Done
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/ui-phase.md
-@~/.claude/get-shit-done/references/ui-brand.md
+@~/.claude/redpill/workflows/ui-phase.md
+@~/.claude/redpill/references/ui-brand.md
 </execution_context>
 
 <context>
@@ -29,6 +29,6 @@ Phase number: $ARGUMENTS — optional, auto-detects next unplanned phase if omit
 </context>
 
 <process>
-Execute @~/.claude/get-shit-done/workflows/ui-phase.md end-to-end.
+Execute @~/.claude/redpill/workflows/ui-phase.md end-to-end.
 Preserve all workflow gates.
 </process>

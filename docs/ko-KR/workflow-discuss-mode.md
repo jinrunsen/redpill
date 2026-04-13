@@ -30,7 +30,7 @@ gsd-tools config-set workflow.discuss_mode assumptions
 gsd-tools config-set workflow.discuss_mode discuss
 ```
 
-설정은 프로젝트별로 적용되며 `.planning/config.json`에 저장됩니다.
+설정은 프로젝트별로 적용되며 `.redpill/config.json`에 저장됩니다.
 
 ## Assumptions 모드 동작 방식
 

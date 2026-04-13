@@ -1,5 +1,5 @@
 /**
- * GSD Milestone Summary Tests
+ * REDPILL Milestone Summary Tests
  *
  * Validates the milestone-summary command and workflow files exist
  * and follow expected patterns. Tests artifact discovery logic.
@@ -21,7 +21,7 @@ describe('milestone-summary command', () => {
 
   test('command has correct frontmatter name', () => {
     const content = fs.readFileSync(commandPath, 'utf-8');
-    assert.ok(content.includes('name: gsd:milestone-summary'), 'should have correct command name');
+    assert.ok(content.includes('name: redpill:milestone-summary'), 'should have correct command name');
   });
 
   test('command references workflow in execution_context', () => {
@@ -66,8 +66,8 @@ describe('milestone-summary workflow', () => {
   test('workflow writes to reports directory', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
     assert.ok(
-      content.includes('.planning/reports/MILESTONE_SUMMARY'),
-      'should write summary to .planning/reports/'
+      content.includes('.redpill/reports/MILESTONE_SUMMARY'),
+      'should write summary to .redpill/reports/'
     );
   });
 
@@ -131,7 +131,7 @@ describe('milestone-summary workflow', () => {
   test('workflow checks both audit file locations for archived milestones', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
     assert.ok(
-      content.includes('.planning/milestones/v${VERSION}-MILESTONE-AUDIT.md'),
+      content.includes('.redpill/milestones/v${VERSION}-MILESTONE-AUDIT.md'),
       'should check milestones/ directory for archived audit file'
     );
   });
@@ -163,30 +163,30 @@ describe('milestone-summary artifact path resolution', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
     // Archived roadmap path should be under milestones/
     assert.ok(
-      content.includes('.planning/milestones/v${VERSION}-ROADMAP.md'),
-      'archived ROADMAP path should be under .planning/milestones/'
+      content.includes('.redpill/milestones/v${VERSION}-ROADMAP.md'),
+      'archived ROADMAP path should be under .redpill/milestones/'
     );
     assert.ok(
-      content.includes('.planning/milestones/v${VERSION}-REQUIREMENTS.md'),
-      'archived REQUIREMENTS path should be under .planning/milestones/'
+      content.includes('.redpill/milestones/v${VERSION}-REQUIREMENTS.md'),
+      'archived REQUIREMENTS path should be under .redpill/milestones/'
     );
     assert.ok(
-      content.includes('.planning/milestones/v${VERSION}-MILESTONE-AUDIT.md'),
-      'archived AUDIT path should be under .planning/milestones/'
+      content.includes('.redpill/milestones/v${VERSION}-MILESTONE-AUDIT.md'),
+      'archived AUDIT path should be under .redpill/milestones/'
     );
   });
 
-  test('current milestone paths point to .planning/ root', () => {
+  test('current milestone paths point to .redpill/ root', () => {
     const content = fs.readFileSync(workflowPath, 'utf-8');
-    // Current milestone should read from .planning/ root
+    // Current milestone should read from .redpill/ root
     const lines = content.split('\n');
     const currentSection = lines.slice(
       lines.findIndex(l => l.includes('Current/in-progress')),
       lines.findIndex(l => l.includes('Current/in-progress')) + 10
     ).join('\n');
     assert.ok(
-      currentSection.includes('ROADMAP_PATH=".planning/ROADMAP.md"'),
-      'current ROADMAP path should be at .planning/ root'
+      currentSection.includes('ROADMAP_PATH=".redpill/ROADMAP.md"'),
+      'current ROADMAP path should be at .redpill/ root'
     );
   });
 });
@@ -205,7 +205,7 @@ describe('milestone-summary fixture-based artifact discovery', () => {
 
   test('discovers artifacts in archived milestone structure', () => {
     // Create archived milestone structure
-    const milestonesDir = path.join(tmpDir, '.planning', 'milestones');
+    const milestonesDir = path.join(tmpDir, '.redpill', 'milestones');
     fs.mkdirSync(milestonesDir, { recursive: true });
     fs.writeFileSync(path.join(milestonesDir, 'v1.0-ROADMAP.md'), '# Roadmap v1.0');
     fs.writeFileSync(path.join(milestonesDir, 'v1.0-REQUIREMENTS.md'), '# Reqs v1.0');
@@ -220,9 +220,9 @@ describe('milestone-summary fixture-based artifact discovery', () => {
 
   test('discovers phase artifacts across multiple phases', () => {
     // Create phase structure with varying artifact completeness
-    const phase1 = path.join(tmpDir, '.planning', 'phases', '01-setup');
-    const phase2 = path.join(tmpDir, '.planning', 'phases', '02-core');
-    const phase3 = path.join(tmpDir, '.planning', 'phases', '03-ui');
+    const phase1 = path.join(tmpDir, '.redpill', 'phases', '01-setup');
+    const phase2 = path.join(tmpDir, '.redpill', 'phases', '02-core');
+    const phase3 = path.join(tmpDir, '.redpill', 'phases', '03-ui');
     fs.mkdirSync(phase1, { recursive: true });
     fs.mkdirSync(phase2, { recursive: true });
     fs.mkdirSync(phase3, { recursive: true });
@@ -241,7 +241,7 @@ describe('milestone-summary fixture-based artifact discovery', () => {
     fs.writeFileSync(path.join(phase3, '03-SUMMARY.md'), 'one_liner: UI');
 
     // Verify discovery
-    const phasesDir = path.join(tmpDir, '.planning', 'phases');
+    const phasesDir = path.join(tmpDir, '.redpill', 'phases');
     const phaseDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
       .filter(e => e.isDirectory())
       .map(e => e.name);
@@ -261,18 +261,18 @@ describe('milestone-summary fixture-based artifact discovery', () => {
   });
 
   test('handles empty .planning directory without error', () => {
-    const planningDir = path.join(tmpDir, '.planning');
-    fs.mkdirSync(planningDir, { recursive: true });
+    const redpillDir = path.join(tmpDir, '.redpill');
+    fs.mkdirSync(redpillDir, { recursive: true });
 
-    // No milestones, no phases — just empty .planning/
-    const contents = fs.readdirSync(planningDir);
-    assert.strictEqual(contents.length, 0, 'empty .planning/ should have no contents');
+    // No milestones, no phases — just empty .redpill/
+    const contents = fs.readdirSync(redpillDir);
+    assert.strictEqual(contents.length, 0, 'empty .redpill/ should have no contents');
 
     // Should not throw when checking for milestones dir
-    const milestonesExists = fs.existsSync(path.join(planningDir, 'milestones'));
+    const milestonesExists = fs.existsSync(path.join(redpillDir, 'milestones'));
     assert.strictEqual(milestonesExists, false, 'milestones/ should not exist');
 
-    const phasesExists = fs.existsSync(path.join(planningDir, 'phases'));
+    const phasesExists = fs.existsSync(path.join(redpillDir, 'phases'));
     assert.strictEqual(phasesExists, false, 'phases/ should not exist');
   });
 

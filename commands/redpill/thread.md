@@ -1,5 +1,5 @@
 ---
-name: gsd:thread
+name: redpill:thread
 description: Manage persistent context threads for cross-session work
 argument-hint: [name | description]
 allowed-tools:
@@ -23,7 +23,7 @@ doesn't belong to any specific phase.
 
 List all threads:
 ```bash
-ls .planning/threads/*.md 2>/dev/null
+ls .redpill/threads/*.md 2>/dev/null
 ```
 
 For each thread, read the first few lines to show title and status:
@@ -39,7 +39,7 @@ For each thread, read the first few lines to show title and status:
 
 If no threads exist, show:
 ```
-No threads found. Create one with: /gsd:thread <description>
+No threads found. Create one with: /redpill:thread <description>
 ```
 </mode_list>
 
@@ -48,7 +48,7 @@ No threads found. Create one with: /gsd:thread <description>
 
 Resume the thread — load its context into the current session:
 ```bash
-cat ".planning/threads/${THREAD_NAME}.md"
+cat ".redpill/threads/${THREAD_NAME}.md"
 ```
 
 Display the thread content and ask what the user wants to work on next.
@@ -62,17 +62,17 @@ Create a new thread:
 
 1. Generate slug from description:
    ```bash
-   SLUG=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" generate-slug "$ARGUMENTS" --raw)
+   SLUG=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" generate-slug "$ARGUMENTS" --raw)
    ```
 
 2. Create the threads directory if needed:
    ```bash
-   mkdir -p .planning/threads
+   mkdir -p .redpill/threads
    ```
 
 3. Write the thread file:
    ```bash
-   cat > ".planning/threads/${SLUG}.md" << 'EOF'
+   cat > ".redpill/threads/${SLUG}.md" << 'EOF'
    # Thread: {description}
 
    ## Status: OPEN
@@ -101,7 +101,7 @@ Create a new thread:
 
 5. Commit:
    ```bash
-   node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: create thread — ${ARGUMENTS}" --files ".planning/threads/${SLUG}.md"
+   node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: create thread — ${ARGUMENTS}" --files ".redpill/threads/${SLUG}.md"
    ```
 
 6. Report:
@@ -109,9 +109,9 @@ Create a new thread:
    ## 🧵 Thread Created
 
    Thread: {slug}
-   File: .planning/threads/{slug}.md
+   File: .redpill/threads/{slug}.md
 
-   Resume anytime with: /gsd:thread {slug}
+   Resume anytime with: /redpill:thread {slug}
    ```
 </mode_create>
 
@@ -119,9 +119,9 @@ Create a new thread:
 
 <notes>
 - Threads are NOT phase-scoped — they exist independently of the roadmap
-- Lighter weight than /gsd:pause-work — no phase state, no plan context
+- Lighter weight than /redpill:pause-work — no phase state, no plan context
 - The value is in Context and Next Steps — a cold-start session can pick up immediately
 - Threads can be promoted to phases or backlog items when they mature:
-  /gsd:add-phase or /gsd:add-backlog with context from the thread
-- Thread files live in .planning/threads/ — no collision with phases or other GSD structures
+  /redpill:add-phase or /redpill:add-backlog with context from the thread
+- Thread files live in .redpill/threads/ — no collision with phases or other REDPILL structures
 </notes>

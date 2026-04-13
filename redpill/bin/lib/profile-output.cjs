@@ -173,7 +173,7 @@ const CLAUDE_INSTRUCTIONS = {
 };
 
 const CLAUDE_MD_FALLBACKS = {
-  project: 'Project not yet initialized. Run /gsd:new-project to set up.',
+  project: 'Project not yet initialized. Run /redpill:new-project to set up.',
   stack: 'Technology stack not yet documented. Will populate after codebase mapping or first phase.',
   conventions: 'Conventions not yet established. Will populate as patterns emerge during development.',
   architecture: 'Architecture not yet mapped. Follow existing patterns found in the codebase.',
@@ -184,21 +184,21 @@ const CLAUDE_MD_FALLBACKS = {
 const SKILL_SEARCH_DIRS = ['.claude/skills', '.agents/skills', '.cursor/skills', '.github/skills'];
 
 const CLAUDE_MD_WORKFLOW_ENFORCEMENT = [
-  'Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.',
+  'Before using Edit, Write, or other file-changing tools, start work through a REDPILL command so planning artifacts and execution context stay in sync.',
   '',
   'Use these entry points:',
-  '- `/gsd:quick` for small fixes, doc updates, and ad-hoc tasks',
-  '- `/gsd:debug` for investigation and bug fixing',
-  '- `/gsd:execute-phase` for planned phase work',
+  '- `/redpill:quick` for small fixes, doc updates, and ad-hoc tasks',
+  '- `/redpill:debug` for investigation and bug fixing',
+  '- `/redpill:execute-phase` for planned phase work',
   '',
-  'Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.',
+  'Do not make direct repo edits outside a REDPILL workflow unless the user explicitly asks to bypass it.',
 ].join('\n');
 
 const CLAUDE_MD_PROFILE_PLACEHOLDER = [
   '<!-- GSD:profile-start -->',
   '## Developer Profile',
   '',
-  '> Profile not yet configured. Run `/gsd:profile-user` to generate your developer profile.',
+  '> Profile not yet configured. Run `/redpill:profile-user` to generate your developer profile.',
   '> This section is managed by `generate-claude-profile` -- do not edit manually.',
   '<!-- GSD:profile-end -->',
 ].join('\n');
@@ -282,7 +282,7 @@ function extractMarkdownSection(content, sectionName) {
 // ─── CLAUDE.md Section Generators ─────────────────────────────────────────────
 
 function generateProjectSection(cwd) {
-  const projectPath = path.join(cwd, '.planning', 'PROJECT.md');
+  const projectPath = path.join(cwd, '.redpill', 'PROJECT.md');
   const content = safeReadFile(projectPath);
   if (!content) {
     return { content: CLAUDE_MD_FALLBACKS.project, source: 'PROJECT.md', hasFallback: true };
@@ -312,8 +312,8 @@ function generateProjectSection(cwd) {
 }
 
 function generateStackSection(cwd) {
-  const codebasePath = path.join(cwd, '.planning', 'codebase', 'STACK.md');
-  const researchPath = path.join(cwd, '.planning', 'research', 'STACK.md');
+  const codebasePath = path.join(cwd, '.redpill', 'codebase', 'STACK.md');
+  const researchPath = path.join(cwd, '.redpill', 'research', 'STACK.md');
   let content = safeReadFile(codebasePath);
   let source = 'codebase/STACK.md';
   if (!content) {
@@ -340,7 +340,7 @@ function generateStackSection(cwd) {
 }
 
 function generateConventionsSection(cwd) {
-  const conventionsPath = path.join(cwd, '.planning', 'codebase', 'CONVENTIONS.md');
+  const conventionsPath = path.join(cwd, '.redpill', 'codebase', 'CONVENTIONS.md');
   const content = safeReadFile(conventionsPath);
   if (!content) {
     return { content: CLAUDE_MD_FALLBACKS.conventions, source: 'CONVENTIONS.md', hasFallback: true };
@@ -356,7 +356,7 @@ function generateConventionsSection(cwd) {
 }
 
 function generateArchitectureSection(cwd) {
-  const architecturePath = path.join(cwd, '.planning', 'codebase', 'ARCHITECTURE.md');
+  const architecturePath = path.join(cwd, '.redpill', 'codebase', 'ARCHITECTURE.md');
   const content = safeReadFile(architecturePath);
   if (!content) {
     return { content: CLAUDE_MD_FALLBACKS.architecture, source: 'ARCHITECTURE.md', hasFallback: true };
@@ -765,7 +765,7 @@ function cmdGenerateDevPreferences(cwd, options, raw) {
 
   let stackBlock;
   if (analysis.data_source === 'questionnaire') {
-    stackBlock = 'Stack preferences not available (questionnaire-only profile). Run `/gsd:profile-user --refresh` with session data to populate.';
+    stackBlock = 'Stack preferences not available (questionnaire-only profile). Run `/redpill:profile-user --refresh` with session data to populate.';
   } else if (options.stack) {
     stackBlock = options.stack;
   } else {
@@ -785,7 +785,7 @@ function cmdGenerateDevPreferences(cwd, options, raw) {
 
   const result = {
     command_path: outputPath,
-    command_name: '/gsd:dev-preferences',
+    command_name: '/redpill:dev-preferences',
     dimensions_included: dimensionsIncluded,
     source: analysis.data_source || 'session_analysis',
   };
@@ -851,7 +851,7 @@ function cmdGenerateClaudeProfile(cwd, options, raw) {
     '<!-- GSD:profile-start -->',
     '## Developer Profile',
     '',
-    `> Generated by GSD from ${dataSource}. Run \`/gsd:profile-user --refresh\` to update.`,
+    `> Generated by REDPILL from ${dataSource}. Run \`/redpill:profile-user --refresh\` to update.`,
     '',
     '| Dimension | Rating | Confidence |',
     '|-----------|--------|------------|',
@@ -924,7 +924,7 @@ function cmdGenerateClaudeMd(cwd, options, raw) {
     conventions: '## Conventions',
     architecture: '## Architecture',
     skills: '## Project Skills',
-    workflow: '## GSD Workflow Enforcement',
+    workflow: '## REDPILL Workflow Enforcement',
   };
 
   const generated = {};
@@ -1021,7 +1021,7 @@ function cmdGenerateClaudeMd(cwd, options, raw) {
   let message = `Generated ${genCount}/${totalManaged} sections.`;
   if (sectionsFallback.length > 0) message += ` Fallback: ${sectionsFallback.join(', ')}.`;
   if (sectionsSkipped.length > 0) message += ` Skipped (manually edited): ${sectionsSkipped.join(', ')}.`;
-  if (profileStatus === 'placeholder_added') message += ' Run /gsd:profile-user to unlock Developer Profile.';
+  if (profileStatus === 'placeholder_added') message += ' Run /redpill:profile-user to unlock Developer Profile.';
 
   const result = {
     claude_md_path: outputPath,

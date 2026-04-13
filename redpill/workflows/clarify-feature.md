@@ -1,10 +1,10 @@
 <purpose>
 Clarify a feature idea into a Gherkin `.feature` file, then validate it with
-`gsd-feature-reviewer`. All work is staged in
-`.planning/features/{task_id}-{slug}/` — a per-task workspace that also holds
+`redpill-feature-reviewer`. All work is staged in
+`.redpill/features/{task_id}-{slug}/` — a per-task workspace that also holds
 future design docs, BDD progress, and BDD summaries for the same feature
 lifecycle. Nothing is written to the canonical `features/` tree until a future
-`/gsd:archive-feature` command promotes it.
+`/redpill:archive-feature` command promotes it.
 
 Two modes, toggled by `--auto`:
 
@@ -25,12 +25,12 @@ on top. The baseline is never mutated — merge happens at archive time.
 Read STATE.md (if it exists) before any operation to load project context.
 Read CLAUDE.md (if it exists) for project conventions.
 
-@~/.claude/get-shit-done/references/git-integration.md
+@~/.claude/redpill/references/git-integration.md
 </required_reading>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-feature-reviewer — Reviews Gherkin spec quality, business language, and
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-feature-reviewer — Reviews Gherkin spec quality, business language, and
   sample data authenticity. Read-only.
 </available_agent_types>
 
@@ -39,11 +39,11 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 1. Initialize
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init clarify-feature)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init clarify-feature)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `verifier_model`, `text_mode`, `planning_exists`, `state_path`,
+Parse JSON for: `verifier_model`, `text_mode`, `redpill_dir_exists`, `state_path`,
 `claude_md_path`, `features_task_dir_base`, `task_id`, `existing_features[]`,
 `existing_feature_domains[]`, `has_existing_features`, `tech_stack_hint`,
 `feature_review_max_rounds`, `feature_auto_scenario_cap`.
@@ -66,7 +66,7 @@ If `DESCRIPTION` is empty:
 - Auto mode: error out:
   ```
   --auto requires a feature description. Usage:
-    /gsd:clarify-feature "describe the feature" --auto
+    /redpill:clarify-feature "describe the feature" --auto
   ```
 
 If `EXTENDS` is set, verify the file exists:
@@ -80,7 +80,7 @@ fi
 Display banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► CLARIFY FEATURE ${AUTO_MODE:+(AUTO)}
+ REDPILL ► CLARIFY FEATURE ${AUTO_MODE:+(AUTO)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Task ID: ${task_id}
@@ -92,7 +92,7 @@ Display banner:
 ## 3. Load Context
 
 Read (best-effort, continue on failure):
-- `${state_path}` if `planning_exists` is true
+- `${state_path}` if `redpill_dir_exists` is true
 - `${claude_md_path}` if it exists
 - Each file in `existing_features[]` — study step wording and avoid duplicate
   scenario names
@@ -242,7 +242,7 @@ Dispatch the reviewer. Construct the `files_to_read` lines conditionally
 
 ```
 Agent(
-  subagent_type="gsd-feature-reviewer",
+  subagent_type="redpill-feature-reviewer",
   model="${verifier_model}",
   description="Review feature: ${SLUG}",
   prompt="
@@ -398,7 +398,7 @@ Edit `${TASK_DIR}/TASK.md` frontmatter:
 ### 12b. Commit
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "feat(feature): clarify ${SLUG} [${task_id}]" \
   --files "${TASK_DIR}/"
 ```
@@ -407,7 +407,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► FEATURE CLARIFIED
+ REDPILL ► FEATURE CLARIFIED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  Task: ${task_id}-${SLUG}
  Workspace: ${TASK_DIR}/
@@ -419,9 +419,9 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
  Open questions: ${OPEN_QUESTIONS} (see TODO block + TASK.md)
 
  Next:
-   /gsd:run-bdd ${TASK_DIR}/${SLUG}.feature
-   /gsd:design-feature ${task_id}    — technical design (future)
-   /gsd:archive-feature ${task_id}   — promote to features/ (future)
+   /redpill:run-bdd ${TASK_DIR}/${SLUG}.feature
+   /redpill:design-feature ${task_id}    — technical design (future)
+   /redpill:archive-feature ${task_id}   — promote to features/ (future)
 ```
 
 </process>
@@ -434,14 +434,14 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 - [ ] Auto mode skips clarification and generates within `feature_auto_scenario_cap`
 - [ ] Domain determined via flag / AskUserQuestion / LLM inference fallback
 - [ ] Feature content generated with realistic sample data (no A/B/C placeholders)
-- [ ] Task workspace created at `.planning/features/${task_id}-${SLUG}/`
+- [ ] Task workspace created at `.redpill/features/${task_id}-${SLUG}/`
 - [ ] `--extends` copies baseline into workspace untouched; new scenarios merged by name
 - [ ] `TASK.md` written with complete frontmatter
-- [ ] `gsd-feature-reviewer` spawned; `<FEATURE_REVIEW>` parsed
+- [ ] `redpill-feature-reviewer` spawned; `<FEATURE_REVIEW>` parsed
 - [ ] Technical issues handled per mode (batch confirm / auto apply)
 - [ ] Product issues NEVER auto-modify scenarios — always land in TODO block or user decision
 - [ ] Review loop caps at `feature_review_max_rounds`
 - [ ] TASK.md frontmatter updated with review metrics
-- [ ] Workspace committed via `gsd-tools.cjs commit` in one atomic commit
+- [ ] Workspace committed via `redpill-tools.cjs commit` in one atomic commit
 - [ ] Completion banner displayed with correct next-step suggestions
 </success_criteria>

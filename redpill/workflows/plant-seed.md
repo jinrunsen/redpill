@@ -1,6 +1,6 @@
 <purpose>
 Capture a forward-looking idea as a structured seed file with trigger conditions.
-Seeds auto-surface during /gsd:new-milestone when trigger conditions match the
+Seeds auto-surface during /redpill:new-milestone when trigger conditions match the
 new milestone's scope.
 
 Seeds beat deferred items because they:
@@ -25,7 +25,7 @@ Store as `$IDEA`.
 
 <step name="create_seed_dir">
 ```bash
-mkdir -p .planning/seeds
+mkdir -p .redpill/seeds
 ```
 </step>
 
@@ -86,7 +86,7 @@ Store relevant file paths as `$BREADCRUMBS`.
 <step name="generate_seed_id">
 ```bash
 # Find next seed number
-EXISTING=$( (ls .planning/seeds/SEED-*.md 2>/dev/null || true) | wc -l )
+EXISTING=$( (ls .redpill/seeds/SEED-*.md 2>/dev/null || true) | wc -l )
 NEXT=$((EXISTING + 1))
 PADDED=$(printf "%03d" $NEXT)
 ```
@@ -95,7 +95,7 @@ Generate slug from idea summary.
 </step>
 
 <step name="write_seed">
-Write `.planning/seeds/SEED-{PADDED}-{slug}.md`:
+Write `.redpill/seeds/SEED-{PADDED}-{slug}.md`:
 
 ```markdown
 ---
@@ -117,7 +117,7 @@ scope: {$SCOPE}
 
 **Trigger:** {$TRIGGER}
 
-This seed should be presented during `/gsd:new-milestone` when the milestone
+This seed should be presented during `/redpill:new-milestone` when the milestone
 scope matches any of these conditions:
 - {trigger condition 1}
 - {trigger condition 2}
@@ -140,7 +140,7 @@ Related code and decisions found in the current codebase:
 
 <step name="commit_seed">
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: plant seed — {$IDEA}" --files .planning/seeds/SEED-{PADDED}-{slug}.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: plant seed — {$IDEA}" --files .redpill/seeds/SEED-{PADDED}-{slug}.md
 ```
 </step>
 
@@ -151,9 +151,9 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: plant seed �
 "{$IDEA}"
 Trigger: {$TRIGGER}
 Scope: {$SCOPE}
-File: .planning/seeds/SEED-{PADDED}-{slug}.md
+File: .redpill/seeds/SEED-{PADDED}-{slug}.md
 
-This seed will surface automatically when you run /gsd:new-milestone
+This seed will surface automatically when you run /redpill:new-milestone
 and the milestone scope matches the trigger condition.
 ```
 </step>
@@ -161,7 +161,7 @@ and the milestone scope matches the trigger condition.
 </process>
 
 <success_criteria>
-- [ ] Seed file created in .planning/seeds/
+- [ ] Seed file created in .redpill/seeds/
 - [ ] Frontmatter includes status, trigger, scope
 - [ ] Breadcrumbs collected from codebase
 - [ ] Committed to git

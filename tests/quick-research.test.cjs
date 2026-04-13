@@ -1,18 +1,18 @@
 /**
- * GSD Quick Research Flag Tests
+ * REDPILL Quick Research Flag Tests
  *
- * Validates the --research flag for /gsd:quick:
+ * Validates the --research flag for /redpill:quick:
  * - Command frontmatter advertises --research
  * - Workflow includes research step (Step 4.75)
  * - Research artifacts work within quick task directories
- * - Workflow spawns gsd-phase-researcher for research
+ * - Workflow spawns redpill-phase-researcher for research
  */
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 const COMMANDS_DIR = path.join(__dirname, '..', 'commands', 'gsd');
 const WORKFLOWS_DIR = path.join(__dirname, '..', 'get-shit-done', 'workflows');
@@ -96,15 +96,15 @@ describe('quick workflow: research step', () => {
     );
   });
 
-  test('research step spawns gsd-phase-researcher', () => {
+  test('research step spawns redpill-phase-researcher', () => {
     content = fs.readFileSync(workflowPath, 'utf-8');
     const researchSection = content.substring(
       content.indexOf('Step 4.75'),
       content.indexOf('Step 5:')
     );
     assert.ok(
-      researchSection.includes('subagent_type="gsd-phase-researcher"'),
-      'research step should spawn gsd-phase-researcher agent'
+      researchSection.includes('subagent_type="redpill-phase-researcher"'),
+      'research step should spawn redpill-phase-researcher agent'
     );
   });
 
@@ -171,14 +171,14 @@ describe('quick task: research file in task directory', () => {
   });
 
   test('init quick returns valid task_dir for research file placement', () => {
-    const result = runGsdTools('init quick "Add caching layer"', tmpDir);
+    const result = runRedpillTools('init quick "Add caching layer"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.ok(output.task_dir, 'task_dir should be non-null');
     assert.ok(
-      output.task_dir.startsWith('.planning/quick/'),
-      'task_dir should be under .planning/quick/'
+      output.task_dir.startsWith('.redpill/quick/'),
+      'task_dir should be under .redpill/quick/'
     );
 
     const expectedResearchPath = path.join(
@@ -192,15 +192,15 @@ describe('quick task: research file in task directory', () => {
   });
 
   test('verify-path-exists detects RESEARCH.md in quick task directory', () => {
-    const quickTaskDir = path.join(tmpDir, '.planning', 'quick', '1-test-task');
+    const quickTaskDir = path.join(tmpDir, '.redpill', 'quick', '1-test-task');
     fs.mkdirSync(quickTaskDir, { recursive: true });
     fs.writeFileSync(
       path.join(quickTaskDir, '1-RESEARCH.md'),
       '# Research\n\nFindings for test task.\n'
     );
 
-    const result = runGsdTools(
-      'verify-path-exists .planning/quick/1-test-task/1-RESEARCH.md',
+    const result = runRedpillTools(
+      'verify-path-exists .redpill/quick/1-test-task/1-RESEARCH.md',
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -211,11 +211,11 @@ describe('quick task: research file in task directory', () => {
   });
 
   test('verify-path-exists returns false for missing RESEARCH.md', () => {
-    const quickTaskDir = path.join(tmpDir, '.planning', 'quick', '1-test-task');
+    const quickTaskDir = path.join(tmpDir, '.redpill', 'quick', '1-test-task');
     fs.mkdirSync(quickTaskDir, { recursive: true });
 
-    const result = runGsdTools(
-      'verify-path-exists .planning/quick/1-test-task/1-RESEARCH.md',
+    const result = runRedpillTools(
+      'verify-path-exists .redpill/quick/1-test-task/1-RESEARCH.md',
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -225,7 +225,7 @@ describe('quick task: research file in task directory', () => {
   });
 
   test('quick task directory supports all research workflow artifacts', () => {
-    const quickTaskDir = path.join(tmpDir, '.planning', 'quick', '1-add-caching');
+    const quickTaskDir = path.join(tmpDir, '.redpill', 'quick', '1-add-caching');
     fs.mkdirSync(quickTaskDir, { recursive: true });
 
     const artifacts = [
@@ -241,8 +241,8 @@ describe('quick task: research file in task directory', () => {
     }
 
     for (const artifact of artifacts) {
-      const result = runGsdTools(
-        `verify-path-exists .planning/quick/1-add-caching/${artifact}`,
+      const result = runRedpillTools(
+        `verify-path-exists .redpill/quick/1-add-caching/${artifact}`,
         tmpDir
       );
       assert.ok(result.success, `Command failed for ${artifact}: ${result.error}`);

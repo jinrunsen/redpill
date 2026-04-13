@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - autonomous --interactive flag
+ * REDPILL Tools Tests - autonomous --interactive flag
  *
  * Validates that the autonomous workflow and command definition
  * correctly document and support the --interactive flag.
@@ -40,8 +40,8 @@ describe('autonomous --interactive flag (#1413)', () => {
   test('workflow uses discuss-phase skill in interactive mode', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');
     assert.ok(
-      content.includes('gsd:discuss-phase') && content.includes('INTERACTIVE'),
-      'workflow should invoke gsd:discuss-phase when INTERACTIVE is set'
+      content.includes('redpill:discuss-phase') && content.includes('INTERACTIVE'),
+      'workflow should invoke redpill:discuss-phase when INTERACTIVE is set'
     );
   });
 

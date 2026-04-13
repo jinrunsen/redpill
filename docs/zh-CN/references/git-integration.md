@@ -51,7 +51,7 @@ Phases:
 提交内容：
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: initialize [project-name] ([N] phases)" --files .planning/
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: initialize [project-name] ([N] phases)" --files .redpill/
 ```
 
 </format>
@@ -123,13 +123,13 @@ Tasks completed: [N]/[N]
 - [Task 2 name]
 - [Task 3 name]
 
-SUMMARY: .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
+SUMMARY: .redpill/phases/XX-name/{phase}-{plan}-SUMMARY.md
 ```
 
 提交内容：
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-PLAN.md .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs({phase}-{plan}): complete [plan-name] plan" --files .redpill/phases/XX-name/{phase}-{plan}-PLAN.md .redpill/phases/XX-name/{phase}-{plan}-SUMMARY.md .redpill/STATE.md .redpill/ROADMAP.md
 ```
 
 **注意：** 代码文件不包含 - 已按任务提交。
@@ -149,7 +149,7 @@ Current: [task name]
 提交内容：
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "wip: [phase-name] paused at task [X]/[Y]" --files .planning/
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "wip: [phase-name] paused at task [X]/[Y]" --files .redpill/
 ```
 
 </format>

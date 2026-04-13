@@ -21,7 +21,7 @@ The profile section is managed exclusively by `generate-claude-profile`.
 
 **Fallback text:**
 ```
-Project not yet initialized. Run /gsd:new-project to set up.
+Project not yet initialized. Run /redpill:new-project to set up.
 ```
 
 ### Stack Section
@@ -91,16 +91,16 @@ No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skill
 ### Workflow Enforcement Section
 ```
 <!-- GSD:workflow-start source:GSD defaults -->
-## GSD Workflow Enforcement
+## REDPILL Workflow Enforcement
 
-Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+Before using Edit, Write, or other file-changing tools, start work through a REDPILL command so planning artifacts and execution context stay in sync.
 
 Use these entry points:
-- `/gsd:quick` for small fixes, doc updates, and ad-hoc tasks
-- `/gsd:debug` for investigation and bug fixing
-- `/gsd:execute-phase` for planned phase work
+- `/redpill:quick` for small fixes, doc updates, and ad-hoc tasks
+- `/redpill:debug` for investigation and bug fixing
+- `/redpill:execute-phase` for planned phase work
 
-Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+Do not make direct repo edits outside a REDPILL workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
 ```
 
@@ -109,7 +109,7 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 <!-- GSD:profile-start -->
 ## Developer Profile
 
-> Profile not yet configured. Run `/gsd:profile-user` to generate your developer profile.
+> Profile not yet configured. Run `/redpill:profile-user` to generate your developer profile.
 > This section is managed by `generate-claude-profile` — do not edit manually.
 <!-- GSD:profile-end -->
 ```
@@ -127,7 +127,7 @@ CLAUDE.md file and no profile section exists yet.
 3. **Conventions** — Code patterns and rules (how code is written)
 4. **Architecture** — System structure (how components fit together)
 5. **Skills** — Discovered project skills with name and description (what domain knowledge is available)
-6. **Workflow Enforcement** — Default GSD entry points for file-changing work
+6. **Workflow Enforcement** — Default REDPILL entry points for file-changing work
 7. **Profile** — Developer behavioral preferences (how to interact)
 
 ## Marker Format

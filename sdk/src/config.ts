@@ -1,7 +1,7 @@
 /**
- * Config reader — loads `.planning/config.json` and merges with defaults.
+ * Config reader — loads `.redpill/config.json` and merges with defaults.
  *
- * Mirrors the default structure from `get-shit-done/bin/lib/config.cjs`
+ * Mirrors the default structure from `redpill/bin/lib/config.cjs`
  * `buildNewProjectConfig()`.
  */
 
@@ -95,12 +95,12 @@ export const CONFIG_DEFAULTS: GSDConfig = {
 // ─── Loader ──────────────────────────────────────────────────────────────────
 
 /**
- * Load project config from `.planning/config.json`, merging with defaults.
+ * Load project config from `.redpill/config.json`, merging with defaults.
  * Returns full defaults when file is missing or empty.
  * Throws on malformed JSON with a helpful error message.
  */
 export async function loadConfig(projectDir: string): Promise<GSDConfig> {
-  const configPath = join(projectDir, '.planning', 'config.json');
+  const configPath = join(projectDir, '.redpill', 'config.json');
 
   let raw: string;
   try {

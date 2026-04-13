@@ -1,4 +1,4 @@
-# GSD 에이전트 레퍼런스
+# REDPILL 에이전트 레퍼런스
 
 > 18개의 전문화된 에이전트 — 역할, 도구, 생성 패턴, 관계를 모두 포함합니다. 아키텍처 맥락은 [Architecture](ARCHITECTURE.md)를 참조하세요.
 
@@ -28,17 +28,17 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ## 에이전트 상세
 
-### gsd-project-researcher
+### redpill-project-researcher
 
 **역할:** 로드맵 생성 전에 도메인 생태계를 조사합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:new-project`, `/gsd:new-milestone` |
+| **생성 주체** | `/redpill:new-project`, `/redpill:new-milestone` |
 | **병렬성** | 4개 인스턴스 (stack, features, architecture, pitfalls) |
 | **도구** | Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp (context7) |
 | **모델 (balanced)** | Sonnet |
-| **생성물** | `.planning/research/STACK.md`, `FEATURES.md`, `ARCHITECTURE.md`, `PITFALLS.md` |
+| **생성물** | `.redpill/research/STACK.md`, `FEATURES.md`, `ARCHITECTURE.md`, `PITFALLS.md` |
 
 **기능.**
 - 최신 생태계 정보를 위한 웹 검색
@@ -47,13 +47,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-phase-researcher
+### redpill-phase-researcher
 
 **역할:** 계획 수립 전에 특정 단계의 구현 방법을 조사합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:plan-phase` |
+| **생성 주체** | `/redpill:plan-phase` |
 | **병렬성** | 4개 인스턴스 (project-researcher와 동일한 집중 영역) |
 | **도구** | Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp (context7) |
 | **모델 (balanced)** | Sonnet |
@@ -66,13 +66,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-ui-researcher
+### redpill-ui-researcher
 
 **역할:** 프론트엔드 단계를 위한 UI 디자인 계약서를 생성합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:ui-phase` |
+| **생성 주체** | `/redpill:ui-phase` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp (context7) |
 | **모델 (balanced)** | Sonnet |
@@ -87,7 +87,7 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-assumptions-analyzer
+### redpill-assumptions-analyzer
 
 **역할:** 단계에 대한 코드베이스를 심층 분석하고 증거, 신뢰 수준, 오류 시 결과를 포함한 구조화된 가정을 반환합니다.
 
@@ -110,7 +110,7 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-advisor-researcher
+### redpill-advisor-researcher
 
 **역할:** discuss-phase 어드바이저 모드에서 단일 회색 지대 결정을 조사하고 구조화된 비교 표를 반환합니다.
 
@@ -132,28 +132,28 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-research-synthesizer
+### redpill-research-synthesizer
 
 **역할:** 병렬 조사자들의 출력을 통합된 요약으로 합칩니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:new-project` (4개 조사자 완료 후) |
+| **생성 주체** | `/redpill:new-project` (4개 조사자 완료 후) |
 | **병렬성** | 단일 인스턴스 (조사자 이후 순차적) |
 | **도구** | Read, Write, Bash |
 | **모델 (balanced)** | Sonnet |
 | **색상** | Purple |
-| **생성물** | `.planning/research/SUMMARY.md` |
+| **생성물** | `.redpill/research/SUMMARY.md` |
 
 ---
 
-### gsd-planner
+### redpill-planner
 
 **역할:** 작업 분류, 의존성 분석, 목표 역방향 검증을 포함한 실행 가능한 단계 계획을 생성합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:plan-phase`, `/gsd:quick` |
+| **생성 주체** | `/redpill:plan-phase`, `/redpill:quick` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Bash, Glob, Grep, WebFetch, mcp (context7) |
 | **모델 (balanced)** | Opus |
@@ -169,13 +169,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-roadmapper
+### redpill-roadmapper
 
 **역할:** 단계 분류 및 요구 사항 매핑을 포함한 프로젝트 로드맵을 생성합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:new-project` |
+| **생성 주체** | `/redpill:new-project` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Bash, Glob, Grep |
 | **모델 (balanced)** | Sonnet |
@@ -190,13 +190,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-executor
+### redpill-executor
 
-**역할:** 원자적 커밋, 이탈 처리, 체크포인트 프로토콜로 GSD 계획을 실행합니다.
+**역할:** 원자적 커밋, 이탈 처리, 체크포인트 프로토콜로 REDPILL 계획을 실행합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:execute-phase`, `/gsd:quick` |
+| **생성 주체** | `/redpill:execute-phase`, `/redpill:quick` |
 | **병렬성** | 복수 (웨이브 내 병렬, 웨이브 간 순차적) |
 | **도구** | Read, Write, Edit, Bash, Grep, Glob |
 | **모델 (balanced)** | Sonnet |
@@ -213,13 +213,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-plan-checker
+### redpill-plan-checker
 
 **역할:** 실행 전에 계획이 단계 목표를 달성할 수 있는지 검증합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:plan-phase` (검증 루프, 최대 3회 반복) |
+| **생성 주체** | `/redpill:plan-phase` (검증 루프, 최대 3회 반복) |
 | **병렬성** | 단일 인스턴스 (반복적) |
 | **도구** | Read, Bash, Glob, Grep |
 | **모델 (balanced)** | Sonnet |
@@ -238,13 +238,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-integration-checker
+### redpill-integration-checker
 
 **역할:** 단계 간 통합 및 엔드투엔드 흐름을 검증합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:audit-milestone` |
+| **생성 주체** | `/redpill:audit-milestone` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Bash, Grep, Glob |
 | **모델 (balanced)** | Sonnet |
@@ -253,13 +253,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-ui-checker
+### redpill-ui-checker
 
 **역할:** 품질 차원에 대해 UI-SPEC.md 디자인 계약서를 검증합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:ui-phase` (검증 루프, 최대 2회 반복) |
+| **생성 주체** | `/redpill:ui-phase` (검증 루프, 최대 2회 반복) |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Bash, Glob, Grep |
 | **모델 (balanced)** | Sonnet |
@@ -268,13 +268,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-verifier
+### redpill-verifier
 
 **역할:** 목표 역방향 분석을 통해 단계 목표 달성 여부를 검증합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:execute-phase` (모든 executor 완료 후) |
+| **생성 주체** | `/redpill:execute-phase` (모든 executor 완료 후) |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Bash, Grep, Glob |
 | **모델 (balanced)** | Sonnet |
@@ -284,17 +284,17 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 **핵심 동작.**
 - 작업 완료 여부가 아닌 단계 목표에 대해 코드베이스를 확인합니다
 - 구체적인 증거를 포함한 PASS/FAIL 결과를 제공합니다
-- `/gsd:verify-work`가 처리할 문제를 기록합니다
+- `/redpill:verify-work`가 처리할 문제를 기록합니다
 
 ---
 
-### gsd-nyquist-auditor
+### redpill-nyquist-auditor
 
 **역할:** 테스트를 생성하여 Nyquist 검증 누락을 채웁니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:validate-phase` |
+| **생성 주체** | `/redpill:validate-phase` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Edit, Bash, Grep, Glob |
 | **모델 (balanced)** | Sonnet |
@@ -307,13 +307,13 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-ui-auditor
+### redpill-ui-auditor
 
 **역할:** 구현된 프론트엔드 코드에 대한 사후 6기둥 시각적 감사를 수행합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:ui-review` |
+| **생성 주체** | `/redpill:ui-review` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read, Write, Bash, Grep, Glob |
 | **모델 (balanced)** | Sonnet |
@@ -330,18 +330,18 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-codebase-mapper
+### redpill-codebase-mapper
 
 **역할:** 코드베이스를 탐색하고 구조화된 분석 문서를 작성합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:map-codebase` |
+| **생성 주체** | `/redpill:map-codebase` |
 | **병렬성** | 4개 인스턴스 (tech, architecture, quality, concerns) |
 | **도구** | Read, Bash, Grep, Glob, Write |
 | **모델 (balanced)** | Haiku |
 | **색상** | Cyan |
-| **생성물** | `.planning/codebase/*.md` (7개 문서) |
+| **생성물** | `.redpill/codebase/*.md` (7개 문서) |
 
 **핵심 동작.**
 - 읽기 전용 탐색과 구조화된 출력
@@ -350,18 +350,18 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-debugger
+### redpill-debugger
 
 **역할:** 영구 상태를 활용한 과학적 방법으로 버그를 조사합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:debug`, `/gsd:verify-work` (실패 시) |
+| **생성 주체** | `/redpill:debug`, `/redpill:verify-work` (실패 시) |
 | **병렬성** | 단일 인스턴스 (대화형) |
 | **도구** | Read, Write, Edit, Bash, Grep, Glob, WebSearch |
 | **모델 (balanced)** | Sonnet |
 | **색상** | Orange |
-| **생성물** | `.planning/debug/*.md`, 지식 베이스 업데이트 |
+| **생성물** | `.redpill/debug/*.md`, 지식 베이스 업데이트 |
 
 **디버그 세션 생명주기.**
 `gathering` → `investigating` → `fixing` → `verifying` → `awaiting_human_verify` → `resolved`
@@ -375,18 +375,18 @@ GSD는 멀티 에이전트 아키텍처를 사용합니다. 가벼운 오케스�
 
 ---
 
-### gsd-user-profiler
+### redpill-user-profiler
 
 **역할:** 8가지 행동 차원에 걸쳐 세션 메시지를 분석하여 점수화된 개발자 프로필을 생성합니다.
 
 | 속성 | 값 |
 |----------|-------|
-| **생성 주체** | `/gsd:profile-user` |
+| **생성 주체** | `/redpill:profile-user` |
 | **병렬성** | 단일 인스턴스 |
 | **도구** | Read |
 | **모델 (balanced)** | Sonnet |
 | **색상** | Magenta |
-| **생성물** | `USER-PROFILE.md`, `/gsd:dev-preferences`, `CLAUDE.md` 프로필 섹션 |
+| **생성물** | `USER-PROFILE.md`, `/redpill:dev-preferences`, `CLAUDE.md` 프로필 섹션 |
 
 **행동 차원.**
 커뮤니케이션 스타일, 결정 패턴, 디버깅 접근 방식, UX 선호도, 벤더 선택, 불만 요인, 학습 스타일, 설명 깊이.

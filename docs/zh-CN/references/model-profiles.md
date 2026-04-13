@@ -1,23 +1,23 @@
 # 模型配置
 
-模型配置控制每个 GSD 代理使用哪个 Claude 模型。这允许平衡质量和 token 消耗。
+模型配置控制每个 REDPILL 代理使用哪个 Claude 模型。这允许平衡质量和 token 消耗。
 
 ## 配置定义
 
 | 代理 | `quality` | `balanced` | `budget` |
 |-------|-----------|------------|----------|
-| gsd-planner | opus | opus | sonnet |
-| gsd-roadmapper | opus | sonnet | sonnet |
-| gsd-executor | opus | sonnet | sonnet |
-| gsd-phase-researcher | opus | sonnet | haiku |
-| gsd-project-researcher | opus | sonnet | haiku |
-| gsd-research-synthesizer | sonnet | sonnet | haiku |
-| gsd-debugger | opus | sonnet | sonnet |
-| gsd-codebase-mapper | sonnet | haiku | haiku |
-| gsd-verifier | sonnet | sonnet | haiku |
-| gsd-plan-checker | sonnet | sonnet | haiku |
-| gsd-integration-checker | sonnet | sonnet | haiku |
-| gsd-nyquist-auditor | sonnet | sonnet | haiku |
+| redpill-planner | opus | opus | sonnet |
+| redpill-roadmapper | opus | sonnet | sonnet |
+| redpill-executor | opus | sonnet | sonnet |
+| redpill-phase-researcher | opus | sonnet | haiku |
+| redpill-project-researcher | opus | sonnet | haiku |
+| redpill-research-synthesizer | sonnet | sonnet | haiku |
+| redpill-debugger | opus | sonnet | sonnet |
+| redpill-codebase-mapper | sonnet | haiku | haiku |
+| redpill-verifier | sonnet | sonnet | haiku |
+| redpill-plan-checker | sonnet | sonnet | haiku |
+| redpill-integration-checker | sonnet | sonnet | haiku |
+| redpill-nyquist-auditor | sonnet | sonnet | haiku |
 
 ## 配置理念
 
@@ -42,7 +42,7 @@
 编排器在生成代理前解析模型：
 
 ```
-1. 读取 .planning/config.json
+1. 读取 .redpill/config.json
 2. 检查 model_overrides 是否有代理特定覆盖
 3. 如果没有覆盖，在配置表中查找代理
 4. 将 model 参数传递给 Task 调用
@@ -56,8 +56,8 @@
 {
   "model_profile": "balanced",
   "model_overrides": {
-    "gsd-executor": "opus",
-    "gsd-planner": "haiku"
+    "redpill-executor": "opus",
+    "redpill-planner": "haiku"
   }
 }
 ```
@@ -66,9 +66,9 @@
 
 ## 切换配置
 
-运行时：`/gsd:set-profile <profile>`
+运行时：`/redpill:set-profile <profile>`
 
-项目默认值：在 `.planning/config.json` 中设置：
+项目默认值：在 `.redpill/config.json` 中设置：
 ```json
 {
   "model_profile": "balanced"
@@ -77,16 +77,16 @@
 
 ## 设计理由
 
-**为什么 gsd-planner 使用 Opus？**
+**为什么 redpill-planner 使用 Opus？**
 规划涉及架构决策、目标分解和任务设计。这是模型质量影响最大的地方。
 
-**为什么 gsd-executor 使用 Sonnet？**
+**为什么 redpill-executor 使用 Sonnet？**
 执行者遵循明确的 PLAN.md 指令。计划已包含推理；执行只是实现。
 
 **为什么 balanced 中验证器使用 Sonnet（而非 Haiku）？**
 验证需要目标回溯推理 —— 检查代码是否**交付**了阶段承诺的内容，而不仅仅是模式匹配。Sonnet 处理得很好；Haiku 可能会遗漏细微的差距。
 
-**为什么 gsd-codebase-mapper 使用 Haiku？**
+**为什么 redpill-codebase-mapper 使用 Haiku？**
 只读探索和模式提取。不需要推理，只需从文件内容输出结构化结果。
 
 **为什么用 `inherit` 而不是直接传递 `opus`？**

@@ -1,12 +1,12 @@
 # DEV-SETUP.md Template
 
 <purpose>
-Defines the structure and schema for `.planning/DEV-SETUP.md` — a machine-parseable + human-readable document that describes how to compile, build, and run a project's service locally. Used as a gate check before BDD workflows: if this file is missing or the service cannot be verified locally, BDD does not proceed.
+Defines the structure and schema for `.redpill/DEV-SETUP.md` — a machine-parseable + human-readable document that describes how to compile, build, and run a project's service locally. Used as a gate check before BDD workflows: if this file is missing or the service cannot be verified locally, BDD does not proceed.
 </purpose>
 
 <when_to_create>
-- Before running any BDD phase (`/gsd:bdd-phase`)
-- When setting up a new project with `/gsd:new-project`
+- Before running any BDD phase (`/redpill:bdd-phase`)
+- When setting up a new project with `/redpill:new-project`
 - When onboarding a new developer to a project
 </when_to_create>
 
@@ -165,7 +165,7 @@ The BDD pre-flight gate check parses this file and executes validation in order:
 
 ```
 1. FILE EXISTS?
-   .planning/DEV-SETUP.md must exist
+   .redpill/DEV-SETUP.md must exist
    → Fail: suggest creating from template
 
 2. FRONTMATTER PARSEABLE?

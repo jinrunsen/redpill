@@ -8,9 +8,9 @@
 
 **它解决的是 context rot：随着 Claude 的上下文窗口被填满，输出质量逐步劣化的问题。**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/get-shit-done/actions/workflows/test.yml)
+[![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
 [![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
@@ -20,7 +20,7 @@
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 **支持 Mac、Windows 和 Linux。**
@@ -78,7 +78,7 @@ GSD 解决的就是这个问题。它是让 Claude Code 变得可靠的上下文
 ## 快速开始
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 安装器会提示你选择：
@@ -86,11 +86,11 @@ npx get-shit-done-cc@latest
 2. **安装位置**：全局（所有项目）或本地（仅当前项目）
 
 安装后可这样验证：
-- Claude Code / Gemini：`/gsd:help`
+- Claude Code / Gemini：`/redpill:help`
 - OpenCode：`/gsd-help`
 - Codex：`$gsd-help`
-- Copilot：`/gsd:help`
-- Antigravity：`/gsd:help`
+- Copilot：`/redpill:help`
+- Antigravity：`/redpill:help`
 
 > [!NOTE]
 > Codex 安装走的是 skill 机制（`skills/gsd-*/SKILL.md`），不是自定义 prompt。
@@ -100,7 +100,7 @@ npx get-shit-done-cc@latest
 GSD 迭代很快，建议定期更新：
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 <details>
@@ -108,33 +108,33 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global   # 安装到 ~/.claude/
-npx get-shit-done-cc --claude --local    # 安装到 ./.claude/
+npx redpill-cc --claude --global   # 安装到 ~/.claude/
+npx redpill-cc --claude --local    # 安装到 ./.claude/
 
 # OpenCode（开源，可用免费模型）
-npx get-shit-done-cc --opencode --global # 安装到 ~/.config/opencode/
+npx redpill-cc --opencode --global # 安装到 ~/.config/opencode/
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global   # 安装到 ~/.gemini/
+npx redpill-cc --gemini --global   # 安装到 ~/.gemini/
 
 # Codex（以 skills 为主）
-npx get-shit-done-cc --codex --global    # 安装到 ~/.codex/
-npx get-shit-done-cc --codex --local     # 安装到 ./.codex/
+npx redpill-cc --codex --global    # 安装到 ~/.codex/
+npx redpill-cc --codex --local     # 安装到 ./.codex/
 
 # Copilot（GitHub Copilot CLI）
-npx get-shit-done-cc --copilot --global  # 安装到 ~/.github/
-npx get-shit-done-cc --copilot --local   # 安装到 ./.github/
+npx redpill-cc --copilot --global  # 安装到 ~/.github/
+npx redpill-cc --copilot --local   # 安装到 ./.github/
 
 # Cursor CLI
-npx get-shit-done-cc --cursor --global   # 安装到 ~/.cursor/
-npx get-shit-done-cc --cursor --local    # 安装到 ./.cursor/
+npx redpill-cc --cursor --global   # 安装到 ~/.cursor/
+npx redpill-cc --cursor --local    # 安装到 ./.cursor/
 
 # Antigravity（Google，以 skills 为主，基于 Gemini）
-npx get-shit-done-cc --antigravity --global # 安装到 ~/.gemini/antigravity/
-npx get-shit-done-cc --antigravity --local  # 安装到 ./.agent/
+npx redpill-cc --antigravity --global # 安装到 ~/.gemini/antigravity/
+npx redpill-cc --antigravity --local  # 安装到 ./.agent/
 
 # 所有运行时
-npx get-shit-done-cc --all --global      # 安装到所有目录
+npx redpill-cc --all --global      # 安装到所有目录
 ```
 
 使用 `--global`（`-g`）或 `--local`（`-l`）可以跳过安装位置提示。
@@ -166,7 +166,7 @@ claude --dangerously-skip-permissions
 ```
 
 > [!TIP]
-> 这才是 GSD 的预期用法。连 `date` 和 `git commit` 都要来回确认 50 次，整个体验就废了。
+> 这才是 REDPILL 的预期用法。连 `date` 和 `git commit` 都要来回确认 50 次，整个体验就废了。
 
 <details>
 <summary><strong>替代方案：细粒度权限</strong></summary>
@@ -205,12 +205,12 @@ claude --dangerously-skip-permissions
 
 ## 它是怎么工作的
 
-> **已经有现成代码库？** 先运行 `/gsd:map-codebase`。它会并行拉起多个代理分析你的技术栈、架构、约定和风险点。之后 `/gsd:new-project` 就会真正“理解”你的代码库，提问会聚焦在你打算新增的部分，规划时也会自动加载你的现有模式。
+> **已经有现成代码库？** 先运行 `/redpill:map-codebase`。它会并行拉起多个代理分析你的技术栈、架构、约定和风险点。之后 `/redpill:new-project` 就会真正“理解”你的代码库，提问会聚焦在你打算新增的部分，规划时也会自动加载你的现有模式。
 
 ### 1. 初始化项目
 
 ```
-/gsd:new-project
+/redpill:new-project
 ```
 
 一个命令，一条完整流程。系统会：
@@ -222,14 +222,14 @@ claude --dangerously-skip-permissions
 
 你审核并批准路线图后，就可以开始构建。
 
-**生成：** `PROJECT.md`、`REQUIREMENTS.md`、`ROADMAP.md`、`STATE.md`、`.planning/research/`
+**生成：** `PROJECT.md`、`REQUIREMENTS.md`、`ROADMAP.md`、`STATE.md`、`.redpill/research/`
 
 ---
 
 ### 2. 讨论阶段
 
 ```
-/gsd:discuss-phase 1
+/redpill:discuss-phase 1
 ```
 
 **这是你塑造实现方式的地方。**
@@ -257,7 +257,7 @@ claude --dangerously-skip-permissions
 ### 3. 规划阶段
 
 ```
-/gsd:plan-phase 1
+/redpill:plan-phase 1
 ```
 
 系统会：
@@ -275,7 +275,7 @@ claude --dangerously-skip-permissions
 ### 4. 执行阶段
 
 ```
-/gsd:execute-phase 1
+/redpill:execute-phase 1
 ```
 
 系统会：
@@ -326,7 +326,7 @@ claude --dangerously-skip-permissions
 ### 5. 验证工作
 
 ```
-/gsd:verify-work 1
+/redpill:verify-work 1
 ```
 
 **这是你确认它是否真的可用的地方。**
@@ -340,7 +340,7 @@ claude --dangerously-skip-permissions
 3. **自动诊断失败**：拉起 debug 代理定位根因
 4. **创建验证过的修复计划**：可立刻重新执行
 
-如果一切通过，就进入下一步；如果哪里坏了，你不需要手动 debug，只要重新运行 `/gsd:execute-phase`，执行它自动生成的修复计划即可。
+如果一切通过，就进入下一步；如果哪里坏了，你不需要手动 debug，只要重新运行 `/redpill:execute-phase`，执行它自动生成的修复计划即可。
 
 **生成：** `{phase_num}-UAT.md`，以及发现问题时的修复计划
 
@@ -349,47 +349,47 @@ claude --dangerously-skip-permissions
 ### 6. 重复 → 发布 → 完成 → 下一个里程碑
 
 ```
-/gsd:discuss-phase 2
-/gsd:plan-phase 2
-/gsd:execute-phase 2
-/gsd:verify-work 2
-/gsd:ship 2                  # 从已验证的工作创建 PR
+/redpill:discuss-phase 2
+/redpill:plan-phase 2
+/redpill:execute-phase 2
+/redpill:verify-work 2
+/redpill:ship 2                  # 从已验证的工作创建 PR
 ...
-/gsd:complete-milestone
-/gsd:new-milestone
+/redpill:complete-milestone
+/redpill:new-milestone
 ```
 
-或者让 GSD 自动判断下一步：
+或者让 REDPILL 自动判断下一步：
 
 ```
-/gsd:next                    # 自动检测并执行下一步
+/redpill:next                    # 自动检测并执行下一步
 ```
 
 循环执行 **讨论 → 规划 → 执行 → 验证 → 发布**，直到整个里程碑完成。
 
-如果你希望在讨论阶段更快收集信息，可以用 `/gsd:discuss-phase <n> --batch`，一次回答一小组问题，而不是逐个问答。
+如果你希望在讨论阶段更快收集信息，可以用 `/redpill:discuss-phase <n> --batch`，一次回答一小组问题，而不是逐个问答。
 
 每个阶段都会得到你的输入（discuss）、充分研究（plan）、干净执行（execute）和人工验证（verify）。上下文始终保持新鲜，质量也能持续稳定。
 
-当所有阶段完成后，`/gsd:complete-milestone` 会归档当前里程碑并打 release tag。
+当所有阶段完成后，`/redpill:complete-milestone` 会归档当前里程碑并打 release tag。
 
-接着用 `/gsd:new-milestone` 开启下一个版本。它和 `new-project` 流程相同，只是面向你现有的代码库。你描述下一步想构建什么，系统研究领域、梳理需求，再产出新的路线图。每个里程碑都是一个干净周期：定义 → 构建 → 发布。
+接着用 `/redpill:new-milestone` 开启下一个版本。它和 `new-project` 流程相同，只是面向你现有的代码库。你描述下一步想构建什么，系统研究领域、梳理需求，再产出新的路线图。每个里程碑都是一个干净周期：定义 → 构建 → 发布。
 
 ---
 
 ### 快速模式
 
 ```
-/gsd:quick
+/redpill:quick
 ```
 
 **适用于不需要完整规划的临时任务。**
 
-快速模式保留 GSD 的核心保障（原子提交、状态跟踪），但路径更短：
+快速模式保留 REDPILL 的核心保障（原子提交、状态跟踪），但路径更短：
 
 - **相同的代理体系**：同样是 planner + executor，质量不降
 - **跳过可选步骤**：默认不启用 research、plan checker、verifier
-- **独立跟踪**：数据存放在 `.planning/quick/`，不和 phase 混在一起
+- **独立跟踪**：数据存放在 `.redpill/quick/`，不和 phase 混在一起
 
 **`--discuss` 参数：** 在规划前先进行轻量讨论，理清灰区。
 
@@ -400,11 +400,11 @@ claude --dangerously-skip-permissions
 参数可组合使用：`--discuss --research --full` 可同时获得讨论 + 研究 + 计划检查 + 验证。
 
 ```
-/gsd:quick
+/redpill:quick
 > What do you want to do? "Add dark mode toggle to settings"
 ```
 
-**生成：** `.planning/quick/001-add-dark-mode-toggle/PLAN.md`、`SUMMARY.md`
+**生成：** `.redpill/quick/001-add-dark-mode-toggle/PLAN.md`、`SUMMARY.md`
 
 ---
 
@@ -497,107 +497,107 @@ lmn012o feat(08-02): create registration endpoint
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:new-project [--auto]` | 完整初始化：提问 → 研究 → 需求 → 路线图 |
-| `/gsd:discuss-phase [N] [--auto] [--analyze]` | 在规划前收集实现决策（`--analyze` 增加权衡分析） |
-| `/gsd:plan-phase [N] [--auto] [--reviews]` | 为某个阶段执行研究 + 规划 + 验证（`--reviews` 加载代码库审查结果） |
-| `/gsd:execute-phase <N>` | 以并行 wave 执行全部计划，完成后验证 |
-| `/gsd:verify-work [N]` | 人工用户验收测试 ¹ |
-| `/gsd:ship [N] [--draft]` | 从已验证的阶段工作创建 PR，自动生成 PR 描述 |
-| `/gsd:fast <text>` | 内联处理琐碎任务——完全跳过规划，立即执行 |
-| `/gsd:next` | 自动推进到下一个逻辑工作流步骤 |
-| `/gsd:audit-milestone` | 验证里程碑是否达到完成定义 |
-| `/gsd:complete-milestone` | 归档里程碑并打 release tag |
-| `/gsd:new-milestone [name]` | 开始下一个版本：提问 → 研究 → 需求 → 路线图 |
-| `/gsd:milestone-summary` | 从已完成的里程碑产物生成项目概览，用于团队上手 |
-| `/gsd:forensics` | 对失败或卡住的工作流进行事后调查 |
+| `/redpill:new-project [--auto]` | 完整初始化：提问 → 研究 → 需求 → 路线图 |
+| `/redpill:discuss-phase [N] [--auto] [--analyze]` | 在规划前收集实现决策（`--analyze` 增加权衡分析） |
+| `/redpill:plan-phase [N] [--auto] [--reviews]` | 为某个阶段执行研究 + 规划 + 验证（`--reviews` 加载代码库审查结果） |
+| `/redpill:execute-phase <N>` | 以并行 wave 执行全部计划，完成后验证 |
+| `/redpill:verify-work [N]` | 人工用户验收测试 ¹ |
+| `/redpill:ship [N] [--draft]` | 从已验证的阶段工作创建 PR，自动生成 PR 描述 |
+| `/redpill:fast <text>` | 内联处理琐碎任务——完全跳过规划，立即执行 |
+| `/redpill:next` | 自动推进到下一个逻辑工作流步骤 |
+| `/redpill:audit-milestone` | 验证里程碑是否达到完成定义 |
+| `/redpill:complete-milestone` | 归档里程碑并打 release tag |
+| `/redpill:new-milestone [name]` | 开始下一个版本：提问 → 研究 → 需求 → 路线图 |
+| `/redpill:milestone-summary` | 从已完成的里程碑产物生成项目概览，用于团队上手 |
+| `/redpill:forensics` | 对失败或卡住的工作流进行事后调查 |
 
 ### 工作流（Workstreams）
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:workstreams list` | 显示所有工作流及其状态 |
-| `/gsd:workstreams create <name>` | 创建命名空间工作流，用于并行里程碑工作 |
-| `/gsd:workstreams switch <name>` | 切换当前活跃工作流 |
-| `/gsd:workstreams complete <name>` | 完成并合并工作流 |
+| `/redpill:workstreams list` | 显示所有工作流及其状态 |
+| `/redpill:workstreams create <name>` | 创建命名空间工作流，用于并行里程碑工作 |
+| `/redpill:workstreams switch <name>` | 切换当前活跃工作流 |
+| `/redpill:workstreams complete <name>` | 完成并合并工作流 |
 
 ### 多项目工作区
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:new-workspace` | 创建隔离工作区，包含仓库副本（worktree 或 clone） |
-| `/gsd:list-workspaces` | 显示所有 GSD 工作区及其状态 |
-| `/gsd:remove-workspace` | 移除工作区并清理 worktree |
+| `/redpill:new-workspace` | 创建隔离工作区，包含仓库副本（worktree 或 clone） |
+| `/redpill:list-workspaces` | 显示所有 REDPILL 工作区及其状态 |
+| `/redpill:remove-workspace` | 移除工作区并清理 worktree |
 
 ### UI 设计
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:ui-phase [N]` | 为前端阶段生成 UI 设计合约（UI-SPEC.md） |
-| `/gsd:ui-review [N]` | 对已实现前端代码进行 6 维视觉审计 |
+| `/redpill:ui-phase [N]` | 为前端阶段生成 UI 设计合约（UI-SPEC.md） |
+| `/redpill:ui-review [N]` | 对已实现前端代码进行 6 维视觉审计 |
 
 ### 导航
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:progress` | 我现在在哪？下一步是什么？ |
-| `/gsd:next` | 自动检测状态并执行下一步 |
-| `/gsd:help` | 显示全部命令和使用指南 |
-| `/gsd:update` | 更新 GSD，并预览变更日志 |
-| `/gsd:join-discord` | 加入 GSD Discord 社区 |
+| `/redpill:progress` | 我现在在哪？下一步是什么？ |
+| `/redpill:next` | 自动检测状态并执行下一步 |
+| `/redpill:help` | 显示全部命令和使用指南 |
+| `/redpill:update` | 更新 GSD，并预览变更日志 |
+| `/redpill:join-discord` | 加入 REDPILL Discord 社区 |
 
 ### Brownfield
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:map-codebase` | 在 `new-project` 前分析现有代码库 |
+| `/redpill:map-codebase` | 在 `new-project` 前分析现有代码库 |
 
 ### 阶段管理
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:add-phase` | 在路线图末尾追加 phase |
-| `/gsd:insert-phase [N]` | 在 phase 之间插入紧急工作 |
-| `/gsd:remove-phase [N]` | 删除未来 phase，并重编号 |
-| `/gsd:list-phase-assumptions [N]` | 在规划前查看 Claude 打算采用的方案 |
-| `/gsd:plan-milestone-gaps` | 为 audit 发现的缺口创建 phase |
+| `/redpill:add-phase` | 在路线图末尾追加 phase |
+| `/redpill:insert-phase [N]` | 在 phase 之间插入紧急工作 |
+| `/redpill:remove-phase [N]` | 删除未来 phase，并重编号 |
+| `/redpill:list-phase-assumptions [N]` | 在规划前查看 Claude 打算采用的方案 |
+| `/redpill:plan-milestone-gaps` | 为 audit 发现的缺口创建 phase |
 
 ### 代码质量
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:review` | 对当前阶段或分支进行跨 AI 同行评审 |
-| `/gsd:pr-branch` | 创建过滤 `.planning/` 提交的干净 PR 分支 |
-| `/gsd:audit-uat` | 审计验证债务——找出缺少 UAT 的阶段 |
+| `/redpill:review` | 对当前阶段或分支进行跨 AI 同行评审 |
+| `/redpill:pr-branch` | 创建过滤 `.redpill/` 提交的干净 PR 分支 |
+| `/redpill:audit-uat` | 审计验证债务——找出缺少 UAT 的阶段 |
 
 ### 积压
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:plant-seed <idea>` | 将想法存入积压停车场，留待未来里程碑 |
+| `/redpill:plant-seed <idea>` | 将想法存入积压停车场，留待未来里程碑 |
 
 ### 会话
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:pause-work` | 在中途暂停时创建交接上下文（写入 HANDOFF.json） |
-| `/gsd:resume-work` | 从上一次会话恢复 |
-| `/gsd:session-report` | 生成会话摘要，包含已完成工作和结果 |
+| `/redpill:pause-work` | 在中途暂停时创建交接上下文（写入 HANDOFF.json） |
+| `/redpill:resume-work` | 从上一次会话恢复 |
+| `/redpill:session-report` | 生成会话摘要，包含已完成工作和结果 |
 
 ### 工具
 
 | 命令 | 作用 |
 |------|------|
-| `/gsd:settings` | 配置模型 profile 和工作流代理 |
-| `/gsd:set-profile <profile>` | 切换模型 profile（quality / balanced / budget / inherit） |
-| `/gsd:add-todo [desc]` | 记录一个待办想法 |
-| `/gsd:check-todos` | 查看待办列表 |
-| `/gsd:debug [desc]` | 使用持久状态进行系统化调试 |
-| `/gsd:do <text>` | 将自由文本自动路由到正确的 GSD 命令 |
-| `/gsd:note <text>` | 零摩擦想法捕捉——追加、列出或提升为待办 |
-| `/gsd:quick [--full] [--discuss] [--research]` | 以 GSD 保障执行临时任务（`--full` 增加计划检查和验证，`--discuss` 先补上下文，`--research` 在规划前先调研） |
-| `/gsd:health [--repair]` | 校验 `.planning/` 目录完整性，带 `--repair` 时自动修复 |
-| `/gsd:stats` | 显示项目统计——阶段、计划、需求、git 指标 |
-| `/gsd:profile-user [--questionnaire] [--refresh]` | 从会话分析生成开发者行为档案，用于个性化响应 |
+| `/redpill:settings` | 配置模型 profile 和工作流代理 |
+| `/redpill:set-profile <profile>` | 切换模型 profile（quality / balanced / budget / inherit） |
+| `/redpill:add-todo [desc]` | 记录一个待办想法 |
+| `/redpill:check-todos` | 查看待办列表 |
+| `/redpill:debug [desc]` | 使用持久状态进行系统化调试 |
+| `/redpill:do <text>` | 将自由文本自动路由到正确的 REDPILL 命令 |
+| `/redpill:note <text>` | 零摩擦想法捕捉——追加、列出或提升为待办 |
+| `/redpill:quick [--full] [--discuss] [--research]` | 以 REDPILL 保障执行临时任务（`--full` 增加计划检查和验证，`--discuss` 先补上下文，`--research` 在规划前先调研） |
+| `/redpill:health [--repair]` | 校验 `.redpill/` 目录完整性，带 `--repair` 时自动修复 |
+| `/redpill:stats` | 显示项目统计——阶段、计划、需求、git 指标 |
+| `/redpill:profile-user [--questionnaire] [--refresh]` | 从会话分析生成开发者行为档案，用于个性化响应 |
 
 <sup>¹ 由 reddit 用户 OracleGreyBeard 贡献</sup>
 
@@ -605,7 +605,7 @@ lmn012o feat(08-02): create registration endpoint
 
 ## 配置
 
-GSD 将项目设置保存在 `.planning/config.json`。你可以在 `/gsd:new-project` 时配置，也可以稍后通过 `/gsd:settings` 修改。完整的配置 schema、工作流开关、git branching 选项以及各代理的模型分配，请查看[用户指南](docs/USER-GUIDE.md#configuration-reference)。
+GSD 将项目设置保存在 `.redpill/config.json`。你可以在 `/redpill:new-project` 时配置，也可以稍后通过 `/redpill:settings` 修改。完整的配置 schema、工作流开关、git branching 选项以及各代理的模型分配，请查看[用户指南](docs/USER-GUIDE.md#configuration-reference)。
 
 ### 核心设置
 
@@ -627,12 +627,12 @@ GSD 将项目设置保存在 `.planning/config.json`。你可以在 `/gsd:new-pr
 
 切换方式：
 ```
-/gsd:set-profile budget
+/redpill:set-profile budget
 ```
 
 使用非 Anthropic 提供商（OpenRouter、本地模型）时，或想跟随当前运行时的模型选择时（如 OpenCode 的 `/model`），可用 `inherit`。
 
-也可以通过 `/gsd:settings` 配置。
+也可以通过 `/redpill:settings` 配置。
 
 ### 工作流代理
 
@@ -648,21 +648,21 @@ GSD 将项目设置保存在 `.planning/config.json`。你可以在 `/gsd:new-pr
 | `workflow.skip_discuss` | `false` | 在自主模式下完全跳过讨论阶段 |
 | `workflow.discuss_mode` | `null` | 控制讨论阶段行为（`assumptions` 使用推断默认值） |
 
-可以用 `/gsd:settings` 开关这些项，也可以在单次命令里覆盖：
-- `/gsd:plan-phase --skip-research`
-- `/gsd:plan-phase --skip-verify`
+可以用 `/redpill:settings` 开关这些项，也可以在单次命令里覆盖：
+- `/redpill:plan-phase --skip-research`
+- `/redpill:plan-phase --skip-verify`
 
 ### 执行
 
 | Setting | Default | 作用 |
 |---------|---------|------|
 | `parallelization.enabled` | `true` | 是否并行执行独立计划 |
-| `planning.commit_docs` | `true` | 是否将 `.planning/` 纳入 git 跟踪 |
+| `planning.commit_docs` | `true` | 是否将 `.redpill/` 纳入 git 跟踪 |
 | `hooks.context_warnings` | `true` | 显示上下文窗口使用量警告 |
 
 ### Git 分支策略
 
-控制 GSD 在执行过程中如何处理分支。
+控制 REDPILL 在执行过程中如何处理分支。
 
 | Setting | Options | Default | 作用 |
 |---------|---------|---------|------|
@@ -706,7 +706,7 @@ GSD 的代码库映射和分析命令会读取文件来理解你的项目。**�
 这样无论你运行什么命令，Claude 都无法读取这些文件。
 
 > [!IMPORTANT]
-> GSD 内建了防止提交 secrets 的保护，但纵深防御依然是最佳实践。第一道防线应该是直接禁止读取敏感文件。
+> REDPILL 内建了防止提交 secrets 的保护，但纵深防御依然是最佳实践。第一道防线应该是直接禁止读取敏感文件。
 
 ---
 
@@ -718,19 +718,19 @@ GSD 的代码库映射和分析命令会读取文件来理解你的项目。**�
 - 对 Codex，检查 skills 是否存在于 `~/.codex/skills/gsd-*/SKILL.md`（全局）或 `./.codex/skills/gsd-*/SKILL.md`（本地）
 
 **命令行为不符合预期？**
-- 运行 `/gsd:help` 确认安装成功
-- 重新执行 `npx get-shit-done-cc` 进行重装
+- 运行 `/redpill:help` 确认安装成功
+- 重新执行 `npx redpill-cc` 进行重装
 
 **想更新到最新版本？**
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 **在 Docker 或容器环境中使用？**
 
 如果使用波浪线路径（`~/.claude/...`）时读取失败，请在安装前设置 `CLAUDE_CONFIG_DIR`：
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx redpill-cc --global
 ```
 这样可以确保使用绝对路径，而不是在容器里可能无法正确展开的 `~`。
 
@@ -740,31 +740,31 @@ CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
 
 ```bash
 # 全局安装
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
-npx get-shit-done-cc --gemini --global --uninstall
-npx get-shit-done-cc --codex --global --uninstall
-npx get-shit-done-cc --copilot --global --uninstall
-npx get-shit-done-cc --cursor --global --uninstall
-npx get-shit-done-cc --antigravity --global --uninstall
+npx redpill-cc --claude --global --uninstall
+npx redpill-cc --opencode --global --uninstall
+npx redpill-cc --gemini --global --uninstall
+npx redpill-cc --codex --global --uninstall
+npx redpill-cc --copilot --global --uninstall
+npx redpill-cc --cursor --global --uninstall
+npx redpill-cc --antigravity --global --uninstall
 
 # 本地安装（当前项目）
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
-npx get-shit-done-cc --gemini --local --uninstall
-npx get-shit-done-cc --codex --local --uninstall
-npx get-shit-done-cc --copilot --local --uninstall
-npx get-shit-done-cc --cursor --local --uninstall
-npx get-shit-done-cc --antigravity --local --uninstall
+npx redpill-cc --claude --local --uninstall
+npx redpill-cc --opencode --local --uninstall
+npx redpill-cc --gemini --local --uninstall
+npx redpill-cc --codex --local --uninstall
+npx redpill-cc --copilot --local --uninstall
+npx redpill-cc --cursor --local --uninstall
+npx redpill-cc --antigravity --local --uninstall
 ```
 
-这会移除所有 GSD 命令、代理、hooks 和设置，但会保留你其他配置。
+这会移除所有 REDPILL 命令、代理、hooks 和设置，但会保留你其他配置。
 
 ---
 
 ## 社区移植版本
 
-OpenCode、Gemini CLI 和 Codex 现在都已经通过 `npx get-shit-done-cc` 获得原生支持。
+OpenCode、Gemini CLI 和 Codex 现在都已经通过 `npx redpill-cc` 获得原生支持。
 
 这些社区移植版本曾率先探索多运行时支持：
 

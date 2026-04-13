@@ -1,5 +1,5 @@
 <purpose>
-Detect current project state and automatically advance to the next logical GSD workflow step.
+Detect current project state and automatically advance to the next logical REDPILL workflow step.
 Reads project state to determine: discuss → plan → execute → verify → complete progression.
 </purpose>
 
@@ -14,12 +14,12 @@ Read project state to determine current position:
 
 ```bash
 # Get state snapshot
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state json 2>/dev/null || echo "{}"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state json 2>/dev/null || echo "{}"
 ```
 
 Also read:
-- `.planning/STATE.md` — current phase, progress, plan counts
-- `.planning/ROADMAP.md` — milestone structure and phase list
+- `.redpill/STATE.md` — current phase, progress, plan counts
+- `.redpill/ROADMAP.md` — milestone structure and phase list
 
 Extract:
 - `current_phase` — which phase is active
@@ -27,9 +27,9 @@ Extract:
 - `progress` — overall percentage
 - `status` — active, paused, etc.
 
-If no `.planning/` directory exists:
+If no `.redpill/` directory exists:
 ```
-No GSD project detected. Run `/gsd:new-project` to get started.
+No REDPILL project detected. Run `/redpill:new-project` to get started.
 ```
 Exit.
 </step>
@@ -39,52 +39,52 @@ Apply routing rules based on state:
 
 **Route 1: No phases exist yet → discuss**
 If ROADMAP has phases but no phase directories exist on disk:
-→ Next action: `/gsd:discuss-phase <first-phase>`
+→ Next action: `/redpill:discuss-phase <first-phase>`
 
 **Route 2: Phase exists but has no CONTEXT.md or RESEARCH.md → discuss**
 If the current phase directory exists but has neither CONTEXT.md nor RESEARCH.md:
-→ Next action: `/gsd:discuss-phase <current-phase>`
+→ Next action: `/redpill:discuss-phase <current-phase>`
 
 **Route 3: Phase has context but no plans → plan**
 If the current phase has CONTEXT.md (or RESEARCH.md) but no PLAN.md files:
-→ Next action: `/gsd:plan-phase <current-phase>`
+→ Next action: `/redpill:plan-phase <current-phase>`
 
 **Route 4: Phase has plans but incomplete summaries → execute**
 If plans exist but not all have matching summaries:
-→ Next action: `/gsd:execute-phase <current-phase>`
+→ Next action: `/redpill:execute-phase <current-phase>`
 
 **Route 5: All plans have summaries → verify and complete**
 If all plans in the current phase have summaries:
-→ Next action: `/gsd:verify-work`
+→ Next action: `/redpill:verify-work`
 
 **Route 6: Phase complete, next phase exists → advance**
 If the current phase is complete and the next phase exists in ROADMAP:
-→ Next action: `/gsd:discuss-phase <next-phase>`
+→ Next action: `/redpill:discuss-phase <next-phase>`
 
 **Route 7: All phases complete → complete milestone**
 If all phases are complete:
-→ Next action: `/gsd:complete-milestone`
+→ Next action: `/redpill:complete-milestone`
 
 **Route 8: Paused → resume**
 If STATE.md shows paused_at:
-→ Next action: `/gsd:resume-work`
+→ Next action: `/redpill:resume-work`
 </step>
 
 <step name="show_and_execute">
 Display the determination:
 
 ```
-## GSD Next
+## REDPILL Next
 
 **Current:** Phase [N] — [name] | [progress]%
 **Status:** [status description]
 
-▶ **Next step:** `/gsd:[command] [args]`
+▶ **Next step:** `/redpill:[command] [args]`
   [One-line explanation of why this is the next step]
 ```
 
 Then immediately invoke the determined command via SlashCommand.
-Do not ask for confirmation — the whole point of `/gsd:next` is zero-friction advancement.
+Do not ask for confirmation — the whole point of `/redpill:next` is zero-friction advancement.
 </step>
 
 </process>

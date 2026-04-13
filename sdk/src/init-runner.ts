@@ -1,5 +1,5 @@
 /**
- * InitRunner — orchestrates the GSD new-project init workflow.
+ * InitRunner — orchestrates the REDPILL new-project init workflow.
  *
  * Workflow: setup → config → PROJECT.md → parallel research (4 sessions)
  *         → synthesis → requirements → roadmap
@@ -121,7 +121,7 @@ export class InitRunner {
       const setupResult = await this.runStep('setup', async () => {
         const info = await this.tools.initNewProject();
         if (info.project_exists) {
-          throw new Error('Project already exists (.planning/PROJECT.md found). Use a fresh directory or delete .planning/ first.');
+          throw new Error('Project already exists (.redpill/PROJECT.md found). Use a fresh directory or delete .redpill/ first.');
         }
         return info;
       });
@@ -138,21 +138,21 @@ export class InitRunner {
           await this.execGit(['init']);
         }
 
-        // Ensure .planning/ directory exists
-        const planningDir = join(this.projectDir, '.planning');
-        await mkdir(planningDir, { recursive: true });
+        // Ensure .redpill/ directory exists
+        const redpillDir = join(this.projectDir, '.redpill');
+        await mkdir(redpillDir, { recursive: true });
 
         // Write config.json
-        const configPath = join(planningDir, 'config.json');
+        const configPath = join(redpillDir, 'config.json');
         await writeFile(configPath, JSON.stringify(AUTO_MODE_CONFIG, null, 2) + '\n', 'utf-8');
-        artifacts.push('.planning/config.json');
+        artifacts.push('.redpill/config.json');
 
         // Persist auto_advance via gsd-tools (validates & updates state)
         await this.tools.configSet('workflow.auto_advance', 'true');
 
         // Commit config
         if (projectInfo.commit_docs) {
-          await this.tools.commit('chore: add project config', ['.planning/config.json']);
+          await this.tools.commit('chore: add project config', ['.redpill/config.json']);
         }
       });
       steps.push(configResult.stepResult);
@@ -167,9 +167,9 @@ export class InitRunner {
         if (!result.success) {
           throw new Error(`PROJECT.md synthesis failed: ${result.error?.messages.join(', ') ?? 'unknown error'}`);
         }
-        artifacts.push('.planning/PROJECT.md');
+        artifacts.push('.redpill/PROJECT.md');
         if (projectInfo.commit_docs) {
-          await this.tools.commit('docs: add PROJECT.md', ['.planning/PROJECT.md']);
+          await this.tools.commit('docs: add PROJECT.md', ['.redpill/PROJECT.md']);
         }
         return result;
       });
@@ -202,9 +202,9 @@ export class InitRunner {
         if (!result.success) {
           throw new Error(`Research synthesis failed: ${result.error?.messages.join(', ') ?? 'unknown error'}`);
         }
-        artifacts.push('.planning/research/SUMMARY.md');
+        artifacts.push('.redpill/research/SUMMARY.md');
         if (projectInfo.commit_docs) {
-          await this.tools.commit('docs: add research files', ['.planning/research/']);
+          await this.tools.commit('docs: add research files', ['.redpill/research/']);
         }
         return result;
       });
@@ -220,9 +220,9 @@ export class InitRunner {
         if (!result.success) {
           throw new Error(`Requirements generation failed: ${result.error?.messages.join(', ') ?? 'unknown error'}`);
         }
-        artifacts.push('.planning/REQUIREMENTS.md');
+        artifacts.push('.redpill/REQUIREMENTS.md');
         if (projectInfo.commit_docs) {
-          await this.tools.commit('docs: add REQUIREMENTS.md', ['.planning/REQUIREMENTS.md']);
+          await this.tools.commit('docs: add REQUIREMENTS.md', ['.redpill/REQUIREMENTS.md']);
         }
         return result;
       });
@@ -238,11 +238,11 @@ export class InitRunner {
         if (!result.success) {
           throw new Error(`Roadmap generation failed: ${result.error?.messages.join(', ') ?? 'unknown error'}`);
         }
-        artifacts.push('.planning/ROADMAP.md', '.planning/STATE.md');
+        artifacts.push('.redpill/ROADMAP.md', '.redpill/STATE.md');
         if (projectInfo.commit_docs) {
           await this.tools.commit('docs: add ROADMAP.md and STATE.md', [
-            '.planning/ROADMAP.md',
-            '.planning/STATE.md',
+            '.redpill/ROADMAP.md',
+            '.redpill/STATE.md',
           ]);
         }
         return result;
@@ -352,7 +352,7 @@ export class InitRunner {
       });
       // Attach artifact path on success
       if (result.stepResult.success) {
-        result.stepResult.artifacts = [`.planning/research/${researchType}.md`];
+        result.stepResult.artifacts = [`.redpill/research/${researchType}.md`];
       }
       return result.stepResult;
     });
@@ -386,7 +386,7 @@ export class InitRunner {
 
     return sanitizePrompt([
       'You are creating the PROJECT.md for a new software project.',
-      'Write .planning/PROJECT.md based on the template structure below and the user\'s project description.',
+      'Write .redpill/PROJECT.md based on the template structure below and the user\'s project description.',
       '',
       '<project_template>',
       template,
@@ -396,7 +396,7 @@ export class InitRunner {
       input,
       '</user_input>',
       '',
-      'Write the file to .planning/PROJECT.md. Follow the template structure but fill in with real content derived from the user input.',
+      'Write the file to .redpill/PROJECT.md. Follow the template structure but fill in with real content derived from the user input.',
       'Be specific and opinionated — make decisions, don\'t list options.',
     ].join('\n'));
   }
@@ -409,14 +409,14 @@ export class InitRunner {
     researchType: ResearchType,
     input: string,
   ): Promise<string> {
-    const agentDef = await this.readAgentFile('gsd-project-researcher.md');
+    const agentDef = await this.readAgentFile('redpill-project-researcher.md');
     const template = await this.readGSDFile(`templates/research-project/${researchType}.md`);
 
     // Read PROJECT.md if it exists (it should by now)
     let projectContent = '';
     try {
       projectContent = await readFile(
-        join(this.projectDir, '.planning', 'PROJECT.md'),
+        join(this.projectDir, '.redpill', 'PROJECT.md'),
         'utf-8',
       );
     } catch {
@@ -430,10 +430,10 @@ export class InitRunner {
       '</agent_definition>',
       '',
       `You are researching the ${researchType} aspect of this project.`,
-      `Write your findings to .planning/research/${researchType}.md`,
+      `Write your findings to .redpill/research/${researchType}.md`,
       '',
       '<files_to_read>',
-      '.planning/PROJECT.md',
+      '.redpill/PROJECT.md',
       '</files_to_read>',
       '',
       '<project_context>',
@@ -444,7 +444,7 @@ export class InitRunner {
       template,
       '</research_template>',
       '',
-      `Write .planning/research/${researchType}.md following the template structure.`,
+      `Write .redpill/research/${researchType}.md following the template structure.`,
       'Be comprehensive but opinionated. "Use X because Y" not "Options are X, Y, Z."',
     ].join('\n'));
   }
@@ -454,9 +454,9 @@ export class InitRunner {
    * Reads synthesizer agent def and all 4 research outputs.
    */
   private async buildSynthesisPrompt(): Promise<string> {
-    const agentDef = await this.readAgentFile('gsd-research-synthesizer.md');
+    const agentDef = await this.readAgentFile('redpill-research-synthesizer.md');
     const summaryTemplate = await this.readGSDFile('templates/research-project/SUMMARY.md');
-    const researchDir = join(this.projectDir, '.planning', 'research');
+    const researchDir = join(this.projectDir, '.redpill', 'research');
 
     // Read whatever research files exist
     const researchContent: string[] = [];
@@ -475,13 +475,13 @@ export class InitRunner {
       '</agent_definition>',
       '',
       '<files_to_read>',
-      '.planning/research/STACK.md',
-      '.planning/research/FEATURES.md',
-      '.planning/research/ARCHITECTURE.md',
-      '.planning/research/PITFALLS.md',
+      '.redpill/research/STACK.md',
+      '.redpill/research/FEATURES.md',
+      '.redpill/research/ARCHITECTURE.md',
+      '.redpill/research/PITFALLS.md',
       '</files_to_read>',
       '',
-      'Synthesize the research files below into .planning/research/SUMMARY.md',
+      'Synthesize the research files below into .redpill/research/SUMMARY.md',
       '',
       ...researchContent,
       '',
@@ -489,8 +489,8 @@ export class InitRunner {
       summaryTemplate,
       '</summary_template>',
       '',
-      'Write .planning/research/SUMMARY.md synthesizing all research findings.',
-      'Also commit all research files: git add .planning/research/ && git commit.',
+      'Write .redpill/research/SUMMARY.md synthesizing all research findings.',
+      'Also commit all research files: git add .redpill/research/ && git commit.',
     ].join('\n'));
   }
 
@@ -505,7 +505,7 @@ export class InitRunner {
     let featuresContent = '';
     try {
       projectContent = await readFile(
-        join(this.projectDir, '.planning', 'PROJECT.md'),
+        join(this.projectDir, '.redpill', 'PROJECT.md'),
         'utf-8',
       );
     } catch {
@@ -513,7 +513,7 @@ export class InitRunner {
     }
     try {
       featuresContent = await readFile(
-        join(this.projectDir, '.planning', 'research', 'FEATURES.md'),
+        join(this.projectDir, '.redpill', 'research', 'FEATURES.md'),
         'utf-8',
       );
     } catch {
@@ -537,7 +537,7 @@ export class InitRunner {
       reqTemplate,
       '</requirements_template>',
       '',
-      'Write .planning/REQUIREMENTS.md following the template structure.',
+      'Write .redpill/REQUIREMENTS.md following the template structure.',
       'Every requirement must be testable and specific. No vague aspirations.',
     ].join('\n'));
   }
@@ -547,15 +547,15 @@ export class InitRunner {
    * Reads PROJECT.md + REQUIREMENTS.md + research/SUMMARY.md + config.json.
    */
   private async buildRoadmapPrompt(): Promise<string> {
-    const agentDef = await this.readAgentFile('gsd-roadmapper.md');
+    const agentDef = await this.readAgentFile('redpill-roadmapper.md');
     const roadmapTemplate = await this.readGSDFile('templates/roadmap.md');
     const stateTemplate = await this.readGSDFile('templates/state.md');
 
     const filesToRead = [
-      '.planning/PROJECT.md',
-      '.planning/REQUIREMENTS.md',
-      '.planning/research/SUMMARY.md',
-      '.planning/config.json',
+      '.redpill/PROJECT.md',
+      '.redpill/REQUIREMENTS.md',
+      '.redpill/research/SUMMARY.md',
+      '.redpill/config.json',
     ];
 
     const fileContents: string[] = [];
@@ -587,7 +587,7 @@ export class InitRunner {
       stateTemplate,
       '</state_template>',
       '',
-      'Create .planning/ROADMAP.md and .planning/STATE.md.',
+      'Create .redpill/ROADMAP.md and .redpill/STATE.md.',
       'ROADMAP.md: Transform requirements into phases. Every v1 requirement maps to exactly one phase.',
       'STATE.md: Initialize project state tracking.',
     ].join('\n'));
@@ -619,9 +619,9 @@ export class InitRunner {
   // ─── File reading helpers ──────────────────────────────────────────────────
 
   /**
-   * Read a file from the GSD templates directory.
+   * Read a file from the REDPILL templates directory.
    * Tries sdk/prompts/{relativePath} first (headless versions), then
-   * falls back to GSD-1 originals (~/.claude/get-shit-done/).
+   * falls back to GSD-1 originals (~/.claude/redpill/).
    */
   private async readGSDFile(relativePath: string): Promise<string> {
     // Try SDK prompts dir first (headless versions)

@@ -1,10 +1,10 @@
 # User Profiling: Detection Heuristics Reference
 
-This reference document defines detection heuristics for behavioral profiling across 8 dimensions. The gsd-user-profiler agent applies these rules when analyzing extracted session messages. Do not invent dimensions or scoring rules beyond what is defined here.
+This reference document defines detection heuristics for behavioral profiling across 8 dimensions. The redpill-user-profiler agent applies these rules when analyzing extracted session messages. Do not invent dimensions or scoring rules beyond what is defined here.
 
 ## How to Use This Document
 
-1. The gsd-user-profiler agent reads this document before analyzing any messages
+1. The redpill-user-profiler agent reads this document before analyzing any messages
 2. For each dimension, the agent scans messages for the signal patterns defined below
 3. The agent applies the detection heuristics to classify the developer's pattern
 4. Confidence is scored using the thresholds defined per dimension

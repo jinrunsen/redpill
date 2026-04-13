@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Copy GSD hooks to dist for installation.
+ * Copy REDPILL hooks to dist for installation.
  * Validates JavaScript syntax before copying to prevent shipping broken hooks.
  * See #1107, #1109, #1125, #1161 — a duplicate const declaration shipped
  * in dist and caused PostToolUse hook errors for all users.
@@ -15,11 +15,11 @@ const DIST_DIR = path.join(HOOKS_DIR, 'dist');
 
 // Hooks to copy (pure Node.js, no bundling needed)
 const HOOKS_TO_COPY = [
-  'gsd-check-update.js',
-  'gsd-context-monitor.js',
-  'gsd-prompt-guard.js',
-  'gsd-statusline.js',
-  'gsd-workflow-guard.js'
+  'redpill-check-update.js',
+  'redpill-context-monitor.js',
+  'redpill-prompt-guard.js',
+  'redpill-statusline.js',
+  'redpill-workflow-guard.js'
 ];
 
 /**

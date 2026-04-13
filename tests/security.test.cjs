@@ -19,7 +19,7 @@ const {
   validatePhaseNumber,
   validateFieldName,
   validateShellArg,
-} = require('../get-shit-done/bin/lib/security.cjs');
+} = require('../redpill/bin/lib/security.cjs');
 
 // ─── Path Traversal Prevention ──────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ describe('validatePath', () => {
   });
 
   test('allows nested relative paths', () => {
-    const result = validatePath('.planning/phases/01-setup/PLAN.md', base);
+    const result = validatePath('.redpill/phases/01-setup/PLAN.md', base);
     assert.ok(result.safe);
   });
 

@@ -1,5 +1,5 @@
 ---
-name: gsd:bdd-phase
+name: redpill:bdd-phase
 description: Scenario-driven BDD execution — iterates through Gherkin scenarios one-by-one via RED/WORK/GREEN/REVIEW cycles
 argument-hint: "[phase] [--resume] [--skip-review] [--tag @tag_name]"
 allowed-tools:
@@ -22,7 +22,7 @@ Produces: BDD-PROGRESS.json (incremental) + BDD-SUMMARY.md (on completion).
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/bdd-phase.md
+@~/.claude/redpill/workflows/bdd-phase.md
 </execution_context>
 
 <context>
@@ -35,6 +35,6 @@ Phase number: $ARGUMENTS (required)
 </context>
 
 <process>
-Execute the bdd-phase workflow from @~/.claude/get-shit-done/workflows/bdd-phase.md end-to-end.
+Execute the bdd-phase workflow from @~/.claude/redpill/workflows/bdd-phase.md end-to-end.
 Follow all pre-flight checks, the BDD iteration loop, and completion flow.
 </process>

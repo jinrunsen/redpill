@@ -1,6 +1,6 @@
 /**
  * E2E integration test — proves InitRunner.run() drives real Agent SDK
- * sessions for the gsd-sdk init workflow.
+ * sessions for the redpill-sdk init workflow.
  *
  * Requires Claude Code CLI (`claude`) installed and authenticated.
  * Skips gracefully if CLI is unavailable.
@@ -36,7 +36,7 @@ try {
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const sdkPromptsDir = join(__dirname, '..', 'prompts');
-const GSD_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+const REDPILL_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs');
 
 // ─── Test suite ──────────────────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ describe.skipIf(!cliAvailable)('E2E: InitRunner.run() full workflow', () => {
   let events: GSDEvent[];
 
   beforeAll(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'gsd-sdk-init-e2e-'));
+    tmpDir = await mkdtemp(join(tmpdir(), 'redpill-sdk-init-e2e-'));
 
     // Initialize git in the temp dir (required by InitRunner)
     execSync('git init', { cwd: tmpDir, stdio: 'ignore' });
@@ -66,7 +66,7 @@ describe.skipIf(!cliAvailable)('E2E: InitRunner.run() full workflow', () => {
 
     const tools = new GSDTools({
       projectDir: tmpDir,
-      gsdToolsPath: GSD_TOOLS_PATH,
+      gsdToolsPath: REDPILL_TOOLS_PATH,
       timeoutMs: 30_000,
     });
 
@@ -93,7 +93,7 @@ describe.skipIf(!cliAvailable)('E2E: InitRunner.run() full workflow', () => {
     // so it should always exist if the config step succeeded
     const configStep = result.steps.find(s => s.step === 'config');
     if (configStep?.success) {
-      const configPath = join(tmpDir, '.planning', 'config.json');
+      const configPath = join(tmpDir, '.redpill', 'config.json');
       const configStat = await stat(configPath).catch(() => null);
       expect(configStat).not.toBeNull();
 
@@ -106,7 +106,7 @@ describe.skipIf(!cliAvailable)('E2E: InitRunner.run() full workflow', () => {
     // ── Assert: PROJECT.md created if project step succeeded ──
     const projectStep = result.steps.find(s => s.step === 'project');
     if (projectStep?.success) {
-      const projectPath = join(tmpDir, '.planning', 'PROJECT.md');
+      const projectPath = join(tmpDir, '.redpill', 'PROJECT.md');
       const projectStat = await stat(projectPath).catch(() => null);
       expect(projectStat).not.toBeNull();
     }
@@ -129,7 +129,7 @@ describe.skipIf(!cliAvailable)('E2E: InitRunner.run() full workflow', () => {
     // ── Assert: artifacts list is populated ──
     if (result.success) {
       expect(result.artifacts.length).toBeGreaterThan(0);
-      expect(result.artifacts).toContain('.planning/config.json');
+      expect(result.artifacts).toContain('.redpill/config.json');
     }
   }, 600_000); // 10 minute timeout for the full 7-session init workflow
 });

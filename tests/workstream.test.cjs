@@ -6,38 +6,38 @@ const { describe, test, before, after, beforeEach, afterEach } = require('node:t
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
 function createProjectWithState(tmpDir, roadmap, state) {
   if (roadmap) {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmap, 'utf-8');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), roadmap, 'utf-8');
   }
   if (state) {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), state, 'utf-8');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), state, 'utf-8');
   }
 }
 
-// ─── planningDir / planningPaths env-var awareness ──────────────────────────
+// ─── redpillDir / redpillPaths env-var awareness ──────────────────────────
 
-describe('planningDir workstream awareness via env var', () => {
+describe('redpillDir workstream awareness via env var', () => {
   let tmpDir;
 
   before(() => {
     tmpDir = createTempProject();
     // Create workstream structure
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'alpha');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'alpha');
     fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n**Status:** In progress\n**Current Phase:** 1\n');
     fs.writeFileSync(path.join(wsDir, 'ROADMAP.md'), '## Roadmap v1.0: Alpha\n### Phase 1: Setup\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'active-workstream'), 'alpha\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), 'alpha\n');
   });
 
   after(() => cleanup(tmpDir));
 
-  test('state json returns workstream-scoped state when GSD_WORKSTREAM is set', () => {
-    const result = runGsdTools(['state', 'json', '--raw'], tmpDir, { GSD_WORKSTREAM: 'alpha' });
+  test('state json returns workstream-scoped state when REDPILL_WORKSTREAM is set', () => {
+    const result = runRedpillTools(['state', 'json', '--raw'], tmpDir, { REDPILL_WORKSTREAM: 'alpha' });
     assert.ok(result.success, `state json failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.ok(data.status || data.current_phase !== undefined, 'should return state data');
@@ -45,22 +45,22 @@ describe('planningDir workstream awareness via env var', () => {
 
   test('state json reads from flat .planning when no workstream set', () => {
     // Clear active-workstream so no auto-detection
-    try { fs.unlinkSync(path.join(tmpDir, '.planning', 'active-workstream')); } catch {}
-    const result = runGsdTools(['state', 'json', '--raw'], tmpDir, { GSD_WORKSTREAM: '' });
-    // Should fail or return empty state since flat .planning/ has no STATE.md
+    try { fs.unlinkSync(path.join(tmpDir, '.redpill', 'active-workstream')); } catch {}
+    const result = runRedpillTools(['state', 'json', '--raw'], tmpDir, { REDPILL_WORKSTREAM: '' });
+    // Should fail or return empty state since flat .redpill/ has no STATE.md
     assert.ok(!result.success || result.output.includes('not found') || result.output === '{}',
-      'should read from flat .planning/');
+      'should read from flat .redpill/');
     // Restore
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'active-workstream'), 'alpha\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), 'alpha\n');
   });
 
-  test('--ws flag overrides GSD_WORKSTREAM env var', () => {
+  test('--ws flag overrides REDPILL_WORKSTREAM env var', () => {
     // Create a second workstream
-    const betaDir = path.join(tmpDir, '.planning', 'workstreams', 'beta');
+    const betaDir = path.join(tmpDir, '.redpill', 'workstreams', 'beta');
     fs.mkdirSync(path.join(betaDir, 'phases'), { recursive: true });
     fs.writeFileSync(path.join(betaDir, 'STATE.md'), '# State\n**Status:** Beta active\n');
 
-    const result = runGsdTools(['state', 'json', '--raw', '--ws', 'beta'], tmpDir, { GSD_WORKSTREAM: 'alpha' });
+    const result = runRedpillTools(['state', 'json', '--raw', '--ws', 'beta'], tmpDir, { REDPILL_WORKSTREAM: 'alpha' });
     assert.ok(result.success, `state json --ws beta failed: ${result.error}`);
   });
 });
@@ -72,28 +72,28 @@ describe('workstream create', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'PROJECT.md'), '# Project\n');
   });
 
   after(() => cleanup(tmpDir));
 
   test('creates a new workstream in clean project', () => {
-    const result = runGsdTools(['workstream', 'create', 'feature-x', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'create', 'feature-x', '--raw'], tmpDir);
     assert.ok(result.success, `create failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.created, true);
     assert.strictEqual(data.workstream, 'feature-x');
-    assert.ok(fs.existsSync(path.join(tmpDir, '.planning', 'workstreams', 'feature-x', 'STATE.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, '.planning', 'workstreams', 'feature-x', 'phases')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.redpill', 'workstreams', 'feature-x', 'STATE.md')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.redpill', 'workstreams', 'feature-x', 'phases')));
   });
 
   test('sets created workstream as active', () => {
-    const active = fs.readFileSync(path.join(tmpDir, '.planning', 'active-workstream'), 'utf-8').trim();
+    const active = fs.readFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), 'utf-8').trim();
     assert.strictEqual(active, 'feature-x');
   });
 
   test('rejects duplicate workstream', () => {
-    const result = runGsdTools(['workstream', 'create', 'feature-x', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'create', 'feature-x', '--raw'], tmpDir);
     assert.ok(result.success); // returns success with error field
     const data = JSON.parse(result.output);
     assert.strictEqual(data.created, false);
@@ -101,7 +101,7 @@ describe('workstream create', () => {
   });
 
   test('creates second workstream', () => {
-    const result = runGsdTools(['workstream', 'create', 'feature-y', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'create', 'feature-y', '--raw'], tmpDir);
     assert.ok(result.success);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.created, true);
@@ -114,26 +114,26 @@ describe('workstream create with migration', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'PROJECT.md'), '# Project\n');
     // Existing flat-mode work
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), '## Roadmap v1.0: Existing\n### Phase 1: A\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), '# State\n**Status:** In progress\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'), '## Roadmap v1.0: Existing\n### Phase 1: A\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), '# State\n**Status:** In progress\n');
   });
 
   after(() => cleanup(tmpDir));
 
   test('migrates existing flat work to named workstream', () => {
-    const result = runGsdTools(['workstream', 'create', 'new-feature', '--migrate-name', 'existing-work', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'create', 'new-feature', '--migrate-name', 'existing-work', '--raw'], tmpDir);
     assert.ok(result.success, `create with migration failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.created, true);
     assert.ok(data.migration, 'should include migration info');
     assert.strictEqual(data.migration.workstream, 'existing-work');
     // Old flat files moved to workstream dir
-    assert.ok(fs.existsSync(path.join(tmpDir, '.planning', 'workstreams', 'existing-work', 'ROADMAP.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, '.planning', 'workstreams', 'existing-work', 'STATE.md')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.redpill', 'workstreams', 'existing-work', 'ROADMAP.md')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.redpill', 'workstreams', 'existing-work', 'STATE.md')));
     // Shared files stay
-    assert.ok(fs.existsSync(path.join(tmpDir, '.planning', 'PROJECT.md')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.redpill', 'PROJECT.md')));
   });
 });
 
@@ -144,7 +144,7 @@ describe('workstream list', () => {
     tmpDir = createTempProject();
     // Create two workstreams
     for (const ws of ['alpha', 'beta']) {
-      const wsDir = path.join(tmpDir, '.planning', 'workstreams', ws);
+      const wsDir = path.join(tmpDir, '.redpill', 'workstreams', ws);
       fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
       fs.writeFileSync(path.join(wsDir, 'STATE.md'), `# State\n**Status:** Working on ${ws}\n**Current Phase:** 1\n`);
     }
@@ -153,7 +153,7 @@ describe('workstream list', () => {
   after(() => cleanup(tmpDir));
 
   test('lists all workstreams', () => {
-    const result = runGsdTools(['workstream', 'list', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'list', '--raw'], tmpDir);
     assert.ok(result.success, `list failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.mode, 'workstream');
@@ -174,7 +174,7 @@ describe('workstream list', () => {
     });
 
     test('reports flat mode when no workstreams exist', () => {
-      const result = runGsdTools(['workstream', 'list', '--raw'], flatDir);
+      const result = runRedpillTools(['workstream', 'list', '--raw'], flatDir);
       assert.ok(result.success);
       const data = JSON.parse(result.output);
       assert.strictEqual(data.mode, 'flat');
@@ -187,7 +187,7 @@ describe('workstream status', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'alpha');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'alpha');
     fs.mkdirSync(path.join(wsDir, 'phases', '01-setup'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'phases', '01-setup', 'PLAN.md'), '# Plan\n');
     fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n**Status:** In progress\n**Current Phase:** 1 — Setup\n');
@@ -197,7 +197,7 @@ describe('workstream status', () => {
   after(() => cleanup(tmpDir));
 
   test('returns detailed status for workstream', () => {
-    const result = runGsdTools(['workstream', 'status', 'alpha', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'status', 'alpha', '--raw'], tmpDir);
     assert.ok(result.success, `status failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.found, true);
@@ -208,7 +208,7 @@ describe('workstream status', () => {
   });
 
   test('returns not found for missing workstream', () => {
-    const result = runGsdTools(['workstream', 'status', 'nonexistent', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'status', 'nonexistent', '--raw'], tmpDir);
     assert.ok(result.success);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.found, false);
@@ -220,26 +220,26 @@ describe('workstream complete', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'done-ws');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'done-ws');
     fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n**Status:** Complete\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'active-workstream'), 'done-ws\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), 'done-ws\n');
   });
 
   after(() => cleanup(tmpDir));
 
   test('archives workstream to milestones/', () => {
-    const result = runGsdTools(['workstream', 'complete', 'done-ws', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'complete', 'done-ws', '--raw'], tmpDir);
     assert.ok(result.success, `complete failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.completed, true);
-    assert.ok(data.archived_to.startsWith('.planning/milestones/ws-done-ws'));
+    assert.ok(data.archived_to.startsWith('.redpill/milestones/ws-done-ws'));
     // Workstream dir should be gone
-    assert.ok(!fs.existsSync(path.join(tmpDir, '.planning', 'workstreams', 'done-ws')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, '.redpill', 'workstreams', 'done-ws')));
   });
 
   test('clears active-workstream when completing active one', () => {
-    assert.ok(!fs.existsSync(path.join(tmpDir, '.planning', 'active-workstream')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, '.redpill', 'active-workstream')));
   });
 });
 
@@ -249,7 +249,7 @@ describe('workstream set/get', () => {
   before(() => {
     tmpDir = createTempProject();
     for (const ws of ['ws-a', 'ws-b']) {
-      const wsDir = path.join(tmpDir, '.planning', 'workstreams', ws);
+      const wsDir = path.join(tmpDir, '.redpill', 'workstreams', ws);
       fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
       fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n');
     }
@@ -258,28 +258,28 @@ describe('workstream set/get', () => {
   after(() => cleanup(tmpDir));
 
   test('sets active workstream', () => {
-    const result = runGsdTools(['workstream', 'set', 'ws-a', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'set', 'ws-a', '--raw'], tmpDir);
     assert.ok(result.success);
     assert.strictEqual(result.output, 'ws-a');
   });
 
   test('gets active workstream', () => {
-    const result = runGsdTools(['workstream', 'get', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'get', '--raw'], tmpDir);
     assert.ok(result.success);
     assert.strictEqual(result.output, 'ws-a');
   });
 
   test('errors when set called with no name (#1527)', () => {
-    const result = runGsdTools(['workstream', 'set', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'set', '--raw'], tmpDir);
     assert.ok(!result.success, 'should fail when no name provided');
     assert.ok(result.error.includes('name required'), 'error should mention name required');
   });
 
   test('--clear explicitly unsets active workstream', () => {
     // First set one
-    runGsdTools(['workstream', 'set', 'ws-b', '--raw'], tmpDir);
+    runRedpillTools(['workstream', 'set', 'ws-b', '--raw'], tmpDir);
     // Then clear
-    const result = runGsdTools(['workstream', 'set', '--clear', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'set', '--clear', '--raw'], tmpDir);
     assert.ok(result.success);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.active, null);
@@ -297,21 +297,21 @@ describe('getOtherActiveWorkstreams', () => {
     tmpDir = createTempProject();
     // Create 3 workstreams: alpha (active), beta (active), gamma (completed)
     for (const ws of ['alpha', 'beta', 'gamma']) {
-      const wsDir = path.join(tmpDir, '.planning', 'workstreams', ws);
+      const wsDir = path.join(tmpDir, '.redpill', 'workstreams', ws);
       fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
     }
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'workstreams', 'alpha', 'STATE.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'workstreams', 'alpha', 'STATE.md'),
       '# State\n**Status:** In progress\n**Current Phase:** 3\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'workstreams', 'beta', 'STATE.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'workstreams', 'beta', 'STATE.md'),
       '# State\n**Status:** In progress\n**Current Phase:** 5\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'workstreams', 'gamma', 'STATE.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'workstreams', 'gamma', 'STATE.md'),
       '# State\n**Status:** Milestone complete\n');
   });
 
   after(() => cleanup(tmpDir));
 
   test('workstream list excludes completed workstreams from active count', () => {
-    const result = runGsdTools(['workstream', 'list', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'list', '--raw'], tmpDir);
     assert.ok(result.success);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.count, 3); // all listed
@@ -326,19 +326,19 @@ describe('workstream progress', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'feature');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'feature');
     fs.mkdirSync(path.join(wsDir, 'phases', '01-init'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'phases', '01-init', 'PLAN.md'), '# Plan\n');
     fs.writeFileSync(path.join(wsDir, 'phases', '01-init', 'SUMMARY.md'), '# Summary\n');
     fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n**Status:** In progress\n**Current Phase:** 2\n');
     fs.writeFileSync(path.join(wsDir, 'ROADMAP.md'), '## Roadmap\n### Phase 1: Init\n### Phase 2: Build\n');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'active-workstream'), 'feature\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), 'feature\n');
   });
 
   after(() => cleanup(tmpDir));
 
   test('returns progress summary', () => {
-    const result = runGsdTools(['workstream', 'progress', '--raw'], tmpDir);
+    const result = runRedpillTools(['workstream', 'progress', '--raw'], tmpDir);
     assert.ok(result.success, `progress failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.mode, 'workstream');
@@ -357,7 +357,7 @@ describe('gsd-tools --ws flag integration', () => {
   before(() => {
     tmpDir = createTempProject();
     // Create a workstream with roadmap
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'test-ws');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'test-ws');
     fs.mkdirSync(path.join(wsDir, 'phases', '01-setup'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'ROADMAP.md'),
       '## Roadmap v1.0: Test\n### Phase 1: Setup\nDo setup things.\n');
@@ -369,13 +369,13 @@ describe('gsd-tools --ws flag integration', () => {
   after(() => cleanup(tmpDir));
 
   test('find-phase resolves to workstream-scoped phases via --ws', () => {
-    const result = runGsdTools(['find-phase', '1', '--raw', '--ws', 'test-ws'], tmpDir);
+    const result = runRedpillTools(['find-phase', '1', '--raw', '--ws', 'test-ws'], tmpDir);
     assert.ok(result.success, `find-phase failed: ${result.error}`);
     assert.ok(result.output.includes('workstreams/test-ws'), `path should be workstream-scoped: ${result.output}`);
   });
 
   test('find-phase returns JSON with workstream path when not raw', () => {
-    const result = runGsdTools(['find-phase', '1', '--ws', 'test-ws'], tmpDir);
+    const result = runRedpillTools(['find-phase', '1', '--ws', 'test-ws'], tmpDir);
     assert.ok(result.success, `find-phase failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.ok(data.found, 'phase should be found');
@@ -390,8 +390,8 @@ describe('path traversal rejection', () => {
 
   before(() => {
     tmpDir = createTempProject();
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
-    const wsDir = path.join(tmpDir, '.planning', 'workstreams', 'legit');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'PROJECT.md'), '# Project\n');
+    const wsDir = path.join(tmpDir, '.redpill', 'workstreams', 'legit');
     fs.mkdirSync(path.join(wsDir, 'phases'), { recursive: true });
     fs.writeFileSync(path.join(wsDir, 'STATE.md'), '# State\n');
   });
@@ -412,18 +412,18 @@ describe('path traversal rejection', () => {
   describe('--ws flag rejects traversal attempts', () => {
     for (const name of maliciousNames) {
       test(`rejects --ws=${name}`, () => {
-        const result = runGsdTools(['workstream', 'list', '--raw', '--ws', name], tmpDir);
+        const result = runRedpillTools(['workstream', 'list', '--raw', '--ws', name], tmpDir);
         assert.ok(!result.success, `should reject --ws=${name}`);
         assert.ok(result.error.includes('Invalid workstream name'), `error should mention invalid name for: ${name}`);
       });
     }
   });
 
-  describe('GSD_WORKSTREAM env var rejects traversal attempts', () => {
+  describe('REDPILL_WORKSTREAM env var rejects traversal attempts', () => {
     for (const name of maliciousNames) {
-      test(`rejects GSD_WORKSTREAM=${name}`, () => {
-        const result = runGsdTools(['workstream', 'list', '--raw'], tmpDir, { GSD_WORKSTREAM: name });
-        assert.ok(!result.success, `should reject GSD_WORKSTREAM=${name}`);
+      test(`rejects REDPILL_WORKSTREAM=${name}`, () => {
+        const result = runRedpillTools(['workstream', 'list', '--raw'], tmpDir, { REDPILL_WORKSTREAM: name });
+        assert.ok(!result.success, `should reject REDPILL_WORKSTREAM=${name}`);
         assert.ok(result.error.includes('Invalid workstream name'), `error should mention invalid name for: ${name}`);
       });
     }
@@ -432,7 +432,7 @@ describe('path traversal rejection', () => {
   describe('cmdWorkstreamSet rejects traversal attempts', () => {
     for (const name of maliciousNames) {
       test(`rejects set ${name}`, () => {
-        const result = runGsdTools(['workstream', 'set', name, '--raw'], tmpDir);
+        const result = runRedpillTools(['workstream', 'set', name, '--raw'], tmpDir);
         // cmdWorkstreamSet validates the positional arg and returns invalid_name error
         assert.ok(result.success, `command should exit cleanly for: ${name}`);
         const data = JSON.parse(result.output);
@@ -446,8 +446,8 @@ describe('path traversal rejection', () => {
     for (const name of maliciousNames) {
       test(`rejects poisoned file containing ${name}`, () => {
         // Write malicious name directly to the active-workstream file
-        fs.writeFileSync(path.join(tmpDir, '.planning', 'active-workstream'), name + '\n');
-        const result = runGsdTools(['workstream', 'get'], tmpDir, { GSD_WORKSTREAM: '' });
+        fs.writeFileSync(path.join(tmpDir, '.redpill', 'active-workstream'), name + '\n');
+        const result = runRedpillTools(['workstream', 'get'], tmpDir, { REDPILL_WORKSTREAM: '' });
         assert.ok(result.success, 'get should succeed');
         const data = JSON.parse(result.output);
         // getActiveWorkstream should return null for invalid names
@@ -457,12 +457,12 @@ describe('path traversal rejection', () => {
 
     // Cleanup: remove poisoned file
     test('cleanup: remove active-workstream file', () => {
-      try { fs.unlinkSync(path.join(tmpDir, '.planning', 'active-workstream')); } catch {}
+      try { fs.unlinkSync(path.join(tmpDir, '.redpill', 'active-workstream')); } catch {}
     });
   });
 
   describe('setActiveWorkstream rejects invalid names directly', () => {
-    const { setActiveWorkstream } = require('../get-shit-done/bin/lib/core.cjs');
+    const { setActiveWorkstream } = require('../redpill/bin/lib/core.cjs');
     for (const name of maliciousNames) {
       test(`throws for ${name}`, () => {
         assert.throws(

@@ -13,7 +13,7 @@ Times e desenvolvedores frequentemente precisam trabalhar em múltiplos reposit�
 
 Introduzir workspaces multi-projeto com:
 
-- isolamento de `.planning/` por workspace
+- isolamento de `.redpill/` por workspace
 - suporte a múltiplos repositórios (worktree/clone)
 - comandos para criação, listagem e remoção
 
@@ -33,7 +33,7 @@ Introduzir workspaces multi-projeto com:
 ## Fluxo de uso
 
 1. Criar workspace com nome e repositórios alvo
-2. Inicializar/retomar fluxo GSD dentro do workspace
+2. Inicializar/retomar fluxo REDPILL dentro do workspace
 3. Operar fases normalmente com estado isolado
 4. Finalizar e remover quando concluído
 

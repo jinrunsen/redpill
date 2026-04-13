@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Claude Skills Migration (#1504)
+ * REDPILL Tools Tests - Claude Skills Migration (#1504)
  *
  * Tests for migrating Claude Code from commands/gsd/ to skills/gsd-xxx/SKILL.md
  * format for compatibility with Claude Code 2.1.88+.
@@ -7,7 +7,7 @@
  * Uses node:test and node:assert (NOT Jest).
  */
 
-process.env.GSD_TEST_MODE = '1';
+process.env.REDPILL_TEST_MODE = '1';
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
@@ -28,7 +28,7 @@ describe('convertClaudeCommandToClaudeSkill', () => {
   test('preserves allowed-tools multiline YAML list', () => {
     const input = [
       '---',
-      'name: gsd:next',
+      'name: redpill:next',
       'description: Advance to the next step',
       'allowed-tools:',
       '  - Read',
@@ -49,7 +49,7 @@ describe('convertClaudeCommandToClaudeSkill', () => {
   test('preserves argument-hint', () => {
     const input = [
       '---',
-      'name: gsd:debug',
+      'name: redpill:debug',
       'description: Debug issues',
       'argument-hint: "[issue description]"',
       'allowed-tools:',
@@ -69,10 +69,10 @@ describe('convertClaudeCommandToClaudeSkill', () => {
     );
   });
 
-  test('converts name format from gsd:xxx to skill naming', () => {
+  test('converts name format from redpill:xxx to skill naming', () => {
     const input = [
       '---',
-      'name: gsd:next',
+      'name: redpill:next',
       'description: Advance workflow',
       '---',
       '',
@@ -81,14 +81,14 @@ describe('convertClaudeCommandToClaudeSkill', () => {
 
     const result = convertClaudeCommandToClaudeSkill(input, 'gsd-next');
     assert.ok(result.includes('name: gsd-next'), 'name uses skill naming convention');
-    assert.ok(!result.includes('name: gsd:next'), 'old name format removed');
+    assert.ok(!result.includes('name: redpill:next'), 'old name format removed');
   });
 
   test('preserves body content unchanged', () => {
     const body = '\n<objective>\nDo the thing.\n</objective>\n\n<process>\nStep 1.\nStep 2.\n</process>\n';
     const input = [
       '---',
-      'name: gsd:test',
+      'name: redpill:test',
       'description: Test command',
       '---',
       body,
@@ -104,7 +104,7 @@ describe('convertClaudeCommandToClaudeSkill', () => {
   test('preserves agent field', () => {
     const input = [
       '---',
-      'name: gsd:plan-phase',
+      'name: redpill:plan-phase',
       'description: Plan a phase',
       'agent: true',
       'allowed-tools:',
@@ -127,7 +127,7 @@ describe('convertClaudeCommandToClaudeSkill', () => {
   test('preserves allowed-tools as multiline YAML list (not flattened)', () => {
     const input = [
       '---',
-      'name: gsd:debug',
+      'name: redpill:debug',
       'description: Debug',
       'allowed-tools:',
       '  - Read',
@@ -167,11 +167,11 @@ describe('copyCommandsAsClaudeSkills', () => {
     fs.mkdirSync(srcDir, { recursive: true });
     fs.writeFileSync(
       path.join(srcDir, 'next.md'),
-      '---\nname: gsd:next\ndescription: Advance\nallowed-tools:\n  - Read\n---\n\nBody.'
+      '---\nname: redpill:next\ndescription: Advance\nallowed-tools:\n  - Read\n---\n\nBody.'
     );
     fs.writeFileSync(
       path.join(srcDir, 'health.md'),
-      '---\nname: gsd:health\ndescription: Check health\n---\n\nHealth body.'
+      '---\nname: redpill:health\ndescription: Check health\n---\n\nHealth body.'
     );
 
     const skillsDir = path.join(tmpDir, 'skills');
@@ -193,7 +193,7 @@ describe('copyCommandsAsClaudeSkills', () => {
     fs.mkdirSync(srcDir, { recursive: true });
     fs.writeFileSync(
       path.join(srcDir, 'next.md'),
-      '---\nname: gsd:next\ndescription: Advance\n---\n\nBody.'
+      '---\nname: redpill:next\ndescription: Advance\n---\n\nBody.'
     );
 
     const skillsDir = path.join(tmpDir, 'skills');
@@ -221,7 +221,7 @@ describe('copyCommandsAsClaudeSkills', () => {
     fs.mkdirSync(srcDir, { recursive: true });
     fs.writeFileSync(
       path.join(srcDir, 'next.md'),
-      '---\nname: gsd:next\ndescription: Advance\n---\n\nBody.'
+      '---\nname: redpill:next\ndescription: Advance\n---\n\nBody.'
     );
 
     const skillsDir = path.join(tmpDir, 'skills');
@@ -296,7 +296,7 @@ describe('Legacy commands/gsd/ cleanup', () => {
     fs.mkdirSync(srcDir, { recursive: true });
     fs.writeFileSync(
       path.join(srcDir, 'next.md'),
-      '---\nname: gsd:next\ndescription: Advance\n---\n\nBody.'
+      '---\nname: redpill:next\ndescription: Advance\n---\n\nBody.'
     );
 
     const skillsDir = path.join(tmpDir, 'skills');

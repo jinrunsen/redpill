@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Schema Drift Detection
+ * REDPILL Tools Tests - Schema Drift Detection
  *
  * Tests for schema-relevant file detection (plan-phase injection)
  * and post-execution schema drift gate (execute-phase verification).
@@ -9,7 +9,7 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { createTempProject, createTempGitProject, cleanup, runGsdTools } = require('./helpers.cjs');
+const { createTempProject, createTempGitProject, cleanup, runRedpillTools } = require('./helpers.cjs');
 
 // ─── Unit: detectSchemaFiles ─────────────────────────────────────────────────
 
@@ -221,7 +221,7 @@ describe('checkSchemaDrift', () => {
     assert.strictEqual(result.blocking, false);
   });
 
-  test('respects GSD_SKIP_SCHEMA_CHECK override', () => {
+  test('respects REDPILL_SKIP_SCHEMA_CHECK override', () => {
     const changedFiles = ['src/collections/Posts.ts'];
     const executionLog = 'npm run build';
     const result = checkSchemaDrift(changedFiles, executionLog, { skipCheck: true });
@@ -264,7 +264,7 @@ describe('verify schema-drift CLI command', () => {
 
   test('passes when no schema files in phase diff', () => {
     // Create a phase dir with a plan that modifies non-schema files
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), [
       '---',
@@ -274,7 +274,7 @@ describe('verify schema-drift CLI command', () => {
       'Plan content',
     ].join('\n'));
 
-    const result = runGsdTools(['verify', 'schema-drift', '01-setup'], tmpDir);
+    const result = runRedpillTools(['verify', 'schema-drift', '01-setup'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.drift_detected, false);
@@ -282,7 +282,7 @@ describe('verify schema-drift CLI command', () => {
   });
 
   test('detects drift when schema files in plan but no push evidence', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), [
       '---',
@@ -303,7 +303,7 @@ describe('verify schema-drift CLI command', () => {
       '- npm run test',
     ].join('\n'));
 
-    const result = runGsdTools(['verify', 'schema-drift', '01-setup'], tmpDir);
+    const result = runRedpillTools(['verify', 'schema-drift', '01-setup'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.drift_detected, true);
@@ -311,7 +311,7 @@ describe('verify schema-drift CLI command', () => {
   });
 
   test('passes when schema files in plan AND push evidence in summary', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), [
       '---',
@@ -331,7 +331,7 @@ describe('verify schema-drift CLI command', () => {
       '- npm run build',
     ].join('\n'));
 
-    const result = runGsdTools(['verify', 'schema-drift', '01-setup'], tmpDir);
+    const result = runRedpillTools(['verify', 'schema-drift', '01-setup'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.drift_detected, false);
@@ -339,7 +339,7 @@ describe('verify schema-drift CLI command', () => {
   });
 
   test('respects skip flag', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), [
       '---',
@@ -350,7 +350,7 @@ describe('verify schema-drift CLI command', () => {
     ].join('\n'));
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary\n');
 
-    const result = runGsdTools(['verify', 'schema-drift', '01-setup', '--skip'], tmpDir);
+    const result = runRedpillTools(['verify', 'schema-drift', '01-setup', '--skip'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.blocking, false);

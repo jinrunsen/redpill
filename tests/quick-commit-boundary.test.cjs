@@ -1,5 +1,5 @@
 /**
- * GSD Quick Workflow — Commit Boundary Tests (#1503)
+ * REDPILL Quick Workflow — Commit Boundary Tests (#1503)
  *
  * Validates that the quick workflow correctly separates executor
  * responsibilities (code commits) from orchestrator responsibilities

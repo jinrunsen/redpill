@@ -31,7 +31,7 @@ vi.mock('./config.js', () => ({
   CONFIG_DEFAULTS: {},
 }));
 
-// Mock fs/promises for template reading (InitRunner reads GSD templates)
+// Mock fs/promises for template reading (InitRunner reads REDPILL templates)
 // We partially mock — only readFile needs interception for template paths
 const originalReadFile = vi.importActual('node:fs/promises').then(m => (m as typeof import('node:fs/promises')).readFile);
 
@@ -86,7 +86,7 @@ function makeProjectInfo(overrides: Partial<InitNewProjectInfo> = {}): InitNewPr
     commit_docs: false, // false for tests — no git operations
     project_exists: false,
     has_codebase_map: false,
-    planning_exists: false,
+    redpill_dir_exists: false,
     has_existing_code: false,
     has_package_file: false,
     is_brownfield: false,
@@ -95,7 +95,7 @@ function makeProjectInfo(overrides: Partial<InitNewProjectInfo> = {}): InitNewPr
     brave_search_available: false,
     firecrawl_available: false,
     exa_search_available: false,
-    project_path: '.planning/PROJECT.md',
+    project_path: '.redpill/PROJECT.md',
     ...overrides,
   };
 }
@@ -205,8 +205,8 @@ describe('InitRunner', () => {
 
     await runner.run('build a todo app');
 
-    // config.json should be written to .planning/config.json in tmpDir
-    const configPath = join(tmpDir, '.planning', 'config.json');
+    // config.json should be written to .redpill/config.json in tmpDir
+    const configPath = join(tmpDir, '.redpill', 'config.json');
     const content = await readFile(configPath, 'utf-8');
     const parsed = JSON.parse(content);
 
@@ -480,22 +480,22 @@ describe('InitRunner', () => {
     const result = await runner.run('build a todo app');
 
     expect(result.success).toBe(true);
-    expect(result.artifacts).toContain('.planning/config.json');
-    expect(result.artifacts).toContain('.planning/PROJECT.md');
-    expect(result.artifacts).toContain('.planning/research/SUMMARY.md');
-    expect(result.artifacts).toContain('.planning/REQUIREMENTS.md');
-    expect(result.artifacts).toContain('.planning/ROADMAP.md');
-    expect(result.artifacts).toContain('.planning/STATE.md');
+    expect(result.artifacts).toContain('.redpill/config.json');
+    expect(result.artifacts).toContain('.redpill/PROJECT.md');
+    expect(result.artifacts).toContain('.redpill/research/SUMMARY.md');
+    expect(result.artifacts).toContain('.redpill/REQUIREMENTS.md');
+    expect(result.artifacts).toContain('.redpill/ROADMAP.md');
+    expect(result.artifacts).toContain('.redpill/STATE.md');
   });
 
   it('run() includes research artifact paths on success', async () => {
     const { runner } = createRunner();
     const result = await runner.run('build a todo app');
 
-    expect(result.artifacts).toContain('.planning/research/STACK.md');
-    expect(result.artifacts).toContain('.planning/research/FEATURES.md');
-    expect(result.artifacts).toContain('.planning/research/ARCHITECTURE.md');
-    expect(result.artifacts).toContain('.planning/research/PITFALLS.md');
+    expect(result.artifacts).toContain('.redpill/research/STACK.md');
+    expect(result.artifacts).toContain('.redpill/research/FEATURES.md');
+    expect(result.artifacts).toContain('.redpill/research/ARCHITECTURE.md');
+    expect(result.artifacts).toContain('.redpill/research/PITFALLS.md');
   });
 
   // ─── Git init test ─────────────────────────────────────────────────────
@@ -596,15 +596,15 @@ describe('InitRunner', () => {
 
       // Write headless agents (with known marker text)
       await writeFile(
-        join(sdkPromptsDir, 'agents', 'gsd-project-researcher.md'),
+        join(sdkPromptsDir, 'agents', 'redpill-project-researcher.md'),
         '# Project Researcher Agent\nSDK_HEADLESS_MARKER_RESEARCHER\n',
       );
       await writeFile(
-        join(sdkPromptsDir, 'agents', 'gsd-research-synthesizer.md'),
+        join(sdkPromptsDir, 'agents', 'redpill-research-synthesizer.md'),
         '# Research Synthesizer Agent\nSDK_HEADLESS_MARKER_SYNTHESIZER\n',
       );
       await writeFile(
-        join(sdkPromptsDir, 'agents', 'gsd-roadmapper.md'),
+        join(sdkPromptsDir, 'agents', 'redpill-roadmapper.md'),
         '# Roadmapper Agent\nSDK_HEADLESS_MARKER_ROADMAPPER\n',
       );
     });
@@ -640,7 +640,7 @@ describe('InitRunner', () => {
 
       await runner.run('build a todo app');
 
-      // Research calls (indices 1-4) use gsd-project-researcher.md agent def
+      // Research calls (indices 1-4) use redpill-project-researcher.md agent def
       const researchPrompt = mockRunSession.mock.calls[1]![0] as string;
       expect(researchPrompt).toContain('SDK_HEADLESS_MARKER_RESEARCHER');
     });
@@ -704,53 +704,53 @@ describe('InitRunner', () => {
       expect(researchPrompt).toContain('You are researching the');
     });
 
-    it('buildProjectPrompt output passes through sanitizePrompt (no /gsd: patterns)', async () => {
+    it('buildProjectPrompt output passes through sanitizePrompt (no /redpill: patterns)', async () => {
       // Write a template that contains an interactive pattern
       await writeFile(
         join(sdkPromptsDir, 'templates', 'project.md'),
-        '# PROJECT Template\nRun /gsd:map-codebase to analyze.\nSDK_HEADLESS_MARKER_PROJECT\n',
+        '# PROJECT Template\nRun /redpill:map-codebase to analyze.\nSDK_HEADLESS_MARKER_PROJECT\n',
       );
 
       const { runner } = createRunnerWithSdkPrompts();
       await runner.run('build a todo app');
 
       const projectPrompt = mockRunSession.mock.calls[0]![0] as string;
-      // sanitizePrompt should have stripped the /gsd: line
-      expect(projectPrompt).not.toMatch(/\/gsd:\S+/);
+      // sanitizePrompt should have stripped the /redpill: line
+      expect(projectPrompt).not.toMatch(/\/redpill:\S+/);
       // But the marker should still be there
       expect(projectPrompt).toContain('SDK_HEADLESS_MARKER_PROJECT');
     });
 
-    it('buildResearchPrompt output passes through sanitizePrompt (no /gsd: patterns)', async () => {
+    it('buildResearchPrompt output passes through sanitizePrompt (no /redpill: patterns)', async () => {
       // Write an agent def that contains interactive patterns
       await writeFile(
-        join(sdkPromptsDir, 'agents', 'gsd-project-researcher.md'),
-        '# Researcher Agent\nSpawn /gsd:something for analysis.\nSDK_HEADLESS_MARKER_RESEARCHER\n',
+        join(sdkPromptsDir, 'agents', 'redpill-project-researcher.md'),
+        '# Researcher Agent\nSpawn /redpill:something for analysis.\nSDK_HEADLESS_MARKER_RESEARCHER\n',
       );
 
       const { runner } = createRunnerWithSdkPrompts();
       await runner.run('build a todo app');
 
       const researchPrompt = mockRunSession.mock.calls[1]![0] as string;
-      // sanitizePrompt should have stripped the /gsd: line
-      expect(researchPrompt).not.toMatch(/\/gsd:\S+/);
+      // sanitizePrompt should have stripped the /redpill: line
+      expect(researchPrompt).not.toMatch(/\/redpill:\S+/);
       // Marker should still be present
       expect(researchPrompt).toContain('SDK_HEADLESS_MARKER_RESEARCHER');
     });
 
-    it('buildRoadmapPrompt output passes through sanitizePrompt (no /gsd: patterns)', async () => {
+    it('buildRoadmapPrompt output passes through sanitizePrompt (no /redpill: patterns)', async () => {
       // Write agent and templates with interactive patterns
       await writeFile(
-        join(sdkPromptsDir, 'agents', 'gsd-roadmapper.md'),
-        '# Roadmapper Agent\nUse /gsd:execute to run.\nSDK_HEADLESS_MARKER_ROADMAPPER\n',
+        join(sdkPromptsDir, 'agents', 'redpill-roadmapper.md'),
+        '# Roadmapper Agent\nUse /redpill:execute to run.\nSDK_HEADLESS_MARKER_ROADMAPPER\n',
       );
       await writeFile(
         join(sdkPromptsDir, 'templates', 'roadmap.md'),
-        '# ROADMAP Template\nRun /gsd:check-progress.\nSDK_HEADLESS_MARKER_ROADMAP\n',
+        '# ROADMAP Template\nRun /redpill:check-progress.\nSDK_HEADLESS_MARKER_ROADMAP\n',
       );
       await writeFile(
         join(sdkPromptsDir, 'templates', 'state.md'),
-        '# STATE Template\nUse /gsd:add-todo for tracking.\nSDK_HEADLESS_MARKER_STATE\n',
+        '# STATE Template\nUse /redpill:add-todo for tracking.\nSDK_HEADLESS_MARKER_STATE\n',
       );
 
       // Also need research templates and synth agent for earlier steps
@@ -772,8 +772,8 @@ describe('InitRunner', () => {
 
       // Roadmap prompt is the last session call (index 7)
       const roadmapPrompt = mockRunSession.mock.calls[7]![0] as string;
-      // sanitizePrompt should have stripped all /gsd: patterns
-      expect(roadmapPrompt).not.toMatch(/\/gsd:\S+/);
+      // sanitizePrompt should have stripped all /redpill: patterns
+      expect(roadmapPrompt).not.toMatch(/\/redpill:\S+/);
       // Markers from templates should still be present
       expect(roadmapPrompt).toContain('SDK_HEADLESS_MARKER_ROADMAPPER');
       expect(roadmapPrompt).toContain('SDK_HEADLESS_MARKER_ROADMAP');

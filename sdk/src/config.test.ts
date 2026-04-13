@@ -9,7 +9,7 @@ describe('loadConfig', () => {
 
   beforeEach(async () => {
     tmpDir = join(tmpdir(), `gsd-config-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    await mkdir(join(tmpDir, '.planning'), { recursive: true });
+    await mkdir(join(tmpDir, '.redpill'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -18,13 +18,13 @@ describe('loadConfig', () => {
 
   it('returns all defaults when config file is missing', async () => {
     // No config.json created
-    await rm(join(tmpDir, '.planning', 'config.json'), { force: true });
+    await rm(join(tmpDir, '.redpill', 'config.json'), { force: true });
     const config = await loadConfig(tmpDir);
     expect(config).toEqual(CONFIG_DEFAULTS);
   });
 
   it('returns all defaults when config file is empty', async () => {
-    await writeFile(join(tmpDir, '.planning', 'config.json'), '');
+    await writeFile(join(tmpDir, '.redpill', 'config.json'), '');
     const config = await loadConfig(tmpDir);
     expect(config).toEqual(CONFIG_DEFAULTS);
   });
@@ -35,7 +35,7 @@ describe('loadConfig', () => {
       workflow: { research: false },
     };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -57,7 +57,7 @@ describe('loadConfig', () => {
       hooks: { context_warnings: false },
     };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -72,7 +72,7 @@ describe('loadConfig', () => {
   it('preserves unknown top-level keys', async () => {
     const userConfig = { custom_key: 'custom_value' };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -85,7 +85,7 @@ describe('loadConfig', () => {
       agent_skills: { planner: 'custom-skill' },
     };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -97,7 +97,7 @@ describe('loadConfig', () => {
 
   it('throws on malformed JSON', async () => {
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       '{bad json',
     );
 
@@ -106,7 +106,7 @@ describe('loadConfig', () => {
 
   it('throws when config is not an object (array)', async () => {
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       '[1, 2, 3]',
     );
 
@@ -115,7 +115,7 @@ describe('loadConfig', () => {
 
   it('throws when config is not an object (string)', async () => {
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       '"just a string"',
     );
 
@@ -128,7 +128,7 @@ describe('loadConfig', () => {
       another_unknown: { nested: 'value' },
     };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -144,7 +144,7 @@ describe('loadConfig', () => {
       parallelization: 0,
     };
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify(userConfig),
     );
 
@@ -158,7 +158,7 @@ describe('loadConfig', () => {
     const before = structuredClone(CONFIG_DEFAULTS);
 
     await writeFile(
-      join(tmpDir, '.planning', 'config.json'),
+      join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ model_profile: 'fast', workflow: { research: false } }),
     );
     await loadConfig(tmpDir);

@@ -1,5 +1,5 @@
 ---
-name: gsd:secure-phase
+name: redpill:secure-phase
 description: Retroactively verify threat mitigations for a completed phase
 argument-hint: "[phase number]"
 allowed-tools:
@@ -22,7 +22,7 @@ Output: updated SECURITY.md.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/secure-phase.md
+@~/.claude/redpill/workflows/secure-phase.md
 </execution_context>
 
 <context>
@@ -30,6 +30,6 @@ Phase: $ARGUMENTS — optional, defaults to last completed phase.
 </context>
 
 <process>
-Execute @~/.claude/get-shit-done/workflows/secure-phase.md.
+Execute @~/.claude/redpill/workflows/secure-phase.md.
 Preserve all workflow gates.
 </process>

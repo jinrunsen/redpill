@@ -1,5 +1,5 @@
 ---
-name: gsd:note
+name: redpill:note
 description: Zero-friction idea capture. Append, list, or promote notes to todos.
 argument-hint: "<text> | list | promote <N> [--global]"
 allowed-tools:
@@ -20,8 +20,8 @@ Runs inline — no Task, no AskUserQuestion, no Bash.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/note.md
-@~/.claude/get-shit-done/references/ui-brand.md
+@~/.claude/redpill/workflows/note.md
+@~/.claude/redpill/references/ui-brand.md
 </execution_context>
 
 <context>
@@ -29,6 +29,6 @@ $ARGUMENTS
 </context>
 
 <process>
-Execute the note workflow from @~/.claude/get-shit-done/workflows/note.md end-to-end.
+Execute the note workflow from @~/.claude/redpill/workflows/note.md end-to-end.
 Capture the note, list notes, or promote to todo — depending on arguments.
 </process>

@@ -1,6 +1,6 @@
 # Discuss Mode (Modo de Discussão)
 
-O GSD oferece dois estilos para `/gsd:discuss-phase`:
+O REDPILL oferece dois estilos para `/redpill:discuss-phase`:
 
 - **`standard`**: entrevista aberta para levantar preferências
 - **`assumptions`**: análise do código primeiro, seguida de confirmação/correção de suposições
@@ -33,7 +33,7 @@ Trade-off: depende da qualidade do mapeamento de contexto.
 
 ## Como habilitar
 
-Via `/gsd:settings`, defina:
+Via `/redpill:settings`, defina:
 
 ```json
 {
@@ -45,10 +45,10 @@ Via `/gsd:settings`, defina:
 
 ## Fluxo no modo `assumptions`
 
-1. GSD lê `PROJECT.md`, mapeamento de código e convenções
+1. REDPILL lê `PROJECT.md`, mapeamento de código e convenções
 2. Gera lista estruturada de suposições
 3. Você confirma, corrige ou expande
-4. GSD escreve `CONTEXT.md` com decisões consolidadas
+4. REDPILL escreve `CONTEXT.md` com decisões consolidadas
 
 ## Boas práticas
 

@@ -1,15 +1,15 @@
 /**
- * GSD SDK — Public API for running GSD plans programmatically.
+ * REDPILL SDK — Public API for running REDPILL plans programmatically.
  *
- * The GSD class composes plan parsing, config loading, prompt building,
+ * The REDPILL class composes plan parsing, config loading, prompt building,
  * and session running into a single `executePlan()` call.
  *
  * @example
  * ```typescript
- * import { GSD } from '@gsd-build/sdk';
+ * import { REDPILL } from '@gsd-build/sdk';
  *
  * const gsd = new GSD({ projectDir: '/path/to/project' });
- * const result = await gsd.executePlan('.planning/phases/01-auth/01-auth-01-PLAN.md');
+ * const result = await gsd.executePlan('.redpill/phases/01-auth/01-auth-01-PLAN.md');
  *
  * if (result.success) {
  *   console.log(`Plan completed in ${result.durationMs}ms, cost: $${result.totalCostUsd}`);
@@ -35,9 +35,9 @@ import { PhaseRunner } from './phase-runner.js';
 import { ContextEngine } from './context-engine.js';
 import { PromptFactory } from './phase-prompt.js';
 
-// ─── GSD class ───────────────────────────────────────────────────────────────
+// ─── REDPILL class ───────────────────────────────────────────────────────────────
 
-export class GSD {
+export class REDPILL {
   private readonly projectDir: string;
   private readonly gsdToolsPath: string;
   private readonly defaultModel?: string;
@@ -58,7 +58,7 @@ export class GSD {
   }
 
   /**
-   * Execute a single GSD plan file.
+   * Execute a single REDPILL plan file.
    *
    * Reads the plan from disk, parses it, loads project config,
    * optionally reads the agent definition, then runs a query() session.
@@ -96,14 +96,14 @@ export class GSD {
   }
 
   /**
-   * Subscribe a simple handler to receive all GSD events.
+   * Subscribe a simple handler to receive all REDPILL events.
    */
   onEvent(handler: (event: GSDEvent) => void): void {
     this.eventStream.on('event', handler);
   }
 
   /**
-   * Subscribe a transport handler to receive all GSD events.
+   * Subscribe a transport handler to receive all REDPILL events.
    * Transports provide structured onEvent/close lifecycle.
    */
   addTransport(handler: TransportHandler): void {
@@ -255,18 +255,18 @@ export class GSD {
   }
 
   /**
-   * Load the gsd-executor agent definition if available.
+   * Load the redpill-executor agent definition if available.
    * Falls back gracefully — returns undefined if not found.
    */
   private async loadAgentDefinition(): Promise<string | undefined> {
     const paths = [
-      // Repo-local GSD installation
-      join(this.projectDir, '.claude', 'get-shit-done', 'agents', 'gsd-executor.md'),
+      // Repo-local REDPILL installation
+      join(this.projectDir, '.claude', 'get-shit-done', 'agents', 'redpill-executor.md'),
       // Repo-local agents directory
-      join(this.projectDir, '.claude', 'agents', 'gsd-executor.md'),
+      join(this.projectDir, '.claude', 'agents', 'redpill-executor.md'),
       // Global home directory
-      join(homedir(), '.claude', 'agents', 'gsd-executor.md'),
-      join(this.projectDir, 'agents', 'gsd-executor.md'),
+      join(homedir(), '.claude', 'agents', 'redpill-executor.md'),
+      join(this.projectDir, 'agents', 'redpill-executor.md'),
     ];
 
     for (const p of paths) {

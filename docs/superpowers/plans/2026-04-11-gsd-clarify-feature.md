@@ -1,16 +1,16 @@
-# /gsd:clarify-feature Implementation Plan
+# /redpill:clarify-feature Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a new `/gsd:clarify-feature` command that produces Gherkin `.feature` files (interactive or autonomous via `--auto`), stages them in `.planning/features/{task_id}-{slug}/`, and validates them with a new `gsd-feature-reviewer` subagent enforcing business language, realistic sample data, and DDD-oriented domain organization.
+**Goal:** Add a new `/redpill:clarify-feature` command that produces Gherkin `.feature` files (interactive or autonomous via `--auto`), stages them in `.redpill/features/{task_id}-{slug}/`, and validates them with a new `redpill-feature-reviewer` subagent enforcing business language, realistic sample data, and DDD-oriented domain organization.
 
 **Architecture:**
-- One command entry (`commands/gsd/clarify-feature.md`) delegating to one workflow (`get-shit-done/workflows/clarify-feature.md`).
+- One command entry (`commands/gsd/clarify-feature.md`) delegating to one workflow (`redpill/workflows/clarify-feature.md`).
 - A new init handler (`cmdInitClarifyFeature` in `lib/init.cjs`) reuses the existing quick-task YYMMDD-xxx ID scheme and surfaces feature-file scanning results.
-- A new read-only subagent (`agents/gsd-feature-reviewer.md`) emits a structured `<FEATURE_REVIEW>` block with per-issue `category: auto-fixable | product-decision` classification.
-- Workspace layout mirrors `.planning/quick/` so future `/gsd:design-feature`, `/gsd:run-bdd`, and `/gsd:archive-feature` commands share the same per-task directory.
+- A new read-only subagent (`agents/redpill-feature-reviewer.md`) emits a structured `<FEATURE_REVIEW>` block with per-issue `category: auto-fixable | product-decision` classification.
+- Workspace layout mirrors `.redpill/quick/` so future `/redpill:design-feature`, `/redpill:run-bdd`, and `/redpill:archive-feature` commands share the same per-task directory.
 
-**Tech Stack:** Node.js (gsd-tools.cjs), Markdown workflows, Claude Code subagent frontmatter, `node:test` for unit tests.
+**Tech Stack:** Node.js (redpill-tools.cjs), Markdown workflows, Claude Code subagent frontmatter, `node:test` for unit tests.
 
 **Spec:** `docs/superpowers/specs/2026-04-11-gsd-clarify-feature-design.md` (authoritative).
 
@@ -19,31 +19,31 @@
 ## File Map
 
 **Create:**
-- `agents/gsd-feature-reviewer.md` — new subagent
-- `get-shit-done/workflows/clarify-feature.md` — workflow body
+- `agents/redpill-feature-reviewer.md` — new subagent
+- `redpill/workflows/clarify-feature.md` — workflow body
 - `commands/gsd/clarify-feature.md` — command entry point
 - `tests/init-clarify-feature.test.cjs` — unit tests for the new init handler
 
 **Modify:**
-- `get-shit-done/bin/lib/init.cjs` — add `cmdInitClarifyFeature` + `scanFeatureFiles` + `extractFeatureDomains` helpers, export them
-- `get-shit-done/bin/gsd-tools.cjs` — dispatch `init clarify-feature`, update error message
-- `get-shit-done/templates/config.json` — add `workflow.feature_review_max_rounds` and `workflow.feature_auto_scenario_cap`
+- `redpill/bin/lib/init.cjs` — add `cmdInitClarifyFeature` + `scanFeatureFiles` + `extractFeatureDomains` helpers, export them
+- `redpill/bin/redpill-tools.cjs` — dispatch `init clarify-feature`, update error message
+- `redpill/templates/config.json` — add `workflow.feature_review_max_rounds` and `workflow.feature_auto_scenario_cap`
 
 **No changes to:**
-- `features/` (project-root directory) — `clarify-feature` writes only to `.planning/features/`
+- `features/` (project-root directory) — `clarify-feature` writes only to `.redpill/features/`
 - Existing BDD workflows (`bdd-phase.md`, `run-bdd.md`)
-- Existing agents (`gsd-step-writer`, `gsd-executor`, `gsd-verifier`)
+- Existing agents (`redpill-step-writer`, `redpill-executor`, `redpill-verifier`)
 
 ---
 
 ## Task 1: Add config knobs
 
 **Files:**
-- Modify: `get-shit-done/templates/config.json`
+- Modify: `redpill/templates/config.json`
 
 - [ ] **Step 1: Read current config template**
 
-Read `get-shit-done/templates/config.json` and locate the `workflow` object (or create it if absent).
+Read `redpill/templates/config.json` and locate the `workflow` object (or create it if absent).
 
 - [ ] **Step 2: Add the two new keys**
 
@@ -58,13 +58,13 @@ Keep existing keys intact. Preserve trailing-comma/whitespace style already used
 
 - [ ] **Step 3: Verify JSON still parses**
 
-Run: `node -e "JSON.parse(require('fs').readFileSync('get-shit-done/templates/config.json','utf-8'))"`
+Run: `node -e "JSON.parse(require('fs').readFileSync('redpill/templates/config.json','utf-8'))"`
 Expected: exit code 0, no output.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add get-shit-done/templates/config.json
+git add redpill/templates/config.json
 git commit -m "feat(config): add feature_review_max_rounds and feature_auto_scenario_cap"
 ```
 
@@ -74,7 +74,7 @@ git commit -m "feat(config): add feature_review_max_rounds and feature_auto_scen
 
 **Files:**
 - Create: `tests/init-clarify-feature.test.cjs`
-- Modify: `get-shit-done/bin/lib/init.cjs` (add helper only — handler comes in Task 4)
+- Modify: `redpill/bin/lib/init.cjs` (add helper only — handler comes in Task 4)
 
 - [ ] **Step 1: Write failing test for `scanFeatureFiles`**
 
@@ -82,7 +82,7 @@ Create `tests/init-clarify-feature.test.cjs` with this content (additional tests
 
 ```javascript
 /**
- * GSD Tools Tests - Init Clarify Feature
+ * REDPILL Tools Tests - Init Clarify Feature
  *
  * Validates the init clarify-feature handler and its feature-scanning
  * helpers. Exercises real filesystem fixtures via createTempProject().
@@ -92,10 +92,10 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // Helpers are internal — loaded directly for unit testing.
-const initLib = require('../get-shit-done/bin/lib/init.cjs');
+const initLib = require('../redpill/bin/lib/init.cjs');
 
 describe('scanFeatureFiles helper', () => {
   let tmpDir;
@@ -156,7 +156,7 @@ Expected: FAIL with `initLib.scanFeatureFiles is not a function`.
 
 - [ ] **Step 3: Implement `scanFeatureFiles` helper**
 
-Open `get-shit-done/bin/lib/init.cjs`. Just before the existing `cmdInitBddPhase` function (around line 1424), add:
+Open `redpill/bin/lib/init.cjs`. Just before the existing `cmdInitBddPhase` function (around line 1424), add:
 
 ```javascript
 /**
@@ -206,7 +206,7 @@ Expected: 4 tests pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add tests/init-clarify-feature.test.cjs get-shit-done/bin/lib/init.cjs
+git add tests/init-clarify-feature.test.cjs redpill/bin/lib/init.cjs
 git commit -m "feat(init): add scanFeatureFiles helper for clarify-feature"
 ```
 
@@ -216,7 +216,7 @@ git commit -m "feat(init): add scanFeatureFiles helper for clarify-feature"
 
 **Files:**
 - Modify: `tests/init-clarify-feature.test.cjs` (append test cases)
-- Modify: `get-shit-done/bin/lib/init.cjs` (add helper + export)
+- Modify: `redpill/bin/lib/init.cjs` (add helper + export)
 
 - [ ] **Step 1: Append failing tests for `extractFeatureDomains`**
 
@@ -303,7 +303,7 @@ Expected: 8 tests pass (4 scan + 4 extract).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add tests/init-clarify-feature.test.cjs get-shit-done/bin/lib/init.cjs
+git add tests/init-clarify-feature.test.cjs redpill/bin/lib/init.cjs
 git commit -m "feat(init): add extractFeatureDomains helper for clarify-feature"
 ```
 
@@ -313,8 +313,8 @@ git commit -m "feat(init): add extractFeatureDomains helper for clarify-feature"
 
 **Files:**
 - Modify: `tests/init-clarify-feature.test.cjs` (append handler tests)
-- Modify: `get-shit-done/bin/lib/init.cjs` (add handler + export)
-- Modify: `get-shit-done/bin/gsd-tools.cjs` (dispatch case + error message)
+- Modify: `redpill/bin/lib/init.cjs` (add handler + export)
+- Modify: `redpill/bin/redpill-tools.cjs` (dispatch case + error message)
 
 - [ ] **Step 1: Append failing tests for the handler**
 
@@ -333,7 +333,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns task_id in YYMMDD-xxx format', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -342,19 +342,19 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns standard paths and verifier_model', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.features_task_dir_base, '.planning/features');
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
+    assert.strictEqual(output.features_task_dir_base, '.redpill/features');
+    assert.strictEqual(output.state_path, '.redpill/STATE.md');
     assert.strictEqual(output.claude_md_path, './CLAUDE.md');
     assert.ok('verifier_model' in output, 'missing verifier_model');
     assert.ok('text_mode' in output, 'missing text_mode');
   });
 
   test('returns empty existing_features when features/ missing', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -369,7 +369,7 @@ describe('init clarify-feature handler', () => {
     fs.writeFileSync(path.join(authDir, 'login.feature'), 'Feature: Login');
     fs.writeFileSync(path.join(tmpDir, 'features', 'health.feature'), 'Feature: Health');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -378,29 +378,29 @@ describe('init clarify-feature handler', () => {
     assert.deepStrictEqual(output.existing_feature_domains, ['auth']);
   });
 
-  test('returns planning_exists true when .planning/ present', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+  test('returns redpill_dir_exists true when .redpill/ present', () => {
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.planning_exists, true);
+    assert.strictEqual(output.redpill_dir_exists, true);
   });
 
-  test('tolerates missing .planning/ directory', () => {
-    // createTempProject creates .planning/phases — remove it
-    fs.rmSync(path.join(tmpDir, '.planning'), { recursive: true, force: true });
+  test('tolerates missing .redpill/ directory', () => {
+    // createTempProject creates .redpill/phases — remove it
+    fs.rmSync(path.join(tmpDir, '.redpill'), { recursive: true, force: true });
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.planning_exists, false);
+    assert.strictEqual(output.redpill_dir_exists, false);
   });
 
   test('detects pyproject.toml in tech_stack_hint', () => {
     fs.writeFileSync(path.join(tmpDir, 'pyproject.toml'), '[project]\nname = "x"\n');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -412,7 +412,7 @@ describe('init clarify-feature handler', () => {
   test('detects package.json in tech_stack_hint', () => {
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{"name":"x"}');
 
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -420,7 +420,7 @@ describe('init clarify-feature handler', () => {
   });
 
   test('returns default review config values', () => {
-    const result = runGsdTools('init clarify-feature', tmpDir);
+    const result = runRedpillTools('init clarify-feature', tmpDir);
     assert.ok(result.success);
 
     const output = JSON.parse(result.output);
@@ -437,15 +437,15 @@ Expected: all 9 new handler tests fail with `Unknown init workflow: clarify-feat
 
 - [ ] **Step 3: Implement the handler**
 
-In `get-shit-done/bin/lib/init.cjs`, add below `extractFeatureDomains`:
+In `redpill/bin/lib/init.cjs`, add below `extractFeatureDomains`:
 
 ```javascript
 /**
- * Init handler for /gsd:clarify-feature.
+ * Init handler for /redpill:clarify-feature.
  *
  * Returns context needed by the clarify-feature workflow: a fresh
  * task_id (YYMMDD-xxx), existing feature inventory, tech stack hints,
- * and review config knobs. Lenient about missing .planning/.
+ * and review config knobs. Lenient about missing .redpill/.
  */
 function cmdInitClarifyFeature(cwd, raw) {
   const config = loadConfig(cwd);
@@ -490,18 +490,18 @@ function cmdInitClarifyFeature(cwd, raw) {
 
   const result = {
     // Models
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
 
     // Config flags
     text_mode: config.text_mode,
 
     // Environment
-    planning_exists: fs.existsSync(planningRoot(cwd)),
+    redpill_dir_exists: fs.existsSync(redpillRoot(cwd)),
 
     // Paths
-    state_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'STATE.md'))),
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
     claude_md_path: './CLAUDE.md',
-    features_task_dir_base: '.planning/features',
+    features_task_dir_base: '.redpill/features',
 
     // Task identity
     task_id: taskId,
@@ -527,9 +527,9 @@ function cmdInitClarifyFeature(cwd, raw) {
 
 Add `cmdInitClarifyFeature,` to the `module.exports` block in `init.cjs`.
 
-- [ ] **Step 5: Dispatch the new workflow in `gsd-tools.cjs`**
+- [ ] **Step 5: Dispatch the new workflow in `redpill-tools.cjs`**
 
-Open `get-shit-done/bin/gsd-tools.cjs`. In the `case 'init':` block, add a new case after `case 'run-bdd':` (around line 781):
+Open `redpill/bin/redpill-tools.cjs`. In the `case 'init':` block, add a new case after `case 'run-bdd':` (around line 781):
 
 ```javascript
         case 'clarify-feature':
@@ -562,37 +562,37 @@ Expected: all pass.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add tests/init-clarify-feature.test.cjs get-shit-done/bin/lib/init.cjs get-shit-done/bin/gsd-tools.cjs
+git add tests/init-clarify-feature.test.cjs redpill/bin/lib/init.cjs redpill/bin/redpill-tools.cjs
 git commit -m "feat(init): add cmdInitClarifyFeature handler and dispatch"
 ```
 
 ---
 
-## Task 5: Create `gsd-feature-reviewer` agent
+## Task 5: Create `redpill-feature-reviewer` agent
 
 **Files:**
-- Create: `agents/gsd-feature-reviewer.md`
+- Create: `agents/redpill-feature-reviewer.md`
 
 - [ ] **Step 1: Write the agent definition**
 
-Create `agents/gsd-feature-reviewer.md` with this exact content:
+Create `agents/redpill-feature-reviewer.md` with this exact content:
 
 ```markdown
 ---
-name: gsd-feature-reviewer
+name: redpill-feature-reviewer
 description: Reviews Gherkin .feature files for spec quality, business language, realistic sample data, and BDD best practices. Read-only — never writes files. Returns a structured <FEATURE_REVIEW> block with per-issue category (auto-fixable | product-decision).
 tools: Read, Glob, Grep
 color: yellow
 ---
 
 <role>
-You are the GSD feature reviewer. You are a skeptical spec reviewer whose job is
+You are the REDPILL feature reviewer. You are a skeptical spec reviewer whose job is
 to validate `.feature` files BEFORE any implementation begins. Catching spec
 problems now saves hours of wasted implementation effort later.
 
 You review SPECS, not code. There is no code yet.
 
-Spawned by `/gsd:clarify-feature` after the workflow writes or updates a
+Spawned by `/redpill:clarify-feature` after the workflow writes or updates a
 `.feature` file. Your output is parsed by the workflow to drive auto-fix
 application and to surface product-level decisions to the human user.
 
@@ -753,11 +753,11 @@ Run:
 ```bash
 node -e "
 const fs = require('fs');
-const content = fs.readFileSync('agents/gsd-feature-reviewer.md', 'utf-8');
+const content = fs.readFileSync('agents/redpill-feature-reviewer.md', 'utf-8');
 const m = content.match(/^---\n([\s\S]+?)\n---/);
 if (!m) { console.error('No frontmatter found'); process.exit(1); }
 const lines = m[1].split('\n');
-const hasName = lines.some(l => l.startsWith('name: gsd-feature-reviewer'));
+const hasName = lines.some(l => l.startsWith('name: redpill-feature-reviewer'));
 const hasTools = lines.some(l => l.startsWith('tools:'));
 if (!hasName || !hasTools) { console.error('Missing required fields'); process.exit(1); }
 console.log('OK');
@@ -772,20 +772,20 @@ Expected: all tests pass. (This test scans the `agents/` directory — if there'
 
 - [ ] **Step 4: Update known-agents list if needed**
 
-If Step 3 failed with a count mismatch, search the test files for a hardcoded list of GSD agent names:
+If Step 3 failed with a count mismatch, search the test files for a hardcoded list of REDPILL agent names:
 
 ```bash
 node --test tests/agent-install-validation.test.cjs 2>&1 | head -40
 ```
 
-If the error references a file like `tests/agent-install-validation.test.cjs` expecting a specific count or list, open that test file and add `gsd-feature-reviewer` to the expected list. If the test passes without modification, skip this step.
+If the error references a file like `tests/agent-install-validation.test.cjs` expecting a specific count or list, open that test file and add `redpill-feature-reviewer` to the expected list. If the test passes without modification, skip this step.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add agents/gsd-feature-reviewer.md
+git add agents/redpill-feature-reviewer.md
 # (and tests/agent-install-validation.test.cjs if modified in Step 4)
-git commit -m "feat(agents): add gsd-feature-reviewer for Gherkin spec review"
+git commit -m "feat(agents): add redpill-feature-reviewer for Gherkin spec review"
 ```
 
 ---
@@ -793,20 +793,20 @@ git commit -m "feat(agents): add gsd-feature-reviewer for Gherkin spec review"
 ## Task 6: Write the `clarify-feature.md` workflow body
 
 **Files:**
-- Create: `get-shit-done/workflows/clarify-feature.md`
+- Create: `redpill/workflows/clarify-feature.md`
 
 - [ ] **Step 1: Create the workflow file**
 
-Create `get-shit-done/workflows/clarify-feature.md` with this content:
+Create `redpill/workflows/clarify-feature.md` with this content:
 
 ````markdown
 <purpose>
 Clarify a feature idea into a Gherkin `.feature` file, then validate it with
-`gsd-feature-reviewer`. All work is staged in
-`.planning/features/{task_id}-{slug}/` — a per-task workspace that also holds
+`redpill-feature-reviewer`. All work is staged in
+`.redpill/features/{task_id}-{slug}/` — a per-task workspace that also holds
 future design docs, BDD progress, and BDD summaries for the same feature
 lifecycle. Nothing is written to the canonical `features/` tree until a future
-`/gsd:archive-feature` command promotes it.
+`/redpill:archive-feature` command promotes it.
 
 Two modes, toggled by `--auto`:
 
@@ -827,12 +827,12 @@ on top. The baseline is never mutated — merge happens at archive time.
 Read STATE.md (if it exists) before any operation to load project context.
 Read CLAUDE.md (if it exists) for project conventions.
 
-@~/.claude/get-shit-done/references/git-integration.md
+@~/.claude/redpill/references/git-integration.md
 </required_reading>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-feature-reviewer — Reviews Gherkin spec quality, business language, and
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-feature-reviewer — Reviews Gherkin spec quality, business language, and
   sample data authenticity. Read-only.
 </available_agent_types>
 
@@ -841,11 +841,11 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 1. Initialize
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init clarify-feature)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init clarify-feature)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `verifier_model`, `text_mode`, `planning_exists`, `state_path`,
+Parse JSON for: `verifier_model`, `text_mode`, `redpill_dir_exists`, `state_path`,
 `claude_md_path`, `features_task_dir_base`, `task_id`, `existing_features[]`,
 `existing_feature_domains[]`, `has_existing_features`, `tech_stack_hint`,
 `feature_review_max_rounds`, `feature_auto_scenario_cap`.
@@ -868,7 +868,7 @@ If `DESCRIPTION` is empty:
 - Auto mode: error out:
   ```
   --auto requires a feature description. Usage:
-    /gsd:clarify-feature "describe the feature" --auto
+    /redpill:clarify-feature "describe the feature" --auto
   ```
 
 If `EXTENDS` is set, verify the file exists:
@@ -882,7 +882,7 @@ fi
 Display banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► CLARIFY FEATURE ${AUTO_MODE:+(AUTO)}
+ REDPILL ► CLARIFY FEATURE ${AUTO_MODE:+(AUTO)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Task ID: ${task_id}
@@ -894,7 +894,7 @@ Display banner:
 ## 3. Load Context
 
 Read (best-effort, continue on failure):
-- `${state_path}` if `planning_exists` is true
+- `${state_path}` if `redpill_dir_exists` is true
 - `${claude_md_path}` if it exists
 - Each file in `existing_features[]` — study step wording and avoid duplicate
   scenario names
@@ -1044,7 +1044,7 @@ Dispatch the reviewer. Construct the `files_to_read` lines conditionally
 
 ```
 Agent(
-  subagent_type="gsd-feature-reviewer",
+  subagent_type="redpill-feature-reviewer",
   model="${verifier_model}",
   description="Review feature: ${SLUG}",
   prompt="
@@ -1200,7 +1200,7 @@ Edit `${TASK_DIR}/TASK.md` frontmatter:
 ### 12b. Commit
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "feat(feature): clarify ${SLUG} [${task_id}]" \
   --files "${TASK_DIR}/"
 ```
@@ -1209,7 +1209,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► FEATURE CLARIFIED
+ REDPILL ► FEATURE CLARIFIED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  Task: ${task_id}-${SLUG}
  Workspace: ${TASK_DIR}/
@@ -1221,9 +1221,9 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
  Open questions: ${OPEN_QUESTIONS} (see TODO block + TASK.md)
 
  Next:
-   /gsd:run-bdd ${TASK_DIR}/${SLUG}.feature
-   /gsd:design-feature ${task_id}    — technical design (future)
-   /gsd:archive-feature ${task_id}   — promote to features/ (future)
+   /redpill:run-bdd ${TASK_DIR}/${SLUG}.feature
+   /redpill:design-feature ${task_id}    — technical design (future)
+   /redpill:archive-feature ${task_id}   — promote to features/ (future)
 ```
 
 </process>
@@ -1236,15 +1236,15 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 - [ ] Auto mode skips clarification and generates within `feature_auto_scenario_cap`
 - [ ] Domain determined via flag / AskUserQuestion / LLM inference fallback
 - [ ] Feature content generated with realistic sample data (no A/B/C placeholders)
-- [ ] Task workspace created at `.planning/features/${task_id}-${SLUG}/`
+- [ ] Task workspace created at `.redpill/features/${task_id}-${SLUG}/`
 - [ ] `--extends` copies baseline into workspace untouched; new scenarios merged by name
 - [ ] `TASK.md` written with complete frontmatter
-- [ ] `gsd-feature-reviewer` spawned; `<FEATURE_REVIEW>` parsed
+- [ ] `redpill-feature-reviewer` spawned; `<FEATURE_REVIEW>` parsed
 - [ ] Technical issues handled per mode (batch confirm / auto apply)
 - [ ] Product issues NEVER auto-modify scenarios — always land in TODO block or user decision
 - [ ] Review loop caps at `feature_review_max_rounds`
 - [ ] TASK.md frontmatter updated with review metrics
-- [ ] Workspace committed via `gsd-tools.cjs commit` in one atomic commit
+- [ ] Workspace committed via `redpill-tools.cjs commit` in one atomic commit
 - [ ] Completion banner displayed with correct next-step suggestions
 </success_criteria>
 ````
@@ -1253,7 +1253,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 
 Run:
 ```bash
-wc -l get-shit-done/workflows/clarify-feature.md
+wc -l redpill/workflows/clarify-feature.md
 ```
 Expected: around 300–400 lines, no parse errors.
 
@@ -1261,7 +1261,7 @@ Check that the file opens and closes all balanced blocks:
 ```bash
 node -e "
 const fs = require('fs');
-const c = fs.readFileSync('get-shit-done/workflows/clarify-feature.md','utf-8');
+const c = fs.readFileSync('redpill/workflows/clarify-feature.md','utf-8');
 const pairs = [['<purpose>','</purpose>'],['<required_reading>','</required_reading>'],['<available_agent_types>','</available_agent_types>'],['<process>','</process>'],['<success_criteria>','</success_criteria>']];
 for (const [o,c2] of pairs) {
   if ((c.match(new RegExp(o,'g'))||[]).length !== 1) { console.error('bad open:',o); process.exit(1); }
@@ -1275,7 +1275,7 @@ Expected: `OK`.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add get-shit-done/workflows/clarify-feature.md
+git add redpill/workflows/clarify-feature.md
 git commit -m "feat(workflow): add clarify-feature workflow body"
 ```
 
@@ -1292,8 +1292,8 @@ Create `commands/gsd/clarify-feature.md` with this content:
 
 ```markdown
 ---
-name: gsd:clarify-feature
-description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with gsd-feature-reviewer. Output staged in .planning/features/{task_id}-{slug}/.
+name: redpill:clarify-feature
+description: Clarify and write a Gherkin .feature file interactively or autonomously, then review it with redpill-feature-reviewer. Output staged in .redpill/features/{task_id}-{slug}/.
 argument-hint: "<description> [--auto] [--domain <name>] [--extends <path-to-feature>]"
 allowed-tools:
   - Read
@@ -1307,7 +1307,7 @@ allowed-tools:
 ---
 <objective>
 Clarify a feature idea into a Gherkin .feature file, then validate it with
-gsd-feature-reviewer. All work is staged in .planning/features/{task_id}-{slug}/
+redpill-feature-reviewer. All work is staged in .redpill/features/{task_id}-{slug}/
 until later promoted to features/ by a future archive step.
 
 Two modes:
@@ -1324,7 +1324,7 @@ Modification flow:
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/clarify-feature.md
+@~/.claude/redpill/workflows/clarify-feature.md
 </execution_context>
 
 <context>
@@ -1343,7 +1343,7 @@ $ARGUMENTS
 
 <process>
 Execute the clarify-feature workflow from
-@~/.claude/get-shit-done/workflows/clarify-feature.md end-to-end.
+@~/.claude/redpill/workflows/clarify-feature.md end-to-end.
 Follow all steps: init, argument parsing, context loading, intent
 understanding, domain selection, feature generation, task workspace setup,
 feature-reviewer loop (max 2 rounds), and commit.
@@ -1359,7 +1359,7 @@ const fs = require('fs');
 const c = fs.readFileSync('commands/gsd/clarify-feature.md','utf-8');
 const m = c.match(/^---\n([\s\S]+?)\n---/);
 if (!m) { console.error('No frontmatter'); process.exit(1); }
-if (!/name: gsd:clarify-feature/.test(m[1])) { console.error('Bad name'); process.exit(1); }
+if (!/name: redpill:clarify-feature/.test(m[1])) { console.error('Bad name'); process.exit(1); }
 if (!/argument-hint:/.test(m[1])) { console.error('Missing argument-hint'); process.exit(1); }
 if (!/allowed-tools:/.test(m[1])) { console.error('Missing allowed-tools'); process.exit(1); }
 console.log('OK');
@@ -1370,14 +1370,14 @@ Expected: `OK`.
 - [ ] **Step 3: Run commands test if it exists**
 
 Run: `node --test tests/commands.test.cjs`
-Expected: all pass. If the test enumerates known commands and fails because of a count/list mismatch, update the expected list to include `gsd:clarify-feature` and re-run.
+Expected: all pass. If the test enumerates known commands and fails because of a count/list mismatch, update the expected list to include `redpill:clarify-feature` and re-run.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add commands/gsd/clarify-feature.md
 # (and tests/commands.test.cjs if updated in Step 3)
-git commit -m "feat(commands): add /gsd:clarify-feature entry point"
+git commit -m "feat(commands): add /redpill:clarify-feature entry point"
 ```
 
 ---
@@ -1391,12 +1391,12 @@ git commit -m "feat(commands): add /gsd:clarify-feature entry point"
 
 From the repo root, run (single command so env stays in scope):
 ```bash
-GSD_TOOLS="$PWD/get-shit-done/bin/gsd-tools.cjs" && \
+REDPILL_TOOLS="$PWD/redpill/bin/redpill-tools.cjs" && \
   TMP=/tmp/gsd-clarify-smoke && rm -rf "$TMP" && \
-  mkdir -p "$TMP/.planning/phases" "$TMP/features/auth" && \
+  mkdir -p "$TMP/.redpill/phases" "$TMP/features/auth" && \
   echo "Feature: Login" > "$TMP/features/auth/login.feature" && \
   echo "Feature: Health" > "$TMP/features/health.feature" && \
-  (cd "$TMP" && node "$GSD_TOOLS" init clarify-feature) \
+  (cd "$TMP" && node "$REDPILL_TOOLS" init clarify-feature) \
     > /tmp/clarify-init-smoke.json && \
   cat /tmp/clarify-init-smoke.json
 ```
@@ -1408,7 +1408,7 @@ node -e "
 const j = JSON.parse(require('fs').readFileSync('/tmp/clarify-init-smoke.json','utf-8'));
 const assert = require('assert');
 assert.match(j.task_id, /^\d{6}-[0-9a-z]{3}$/, 'task_id format');
-assert.strictEqual(j.features_task_dir_base, '.planning/features');
+assert.strictEqual(j.features_task_dir_base, '.redpill/features');
 assert.strictEqual(j.has_existing_features, true);
 assert.strictEqual(j.existing_features.length, 2);
 assert.deepStrictEqual(j.existing_feature_domains, ['auth']);
@@ -1455,31 +1455,31 @@ Expected: all pass. If the project has no vitest suite that touches these files,
 **Files:**
 - Modify: `docs/COMMANDS.md` (if the project maintains a command index there)
 
-- [ ] **Step 1: Check whether COMMANDS.md lists `/gsd:` commands**
+- [ ] **Step 1: Check whether COMMANDS.md lists `/redpill:` commands**
 
 Run:
 ```bash
-grep -n "^## /gsd:" docs/COMMANDS.md 2>/dev/null | head -10
+grep -n "^## /redpill:" docs/COMMANDS.md 2>/dev/null | head -10
 ```
 
 If the file exists AND lists gsd commands alphabetically/grouped, proceed. If not, skip the remaining steps in this task.
 
-- [ ] **Step 2: Add a section for `/gsd:clarify-feature`**
+- [ ] **Step 2: Add a section for `/redpill:clarify-feature`**
 
 Insert a new section in `docs/COMMANDS.md`, placed to match existing alphabetical or category ordering:
 
 ```markdown
-## /gsd:clarify-feature
+## /redpill:clarify-feature
 
 Clarify and write a Gherkin `.feature` file (interactively or via `--auto`),
-then validate it with `gsd-feature-reviewer`. Output is staged in
-`.planning/features/{task_id}-{slug}/` — the same workspace will later hold
+then validate it with `redpill-feature-reviewer`. Output is staged in
+`.redpill/features/{task_id}-{slug}/` — the same workspace will later hold
 design docs, BDD progress, and BDD summary for this feature's lifecycle.
 
 **Usage:**
 
 ```
-/gsd:clarify-feature <description> [--auto] [--domain <name>] [--extends <path>]
+/redpill:clarify-feature <description> [--auto] [--domain <name>] [--extends <path>]
 ```
 
 **Flags:**
@@ -1496,7 +1496,7 @@ design docs, BDD progress, and BDD summary for this feature's lifecycle.
 
 **Review loop:**
 
-After the file is written, `gsd-feature-reviewer` audits it for business
+After the file is written, `redpill-feature-reviewer` audits it for business
 language, one-scenario-one-behavior, step consistency, completeness,
 parameterization, and **sample data authenticity** (no `A/B/C`,
 `Foo/Bar`, `user1/user2` placeholders — use domain-appropriate real-world
@@ -1507,14 +1507,14 @@ or written to a TODO block (auto). The loop runs at most
 
 **Next steps after completion:**
 
-- `/gsd:run-bdd .planning/features/<task>/<slug>.feature` — execute BDD cycle
+- `/redpill:run-bdd .redpill/features/<task>/<slug>.feature` — execute BDD cycle
 ```
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add docs/COMMANDS.md
-git commit -m "docs: document /gsd:clarify-feature command"
+git commit -m "docs: document /redpill:clarify-feature command"
 ```
 
 If Step 1 indicated the file does not list commands, there is nothing to commit for this task.
@@ -1528,26 +1528,26 @@ Before executing this plan, check against `docs/superpowers/specs/2026-04-11-gsd
 | Spec Requirement | Task |
 |---|---|
 | Command entry `commands/gsd/clarify-feature.md` | Task 7 |
-| Workflow body `get-shit-done/workflows/clarify-feature.md` | Task 6 |
-| Agent `agents/gsd-feature-reviewer.md` with 10 dimensions (incl. data authenticity) | Task 5 |
+| Workflow body `redpill/workflows/clarify-feature.md` | Task 6 |
+| Agent `agents/redpill-feature-reviewer.md` with 10 dimensions (incl. data authenticity) | Task 5 |
 | `init clarify-feature` handler returning task_id, existing_features, domains, tech_stack_hint, review knobs | Task 4 |
 | `scanFeatureFiles` + `extractFeatureDomains` helpers | Tasks 2, 3 |
 | Config knobs `feature_review_max_rounds`, `feature_auto_scenario_cap` | Task 1 |
 | `--auto` / `--domain` / `--extends` flag handling | Task 6 (workflow) |
-| Staging directory `.planning/features/{task_id}-{slug}/` | Task 6 |
+| Staging directory `.redpill/features/{task_id}-{slug}/` | Task 6 |
 | `TASK.md` frontmatter schema | Task 6 |
 | `<FEATURE_REVIEW>` output contract with `category` field | Task 5 |
 | `data_authenticity` quality score | Task 5 |
 | Interactive vs auto mode for technical issues | Task 6 (step 9) |
 | Product issues never auto-fix; go to TODO block | Task 6 (step 10) |
 | Review loop max 2 rounds | Task 6 (step 11) |
-| Atomic commit via `gsd-tools.cjs commit` | Task 6 (step 12b) |
+| Atomic commit via `redpill-tools.cjs commit` | Task 6 (step 12b) |
 | STATE.md record-feature-task | Risk section of spec — NOT implemented this round; workflow surfaces TODO instead |
 | Tests for init handler and helpers | Tasks 2, 3, 4 |
 
 **Note on deferred items:**
-- `gsd-tools.cjs state record-feature-task` helper: per the spec's Risks
+- `redpill-tools.cjs state record-feature-task` helper: per the spec's Risks
   section, graceful degradation is acceptable. The workflow does not invoke
   a non-existent state helper. Adding that helper is a follow-up plan.
-- `/gsd:design-feature`, `/gsd:archive-feature`: out of spec scope entirely.
+- `/redpill:design-feature`, `/redpill:archive-feature`: out of spec scope entirely.
   Only referenced in the completion banner as future commands.

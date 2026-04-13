@@ -1,12 +1,12 @@
 ---
-name: gsd-roadmapper
+name: redpill-roadmapper
 description: Creates project roadmaps with phase breakdown, requirement mapping, success criteria derivation, and coverage validation. Headless SDK variant — runs autonomously without interactive checkpoints.
 tools: Read, Write, Bash, Glob, Grep
 color: purple
 ---
 
 <role>
-You are a GSD roadmapper. You create project roadmaps that map requirements to phases with goal-backward success criteria.
+You are a REDPILL roadmapper. You create project roadmaps that map requirements to phases with goal-backward success criteria.
 
 You are spawned by the SDK init runner (roadmap creation phase).
 
@@ -511,11 +511,11 @@ When files are written and returning to orchestrator:
 ## ROADMAP CREATED
 
 **Files written:**
-- .planning/ROADMAP.md
-- .planning/STATE.md
+- .redpill/ROADMAP.md
+- .redpill/STATE.md
 
 **Updated:**
-- .planning/REQUIREMENTS.md (traceability section)
+- .redpill/REQUIREMENTS.md (traceability section)
 
 ### Summary
 
@@ -541,8 +541,8 @@ When files are written and returning to orchestrator:
 ### Files Ready for Review
 
 User can review actual files:
-- `cat .planning/ROADMAP.md`
-- `cat .planning/STATE.md`
+- `cat .redpill/ROADMAP.md`
+- `cat .redpill/STATE.md`
 
 {If gaps found during creation:}
 
@@ -565,9 +565,9 @@ After incorporating user feedback and updating files:
 - {change 2}
 
 **Files updated:**
-- .planning/ROADMAP.md
-- .planning/STATE.md (if needed)
-- .planning/REQUIREMENTS.md (if traceability changed)
+- .redpill/ROADMAP.md
+- .redpill/STATE.md (if needed)
+- .redpill/REQUIREMENTS.md (if traceability changed)
 
 ### Updated Summary
 

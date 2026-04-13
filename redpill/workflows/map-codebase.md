@@ -1,14 +1,14 @@
 <purpose>
-Orchestrate parallel codebase mapper agents to analyze codebase and produce structured documents in .planning/codebase/
+Orchestrate parallel codebase mapper agents to analyze codebase and produce structured documents in .redpill/codebase/
 
 Each agent has fresh context, explores a specific focus area, and **writes documents directly**. The orchestrator only receives confirmation + line counts, then writes a summary.
 
-Output: .planning/codebase/ folder with 7 structured documents about the codebase state.
+Output: .redpill/codebase/ folder with 7 structured documents about the codebase state.
 </purpose>
 
 <available_agent_types>
-Valid GSD subagent types (use exact names — do not fall back to 'general-purpose'):
-- gsd-codebase-mapper — Maps project structure and dependencies
+Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
+- redpill-codebase-mapper — Maps project structure and dependencies
 </available_agent_types>
 
 <philosophy>
@@ -31,26 +31,26 @@ Documents are reference material for Claude when planning/executing. Always incl
 Load codebase mapping context:
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init map-codebase)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init map-codebase)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
-AGENT_SKILLS_MAPPER=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-codebase-mapper 2>/dev/null)
+AGENT_SKILLS_MAPPER=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" agent-skills redpill-codebase-mapper 2>/dev/null)
 ```
 
 Extract from init JSON: `mapper_model`, `commit_docs`, `codebase_dir`, `existing_maps`, `has_maps`, `codebase_dir_exists`, `subagent_timeout`.
 </step>
 
 <step name="check_existing">
-Check if .planning/codebase/ already exists using `has_maps` from init context.
+Check if .redpill/codebase/ already exists using `has_maps` from init context.
 
 If `codebase_dir_exists` is true:
 ```bash
-ls -la .planning/codebase/
+ls -la .redpill/codebase/
 ```
 
 **If exists:**
 
 ```
-.planning/codebase/ already exists with these documents:
+.redpill/codebase/ already exists with these documents:
 [List files found]
 
 What's next?
@@ -61,7 +61,7 @@ What's next?
 
 Wait for user response.
 
-If "Refresh": Delete .planning/codebase/, continue to create_structure
+If "Refresh": Delete .redpill/codebase/, continue to create_structure
 If "Update": Ask which documents to update, continue to spawn_agents (filtered)
 If "Skip": Exit workflow
 
@@ -70,10 +70,10 @@ Continue to create_structure.
 </step>
 
 <step name="create_structure">
-Create .planning/codebase/ directory:
+Create .redpill/codebase/ directory:
 
 ```bash
-mkdir -p .planning/codebase
+mkdir -p .redpill/codebase
 ```
 
 **Expected output files:**
@@ -99,17 +99,17 @@ Before spawning agents, detect whether the current runtime supports the `Task` t
 </step>
 
 <step name="spawn_agents" condition="Task tool is available">
-Spawn 4 parallel gsd-codebase-mapper agents.
+Spawn 4 parallel redpill-codebase-mapper agents.
 
-Use Task tool with `subagent_type="gsd-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for parallel execution.
+Use Task tool with `subagent_type="redpill-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for parallel execution.
 
-**CRITICAL:** Use the dedicated `gsd-codebase-mapper` agent, NOT `Explore` or `browser_subagent`. The mapper agent writes documents directly.
+**CRITICAL:** Use the dedicated `redpill-codebase-mapper` agent, NOT `Explore` or `browser_subagent`. The mapper agent writes documents directly.
 
 **Agent 1: Tech Focus**
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="redpill-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase tech stack",
@@ -117,7 +117,7 @@ Task(
 
 Analyze this codebase for technology stack and external integrations.
 
-Write these documents to .planning/codebase/:
+Write these documents to .redpill/codebase/:
 - STACK.md - Languages, runtime, frameworks, dependencies, configuration
 - INTEGRATIONS.md - External APIs, databases, auth providers, webhooks
 
@@ -130,7 +130,7 @@ ${AGENT_SKILLS_MAPPER}"
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="redpill-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase architecture",
@@ -138,7 +138,7 @@ Task(
 
 Analyze this codebase architecture and directory structure.
 
-Write these documents to .planning/codebase/:
+Write these documents to .redpill/codebase/:
 - ARCHITECTURE.md - Pattern, layers, data flow, abstractions, entry points
 - STRUCTURE.md - Directory layout, key locations, naming conventions
 
@@ -151,7 +151,7 @@ ${AGENT_SKILLS_MAPPER}"
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="redpill-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase conventions",
@@ -159,7 +159,7 @@ Task(
 
 Analyze this codebase for coding conventions and testing patterns.
 
-Write these documents to .planning/codebase/:
+Write these documents to .redpill/codebase/:
 - CONVENTIONS.md - Code style, naming, patterns, error handling
 - TESTING.md - Framework, structure, mocking, coverage
 
@@ -172,7 +172,7 @@ ${AGENT_SKILLS_MAPPER}"
 
 ```
 Task(
-  subagent_type="gsd-codebase-mapper",
+  subagent_type="redpill-codebase-mapper",
   model="{mapper_model}",
   run_in_background=true,
   description="Map codebase concerns",
@@ -180,7 +180,7 @@ Task(
 
 Analyze this codebase for technical debt, known issues, and areas of concern.
 
-Write this document to .planning/codebase/:
+Write this document to .redpill/codebase/:
 - CONCERNS.md - Tech debt, bugs, security, performance, fragile areas
 
 Explore thoroughly. Write document directly using template. Return confirmation only.
@@ -202,7 +202,7 @@ TaskOutput tool:
   timeout: {subagent_timeout from init context, default 300000}
 ```
 
-> The timeout is configurable via `workflow.subagent_timeout` in `.planning/config.json` (milliseconds). Default: 300000 (5 minutes). Increase for large codebases or slower models.
+> The timeout is configurable via `workflow.subagent_timeout` in `.redpill/config.json` (milliseconds). Default: 300000 (5 minutes). Increase for large codebases or slower models.
 
 Call TaskOutput for all 4 agents in parallel (single message with 4 TaskOutput calls).
 
@@ -214,8 +214,8 @@ Once all TaskOutput calls return, read each agent's output file to collect confi
 
 **Focus:** {focus}
 **Documents written:**
-- `.planning/codebase/{DOC1}.md` ({N} lines)
-- `.planning/codebase/{DOC2}.md` ({N} lines)
+- `.redpill/codebase/{DOC1}.md` ({N} lines)
+- `.redpill/codebase/{DOC2}.md` ({N} lines)
 
 Ready for orchestrator summary.
 ```
@@ -236,24 +236,24 @@ Perform all 4 mapping passes sequentially:
 
 **Pass 1: Tech Focus**
 - Explore package.json/Cargo.toml/go.mod/requirements.txt, config files, dependency trees
-- Write `.planning/codebase/STACK.md` — Languages, runtime, frameworks, dependencies, configuration
-- Write `.planning/codebase/INTEGRATIONS.md` — External APIs, databases, auth providers, webhooks
+- Write `.redpill/codebase/STACK.md` — Languages, runtime, frameworks, dependencies, configuration
+- Write `.redpill/codebase/INTEGRATIONS.md` — External APIs, databases, auth providers, webhooks
 
 **Pass 2: Architecture Focus**
 - Explore directory structure, entry points, module boundaries, data flow
-- Write `.planning/codebase/ARCHITECTURE.md` — Pattern, layers, data flow, abstractions, entry points
-- Write `.planning/codebase/STRUCTURE.md` — Directory layout, key locations, naming conventions
+- Write `.redpill/codebase/ARCHITECTURE.md` — Pattern, layers, data flow, abstractions, entry points
+- Write `.redpill/codebase/STRUCTURE.md` — Directory layout, key locations, naming conventions
 
 **Pass 3: Quality Focus**
 - Explore code style, error handling patterns, test files, CI config
-- Write `.planning/codebase/CONVENTIONS.md` — Code style, naming, patterns, error handling
-- Write `.planning/codebase/TESTING.md` — Framework, structure, mocking, coverage
+- Write `.redpill/codebase/CONVENTIONS.md` — Code style, naming, patterns, error handling
+- Write `.redpill/codebase/TESTING.md` — Framework, structure, mocking, coverage
 
 **Pass 4: Concerns Focus**
 - Explore TODOs, known issues, fragile areas, security patterns
-- Write `.planning/codebase/CONCERNS.md` — Tech debt, bugs, security, performance, fragile areas
+- Write `.redpill/codebase/CONCERNS.md` — Tech debt, bugs, security, performance, fragile areas
 
-Use the same document templates as the `gsd-codebase-mapper` agent. Include actual file paths formatted with backticks.
+Use the same document templates as the `redpill-codebase-mapper` agent. Include actual file paths formatted with backticks.
 
 Continue to verify_output.
 </step>
@@ -262,8 +262,8 @@ Continue to verify_output.
 Verify all documents created successfully:
 
 ```bash
-ls -la .planning/codebase/
-wc -l .planning/codebase/*.md
+ls -la .redpill/codebase/
+wc -l .redpill/codebase/*.md
 ```
 
 **Verification checklist:**
@@ -282,7 +282,7 @@ Run secret pattern detection:
 
 ```bash
 # Check for common API key patterns in generated docs
-grep -E '(sk-[a-zA-Z0-9]{20,}|sk_live_[a-zA-Z0-9]+|sk_test_[a-zA-Z0-9]+|ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9_-]+|AKIA[A-Z0-9]{16}|xox[baprs]-[a-zA-Z0-9-]+|-----BEGIN.*PRIVATE KEY|eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.)' .planning/codebase/*.md 2>/dev/null && SECRETS_FOUND=true || SECRETS_FOUND=false
+grep -E '(sk-[a-zA-Z0-9]{20,}|sk_live_[a-zA-Z0-9]+|sk_test_[a-zA-Z0-9]+|ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9_-]+|AKIA[A-Z0-9]{16}|xox[baprs]-[a-zA-Z0-9-]+|-----BEGIN.*PRIVATE KEY|eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.)' .redpill/codebase/*.md 2>/dev/null && SECRETS_FOUND=true || SECRETS_FOUND=false
 ```
 
 **If SECRETS_FOUND=true:**
@@ -314,7 +314,7 @@ Continue to commit_codebase_map.
 Commit the codebase map:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: map existing codebase" --files .planning/codebase/*.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: map existing codebase" --files .redpill/codebase/*.md
 ```
 
 Continue to offer_next.
@@ -325,7 +325,7 @@ Present completion summary and next steps.
 
 **Get line counts:**
 ```bash
-wc -l .planning/codebase/*.md
+wc -l .redpill/codebase/*.md
 ```
 
 **Output format:**
@@ -333,7 +333,7 @@ wc -l .planning/codebase/*.md
 ```
 Codebase mapping complete.
 
-Created .planning/codebase/:
+Created .redpill/codebase/:
 - STACK.md ([N] lines) - Technologies and dependencies
 - ARCHITECTURE.md ([N] lines) - System design and patterns
 - STRUCTURE.md ([N] lines) - Directory layout and organization
@@ -349,15 +349,15 @@ Created .planning/codebase/:
 
 **Initialize project** — use codebase context for planning
 
-`/gsd:new-project`
+`/redpill:new-project`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- Re-run mapping: `/gsd:map-codebase`
-- Review specific file: `cat .planning/codebase/STACK.md`
+- Re-run mapping: `/redpill:map-codebase`
+- Review specific file: `cat .redpill/codebase/STACK.md`
 - Edit any document before proceeding
 
 ---
@@ -369,11 +369,11 @@ End workflow.
 </process>
 
 <success_criteria>
-- .planning/codebase/ directory created
-- If Task tool available: 4 parallel gsd-codebase-mapper agents spawned with run_in_background=true
+- .redpill/codebase/ directory created
+- If Task tool available: 4 parallel redpill-codebase-mapper agents spawned with run_in_background=true
 - If Task tool NOT available: 4 sequential mapping passes performed inline (never using browser_subagent)
 - All 7 codebase documents exist
 - No empty documents (each should have >20 lines)
 - Clear completion summary with line counts
-- User offered clear next steps in GSD style
+- User offered clear next steps in REDPILL style
 </success_criteria>

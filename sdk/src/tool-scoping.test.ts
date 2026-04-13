@@ -129,20 +129,20 @@ describe('PHASE_AGENT_MAP', () => {
     }
   });
 
-  it('execute maps to gsd-executor.md', () => {
-    expect(PHASE_AGENT_MAP[PhaseType.Execute]).toBe('gsd-executor.md');
+  it('execute maps to redpill-executor.md', () => {
+    expect(PHASE_AGENT_MAP[PhaseType.Execute]).toBe('redpill-executor.md');
   });
 
-  it('research maps to gsd-phase-researcher.md', () => {
-    expect(PHASE_AGENT_MAP[PhaseType.Research]).toBe('gsd-phase-researcher.md');
+  it('research maps to redpill-phase-researcher.md', () => {
+    expect(PHASE_AGENT_MAP[PhaseType.Research]).toBe('redpill-phase-researcher.md');
   });
 
-  it('plan maps to gsd-planner.md', () => {
-    expect(PHASE_AGENT_MAP[PhaseType.Plan]).toBe('gsd-planner.md');
+  it('plan maps to redpill-planner.md', () => {
+    expect(PHASE_AGENT_MAP[PhaseType.Plan]).toBe('redpill-planner.md');
   });
 
-  it('verify maps to gsd-verifier.md', () => {
-    expect(PHASE_AGENT_MAP[PhaseType.Verify]).toBe('gsd-verifier.md');
+  it('verify maps to redpill-verifier.md', () => {
+    expect(PHASE_AGENT_MAP[PhaseType.Verify]).toBe('redpill-verifier.md');
   });
 
   it('discuss maps to null (no dedicated agent)', () => {

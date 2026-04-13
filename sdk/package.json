@@ -1,7 +1,7 @@
 {
   "name": "@gsd-build/sdk",
   "version": "0.1.0",
-  "description": "GSD SDK — programmatic interface for running GSD plans via the Agent SDK",
+  "description": "REDPILL SDK — programmatic interface for running REDPILL plans via the Agent SDK",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
     }
   },
   "bin": {
-    "gsd-sdk": "./dist/cli.js"
+    "redpill-sdk": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -23,9 +23,9 @@
     "url": "git+https://github.com/gsd-build/get-shit-done.git",
     "directory": "sdk"
   },
-  "homepage": "https://github.com/gsd-build/get-shit-done/tree/main/sdk",
+  "homepage": "https://github.com/gsd-build/redpill/tree/main/sdk",
   "bugs": {
-    "url": "https://github.com/gsd-build/get-shit-done/issues"
+    "url": "https://github.com/gsd-build/redpill/issues"
   },
   "author": "TÂCHES",
   "license": "MIT",

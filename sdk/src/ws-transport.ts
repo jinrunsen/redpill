@@ -1,5 +1,5 @@
 /**
- * WebSocket Transport — broadcasts GSD events as JSON over WebSocket.
+ * WebSocket Transport — broadcasts REDPILL events as JSON over WebSocket.
  *
  * Implements TransportHandler. Starts a WebSocketServer on a given port
  * and JSON-serializes each event to all connected clients.
@@ -40,7 +40,7 @@ export class WSTransport implements TransportHandler {
   }
 
   /**
-   * Broadcast a GSD event as JSON to all connected clients.
+   * Broadcast a REDPILL event as JSON to all connected clients.
    * Never throws — wraps each client.send in try/catch.
    */
   onEvent(event: GSDEvent): void {

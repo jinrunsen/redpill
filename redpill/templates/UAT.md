@@ -1,6 +1,6 @@
 # UAT Template
 
-Template for `.planning/phases/XX-name/{phase_num}-UAT.md` — persistent UAT session tracking.
+Template for `.redpill/phases/XX-name/{phase_num}-UAT.md` — persistent UAT session tracking.
 
 ---
 
@@ -106,7 +106,7 @@ blocked: [N]
 **Gaps:**
 - APPEND only when issue found (YAML format)
 - After diagnosis: fill `root_cause`, `artifacts`, `missing`, `debug_session`
-- This section feeds directly into /gsd:plan-phase --gaps
+- This section feeds directly into /redpill:plan-phase --gaps
 
 </section_rules>
 
@@ -120,7 +120,7 @@ blocked: [N]
 4. UAT.md Gaps section updated with diagnosis:
    - Each gap gets `root_cause`, `artifacts`, `missing`, `debug_session` filled
 5. status → "diagnosed"
-6. Ready for /gsd:plan-phase --gaps with root causes
+6. Ready for /redpill:plan-phase --gaps with root causes
 
 **After diagnosis:**
 ```yaml
@@ -137,14 +137,14 @@ blocked: [N]
       issue: "useEffect missing dependency"
   missing:
     - "Add commentCount to useEffect dependency array"
-  debug_session: ".planning/debug/comment-not-refreshing.md"
+  debug_session: ".redpill/debug/comment-not-refreshing.md"
 ```
 
 </diagnosis_lifecycle>
 
 <lifecycle>
 
-**Creation:** When /gsd:verify-work starts new session
+**Creation:** When /redpill:verify-work starts new session
 - Extract tests from SUMMARY.md files
 - Set status to "testing"
 - Current Test points to test 1
@@ -171,7 +171,7 @@ blocked: [N]
 - Present summary with outstanding items highlighted
 
 **Resuming partial session:**
-- `/gsd:verify-work {phase}` picks up from first pending/blocked test
+- `/redpill:verify-work {phase}` picks up from first pending/blocked test
 - When all items resolved, status advances to "complete"
 
 **Resume after /clear:**
@@ -260,6 +260,6 @@ skipped: 0
       issue: "useEffect missing dependency"
   missing:
     - "Add commentCount to useEffect dependency array"
-  debug_session: ".planning/debug/comment-not-refreshing.md"
+  debug_session: ".redpill/debug/comment-not-refreshing.md"
 ```
 </good_example>

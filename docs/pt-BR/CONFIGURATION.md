@@ -1,6 +1,6 @@
 # Referência de Configuração do GSD
 
-Configurações do projeto ficam em `.planning/config.json`.  
+Configurações do projeto ficam em `.redpill/config.json`.  
 Esta versão resume os parâmetros principais em Português. Para schema completo, veja [inglês](../CONFIGURATION.md).
 
 ---
@@ -42,7 +42,7 @@ Esta versão resume os parâmetros principais em Português. Para schema complet
 
 | Chave | Padrão | Descrição |
 |------|--------|-----------|
-| `planning.commit_docs` | `true` | Comitar `.planning/` no git |
+| `planning.commit_docs` | `true` | Comitar `.redpill/` no git |
 | `planning.search_gitignored` | `false` | Incluir arquivos ignorados em buscas amplas |
 
 ## Workflow toggles
@@ -66,7 +66,7 @@ Esta versão resume os parâmetros principais em Português. Para schema complet
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | Estratégia de criação de branches |
 | `git.phase_branch_template` | string | `gsd/phase-{phase}-{slug}` | Nome para branch por fase |
 | `git.milestone_branch_template` | string | `gsd/{milestone}-{slug}` | Nome para branch de milestone |
-| `git.quick_branch_template` | string ou `null` | `null` | Branch opcional para `/gsd:quick` |
+| `git.quick_branch_template` | string ou `null` | `null` | Branch opcional para `/redpill:quick` |
 
 ## Perfis de modelo
 
@@ -80,5 +80,5 @@ Esta versão resume os parâmetros principais em Português. Para schema complet
 Troca rápida:
 
 ```bash
-/gsd:set-profile budget
+/redpill:set-profile budget
 ```

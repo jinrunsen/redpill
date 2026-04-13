@@ -4,12 +4,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const { escapeRegex, loadConfig, getMilestoneInfo, getMilestonePhaseFilter, normalizeMd, planningDir, planningPaths, output, error } = require('./core.cjs');
+const { escapeRegex, loadConfig, getMilestoneInfo, getMilestonePhaseFilter, normalizeMd, redpillDir, redpillPaths, output, error } = require('./core.cjs');
 const { extractFrontmatter, reconstructFrontmatter } = require('./frontmatter.cjs');
 
 /** Shorthand — every state command needs this path */
 function getStatePath(cwd) {
-  return planningPaths(cwd).state;
+  return redpillPaths(cwd).state;
 }
 
 // Shared helper: extract a field value from STATE.md content.
@@ -26,7 +26,7 @@ function stateExtractField(content, fieldName) {
 
 function cmdStateLoad(cwd, raw) {
   const config = loadConfig(cwd);
-  const planDir = planningPaths(cwd).planning;
+  const planDir = redpillPaths(cwd).planning;
 
   let stateRaw = '';
   try {
@@ -70,7 +70,7 @@ function cmdStateLoad(cwd, raw) {
 }
 
 function cmdStateGet(cwd, section, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   try {
     const content = fs.readFileSync(statePath, 'utf-8');
 
@@ -139,7 +139,7 @@ function cmdStatePatch(cwd, patches, raw) {
     }
   }
 
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   try {
     const results = { updated: [], failed: [] };
 
@@ -182,7 +182,7 @@ function cmdStateUpdate(cwd, field, value) {
     error(`state update: ${fieldCheck.error}`);
   }
 
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   try {
     let content = fs.readFileSync(statePath, 'utf-8');
     const fieldEscaped = escapeRegex(field);
@@ -271,7 +271,7 @@ function updateCurrentPositionFields(content, fields) {
 }
 
 function cmdStateAdvancePlan(cwd, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
 
   let content = fs.readFileSync(statePath, 'utf-8');
@@ -327,7 +327,7 @@ function cmdStateAdvancePlan(cwd, raw) {
 }
 
 function cmdStateRecordMetric(cwd, options, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
 
   let content = fs.readFileSync(statePath, 'utf-8');
@@ -361,13 +361,13 @@ function cmdStateRecordMetric(cwd, options, raw) {
 }
 
 function cmdStateUpdateProgress(cwd, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
 
   let content = fs.readFileSync(statePath, 'utf-8');
 
   // Count summaries across current milestone phases only
-  const phasesDir = planningPaths(cwd).phases;
+  const phasesDir = redpillPaths(cwd).phases;
   let totalPlans = 0;
   let totalSummaries = 0;
 
@@ -406,7 +406,7 @@ function cmdStateUpdateProgress(cwd, raw) {
 }
 
 function cmdStateAddDecision(cwd, options, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
 
   const { phase, summary, summary_file, rationale, rationale_file } = options;
@@ -444,7 +444,7 @@ function cmdStateAddDecision(cwd, options, raw) {
 }
 
 function cmdStateAddBlocker(cwd, text, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
   const blockerOptions = typeof text === 'object' && text !== null ? text : { text };
   let blockerText = null;
@@ -477,7 +477,7 @@ function cmdStateAddBlocker(cwd, text, raw) {
 }
 
 function cmdStateResolveBlocker(cwd, text, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
   if (!text) { output({ error: 'text required' }, raw); return; }
 
@@ -509,7 +509,7 @@ function cmdStateResolveBlocker(cwd, text, raw) {
 }
 
 function cmdStateRecordSession(cwd, options, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
 
   let content = fs.readFileSync(statePath, 'utf-8');
@@ -544,7 +544,7 @@ function cmdStateRecordSession(cwd, options, raw) {
 }
 
 function cmdStateSnapshot(cwd, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
 
   if (!fs.existsSync(statePath)) {
     output({ error: 'STATE.md not found' }, raw);
@@ -676,7 +676,7 @@ function buildStateFrontmatter(bodyContent, cwd) {
 
   if (cwd) {
     try {
-      const phasesDir = planningPaths(cwd).phases;
+      const phasesDir = redpillPaths(cwd).phases;
       if (fs.existsSync(phasesDir)) {
         const isDirInMilestone = getMilestonePhaseFilter(cwd);
         const phaseDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
@@ -864,7 +864,7 @@ function readModifyWriteStateMd(statePath, transformFn, cwd) {
 }
 
 function cmdStateJson(cwd, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) {
     output({ error: 'STATE.md not found' }, raw, 'STATE.md not found');
     return;
@@ -890,7 +890,7 @@ function cmdStateJson(cwd, raw) {
  * Fixes: #1102 (plan counts), #1103 (status/last_activity), #1104 (body text).
  */
 function cmdStateBeginPhase(cwd, phaseNumber, phaseName, planCount, raw) {
-  const statePath = planningPaths(cwd).state;
+  const statePath = redpillPaths(cwd).state;
   if (!fs.existsSync(statePath)) {
     output({ error: 'STATE.md not found' }, raw);
     return;
@@ -991,13 +991,13 @@ function cmdStateBeginPhase(cwd, phaseNumber, phaseName, planCount, raw) {
 }
 
 /**
- * Write a WAITING.json signal file when GSD hits a decision point.
+ * Write a WAITING.json signal file when REDPILL hits a decision point.
  * External watchers (fswatch, polling, orchestrators) can detect this.
- * File is written to .planning/WAITING.json (or .gsd/WAITING.json if .gsd exists).
+ * File is written to .redpill/WAITING.json (or .gsd/WAITING.json if .gsd exists).
  * Fixes #1034.
  */
 function cmdSignalWaiting(cwd, type, question, options, phase, raw) {
-  const gsdDir = fs.existsSync(path.join(cwd, '.gsd')) ? path.join(cwd, '.gsd') : planningDir(cwd);
+  const gsdDir = fs.existsSync(path.join(cwd, '.gsd')) ? path.join(cwd, '.gsd') : redpillDir(cwd);
   const waitingPath = path.join(gsdDir, 'WAITING.json');
 
   const signal = {
@@ -1024,7 +1024,7 @@ function cmdSignalWaiting(cwd, type, question, options, phase, raw) {
 function cmdSignalResume(cwd, raw) {
   const paths = [
     path.join(cwd, '.gsd', 'WAITING.json'),
-    path.join(planningDir(cwd), 'WAITING.json'),
+    path.join(redpillDir(cwd), 'WAITING.json'),
   ];
 
   let removed = false;

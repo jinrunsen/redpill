@@ -6,7 +6,7 @@
 
 ## Overview
 
-A new independent workflow path for GSD: `/gsd:bdd-phase {N}`. Instead of the traditional research → plan → verify pipeline, this workflow is driven by test scenarios. Each Gherkin scenario becomes an atomic unit of work, iterated one-by-one through a RED → WORK → GREEN → REVIEW cycle.
+A new independent workflow path for GSD: `/redpill:bdd-phase {N}`. Instead of the traditional research → plan → verify pipeline, this workflow is driven by test scenarios. Each Gherkin scenario becomes an atomic unit of work, iterated one-by-one through a RED → WORK → GREEN → REVIEW cycle.
 
 ## Design Decisions
 
@@ -17,13 +17,13 @@ A new independent workflow path for GSD: `/gsd:bdd-phase {N}`. Instead of the tr
 | Tech design source | User manually provides DESIGN.md | Not auto-generated |
 | Scenario discovery | `behave --dry-run` auto-discovery | No extra config needed |
 | Review cadence | Every scenario | Safety over speed |
-| State integration | Full (STATE.md, ROADMAP.md, REQUIREMENTS.md) | BDD is a GSD execution mode |
-| File locations | .feature in `features/`, design in `.planning/phases/` | Each in its natural home |
+| State integration | Full (STATE.md, ROADMAP.md, REQUIREMENTS.md) | BDD is a REDPILL execution mode |
+| File locations | .feature in `features/`, design in `.redpill/phases/` | Each in its natural home |
 
 ## Command Interface
 
 ```
-/gsd:bdd-phase {N} [--resume] [--skip-review] [--tag @tag_name]
+/redpill:bdd-phase {N} [--resume] [--skip-review] [--tag @tag_name]
 ```
 
 - `{N}` — Phase number from ROADMAP.md
@@ -34,22 +34,22 @@ A new independent workflow path for GSD: `/gsd:bdd-phase {N}`. Instead of the tr
 ## Pre-flight Checks
 
 ```
-1. .planning/ directory exists? No → error: run /gsd:new-project
+1. .redpill/ directory exists? No → error: run /redpill:new-project
 2. Phase exists in ROADMAP.md? No → error with available phases
 3. Phase directory exists? No → create it
 4. [RESERVED] Service build/run context document exists? (doc path TBD)
 5. [RESERVED] Current environment can compile and run the service? (check method TBD)
 6. features/ has .feature files? No → error: "No .feature files found. Write your Gherkin scenarios first."
-7. Technical design exists? Check .planning/phases/XX-name/*-DESIGN.md
+7. Technical design exists? Check .redpill/phases/XX-name/*-DESIGN.md
    No → error: "No DESIGN.md found for Phase {N}. Provide a technical design document at:
-   .planning/phases/XX-name/{NN}-DESIGN.md"
+   .redpill/phases/XX-name/{NN}-DESIGN.md"
 8. behave executable? No → error: "behave not found. Install: pip install behave"
 ```
 
 ## Initialization
 
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init bdd-phase "$PHASE")
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init bdd-phase "$PHASE")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -115,11 +115,11 @@ Undefined indicators (any one triggers):
 - Output contains "You can implement step definitions"
 - Step status includes "undefined"
 
-#### 2b. If undefined steps → dispatch gsd-step-writer
+#### 2b. If undefined steps → dispatch redpill-step-writer
 
 ```
 Agent(
-  subagent_type="gsd-step-writer",
+  subagent_type="redpill-step-writer",
   description="Write steps for scenario: {scenario_name}",
   prompt="
     <objective>
@@ -167,7 +167,7 @@ Dispatch executor:
 
 ```
 Agent(
-  subagent_type="gsd-executor",
+  subagent_type="redpill-executor",
   description="Implement backend for scenario: {scenario_name}",
   prompt="
     <objective>
@@ -209,7 +209,7 @@ behave --no-capture --format plain --include <feature_file> -n "<scenario_name>"
   - Attempt 2: mark STUCK
 
 ```
-max_fix_attempts = 2  (configurable via .planning/config.json)
+max_fix_attempts = 2  (configurable via .redpill/config.json)
 ```
 
 On STUCK:
@@ -232,7 +232,7 @@ Dispatch reviewer:
 
 ```
 Agent(
-  subagent_type="gsd-verifier",
+  subagent_type="redpill-verifier",
   description="Review scenario implementation: {scenario_name}",
   prompt="
     <objective>
@@ -293,11 +293,11 @@ behave --no-capture --format plain \
 Step definitions and production code committed by agents during their work. If not yet committed:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "test({phase}): add step definitions for {scenario_name}" \
   --files features/steps/
 
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "feat({phase}): implement {scenario_name}" \
   --files src/
 ```
@@ -316,7 +316,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
 #### Update STATE.md
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state record-metric \
   --phase "${PHASE}" --plan "bdd" \
   --duration "${SCENARIO_DURATION}" \
   --tasks "1" --files "${FILE_COUNT}"
@@ -326,7 +326,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-metric \
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PROGRESS — Phase {N}
+ REDPILL ► BDD PROGRESS — Phase {N}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  ✓ {passed_count}/{total_count} scenarios passing
@@ -386,7 +386,7 @@ key-files:
 
 # Phase {N}: {Name} — BDD Summary
 
-Scenario-driven implementation via /gsd:bdd-phase.
+Scenario-driven implementation via /redpill:bdd-phase.
 
 ## Scenario Results
 
@@ -413,21 +413,21 @@ None / {list}
 - Scenario 11 (Rate limiting): stuck after 2 attempts — Redis dependency not configured
 ```
 
-### Update GSD State
+### Update REDPILL State
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" roadmap update-plan-progress "${PHASE}"
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" requirements mark-complete ${REQ_IDS}
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit \
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" roadmap update-plan-progress "${PHASE}"
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" requirements mark-complete ${REQ_IDS}
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   "docs(phase-${PHASE}): complete BDD phase summary" \
-  --files "${PHASE_DIR}/${NN}-BDD-SUMMARY.md" .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
+  --files "${PHASE_DIR}/${NN}-BDD-SUMMARY.md" .redpill/STATE.md .redpill/ROADMAP.md .redpill/REQUIREMENTS.md
 ```
 
 ### Completion Output
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► BDD PHASE {N} COMPLETE ✓
+ REDPILL ► BDD PHASE {N} COMPLETE ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Phase {N}: {Name} — {passed}/{total} scenarios passing
@@ -440,9 +440,9 @@ Files changed: {file_count}
 
 ## Next Up
 
-/gsd:verify-work {N}      — manual verification
-/gsd:plan-phase {N+1}     — plan next phase
-/gsd:discuss-phase {N+1}  — discuss next phase
+/redpill:verify-work {N}      — manual verification
+/redpill:plan-phase {N+1}     — plan next phase
+/redpill:discuss-phase {N+1}  — discuss next phase
 
 /clear first for fresh context window
 
@@ -455,25 +455,25 @@ Files changed: {file_count}
 
 | File | Type | Purpose |
 |------|------|---------|
-| `get-shit-done/commands/bdd-phase.md` | Command | Entry point, routes to workflow |
-| `get-shit-done/workflows/bdd-phase.md` | Workflow | Full BDD iteration logic |
+| `redpill/commands/bdd-phase.md` | Command | Entry point, routes to workflow |
+| `redpill/workflows/bdd-phase.md` | Workflow | Full BDD iteration logic |
 
 ### Reused Agents (no new agents)
 
 | Agent | BDD Role |
 |-------|----------|
-| `gsd-step-writer` | RED phase — write step definitions |
-| `gsd-executor` | WORK phase — implement backend code |
-| `gsd-verifier` | REVIEW phase — review implementation quality |
+| `redpill-step-writer` | RED phase — write step definitions |
+| `redpill-executor` | WORK phase — implement backend code |
+| `redpill-verifier` | REVIEW phase — review implementation quality |
 
 ### New gsd-tools Command
 
-`init bdd-phase` subcommand added to `gsd-tools.cjs`. Returns JSON with standard phase info plus `design_path`, `feature_files`, `bdd_progress_path`.
+`init bdd-phase` subcommand added to `redpill-tools.cjs`. Returns JSON with standard phase info plus `design_path`, `feature_files`, `bdd_progress_path`.
 
 ### Phase Directory Example
 
 ```
-.planning/phases/03-auth/
+.redpill/phases/03-auth/
   03-DESIGN.md              ← User-provided technical design
   BDD-PROGRESS.json         ← Scenario progress tracking (workflow-managed)
   03-BDD-SUMMARY.md         ← Generated on completion
@@ -481,19 +481,19 @@ Files changed: {file_count}
 features/
   auth.feature              ← Gherkin scenarios (behave standard location)
   steps/
-    auth_steps.py           ← Generated by gsd-step-writer
+    auth_steps.py           ← Generated by redpill-step-writer
     helpers/
       api_client.py
 ```
 
-### Relationship to Existing GSD Paths
+### Relationship to Existing REDPILL Paths
 
 ```
 Path 1 (Traditional):
-  /gsd:discuss-phase → /gsd:plan-phase → /gsd:execute-phase → /gsd:verify-work
+  /redpill:discuss-phase → /redpill:plan-phase → /redpill:execute-phase → /redpill:verify-work
 
 Path 2 (BDD, new):
-  User prepares .feature + DESIGN.md → /gsd:bdd-phase → /gsd:verify-work
+  User prepares .feature + DESIGN.md → /redpill:bdd-phase → /redpill:verify-work
 
 Both paths share: STATE.md, ROADMAP.md, REQUIREMENTS.md, SUMMARY.md format
 ```

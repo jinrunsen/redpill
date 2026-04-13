@@ -9,7 +9,7 @@ Para detalhes completos de implementação, veja [context-monitor.md em inglês]
 ## Objetivos
 
 - identificar quando a sessão principal está saturando
-- recomendar ações de recuperação (`/clear`, `/gsd:resume-work`, `/gsd:progress`)
+- recomendar ações de recuperação (`/clear`, `/redpill:resume-work`, `/redpill:progress`)
 - manter previsibilidade durante ciclos longos de desenvolvimento
 
 ## Como funciona
@@ -23,15 +23,15 @@ Para detalhes completos de implementação, veja [context-monitor.md em inglês]
 
 - Limpe contexto entre fases grandes
 - Execute tarefas pesadas em subagentes
-- Mantenha o estado em `.planning/` como fonte de verdade
+- Mantenha o estado em `.redpill/` como fonte de verdade
 
 ## Recuperação quando há degradação
 
 ```bash
 /clear
-/gsd:resume-work
+/redpill:resume-work
 # ou
-/gsd:progress
+/redpill:progress
 ```
 
 ---

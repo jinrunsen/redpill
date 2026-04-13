@@ -13,10 +13,10 @@ async function createTempProject(): Promise<string> {
 }
 
 async function createPlanningDir(projectDir: string, files: Record<string, string>): Promise<void> {
-  const planningDir = join(projectDir, '.planning');
-  await mkdir(planningDir, { recursive: true });
+  const redpillDir = join(projectDir, '.redpill');
+  await mkdir(redpillDir, { recursive: true });
   for (const [filename, content] of Object.entries(files)) {
-    await writeFile(join(planningDir, filename), content, 'utf-8');
+    await writeFile(join(redpillDir, filename), content, 'utf-8');
   }
 }
 

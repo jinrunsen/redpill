@@ -1,6 +1,6 @@
 <planning_config>
 
-`.planning/` 目录行为的配置选项。
+`.redpill/` 目录行为的配置选项。
 
 <config_schema>
 ```json
@@ -32,33 +32,33 @@
 - 规划决策的完整历史保留
 
 **当 `commit_docs: false`：**
-- 跳过 `.planning/` 文件的所有 `git add`/`git commit`
-- 用户必须将 `.planning/` 添加到 `.gitignore`
+- 跳过 `.redpill/` 文件的所有 `git add`/`git commit`
+- 用户必须将 `.redpill/` 添加到 `.gitignore`
 - 适用于：OSS 贡献、客户项目、保持规划私有
 
-**使用 gsd-tools.cjs（推荐）：**
+**使用 redpill-tools.cjs（推荐）：**
 
 ```bash
 # 提交时自动检查 commit_docs + gitignore：
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: update state" --files .planning/STATE.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: update state" --files .redpill/STATE.md
 
 # 通过 state load 加载配置（返回 JSON）：
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state load)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # commit_docs 在 JSON 输出中可用
 
 # 或使用包含 commit_docs 的 init 命令：
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init execute-phase "1")
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init execute-phase "1")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # commit_docs 包含在所有 init 命令输出中
 ```
 
-**自动检测：** 如果 `.planning/` 被 gitignore，无论 config.json 如何，`commit_docs` 自动为 `false`。这防止用户在 `.gitignore` 中有 `.planning/` 时出现 git 错误。
+**自动检测：** 如果 `.redpill/` 被 gitignore，无论 config.json 如何，`commit_docs` 自动为 `false`。这防止用户在 `.gitignore` 中有 `.redpill/` 时出现 git 错误。
 
 **通过 CLI 提交（自动处理检查）：**
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: update state" --files .planning/STATE.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: update state" --files .redpill/STATE.md
 ```
 
 CLI 在内部检查 `commit_docs` 配置和 gitignore 状态 —— 无需手动条件判断。
@@ -69,14 +69,14 @@ CLI 在内部检查 `commit_docs` 配置和 gitignore 状态 —— 无需手动
 
 **当 `search_gitignored: false`（默认）：**
 - 标准 rg 行为（尊重 .gitignore）
-- 直接路径搜索有效：`rg "pattern" .planning/` 找到文件
-- 广泛搜索跳过 gitignored：`rg "pattern"` 跳过 `.planning/`
+- 直接路径搜索有效：`rg "pattern" .redpill/` 找到文件
+- 广泛搜索跳过 gitignored：`rg "pattern"` 跳过 `.redpill/`
 
 **当 `search_gitignored: true`:**
-- 在应该包含 `.planning/` 的广泛 rg 搜索中添加 `--no-ignore`
-- 仅在搜索整个仓库并期望 `.planning/` 匹配时需要
+- 在应该包含 `.redpill/` 的广泛 rg 搜索中添加 `--no-ignore`
+- 仅在搜索整个仓库并期望 `.redpill/` 匹配时需要
 
-**注意：** 大多数 GSD 操作使用直接文件读取或显式路径，无论 gitignore 状态如何都有效。
+**注意：** 大多数 REDPILL 操作使用直接文件读取或显式路径，无论 gitignore 状态如何都有效。
 
 </search_behavior>
 
@@ -94,16 +94,16 @@ CLI 在内部检查 `commit_docs` 配置和 gitignore 状态 —— 无需手动
 
 2. **添加到 .gitignore：**
    ```
-   .planning/
+   .redpill/
    ```
 
-3. **已存在的跟踪文件：** 如果 `.planning/` 之前被跟踪：
+3. **已存在的跟踪文件：** 如果 `.redpill/` 之前被跟踪：
    ```bash
-   git rm -r --cached .planning/
+   git rm -r --cached .redpill/
    git commit -m "chore: stop tracking planning docs"
    ```
 
-4. **分支合并：** 当使用 `branching_strategy: phase` 或 `milestone` 时，`complete-milestone` 工作流在 `commit_docs: false` 时自动从暂存区移除 `.planning/` 文件，然后才进行合并提交。
+4. **分支合并：** 当使用 `branching_strategy: phase` 或 `milestone` 时，`complete-milestone` 工作流在 `commit_docs: false` 时自动从暂存区移除 `.redpill/` 文件，然后才进行合并提交。
 
 </setup_uncommitted_mode>
 
@@ -119,7 +119,7 @@ CLI 在内部检查 `commit_docs` 配置和 gitignore 状态 —— 无需手动
 
 **当 `git.branching_strategy: "none"`（默认）：**
 - 所有工作提交到当前分支
-- 标准 GSD 行为
+- 标准 REDPILL 行为
 
 **当 `git.branching_strategy: "phase"`：**
 - `execute-phase` 在执行前创建/切换到分支
@@ -146,14 +146,14 @@ CLI 在内部检查 `commit_docs` 配置和 gitignore 状态 —— 无需手动
 
 使用 `init execute-phase` 返回所有配置为 JSON：
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init execute-phase "1")
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init execute-phase "1")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # JSON 输出包含：branching_strategy, phase_branch_template, milestone_branch_template
 ```
 
 或使用 `state load` 获取配置值：
 ```bash
-INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state load)
+INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" state load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # 从 JSON 解析 branching_strategy, phase_branch_template, milestone_branch_template
 ```

@@ -23,28 +23,28 @@ Referência detalhada de workflows, troubleshooting e configuração. Para setup
 
 Fluxo recomendado por fase:
 
-1. `/gsd:discuss-phase [N]` — trava preferências de implementação
-2. `/gsd:ui-phase [N]` — contrato visual para fases frontend
-3. `/gsd:plan-phase [N]` — pesquisa + plano + validação
-4. `/gsd:execute-phase [N]` — execução em ondas paralelas
-5. `/gsd:verify-work [N]` — UAT manual com diagnóstico
-6. `/gsd:ship [N]` — cria PR (opcional)
+1. `/redpill:discuss-phase [N]` — trava preferências de implementação
+2. `/redpill:ui-phase [N]` — contrato visual para fases frontend
+3. `/redpill:plan-phase [N]` — pesquisa + plano + validação
+4. `/redpill:execute-phase [N]` — execução em ondas paralelas
+5. `/redpill:verify-work [N]` — UAT manual com diagnóstico
+6. `/redpill:ship [N]` — cria PR (opcional)
 
 Para iniciar projeto novo:
 
 ```bash
-/gsd:new-project
+/redpill:new-project
 ```
 
 Para seguir automaticamente o próximo passo:
 
 ```bash
-/gsd:next
+/redpill:next
 ```
 
 ### Nyquist Validation
 
-Durante `plan-phase`, o GSD pode mapear requisitos para comandos de teste automáticos antes da implementação. Isso gera `{phase}-VALIDATION.md` e aumenta a confiabilidade de verificação pós-execução.
+Durante `plan-phase`, o REDPILL pode mapear requisitos para comandos de teste automáticos antes da implementação. Isso gera `{phase}-VALIDATION.md` e aumenta a confiabilidade de verificação pós-execução.
 
 Desativar:
 
@@ -58,7 +58,7 @@ Desativar:
 
 ### Modo de discussão por suposições
 
-Com `workflow.discuss_mode: "assumptions"`, o GSD analisa o código antes de perguntar, apresenta suposições estruturadas e pede apenas correções.
+Com `workflow.discuss_mode: "assumptions"`, o REDPILL analisa o código antes de perguntar, apresenta suposições estruturadas e pede apenas correções.
 
 ---
 
@@ -68,13 +68,13 @@ Com `workflow.discuss_mode: "assumptions"`, o GSD analisa o código antes de per
 
 | Comando | Descrição |
 |---------|-----------|
-| `/gsd:ui-phase [N]` | Gera contrato de design `UI-SPEC.md` para a fase |
-| `/gsd:ui-review [N]` | Auditoria visual retroativa em 6 pilares |
+| `/redpill:ui-phase [N]` | Gera contrato de design `UI-SPEC.md` para a fase |
+| `/redpill:ui-review [N]` | Auditoria visual retroativa em 6 pilares |
 
 ### Quando usar
 
-- Rode `/gsd:ui-phase` depois de `/gsd:discuss-phase` e antes de `/gsd:plan-phase`.
-- Rode `/gsd:ui-review` após execução/validação para avaliar qualidade visual e consistência.
+- Rode `/redpill:ui-phase` depois de `/redpill:discuss-phase` e antes de `/redpill:plan-phase`.
+- Rode `/redpill:ui-review` após execução/validação para avaliar qualidade visual e consistência.
 
 ### Configurações relacionadas
 
@@ -92,14 +92,14 @@ Com `workflow.discuss_mode: "assumptions"`, o GSD analisa o código antes de per
 Ideias fora da sequência ativa vão para backlog:
 
 ```bash
-/gsd:add-backlog "Camada GraphQL"
-/gsd:add-backlog "Responsividade mobile"
+/redpill:add-backlog "Camada GraphQL"
+/redpill:add-backlog "Responsividade mobile"
 ```
 
 Promover/revisar:
 
 ```bash
-/gsd:review-backlog
+/redpill:review-backlog
 ```
 
 ### Seeds
@@ -107,7 +107,7 @@ Promover/revisar:
 Seeds guardam ideias futuras com condição de gatilho:
 
 ```bash
-/gsd:plant-seed "Adicionar colaboração real-time quando infra de WebSocket estiver pronta"
+/redpill:plant-seed "Adicionar colaboração real-time quando infra de WebSocket estiver pronta"
 ```
 
 ### Threads persistentes
@@ -115,9 +115,9 @@ Seeds guardam ideias futuras com condição de gatilho:
 Threads são contexto leve entre sessões:
 
 ```bash
-/gsd:thread
-/gsd:thread fix-deploy-key-auth
-/gsd:thread "Investigar timeout TCP"
+/redpill:thread
+/redpill:thread fix-deploy-key-auth
+/redpill:thread "Investigar timeout TCP"
 ```
 
 ---
@@ -128,22 +128,22 @@ Workstreams permitem trabalho paralelo sem colisão de estado de planejamento.
 
 | Comando | Função |
 |---------|--------|
-| `/gsd:workstreams create <name>` | Cria workstream isolado |
-| `/gsd:workstreams switch <name>` | Troca workstream ativo |
-| `/gsd:workstreams list` | Lista workstreams |
-| `/gsd:workstreams complete <name>` | Finaliza e arquiva workstream |
+| `/redpill:workstreams create <name>` | Cria workstream isolado |
+| `/redpill:workstreams switch <name>` | Troca workstream ativo |
+| `/redpill:workstreams list` | Lista workstreams |
+| `/redpill:workstreams complete <name>` | Finaliza e arquiva workstream |
 
-`workstreams` compartilham o mesmo código/git, mas isolam artefatos de `.planning/`.
+`workstreams` compartilham o mesmo código/git, mas isolam artefatos de `.redpill/`.
 
 ---
 
 ## Segurança
 
-O GSD aplica defesa em profundidade:
+O REDPILL aplica defesa em profundidade:
 
 - prevenção de path traversal em entradas de arquivo
 - detecção de prompt injection em texto do usuário
-- hooks de proteção para escrita em `.planning/`
+- hooks de proteção para escrita em `.redpill/`
 - scanner CI para padrões de injeção em agentes/workflows/comandos
 
 Para arquivos sensíveis, use deny list no Claude Code.
@@ -156,27 +156,27 @@ Para arquivos sensíveis, use deny list no Claude Code.
 
 | Comando | Quando usar |
 |---------|-------------|
-| `/gsd:new-project` | Início de projeto |
-| `/gsd:discuss-phase [N]` | Definir preferências antes do plano |
-| `/gsd:plan-phase [N]` | Criar e validar planos |
-| `/gsd:execute-phase [N]` | Executar planos em ondas |
-| `/gsd:verify-work [N]` | UAT manual |
-| `/gsd:ship [N]` | Gerar PR da fase |
-| `/gsd:next` | Próximo passo automático |
+| `/redpill:new-project` | Início de projeto |
+| `/redpill:discuss-phase [N]` | Definir preferências antes do plano |
+| `/redpill:plan-phase [N]` | Criar e validar planos |
+| `/redpill:execute-phase [N]` | Executar planos em ondas |
+| `/redpill:verify-work [N]` | UAT manual |
+| `/redpill:ship [N]` | Gerar PR da fase |
+| `/redpill:next` | Próximo passo automático |
 
 ### Gestão e utilidades
 
 | Comando | Quando usar |
 |---------|-------------|
-| `/gsd:progress` | Ver status atual |
-| `/gsd:resume-work` | Retomar sessão |
-| `/gsd:pause-work` | Pausar com handoff |
-| `/gsd:session-report` | Resumo da sessão |
-| `/gsd:quick` | Tarefa ad-hoc com garantias GSD |
-| `/gsd:debug [desc]` | Debug sistemático |
-| `/gsd:forensics` | Diagnóstico de workflow quebrado |
-| `/gsd:settings` | Ajustar workflow/modelos |
-| `/gsd:set-profile <profile>` | Troca rápida de perfil |
+| `/redpill:progress` | Ver status atual |
+| `/redpill:resume-work` | Retomar sessão |
+| `/redpill:pause-work` | Pausar com handoff |
+| `/redpill:session-report` | Resumo da sessão |
+| `/redpill:quick` | Tarefa ad-hoc com garantias REDPILL |
+| `/redpill:debug [desc]` | Debug sistemático |
+| `/redpill:forensics` | Diagnóstico de workflow quebrado |
+| `/redpill:settings` | Ajustar workflow/modelos |
+| `/redpill:set-profile <profile>` | Troca rápida de perfil |
 
 Para lista completa e flags avançadas, consulte [Command Reference](../COMMANDS.md).
 
@@ -184,7 +184,7 @@ Para lista completa e flags avançadas, consulte [Command Reference](../COMMANDS
 
 ## Configuração
 
-Arquivo de configuração: `.planning/config.json`
+Arquivo de configuração: `.redpill/config.json`
 
 ### Núcleo
 
@@ -224,35 +224,35 @@ Detalhes completos: [Configuration Reference](../CONFIGURATION.md).
 
 ```bash
 claude --dangerously-skip-permissions
-/gsd:new-project
-/gsd:discuss-phase 1
-/gsd:ui-phase 1
-/gsd:plan-phase 1
-/gsd:execute-phase 1
-/gsd:verify-work 1
-/gsd:ship 1
+/redpill:new-project
+/redpill:discuss-phase 1
+/redpill:ui-phase 1
+/redpill:plan-phase 1
+/redpill:execute-phase 1
+/redpill:verify-work 1
+/redpill:ship 1
 ```
 
 ### Código já existente
 
 ```bash
-/gsd:map-codebase
-/gsd:new-project
+/redpill:map-codebase
+/redpill:new-project
 ```
 
 ### Correção rápida
 
 ```bash
-/gsd:quick
+/redpill:quick
 > "Corrigir botão de login no mobile Safari"
 ```
 
 ### Preparação para release
 
 ```bash
-/gsd:audit-milestone
-/gsd:plan-milestone-gaps
-/gsd:complete-milestone
+/redpill:audit-milestone
+/redpill:plan-milestone-gaps
+/redpill:complete-milestone
 ```
 
 ---
@@ -261,15 +261,15 @@ claude --dangerously-skip-permissions
 
 ### "Project already initialized"
 
-`.planning/PROJECT.md` já existe. Apague `.planning/` se quiser reiniciar do zero.
+`.redpill/PROJECT.md` já existe. Apague `.redpill/` se quiser reiniciar do zero.
 
 ### Sessão longa degradando contexto
 
-Use `/clear` entre etapas grandes e retome com `/gsd:resume-work` ou `/gsd:progress`.
+Use `/clear` entre etapas grandes e retome com `/redpill:resume-work` ou `/redpill:progress`.
 
 ### Plano desalinhado
 
-Rode `/gsd:discuss-phase [N]` antes do plano e valide suposições com `/gsd:list-phase-assumptions [N]`.
+Rode `/redpill:discuss-phase [N]` antes do plano e valide suposições com `/redpill:list-phase-assumptions [N]`.
 
 ### Execução falhou ou saiu com stubs
 
@@ -280,7 +280,7 @@ Replaneje com escopo menor (tarefas menores por plano).
 Use perfil budget:
 
 ```bash
-/gsd:set-profile budget
+/redpill:set-profile budget
 ```
 
 ### Runtime não-Claude (Codex/OpenCode/Gemini)
@@ -293,20 +293,20 @@ Use `resolve_model_ids: "omit"` para deixar o runtime resolver modelos padrão.
 
 | Problema | Solução |
 |---------|---------|
-| Perdeu contexto | `/gsd:resume-work` ou `/gsd:progress` |
+| Perdeu contexto | `/redpill:resume-work` ou `/redpill:progress` |
 | Fase deu errado | `git revert` + replanejar |
-| Precisa alterar escopo | `/gsd:add-phase`, `/gsd:insert-phase`, `/gsd:remove-phase` |
-| Bug em workflow | `/gsd:forensics` |
-| Correção pontual | `/gsd:quick` |
-| Custo alto | `/gsd:set-profile budget` |
-| Não sabe próximo passo | `/gsd:next` |
+| Precisa alterar escopo | `/redpill:add-phase`, `/redpill:insert-phase`, `/redpill:remove-phase` |
+| Bug em workflow | `/redpill:forensics` |
+| Correção pontual | `/redpill:quick` |
+| Custo alto | `/redpill:set-profile budget` |
+| Não sabe próximo passo | `/redpill:next` |
 
 ---
 
 ## Estrutura de arquivos do projeto
 
 ```text
-.planning/
+.redpill/
   PROJECT.md
   REQUIREMENTS.md
   ROADMAP.md

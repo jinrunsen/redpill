@@ -37,14 +37,14 @@ Output: User model, API endpoints, and UI components.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/execute-plan.md
-@~/.claude/get-shit-done/templates/summary.md
+@~/.claude/redpill/workflows/execute-plan.md
+@~/.claude/redpill/templates/summary.md
 </execution_context>
 
 <context>
-@.planning/PROJECT.md
-@.planning/ROADMAP.md
-@.planning/STATE.md
+@.redpill/PROJECT.md
+@.redpill/ROADMAP.md
+@.redpill/STATE.md
 
 # Only include SUMMARY refs if genuinely needed
 @src/relevant/source.ts
@@ -370,17 +370,17 @@ describe('parsePlan — sections', () => {
   it('extracts execution_context references', () => {
     const result = parsePlan(FULL_PLAN);
     expect(result.execution_context).toEqual([
-      '~/.claude/get-shit-done/workflows/execute-plan.md',
-      '~/.claude/get-shit-done/templates/summary.md',
+      '~/.claude/redpill/workflows/execute-plan.md',
+      '~/.claude/redpill/templates/summary.md',
     ]);
   });
 
   it('extracts context references (skipping comments)', () => {
     const result = parsePlan(FULL_PLAN);
     expect(result.context_refs).toEqual([
-      '.planning/PROJECT.md',
-      '.planning/ROADMAP.md',
-      '.planning/STATE.md',
+      '.redpill/PROJECT.md',
+      '.redpill/ROADMAP.md',
+      '.redpill/STATE.md',
       'src/relevant/source.ts',
     ]);
   });

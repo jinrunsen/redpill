@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - discuss-phase incremental checkpoint saves
+ * REDPILL Tools Tests - discuss-phase incremental checkpoint saves
  *
  * Validates that the discuss-phase workflow includes incremental
  * checkpoint logic to prevent answer loss on session interruption.

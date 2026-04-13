@@ -1,4 +1,4 @@
-# GSD Feature Reference
+# REDPILL Feature Reference
 
 > Complete feature and function documentation with requirements. For architecture details, see [Architecture](ARCHITECTURE.md). For command syntax, see [Command Reference](COMMANDS.md).
 
@@ -74,7 +74,7 @@
   - [Windsurf Runtime Support](#56-windsurf-runtime-support)
   - [Internationalized Documentation](#57-internationalized-documentation)
 - [v1.30 Features](#v130-features)
-  - [GSD SDK](#58-gsd-sdk)
+  - [REDPILL SDK](#58-redpill-sdk)
 - [v1.31 Features](#v131-features)
   - [Schema Drift Detection](#59-schema-drift-detection)
   - [Security Enforcement](#60-security-enforcement)
@@ -93,7 +93,7 @@
 
 ### 1. Project Initialization
 
-**Command:** `/gsd:new-project [--auto @file.md]`
+**Command:** `/redpill:new-project [--auto @file.md]`
 
 **Purpose:** Transform a user's idea into a fully structured project with research, scoped requirements, and a phased roadmap.
 
@@ -103,7 +103,7 @@
 - REQ-INIT-03: System MUST extract requirements into v1 (must-have), v2 (future), and out-of-scope categories
 - REQ-INIT-04: System MUST generate a phased roadmap with requirement traceability
 - REQ-INIT-05: System MUST require user approval of the roadmap before proceeding
-- REQ-INIT-06: System MUST prevent re-initialization when `.planning/PROJECT.md` already exists
+- REQ-INIT-06: System MUST prevent re-initialization when `.redpill/PROJECT.md` already exists
 - REQ-INIT-07: System MUST support `--auto @file.md` flag to skip interactive questions and extract from a document
 
 **Produces:**
@@ -132,13 +132,13 @@
 - Research agents have web search capability for current ecosystem information
 - Granularity setting controls phase count: `coarse` (3-5), `standard` (5-8), `fine` (8-12)
 - `--auto` mode extracts all information from the provided document without interactive questioning
-- Existing codebase context (from `/gsd:map-codebase`) is loaded if present
+- Existing codebase context (from `/redpill:map-codebase`) is loaded if present
 
 ---
 
 ### 2. Phase Discussion
 
-**Command:** `/gsd:discuss-phase [N] [--auto] [--batch]`
+**Command:** `/redpill:discuss-phase [N] [--auto] [--batch]`
 
 **Purpose:** Capture user's implementation preferences and decisions before research and planning begin. Eliminates the gray areas that cause AI to guess.
 
@@ -165,7 +165,7 @@
 
 ### 3. UI Design Contract
 
-**Command:** `/gsd:ui-phase [N]`
+**Command:** `/redpill:ui-phase [N]`
 
 **Purpose:** Lock design decisions before planning so that all components in a phase share consistent visual standards.
 
@@ -197,7 +197,7 @@
 
 ### 4. Phase Planning
 
-**Command:** `/gsd:plan-phase [N] [--auto] [--skip-research] [--skip-verify]`
+**Command:** `/redpill:plan-phase [N] [--auto] [--skip-research] [--skip-verify]`
 
 **Purpose:** Research the implementation domain and produce verified, atomic execution plans.
 
@@ -208,7 +208,7 @@
 - REQ-PLAN-04: System MUST include `read_first` and `acceptance_criteria` sections in every plan
 - REQ-PLAN-05: System MUST run plan checker verification loop (up to 3 iterations) unless `--skip-verify` is set
 - REQ-PLAN-06: System MUST support `--skip-research` flag to bypass research phase
-- REQ-PLAN-07: System MUST prompt user to run `/gsd:ui-phase` if frontend phase detected and no UI-SPEC.md exists (UI safety gate)
+- REQ-PLAN-07: System MUST prompt user to run `/redpill:ui-phase` if frontend phase detected and no UI-SPEC.md exists (UI safety gate)
 - REQ-PLAN-08: System MUST include Nyquist validation mapping when `workflow.nyquist_validation` is enabled
 - REQ-PLAN-09: System MUST verify all phase requirements are covered by at least one plan before planning completes (requirements coverage gate)
 
@@ -247,7 +247,7 @@
 
 ### 5. Phase Execution
 
-**Command:** `/gsd:execute-phase <N>`
+**Command:** `/redpill:execute-phase <N>`
 
 **Purpose:** Execute all plans in a phase using wave-based parallelization with fresh context windows per executor.
 
@@ -291,7 +291,7 @@
 
 ### 6. Work Verification
 
-**Command:** `/gsd:verify-work [N]`
+**Command:** `/redpill:verify-work [N]`
 
 **Purpose:** User acceptance testing — walk the user through testing each deliverable and auto-diagnose failures.
 
@@ -309,7 +309,7 @@
 
 ### 6.5. Ship
 
-**Command:** `/gsd:ship [N] [--draft]`
+**Command:** `/redpill:ship [N] [--draft]`
 
 **Purpose:** Bridge local completion → merged PR. After verification passes, push branch, create PR with auto-generated body from planning artifacts, optionally trigger review, and track in STATE.md.
 
@@ -328,13 +328,13 @@
 
 ### 7. UI Review
 
-**Command:** `/gsd:ui-review [N]`
+**Command:** `/redpill:ui-review [N]`
 
 **Purpose:** Retroactive 6-pillar visual audit of implemented frontend code. Works standalone on any project.
 
 **Requirements:**
 - REQ-UIREVIEW-01: System MUST score each of the 6 pillars on a 1-4 scale
-- REQ-UIREVIEW-02: System MUST capture screenshots via Playwright CLI to `.planning/ui-reviews/`
+- REQ-UIREVIEW-02: System MUST capture screenshots via Playwright CLI to `.redpill/ui-reviews/`
 - REQ-UIREVIEW-03: System MUST create `.gitignore` for screenshot directory
 - REQ-UIREVIEW-04: System MUST identify top 3 priority fixes
 - REQ-UIREVIEW-05: System MUST work standalone (without UI-SPEC.md) using abstract quality standards
@@ -353,7 +353,7 @@
 
 ### 8. Milestone Management
 
-**Commands:** `/gsd:audit-milestone`, `/gsd:complete-milestone`, `/gsd:new-milestone [name]`
+**Commands:** `/redpill:audit-milestone`, `/redpill:complete-milestone`, `/redpill:new-milestone [name]`
 
 **Purpose:** Verify milestone completion, archive, tag release, and start the next development cycle.
 
@@ -368,7 +368,7 @@
 - REQ-MILE-08: New milestone MUST follow same flow as new-project (questions → research → requirements → roadmap)
 - REQ-MILE-09: New milestone MUST NOT reset existing workflow configuration
 
-**Gap Closure:** `/gsd:plan-milestone-gaps` creates phases to close gaps identified by audit.
+**Gap Closure:** `/redpill:plan-milestone-gaps` creates phases to close gaps identified by audit.
 
 ---
 
@@ -376,7 +376,7 @@
 
 ### 9. Phase Management
 
-**Commands:** `/gsd:add-phase`, `/gsd:insert-phase [N]`, `/gsd:remove-phase [N]`
+**Commands:** `/redpill:add-phase`, `/redpill:insert-phase [N]`, `/redpill:remove-phase [N]`
 
 **Purpose:** Dynamic roadmap modification during development.
 
@@ -391,9 +391,9 @@
 
 ### 10. Quick Mode
 
-**Command:** `/gsd:quick [--full] [--discuss] [--research]`
+**Command:** `/redpill:quick [--full] [--discuss] [--research]`
 
-**Purpose:** Ad-hoc task execution with GSD guarantees but a faster path.
+**Purpose:** Ad-hoc task execution with REDPILL guarantees but a faster path.
 
 **Requirements:**
 - REQ-QUICK-01: System MUST accept freeform task description
@@ -403,14 +403,14 @@
 - REQ-QUICK-05: `--discuss` flag MUST run lightweight pre-planning discussion
 - REQ-QUICK-06: `--research` flag MUST spawn focused research agent before planning
 - REQ-QUICK-07: Flags MUST be composable (`--discuss --research --full`)
-- REQ-QUICK-08: System MUST track quick tasks in `.planning/quick/YYMMDD-xxx-slug/`
+- REQ-QUICK-08: System MUST track quick tasks in `.redpill/quick/YYMMDD-xxx-slug/`
 - REQ-QUICK-09: System MUST produce atomic commits for quick task execution
 
 ---
 
 ### 11. Autonomous Mode
 
-**Command:** `/gsd:autonomous [--from N]`
+**Command:** `/redpill:autonomous [--from N]`
 
 **Purpose:** Run all remaining phases autonomously — discuss → plan → execute per phase.
 
@@ -425,13 +425,13 @@
 
 ### 12. Freeform Routing
 
-**Command:** `/gsd:do`
+**Command:** `/redpill:do`
 
-**Purpose:** Analyze freeform text and route to the appropriate GSD command.
+**Purpose:** Analyze freeform text and route to the appropriate REDPILL command.
 
 **Requirements:**
 - REQ-DO-01: System MUST parse user intent from natural language input
-- REQ-DO-02: System MUST map intent to the best matching GSD command
+- REQ-DO-02: System MUST map intent to the best matching REDPILL command
 - REQ-DO-03: System MUST confirm the routing with the user before executing
 - REQ-DO-04: System MUST handle project-exists vs no-project contexts differently
 
@@ -439,7 +439,7 @@
 
 ### 13. Note Capture
 
-**Command:** `/gsd:note`
+**Command:** `/redpill:note`
 
 **Purpose:** Zero-friction idea capture without interrupting workflow. Append timestamped notes, list all notes, or promote notes to structured todos.
 
@@ -454,7 +454,7 @@
 
 ### 14. Auto-Advance (Next)
 
-**Command:** `/gsd:next`
+**Command:** `/redpill:next`
 
 **Purpose:** Automatically detect current project state and advance to the next logical workflow step, eliminating the need to remember which phase/step you're on.
 
@@ -462,18 +462,18 @@
 - REQ-NEXT-01: System MUST read STATE.md, ROADMAP.md, and phase directories to determine current position
 - REQ-NEXT-02: System MUST detect whether discuss, plan, execute, or verify is needed
 - REQ-NEXT-03: System MUST invoke the correct command automatically
-- REQ-NEXT-04: System MUST suggest `/gsd:new-project` if no project exists
-- REQ-NEXT-05: System MUST suggest `/gsd:complete-milestone` when all phases are complete
+- REQ-NEXT-04: System MUST suggest `/redpill:new-project` if no project exists
+- REQ-NEXT-05: System MUST suggest `/redpill:complete-milestone` when all phases are complete
 
 **State Detection Logic:**
 | State | Action |
 |-------|--------|
-| No `.planning/` directory | Suggest `/gsd:new-project` |
-| Phase has no CONTEXT.md | Run `/gsd:discuss-phase` |
-| Phase has no PLAN.md files | Run `/gsd:plan-phase` |
-| Phase has plans but no SUMMARY.md | Run `/gsd:execute-phase` |
-| Phase executed but no VERIFICATION.md | Run `/gsd:verify-work` |
-| All phases complete | Suggest `/gsd:complete-milestone` |
+| No `.redpill/` directory | Suggest `/redpill:new-project` |
+| Phase has no CONTEXT.md | Run `/redpill:discuss-phase` |
+| Phase has no PLAN.md files | Run `/redpill:plan-phase` |
+| Phase has plans but no SUMMARY.md | Run `/redpill:execute-phase` |
+| Phase executed but no VERIFICATION.md | Run `/redpill:verify-work` |
+| All phases complete | Suggest `/redpill:complete-milestone` |
 
 ---
 
@@ -488,12 +488,12 @@
 - REQ-NYQ-02: System MUST map each requirement to a specific test command
 - REQ-NYQ-03: System MUST identify Wave 0 tasks (test scaffolding needed before implementation)
 - REQ-NYQ-04: Plan checker MUST enforce Nyquist compliance as 8th verification dimension
-- REQ-NYQ-05: System MUST support retroactive validation via `/gsd:validate-phase`
+- REQ-NYQ-05: System MUST support retroactive validation via `/redpill:validate-phase`
 - REQ-NYQ-06: System MUST be disableable via `workflow.nyquist_validation: false`
 
 **Produces:** `{phase}-VALIDATION.md` — Test coverage contract
 
-**Retroactive Validation (`/gsd:validate-phase [N]`):**
+**Retroactive Validation (`/redpill:validate-phase [N]`):**
 - Scans implementation and maps requirements to tests
 - Identifies gaps where requirements lack automated verification
 - Spawns auditor to generate tests (max 3 attempts)
@@ -521,7 +521,7 @@
 **Requirements:**
 - REQ-POSTVER-01: System MUST check against phase goals, not just task completion
 - REQ-POSTVER-02: System MUST produce VERIFICATION.md with pass/fail analysis
-- REQ-POSTVER-03: System MUST log issues for `/gsd:verify-work` to address
+- REQ-POSTVER-03: System MUST log issues for `/redpill:verify-work` to address
 - REQ-POSTVER-04: System MUST be disableable via `workflow.verifier: false`
 
 ---
@@ -542,9 +542,9 @@
 
 ### 19. Health Validation
 
-**Command:** `/gsd:health [--repair]`
+**Command:** `/redpill:health [--repair]`
 
-**Purpose:** Validate `.planning/` directory integrity and auto-repair issues.
+**Purpose:** Validate `.redpill/` directory integrity and auto-repair issues.
 
 **Requirements:**
 - REQ-HEALTH-01: System MUST check for missing required files
@@ -565,7 +565,7 @@
 - REQ-REGR-03: Regressions MUST be surfaced before post-execution verification
 - REQ-REGR-04: System MUST identify which prior phase's tests were broken
 
-**When:** Runs automatically during `/gsd:execute-phase` before the verifier step.
+**When:** Runs automatically during `/redpill:execute-phase` before the verifier step.
 
 ---
 
@@ -579,7 +579,7 @@
 - REQ-COVGATE-03: Uncovered requirements MUST block planning completion
 - REQ-COVGATE-04: System MUST report which specific requirements lack plan coverage
 
-**When:** Runs automatically at the end of `/gsd:plan-phase` after the plan checker loop.
+**When:** Runs automatically at the end of `/redpill:plan-phase` after the plan checker loop.
 
 ---
 
@@ -607,7 +607,7 @@
 
 ### 23. Session Management
 
-**Commands:** `/gsd:pause-work`, `/gsd:resume-work`, `/gsd:progress`
+**Commands:** `/redpill:pause-work`, `/redpill:resume-work`, `/redpill:progress`
 
 **Purpose:** Maintain project continuity across context resets and sessions.
 
@@ -624,7 +624,7 @@
 
 ### 24. Session Reporting
 
-**Command:** `/gsd:session-report`
+**Command:** `/redpill:session-report`
 
 **Purpose:** Generate a structured post-session summary document capturing work performed, outcomes achieved, and estimated resource usage.
 
@@ -635,7 +635,7 @@
 - REQ-REPORT-04: System MUST include active blockers and decisions made
 - REQ-REPORT-05: System MUST recommend next steps
 
-**Produces:** `.planning/reports/SESSION_REPORT.md`
+**Produces:** `.redpill/reports/SESSION_REPORT.md`
 
 **Report Sections:**
 - Session overview (duration, milestone, phase)
@@ -663,7 +663,7 @@
 
 ### 26. Model Profiles
 
-**Command:** `/gsd:set-profile <quality|balanced|budget|inherit>`
+**Command:** `/redpill:set-profile <quality|balanced|budget|inherit>`
 
 **Purpose:** Control which AI model each agent uses, balancing quality vs cost.
 
@@ -680,18 +680,18 @@
 
 | Agent | `quality` | `balanced` | `budget` | `inherit` |
 |-------|-----------|------------|----------|-----------|
-| gsd-planner | Opus | Opus | Sonnet | Inherit |
-| gsd-roadmapper | Opus | Sonnet | Sonnet | Inherit |
-| gsd-executor | Opus | Sonnet | Sonnet | Inherit |
-| gsd-phase-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-project-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-debugger | Opus | Sonnet | Sonnet | Inherit |
-| gsd-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
-| gsd-verifier | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-planner | Opus | Opus | Sonnet | Inherit |
+| redpill-roadmapper | Opus | Sonnet | Sonnet | Inherit |
+| redpill-executor | Opus | Sonnet | Sonnet | Inherit |
+| redpill-phase-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-project-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-debugger | Opus | Sonnet | Sonnet | Inherit |
+| redpill-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
+| redpill-verifier | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
 
 ---
 
@@ -699,15 +699,15 @@
 
 ### 27. Codebase Mapping
 
-**Command:** `/gsd:map-codebase [area]`
+**Command:** `/redpill:map-codebase [area]`
 
-**Purpose:** Analyze an existing codebase before starting a new project, so GSD understands what exists.
+**Purpose:** Analyze an existing codebase before starting a new project, so REDPILL understands what exists.
 
 **Requirements:**
 - REQ-MAP-01: System MUST spawn parallel mapper agents for each analysis area
-- REQ-MAP-02: System MUST produce structured documents in `.planning/codebase/`
+- REQ-MAP-02: System MUST produce structured documents in `.redpill/codebase/`
 - REQ-MAP-03: System MUST detect: tech stack, architecture patterns, coding conventions, concerns
-- REQ-MAP-04: Subsequent `/gsd:new-project` MUST load codebase mapping and focus questions on what's being added
+- REQ-MAP-04: Subsequent `/redpill:new-project` MUST load codebase mapping and focus questions on what's being added
 - REQ-MAP-05: Optional `[area]` argument MUST scope mapping to a specific area
 
 **Produces:**
@@ -727,16 +727,16 @@
 
 ### 28. Debug System
 
-**Command:** `/gsd:debug [description]`
+**Command:** `/redpill:debug [description]`
 
 **Purpose:** Systematic debugging with persistent state across context resets.
 
 **Requirements:**
-- REQ-DEBUG-01: System MUST create debug session file in `.planning/debug/`
+- REQ-DEBUG-01: System MUST create debug session file in `.redpill/debug/`
 - REQ-DEBUG-02: System MUST track hypotheses, evidence, and eliminated theories
 - REQ-DEBUG-03: System MUST persist state so debugging survives context resets
 - REQ-DEBUG-04: System MUST require human verification before marking resolved
-- REQ-DEBUG-05: Resolved sessions MUST append to `.planning/debug/knowledge-base.md`
+- REQ-DEBUG-05: Resolved sessions MUST append to `.redpill/debug/knowledge-base.md`
 - REQ-DEBUG-06: Knowledge base MUST be consulted on new debug sessions to prevent re-investigation
 
 **Debug Session States:** `gathering` → `investigating` → `fixing` → `verifying` → `awaiting_human_verify` → `resolved`
@@ -745,21 +745,21 @@
 
 ### 29. Todo Management
 
-**Commands:** `/gsd:add-todo [desc]`, `/gsd:check-todos`
+**Commands:** `/redpill:add-todo [desc]`, `/redpill:check-todos`
 
 **Purpose:** Capture ideas and tasks during sessions for later work.
 
 **Requirements:**
 - REQ-TODO-01: System MUST capture todo from current conversation context
-- REQ-TODO-02: Todos MUST be stored in `.planning/todos/pending/`
-- REQ-TODO-03: Completed todos MUST move to `.planning/todos/completed/`
+- REQ-TODO-02: Todos MUST be stored in `.redpill/todos/pending/`
+- REQ-TODO-03: Completed todos MUST move to `.redpill/todos/completed/`
 - REQ-TODO-04: Check-todos MUST list all pending items with selection to work on one
 
 ---
 
 ### 30. Statistics Dashboard
 
-**Command:** `/gsd:stats`
+**Command:** `/redpill:stats`
 
 **Purpose:** Display project metrics — phases, plans, requirements, git history, and timeline.
 
@@ -773,28 +773,28 @@
 
 ### 31. Update System
 
-**Command:** `/gsd:update`
+**Command:** `/redpill:update`
 
-**Purpose:** Update GSD to the latest version with changelog preview.
+**Purpose:** Update REDPILL to the latest version with changelog preview.
 
 **Requirements:**
 - REQ-UPDATE-01: System MUST check for new versions via npm
 - REQ-UPDATE-02: System MUST display changelog for new version before updating
 - REQ-UPDATE-03: System MUST be runtime-aware and target the correct directory
 - REQ-UPDATE-04: System MUST back up locally modified files to `gsd-local-patches/`
-- REQ-UPDATE-05: `/gsd:reapply-patches` MUST restore local modifications after update
+- REQ-UPDATE-05: `/redpill:reapply-patches` MUST restore local modifications after update
 
 ---
 
 ### 32. Settings Management
 
-**Command:** `/gsd:settings`
+**Command:** `/redpill:settings`
 
 **Purpose:** Interactive configuration of workflow toggles and model profile.
 
 **Requirements:**
 - REQ-SETTINGS-01: System MUST present current settings with toggle options
-- REQ-SETTINGS-02: System MUST update `.planning/config.json`
+- REQ-SETTINGS-02: System MUST update `.redpill/config.json`
 - REQ-SETTINGS-03: System MUST support saving as global defaults (`~/.gsd/defaults.json`)
 
 **Configurable Settings:**
@@ -812,7 +812,7 @@
 | `workflow.ui_safety_gate` | boolean | `true` | Prompt for ui-phase on frontend phases |
 | `workflow.node_repair` | boolean | `true` | Autonomous task repair |
 | `workflow.node_repair_budget` | number | `2` | Max repair attempts per task |
-| `planning.commit_docs` | boolean | `true` | Commit `.planning/` files to git |
+| `planning.commit_docs` | boolean | `true` | Commit `.redpill/` files to git |
 | `planning.search_gitignored` | boolean | `false` | Include gitignored files in searches |
 | `parallelization.enabled` | boolean | `true` | Run independent plans simultaneously |
 | `git.branching_strategy` | enum | `none` | `none`, `phase`, or `milestone` |
@@ -821,7 +821,7 @@
 
 ### 33. Test Generation
 
-**Command:** `/gsd:add-tests [N]`
+**Command:** `/redpill:add-tests [N]`
 
 **Purpose:** Generate tests for a completed phase based on UAT criteria and implementation.
 
@@ -845,8 +845,8 @@
 - REQ-GIT-04: Phase strategy MUST create one branch per phase
 - REQ-GIT-05: Milestone strategy MUST create one branch per milestone
 - REQ-GIT-06: Complete-milestone MUST offer squash merge (recommended) or merge with history
-- REQ-GIT-07: System MUST respect `commit_docs` setting for `.planning/` files
-- REQ-GIT-08: System MUST auto-detect `.planning/` in `.gitignore` and skip commits
+- REQ-GIT-07: System MUST respect `commit_docs` setting for `.redpill/` files
+- REQ-GIT-08: System MUST auto-detect `.redpill/` in `.gitignore` and skip commits
 
 **Commit Format:**
 ```
@@ -877,14 +877,14 @@ fix(03-01): correct auth token expiry
 
 ### 36. Multi-Runtime Support
 
-**Purpose:** Run GSD across 6 different AI coding agent runtimes.
+**Purpose:** Run REDPILL across 6 different AI coding agent runtimes.
 
 **Requirements:**
 - REQ-RUNTIME-01: System MUST support Claude Code, OpenCode, Gemini CLI, Codex, Copilot, Antigravity
 - REQ-RUNTIME-02: Installer MUST transform content per runtime (tool names, paths, frontmatter)
 - REQ-RUNTIME-03: Installer MUST support interactive and non-interactive (`--claude --global`) modes
 - REQ-RUNTIME-04: Installer MUST support both global and local installation
-- REQ-RUNTIME-05: Uninstall MUST cleanly remove all GSD files without affecting other configurations
+- REQ-RUNTIME-05: Uninstall MUST cleanly remove all REDPILL files without affecting other configurations
 - REQ-RUNTIME-06: Installer MUST handle platform differences (Windows, macOS, Linux, WSL, Docker)
 
 **Runtime Transformations:**
@@ -913,14 +913,14 @@ fix(03-01): correct auth token expiry
 
 **Statusline Display:**
 ```
-[⬆ /gsd:update │] model │ [current task │] directory [█████░░░░░ 50%]
+[⬆ /redpill:update │] model │ [current task │] directory [█████░░░░░ 50%]
 ```
 
 Color coding: <50% green, <65% yellow, <80% orange, ≥80% red with skull emoji
 
 ### 38. Developer Profiling
 
-**Command:** `/gsd:profile-user [--questionnaire] [--refresh]`
+**Command:** `/redpill:profile-user [--questionnaire] [--refresh]`
 
 **Purpose:** Analyze Claude Code session history to build behavioral profiles across 8 dimensions, generating artifacts that personalize Claude's responses to the developer's style.
 
@@ -936,7 +936,7 @@ Color coding: <50% green, <65% yellow, <80% orange, ≥80% red with skull emoji
 
 **Generated Artifacts:**
 - `USER-PROFILE.md` — Full behavioral profile with evidence citations
-- `/gsd:dev-preferences` command — Load preferences in any session
+- `/redpill:dev-preferences` command — Load preferences in any session
 - `CLAUDE.md` profile section — Auto-discovered by Claude Code
 
 **Flags:**
@@ -946,7 +946,7 @@ Color coding: <50% green, <65% yellow, <80% orange, ≥80% red with skull emoji
 **Pipeline Modules:**
 - `profile-pipeline.cjs` — Session scanning, message extraction, sampling
 - `profile-output.cjs` — Profile rendering, questionnaire, artifact generation
-- `gsd-user-profiler` agent — Behavioral analysis from session data
+- `redpill-user-profiler` agent — Behavioral analysis from session data
 
 **Requirements:**
 - REQ-PROF-01: Session analysis MUST cover at least 8 behavioral dimensions
@@ -978,14 +978,14 @@ After Level 3 wiring verification passes, spot-check individual exports for actu
 
 ### 40. Verification Debt Tracking
 
-**Command:** `/gsd:audit-uat`
+**Command:** `/redpill:audit-uat`
 
 **Purpose:** Prevent silent loss of UAT/verification items when projects advance past phases with outstanding tests. Surfaces verification debt across all prior phases so items are never forgotten.
 
 **Components:**
 
 **1. Cross-Phase Health Check** (progress.md Step 1.6)
-Every `/gsd:progress` call scans ALL phases in the current milestone for outstanding items (pending, skipped, blocked, human_needed). Displays a non-blocking warning section with actionable links.
+Every `/redpill:progress` call scans ALL phases in the current milestone for outstanding items (pending, skipped, blocked, human_needed). Displays a non-blocking warning section with actionable links.
 
 **2. `status: partial`** (verify-work.md, UAT.md)
 New UAT status that distinguishes between "session ended" and "all tests resolved". Prevents `status: complete` when tests are still pending, blocked, or skipped without reason.
@@ -1000,12 +1000,12 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 `phase complete` CLI returns verification debt warnings in its JSON output. Transition workflow surfaces outstanding items before confirmation.
 
 **Requirements:**
-- REQ-DEBT-01: System MUST surface outstanding UAT/verification items from ALL prior phases in `/gsd:progress`
+- REQ-DEBT-01: System MUST surface outstanding UAT/verification items from ALL prior phases in `/redpill:progress`
 - REQ-DEBT-02: System MUST distinguish incomplete testing (partial) from completed testing (complete)
 - REQ-DEBT-03: System MUST categorize blocked tests with `blocked_by` tags
 - REQ-DEBT-04: System MUST persist human_needed verification items as trackable UAT files
 - REQ-DEBT-05: System MUST warn (non-blocking) during phase completion and transition when verification debt exists
-- REQ-DEBT-06: `/gsd:audit-uat` MUST scan all phases, categorize items by testability, and produce a human test plan
+- REQ-DEBT-06: `/redpill:audit-uat` MUST scan all phases, categorize items by testability, and produce a human test plan
 
 ---
 
@@ -1013,25 +1013,25 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 
 ### 41. Fast Mode
 
-**Command:** `/gsd:fast [task description]`
+**Command:** `/redpill:fast [task description]`
 
 **Purpose:** Execute trivial tasks inline without spawning subagents or generating PLAN.md files. For tasks too small to justify planning overhead: typo fixes, config changes, small refactors, forgotten commits, simple additions.
 
 **Requirements:**
 - REQ-FAST-01: System MUST execute the task directly in the current context without subagents
 - REQ-FAST-02: System MUST produce an atomic git commit for the change
-- REQ-FAST-03: System MUST track the task in `.planning/quick/` for state consistency
+- REQ-FAST-03: System MUST track the task in `.redpill/quick/` for state consistency
 - REQ-FAST-04: System MUST NOT be used for tasks requiring research, multi-step planning, or verification
 
-**When to use vs `/gsd:quick`:**
-- `/gsd:fast` — One-sentence tasks executable in under 2 minutes (typo, config change, small addition)
-- `/gsd:quick` — Anything needing research, multi-step planning, or verification
+**When to use vs `/redpill:quick`:**
+- `/redpill:fast` — One-sentence tasks executable in under 2 minutes (typo, config change, small addition)
+- `/redpill:quick` — Anything needing research, multi-step planning, or verification
 
 ---
 
 ### 42. Cross-AI Peer Review
 
-**Command:** `/gsd:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`
+**Command:** `/redpill:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`
 
 **Purpose:** Invoke external AI CLIs (Gemini, Claude, Codex, CodeRabbit) to independently review phase plans. Produces structured REVIEWS.md with per-reviewer feedback.
 
@@ -1040,7 +1040,7 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 - REQ-REVIEW-02: System MUST build a structured review prompt from phase plans
 - REQ-REVIEW-03: System MUST invoke each selected CLI independently
 - REQ-REVIEW-04: System MUST collect responses and produce `REVIEWS.md`
-- REQ-REVIEW-05: Reviews MUST be consumable by `/gsd:plan-phase --reviews`
+- REQ-REVIEW-05: Reviews MUST be consumable by `/redpill:plan-phase --reviews`
 
 **Produces:** `{phase}-REVIEWS.md` — Per-reviewer structured feedback
 
@@ -1048,51 +1048,51 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 
 ### 43. Backlog Parking Lot
 
-**Commands:** `/gsd:add-backlog <description>`, `/gsd:review-backlog`, `/gsd:plant-seed <idea>`
+**Commands:** `/redpill:add-backlog <description>`, `/redpill:review-backlog`, `/redpill:plant-seed <idea>`
 
 **Purpose:** Capture ideas that aren't ready for active planning. Backlog items use 999.x numbering to stay outside the active phase sequence. Seeds are forward-looking ideas with trigger conditions that surface automatically at the right milestone.
 
 **Requirements:**
 - REQ-BACKLOG-01: Backlog items MUST use 999.x numbering to stay outside active phase sequence
-- REQ-BACKLOG-02: Phase directories MUST be created immediately so `/gsd:discuss-phase` and `/gsd:plan-phase` work on them
-- REQ-BACKLOG-03: `/gsd:review-backlog` MUST support promote, keep, and remove actions per item
+- REQ-BACKLOG-02: Phase directories MUST be created immediately so `/redpill:discuss-phase` and `/redpill:plan-phase` work on them
+- REQ-BACKLOG-03: `/redpill:review-backlog` MUST support promote, keep, and remove actions per item
 - REQ-BACKLOG-04: Promoted items MUST be renumbered into the active milestone sequence
 - REQ-SEED-01: Seeds MUST capture the full WHY and WHEN to surface conditions
-- REQ-SEED-02: `/gsd:new-milestone` MUST scan seeds and present matches
+- REQ-SEED-02: `/redpill:new-milestone` MUST scan seeds and present matches
 
 **Produces:**
 | Artifact | Description |
 |----------|-------------|
-| `.planning/phases/999.x-slug/` | Backlog item directory |
-| `.planning/seeds/SEED-NNN-slug.md` | Seed with trigger conditions |
+| `.redpill/phases/999.x-slug/` | Backlog item directory |
+| `.redpill/seeds/SEED-NNN-slug.md` | Seed with trigger conditions |
 
 ---
 
 ### 44. Persistent Context Threads
 
-**Command:** `/gsd:thread [name | description]`
+**Command:** `/redpill:thread [name | description]`
 
-**Purpose:** Lightweight cross-session knowledge stores for work that spans multiple sessions but doesn't belong to any specific phase. Lighter weight than `/gsd:pause-work` — no phase state, no plan context.
+**Purpose:** Lightweight cross-session knowledge stores for work that spans multiple sessions but doesn't belong to any specific phase. Lighter weight than `/redpill:pause-work` — no phase state, no plan context.
 
 **Requirements:**
 - REQ-THREAD-01: System MUST support create, list, and resume modes
-- REQ-THREAD-02: Threads MUST be stored in `.planning/threads/` as markdown files
+- REQ-THREAD-02: Threads MUST be stored in `.redpill/threads/` as markdown files
 - REQ-THREAD-03: Thread files MUST include Goal, Context, References, and Next Steps sections
 - REQ-THREAD-04: Resuming a thread MUST load its full context into the current session
 - REQ-THREAD-05: Threads MUST be promotable to phases or backlog items
 
-**Produces:** `.planning/threads/{slug}.md` — Persistent context thread
+**Produces:** `.redpill/threads/{slug}.md` — Persistent context thread
 
 ---
 
 ### 45. PR Branch Filtering
 
-**Command:** `/gsd:pr-branch [target branch]`
+**Command:** `/redpill:pr-branch [target branch]`
 
-**Purpose:** Create a clean branch suitable for pull requests by filtering out `.planning/` commits. Reviewers see only code changes, not GSD planning artifacts.
+**Purpose:** Create a clean branch suitable for pull requests by filtering out `.redpill/` commits. Reviewers see only code changes, not REDPILL planning artifacts.
 
 **Requirements:**
-- REQ-PRBRANCH-01: System MUST identify commits that only modify `.planning/` files
+- REQ-PRBRANCH-01: System MUST identify commits that only modify `.redpill/` files
 - REQ-PRBRANCH-02: System MUST create a new branch with planning commits filtered out
 - REQ-PRBRANCH-03: Code changes MUST be preserved exactly as committed
 
@@ -1100,7 +1100,7 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 
 ### 46. Security Hardening
 
-**Purpose:** Defense-in-depth security for GSD's planning artifacts. Because GSD generates markdown files that become LLM system prompts, user-controlled text flowing into these files is a potential indirect prompt injection vector.
+**Purpose:** Defense-in-depth security for GSD's planning artifacts. Because REDPILL generates markdown files that become LLM system prompts, user-controlled text flowing into these files is a potential indirect prompt injection vector.
 
 **Components:**
 
@@ -1111,11 +1111,11 @@ When verification returns `human_needed`, items are persisted as a trackable HUM
 - Field name validation — prevents injection through config field names
 - Shell argument validation — sanitizes user text before shell interpolation
 
-**2. Prompt Injection Guard Hook** (`gsd-prompt-guard.js`)
-PreToolUse hook that scans Write/Edit calls targeting `.planning/` for injection patterns. Advisory-only — logs detection for awareness without blocking legitimate operations.
+**2. Prompt Injection Guard Hook** (`redpill-prompt-guard.js`)
+PreToolUse hook that scans Write/Edit calls targeting `.redpill/` for injection patterns. Advisory-only — logs detection for awareness without blocking legitimate operations.
 
-**3. Workflow Guard Hook** (`gsd-workflow-guard.js`)
-PreToolUse hook that detects when Claude attempts file edits outside a GSD workflow context. Advises using `/gsd:quick` or `/gsd:fast` instead of direct edits. Configurable via `hooks.workflow_guard` (default: false).
+**3. Workflow Guard Hook** (`redpill-workflow-guard.js`)
+PreToolUse hook that detects when Claude attempts file edits outside a REDPILL workflow context. Advises using `/redpill:quick` or `/redpill:fast` instead of direct edits. Configurable via `hooks.workflow_guard` (default: false).
 
 **4. CI-Ready Injection Scanner** (`prompt-injection-scan.test.cjs`)
 Test suite that scans all agent, workflow, and command files for embedded injection vectors.
@@ -1131,7 +1131,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 47. Multi-Repo Workspace Support
 
-**Purpose:** Auto-detection and project root resolution for monorepos and multi-repo setups. Supports workspaces where `.planning/` may need to resolve across repository boundaries.
+**Purpose:** Auto-detection and project root resolution for monorepos and multi-repo setups. Supports workspaces where `.redpill/` may need to resolve across repository boundaries.
 
 **Requirements:**
 - REQ-MULTIREPO-01: System MUST auto-detect multi-repo workspace configuration
@@ -1142,7 +1142,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 48. Discussion Audit Trail
 
-**Purpose:** Auto-generate `DISCUSSION-LOG.md` during `/gsd:discuss-phase` for full audit trail of decisions made during discussion.
+**Purpose:** Auto-generate `DISCUSSION-LOG.md` during `/redpill:discuss-phase` for full audit trail of decisions made during discussion.
 
 **Requirements:**
 - REQ-DISCLOG-01: System MUST auto-generate DISCUSSION-LOG.md during discuss-phase
@@ -1155,33 +1155,33 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 49. Forensics
 
-**Command:** `/gsd:forensics [description]`
+**Command:** `/redpill:forensics [description]`
 
-**Purpose:** Post-mortem investigation of failed or stuck GSD workflows.
+**Purpose:** Post-mortem investigation of failed or stuck REDPILL workflows.
 
 **Requirements:**
 - REQ-FORENSICS-01: System MUST analyze git history for anomalies (stuck loops, long gaps, repeated commits)
 - REQ-FORENSICS-02: System MUST check artifact integrity (completed phases have expected files)
-- REQ-FORENSICS-03: System MUST generate a markdown report saved to `.planning/forensics/`
+- REQ-FORENSICS-03: System MUST generate a markdown report saved to `.redpill/forensics/`
 - REQ-FORENSICS-04: System MUST offer to create a GitHub issue with findings
 - REQ-FORENSICS-05: System MUST NOT modify project files (read-only investigation)
 
 **Produces:**
 | Artifact | Description |
 |----------|-------------|
-| `.planning/forensics/report-{timestamp}.md` | Post-mortem investigation report |
+| `.redpill/forensics/report-{timestamp}.md` | Post-mortem investigation report |
 
 **Process:**
 1. **Scan** — Analyze git history for anomalies: stuck loops, long gaps between commits, repeated identical commits
 2. **Integrity Check** — Verify completed phases have expected artifact files
-3. **Report** — Generate markdown report with findings, saved to `.planning/forensics/`
+3. **Report** — Generate markdown report with findings, saved to `.redpill/forensics/`
 4. **Issue** — Offer to create a GitHub issue with findings for team visibility
 
 ---
 
 ### 50. Milestone Summary
 
-**Command:** `/gsd:milestone-summary [version]`
+**Command:** `/redpill:milestone-summary [version]`
 
 **Purpose:** Generate comprehensive project summary from milestone artifacts for team onboarding.
 
@@ -1204,30 +1204,30 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 51. Workstream Namespacing
 
-**Command:** `/gsd:workstreams`
+**Command:** `/redpill:workstreams`
 
 **Purpose:** Parallel workstreams for concurrent work on different milestone areas.
 
 **Requirements:**
-- REQ-WS-01: System MUST isolate workstream state in separate `.planning/workstreams/{name}/` directories
+- REQ-WS-01: System MUST isolate workstream state in separate `.redpill/workstreams/{name}/` directories
 - REQ-WS-02: System MUST validate workstream names (alphanumeric + hyphens only, no path traversal)
 - REQ-WS-03: System MUST support list, create, switch, status, progress, complete, resume subcommands
 
 **Produces:**
 | Artifact | Description |
 |----------|-------------|
-| `.planning/workstreams/{name}/` | Isolated workstream directory structure |
+| `.redpill/workstreams/{name}/` | Isolated workstream directory structure |
 
 **Process:**
-1. **Create** — Initialize a named workstream with isolated `.planning/workstreams/{name}/` directory
-2. **Switch** — Change active workstream context for subsequent GSD commands
+1. **Create** — Initialize a named workstream with isolated `.redpill/workstreams/{name}/` directory
+2. **Switch** — Change active workstream context for subsequent REDPILL commands
 3. **Manage** — List, check status, track progress, complete, or resume workstreams
 
 ---
 
 ### 52. Manager Dashboard
 
-**Command:** `/gsd:manager`
+**Command:** `/redpill:manager`
 
 **Purpose:** Interactive command center for managing multiple phases from one terminal.
 
@@ -1247,7 +1247,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 53. Assumptions Discussion Mode
 
-**Command:** `/gsd:discuss-phase` with `workflow.discuss_mode: 'assumptions'`
+**Command:** `/redpill:discuss-phase` with `workflow.discuss_mode: 'assumptions'`
 
 **Purpose:** Replace interview-style questioning with codebase-first assumption analysis.
 
@@ -1273,26 +1273,26 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 54. UI Phase Auto-Detection
 
-**Part of:** `/gsd:new-project` and `/gsd:progress`
+**Part of:** `/redpill:new-project` and `/redpill:progress`
 
-**Purpose:** Automatically detect UI-heavy projects and surface `/gsd:ui-phase` recommendation.
+**Purpose:** Automatically detect UI-heavy projects and surface `/redpill:ui-phase` recommendation.
 
 **Requirements:**
 - REQ-UI-DETECT-01: System MUST detect UI signals in project description (keywords, framework references)
 - REQ-UI-DETECT-02: System MUST annotate ROADMAP.md phases with `ui_hint` when applicable
-- REQ-UI-DETECT-03: System MUST suggest `/gsd:ui-phase` in next steps for UI-heavy phases
-- REQ-UI-DETECT-04: System MUST NOT make `/gsd:ui-phase` mandatory
+- REQ-UI-DETECT-03: System MUST suggest `/redpill:ui-phase` in next steps for UI-heavy phases
+- REQ-UI-DETECT-04: System MUST NOT make `/redpill:ui-phase` mandatory
 
 **Process:**
 1. **Detect** — Scan project description and tech stack for UI signals (keywords, framework references)
 2. **Annotate** — Add `ui_hint` markers to applicable phases in ROADMAP.md
-3. **Surface** — Include `/gsd:ui-phase` recommendation in next steps for UI-heavy phases
+3. **Surface** — Include `/redpill:ui-phase` recommendation in next steps for UI-heavy phases
 
 ---
 
 ### 55. Multi-Runtime Installer Selection
 
-**Part of:** `npx get-shit-done-cc`
+**Part of:** `npx redpill-cc`
 
 **Purpose:** Select multiple runtimes in a single interactive install session.
 
@@ -1303,7 +1303,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 **Process:**
 1. **Detect** — Identify available AI CLI runtimes on the system
 2. **Prompt** — Present multi-select interface for runtime selection
-3. **Install** — Configure GSD for all selected runtimes in a single session
+3. **Install** — Configure REDPILL for all selected runtimes in a single session
 
 ---
 
@@ -1311,17 +1311,17 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 56. Windsurf Runtime Support
 
-**Part of:** `npx get-shit-done-cc`
+**Part of:** `npx redpill-cc`
 
-**Purpose:** Add Windsurf as a supported AI CLI runtime for GSD installation and execution.
+**Purpose:** Add Windsurf as a supported AI CLI runtime for REDPILL installation and execution.
 
 **Requirements:**
 - REQ-WINDSURF-01: Installer MUST detect Windsurf runtime and offer it as a target
-- REQ-WINDSURF-02: GSD commands MUST function correctly within Windsurf sessions
+- REQ-WINDSURF-02: REDPILL commands MUST function correctly within Windsurf sessions
 
 **Process:**
 1. **Detect** — Identify Windsurf runtime availability on the system
-2. **Install** — Configure GSD skills and hooks for the Windsurf environment
+2. **Install** — Configure REDPILL skills and hooks for the Windsurf environment
 
 ---
 
@@ -1329,7 +1329,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 **Part of:** `docs/`
 
-**Purpose:** Provide GSD documentation in Portuguese, Korean, and Japanese.
+**Purpose:** Provide REDPILL documentation in Portuguese, Korean, and Japanese.
 
 **Requirements:**
 - REQ-I18N-01: Documentation MUST be available in Portuguese (pt), Korean (ko), and Japanese (ja)
@@ -1343,21 +1343,21 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ## v1.30 Features
 
-### 58. GSD SDK
+### 58. REDPILL SDK
 
 **Command:** Programmatic API (headless)
 
-**Purpose:** Headless TypeScript SDK for running GSD workflows programmatically without a CLI session.
+**Purpose:** Headless TypeScript SDK for running REDPILL workflows programmatically without a CLI session.
 
 **Requirements:**
-- REQ-SDK-01: SDK MUST expose GSD workflow operations as TypeScript functions
+- REQ-SDK-01: SDK MUST expose REDPILL workflow operations as TypeScript functions
 - REQ-SDK-02: SDK MUST support headless execution without interactive prompts
 - REQ-SDK-03: SDK MUST produce the same artifacts as CLI-driven workflows
 
 **Process:**
-1. **Import** — Import GSD SDK into a TypeScript/JavaScript project
+1. **Import** — Import REDPILL SDK into a TypeScript/JavaScript project
 2. **Configure** — Set project path and workflow options programmatically
-3. **Execute** — Run GSD phases (discuss, plan, execute) via API calls
+3. **Execute** — Run REDPILL phases (discuss, plan, execute) via API calls
 
 ---
 
@@ -1365,7 +1365,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 59. Schema Drift Detection
 
-**Command:** Automatic during `/gsd:execute-phase`
+**Command:** Automatic during `/redpill:execute-phase`
 
 **Purpose:** Detect when ORM schema files are modified without corresponding migration or push commands, preventing false-positive verification.
 
@@ -1373,7 +1373,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 - REQ-SCHEMA-01: System MUST detect modifications to ORM schema files (Prisma, Drizzle, Payload, Sanity, Mongoose)
 - REQ-SCHEMA-02: System MUST verify corresponding migration/push commands exist when schema changes are detected
 - REQ-SCHEMA-03: System MUST implement two-layer defense: plan-time injection and execute-time gate
-- REQ-SCHEMA-04: System MUST support `GSD_SKIP_SCHEMA_CHECK` env var to override detection
+- REQ-SCHEMA-04: System MUST support `REDPILL_SKIP_SCHEMA_CHECK` env var to override detection
 - REQ-SCHEMA-05: System MUST prevent false-positive verification when schema is modified without migration
 
 **Process:**
@@ -1382,13 +1382,13 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 3. **Gate** — Block execution if schema drift is detected without migration (execute-time gate)
 4. **Inject** — Add migration reminders during plan generation (plan-time injection)
 
-**Config:** `GSD_SKIP_SCHEMA_CHECK` environment variable to bypass detection.
+**Config:** `REDPILL_SKIP_SCHEMA_CHECK` environment variable to bypass detection.
 
 ---
 
 ### 60. Security Enforcement
 
-**Command:** `/gsd:secure-phase <N>`
+**Command:** `/redpill:secure-phase <N>`
 
 **Purpose:** Threat-model-anchored security verification for phase implementations.
 
@@ -1396,7 +1396,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 - REQ-SEC-01: System MUST perform threat-model-anchored verification (not blind scanning)
 - REQ-SEC-02: System MUST support configurable OWASP ASVS verification levels (1-3)
 - REQ-SEC-03: System MUST block phase advancement based on configurable severity threshold
-- REQ-SEC-04: System MUST spawn `gsd-security-auditor` agent for analysis
+- REQ-SEC-04: System MUST spawn `redpill-security-auditor` agent for analysis
 
 **Produces:**
 | Artifact | Description |
@@ -1405,7 +1405,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 **Process:**
 1. **Model** — Build threat model from phase implementation context
-2. **Audit** — Spawn `gsd-security-auditor` to verify against threat model
+2. **Audit** — Spawn `redpill-security-auditor` to verify against threat model
 3. **Gate** — Block phase advancement if findings meet or exceed `security_block_on` severity
 
 **Config:**
@@ -1419,13 +1419,13 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 61. Documentation Generation
 
-**Command:** `/gsd:docs-update`
+**Command:** `/redpill:docs-update`
 
 **Purpose:** Generate and verify project documentation with accuracy checks.
 
 **Requirements:**
-- REQ-DOCS-01: System MUST spawn `gsd-doc-writer` agent to generate documentation
-- REQ-DOCS-02: System MUST spawn `gsd-doc-verifier` agent to check accuracy
+- REQ-DOCS-01: System MUST spawn `redpill-doc-writer` agent to generate documentation
+- REQ-DOCS-02: System MUST spawn `redpill-doc-verifier` agent to check accuracy
 - REQ-DOCS-03: System MUST verify generated documentation against actual implementation
 
 **Produces:**
@@ -1434,15 +1434,15 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 | Updated project documentation | Generated and verified documentation files |
 
 **Process:**
-1. **Generate** — Spawn `gsd-doc-writer` to create or update documentation from implementation
-2. **Verify** — Spawn `gsd-doc-verifier` to check documentation accuracy against codebase
+1. **Generate** — Spawn `redpill-doc-writer` to create or update documentation from implementation
+2. **Verify** — Spawn `redpill-doc-verifier` to check documentation accuracy against codebase
 3. **Output** — Produce verified documentation with accuracy annotations
 
 ---
 
 ### 62. Discuss Chain Mode
 
-**Flag:** `/gsd:discuss-phase <N> --chain`
+**Flag:** `/redpill:discuss-phase <N> --chain`
 
 **Purpose:** Auto-chain discuss, plan, and execute phases in one flow to reduce manual command sequencing.
 
@@ -1460,7 +1460,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 63. Single-Phase Autonomous
 
-**Flag:** `/gsd:autonomous --only N`
+**Flag:** `/redpill:autonomous --only N`
 
 **Purpose:** Execute just one phase autonomously instead of all remaining phases.
 
@@ -1478,7 +1478,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 64. Scope Reduction Detection
 
-**Part of:** `/gsd:plan-phase`
+**Part of:** `/redpill:plan-phase`
 
 **Purpose:** Prevent silent requirement dropping during plan generation with three-layer defense.
 
@@ -1497,7 +1497,7 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 65. Claim Provenance Tagging
 
-**Part of:** `/gsd:research-phase`
+**Part of:** `/redpill:research-phase`
 
 **Purpose:** Ensure research claims are tagged with source evidence and assumptions are logged separately.
 
@@ -1551,9 +1551,9 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 ### 68. Claude Code Skills Migration
 
-**Part of:** `npx get-shit-done-cc`
+**Part of:** `npx redpill-cc`
 
-**Purpose:** Migrate GSD commands to Claude Code 2.1.88+ skills format with backward compatibility.
+**Purpose:** Migrate REDPILL commands to Claude Code 2.1.88+ skills format with backward compatibility.
 
 **Requirements:**
 - REQ-SKILLS-01: Installer MUST write `skills/gsd-*/SKILL.md` for Claude Code 2.1.88+
@@ -1562,6 +1562,6 @@ Test suite that scans all agent, workflow, and command files for embedded inject
 
 **Process:**
 1. **Detect** — Check Claude Code version to determine skills support
-2. **Migrate** — Write `skills/gsd-*/SKILL.md` files for each GSD command
+2. **Migrate** — Write `skills/gsd-*/SKILL.md` files for each REDPILL command
 3. **Clean** — Remove legacy `commands/gsd/` directory if skills are installed
 4. **Fallback** — Maintain Gemini path compatibility for older Claude Code versions

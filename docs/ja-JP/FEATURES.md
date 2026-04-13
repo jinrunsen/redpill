@@ -1,4 +1,4 @@
-# GSD 機能リファレンス
+# REDPILL 機能リファレンス
 
 > 全機能と要件の完全なドキュメントです。アーキテクチャの詳細については[アーキテクチャ](ARCHITECTURE.md)を、コマンド構文については[コマンドリファレンス](COMMANDS.md)をご覧ください。
 
@@ -77,7 +77,7 @@
 
 ### 1. プロジェクト初期化
 
-**コマンド:** `/gsd:new-project [--auto @file.md]`
+**コマンド:** `/redpill:new-project [--auto @file.md]`
 
 **目的:** ユーザーのアイデアを、リサーチ、スコープ化された要件、フェーズ分けされたロードマップを持つ完全に構造化されたプロジェクトに変換します。
 
@@ -87,7 +87,7 @@
 - REQ-INIT-03: システムは要件を v1（必須）、v2（将来）、スコープ外のカテゴリに分類しなければならない
 - REQ-INIT-04: システムは要件トレーサビリティ付きのフェーズ分けされたロードマップを生成しなければならない
 - REQ-INIT-05: システムは続行前にロードマップのユーザー承認を要求しなければならない
-- REQ-INIT-06: `.planning/PROJECT.md` が既に存在する場合、システムは再初期化を防止しなければならない
+- REQ-INIT-06: `.redpill/PROJECT.md` が既に存在する場合、システムは再初期化を防止しなければならない
 - REQ-INIT-07: システムは `--auto @file.md` フラグをサポートし、インタラクティブな質問をスキップしてドキュメントから情報を抽出しなければならない
 
 **生成物:**
@@ -116,13 +116,13 @@
 - リサーチエージェントは最新のエコシステム情報を取得するための Web 検索機能を持つ
 - 粒度設定によりフェーズ数を制御: `coarse`（3-5）、`standard`（5-8）、`fine`（8-12）
 - `--auto` モードではインタラクティブな質問なしで提供されたドキュメントからすべての情報を抽出
-- 既存のコードベースコンテキスト（`/gsd:map-codebase` から取得）がある場合は読み込む
+- 既存のコードベースコンテキスト（`/redpill:map-codebase` から取得）がある場合は読み込む
 
 ---
 
 ### 2. フェーズディスカッション
 
-**コマンド:** `/gsd:discuss-phase [N] [--auto] [--batch]`
+**コマンド:** `/redpill:discuss-phase [N] [--auto] [--batch]`
 
 **目的:** リサーチとプランニング開始前に、ユーザーの実装に関する要望や決定事項を収集します。AI が推測する原因となるグレーゾーンを排除します。
 
@@ -149,7 +149,7 @@
 
 ### 3. UI デザインコントラクト
 
-**コマンド:** `/gsd:ui-phase [N]`
+**コマンド:** `/redpill:ui-phase [N]`
 
 **目的:** プランニング前にデザインの決定事項を確定し、フェーズ内のすべてのコンポーネントが一貫したビジュアル基準を共有できるようにします。
 
@@ -181,7 +181,7 @@
 
 ### 4. フェーズプランニング
 
-**コマンド:** `/gsd:plan-phase [N] [--auto] [--skip-research] [--skip-verify]`
+**コマンド:** `/redpill:plan-phase [N] [--auto] [--skip-research] [--skip-verify]`
 
 **目的:** 実装ドメインをリサーチし、検証済みのアトミックな実行プランを作成します。
 
@@ -192,7 +192,7 @@
 - REQ-PLAN-04: システムはすべてのプランに `read_first` と `acceptance_criteria` セクションを含めなければならない
 - REQ-PLAN-05: `--skip-verify` が設定されていない限り、システムはプランチェッカー検証ループ（最大3回の反復）を実行しなければならない
 - REQ-PLAN-06: システムはリサーチフェーズをバイパスする `--skip-research` フラグをサポートしなければならない
-- REQ-PLAN-07: フロントエンドフェーズが検出され UI-SPEC.md が存在しない場合、システムはユーザーに `/gsd:ui-phase` の実行を促さなければならない（UI セーフティゲート）
+- REQ-PLAN-07: フロントエンドフェーズが検出され UI-SPEC.md が存在しない場合、システムはユーザーに `/redpill:ui-phase` の実行を促さなければならない（UI セーフティゲート）
 - REQ-PLAN-08: `workflow.nyquist_validation` が有効な場合、システムは Nyquist バリデーションマッピングを含めなければならない
 - REQ-PLAN-09: プランニング完了前に、すべてのフェーズ要件が少なくとも1つのプランでカバーされていることをシステムは検証しなければならない（要件カバレッジゲート）
 
@@ -231,7 +231,7 @@
 
 ### 5. フェーズ実行
 
-**コマンド:** `/gsd:execute-phase <N>`
+**コマンド:** `/redpill:execute-phase <N>`
 
 **目的:** ウェーブベースの並列化を使用して、フェーズ内のすべてのプランを実行します。各エグゼキューターにはフレッシュなコンテキストウィンドウが割り当てられます。
 
@@ -275,7 +275,7 @@
 
 ### 6. 作業検証
 
-**コマンド:** `/gsd:verify-work [N]`
+**コマンド:** `/redpill:verify-work [N]`
 
 **目的:** ユーザー受け入れテスト — 各成果物のテストをユーザーに順に案内し、失敗を自動診断します。
 
@@ -293,7 +293,7 @@
 
 ### 6.5. Ship
 
-**コマンド:** `/gsd:ship [N] [--draft]`
+**コマンド:** `/redpill:ship [N] [--draft]`
 
 **目的:** ローカル完了からマージ済み PR への橋渡し。検証通過後、ブランチをプッシュし、プランニング成果物から自動生成された本文で PR を作成します。オプションでレビューをトリガーし、STATE.md で追跡します。
 
@@ -312,13 +312,13 @@
 
 ### 7. UI レビュー
 
-**コマンド:** `/gsd:ui-review [N]`
+**コマンド:** `/redpill:ui-review [N]`
 
 **目的:** 実装済みフロントエンドコードに対する遡及的な6本柱のビジュアル監査。任意のプロジェクトでスタンドアロンで動作します。
 
 **要件:**
 - REQ-UIREVIEW-01: システムは6つの柱それぞれを1〜4のスケールで評価しなければならない
-- REQ-UIREVIEW-02: システムは Playwright CLI を使用して `.planning/ui-reviews/` にスクリーンショットをキャプチャしなければならない
+- REQ-UIREVIEW-02: システムは Playwright CLI を使用して `.redpill/ui-reviews/` にスクリーンショットをキャプチャしなければならない
 - REQ-UIREVIEW-03: システムはスクリーンショットディレクトリ用の `.gitignore` を作成しなければならない
 - REQ-UIREVIEW-04: システムは優先度の高い修正トップ3を特定しなければならない
 - REQ-UIREVIEW-05: システムは（UI-SPEC.md なしで）抽象的な品質基準を使用してスタンドアロンで動作しなければならない
@@ -337,7 +337,7 @@
 
 ### 8. マイルストーン管理
 
-**コマンド:** `/gsd:audit-milestone`、`/gsd:complete-milestone`、`/gsd:new-milestone [name]`
+**コマンド:** `/redpill:audit-milestone`、`/redpill:complete-milestone`、`/redpill:new-milestone [name]`
 
 **目的:** マイルストーンの完了を検証し、アーカイブし、リリースにタグを付け、次の開発サイクルを開始します。
 
@@ -352,7 +352,7 @@
 - REQ-MILE-08: 新しいマイルストーンは new-project と同じフロー（質問 → リサーチ → 要件 → ロードマップ）に従わなければならない
 - REQ-MILE-09: 新しいマイルストーンは既存のワークフロー設定をリセットしてはならない
 
-**ギャップクローズ:** `/gsd:plan-milestone-gaps` は監査で特定されたギャップを埋めるためのフェーズを作成します。
+**ギャップクローズ:** `/redpill:plan-milestone-gaps` は監査で特定されたギャップを埋めるためのフェーズを作成します。
 
 ---
 
@@ -360,7 +360,7 @@
 
 ### 9. フェーズ管理
 
-**コマンド:** `/gsd:add-phase`、`/gsd:insert-phase [N]`、`/gsd:remove-phase [N]`
+**コマンド:** `/redpill:add-phase`、`/redpill:insert-phase [N]`、`/redpill:remove-phase [N]`
 
 **目的:** 開発中のロードマップの動的な変更。
 
@@ -375,9 +375,9 @@
 
 ### 10. Quick モード
 
-**コマンド:** `/gsd:quick [--full] [--discuss] [--research]`
+**コマンド:** `/redpill:quick [--full] [--discuss] [--research]`
 
-**目的:** GSD の保証を維持しながら、より高速なパスでアドホックなタスクを実行します。
+**目的:** REDPILL の保証を維持しながら、より高速なパスでアドホックなタスクを実行します。
 
 **要件:**
 - REQ-QUICK-01: システムは自由形式のタスク説明を受け付けなければならない
@@ -387,14 +387,14 @@
 - REQ-QUICK-05: `--discuss` フラグは軽量なプランニング前ディスカッションを実行しなければならない
 - REQ-QUICK-06: `--research` フラグはプランニング前にフォーカスされたリサーチエージェントを起動しなければならない
 - REQ-QUICK-07: フラグは組み合わせ可能でなければならない（`--discuss --research --full`）
-- REQ-QUICK-08: システムは Quick タスクを `.planning/quick/YYMMDD-xxx-slug/` で追跡しなければならない
+- REQ-QUICK-08: システムは Quick タスクを `.redpill/quick/YYMMDD-xxx-slug/` で追跡しなければならない
 - REQ-QUICK-09: システムは Quick タスク実行時にアトミックなコミットを生成しなければならない
 
 ---
 
 ### 11. 自律モード
 
-**コマンド:** `/gsd:autonomous [--from N]`
+**コマンド:** `/redpill:autonomous [--from N]`
 
 **目的:** 残りのすべてのフェーズを自律的に実行します — フェーズごとにディスカッション → プラン → 実行を行います。
 
@@ -409,13 +409,13 @@
 
 ### 12. フリーフォームルーティング
 
-**コマンド:** `/gsd:do`
+**コマンド:** `/redpill:do`
 
-**目的:** 自由形式のテキストを分析し、適切な GSD コマンドにルーティングします。
+**目的:** 自由形式のテキストを分析し、適切な REDPILL コマンドにルーティングします。
 
 **要件:**
 - REQ-DO-01: システムは自然言語入力からユーザーの意図を解析しなければならない
-- REQ-DO-02: システムは意図を最も適切な GSD コマンドにマッピングしなければならない
+- REQ-DO-02: システムは意図を最も適切な REDPILL コマンドにマッピングしなければならない
 - REQ-DO-03: システムは実行前にルーティング結果をユーザーに確認しなければならない
 - REQ-DO-04: システムはプロジェクト既存 vs プロジェクト未作成のコンテキストを区別して処理しなければならない
 
@@ -423,7 +423,7 @@
 
 ### 13. ノートキャプチャ
 
-**コマンド:** `/gsd:note`
+**コマンド:** `/redpill:note`
 
 **目的:** ワークフローを中断することなくアイデアを記録する、摩擦ゼロのメモ機能。タイムスタンプ付きメモの追加、全メモの一覧表示、または構造化された Todo へのプロモーションが可能です。
 
@@ -438,7 +438,7 @@
 
 ### 14. 自動進行（Next）
 
-**コマンド:** `/gsd:next`
+**コマンド:** `/redpill:next`
 
 **目的:** 現在のプロジェクト状態を自動検出し、次の論理的なワークフローステップに進めます。どのフェーズ/ステップにいるかを覚えておく必要がなくなります。
 
@@ -446,18 +446,18 @@
 - REQ-NEXT-01: システムは STATE.md、ROADMAP.md、フェーズディレクトリを読み取り、現在のポジションを判定しなければならない
 - REQ-NEXT-02: システムはディスカッション、プラン、実行、検証のいずれが必要かを検出しなければならない
 - REQ-NEXT-03: システムは適切なコマンドを自動的に呼び出さなければならない
-- REQ-NEXT-04: プロジェクトが存在しない場合、システムは `/gsd:new-project` を提案しなければならない
-- REQ-NEXT-05: すべてのフェーズが完了している場合、システムは `/gsd:complete-milestone` を提案しなければならない
+- REQ-NEXT-04: プロジェクトが存在しない場合、システムは `/redpill:new-project` を提案しなければならない
+- REQ-NEXT-05: すべてのフェーズが完了している場合、システムは `/redpill:complete-milestone` を提案しなければならない
 
 **状態検出ロジック:**
 | 状態 | アクション |
 |------|----------|
-| `.planning/` ディレクトリなし | `/gsd:new-project` を提案 |
-| フェーズに CONTEXT.md がない | `/gsd:discuss-phase` を実行 |
-| フェーズに PLAN.md ファイルがない | `/gsd:plan-phase` を実行 |
-| プランはあるが SUMMARY.md がない | `/gsd:execute-phase` を実行 |
-| 実行済みだが VERIFICATION.md がない | `/gsd:verify-work` を実行 |
-| すべてのフェーズが完了 | `/gsd:complete-milestone` を提案 |
+| `.redpill/` ディレクトリなし | `/redpill:new-project` を提案 |
+| フェーズに CONTEXT.md がない | `/redpill:discuss-phase` を実行 |
+| フェーズに PLAN.md ファイルがない | `/redpill:plan-phase` を実行 |
+| プランはあるが SUMMARY.md がない | `/redpill:execute-phase` を実行 |
+| 実行済みだが VERIFICATION.md がない | `/redpill:verify-work` を実行 |
+| すべてのフェーズが完了 | `/redpill:complete-milestone` を提案 |
 
 ---
 
@@ -472,12 +472,12 @@
 - REQ-NYQ-02: システムは各要件を特定のテストコマンドにマッピングしなければならない
 - REQ-NYQ-03: システムはウェーブ 0 タスク（実装前に必要なテストスキャフォールディング）を特定しなければならない
 - REQ-NYQ-04: プランチェッカーは Nyquist 準拠を8番目の検証次元として適用しなければならない
-- REQ-NYQ-05: システムは `/gsd:validate-phase` による遡及的バリデーションをサポートしなければならない
+- REQ-NYQ-05: システムは `/redpill:validate-phase` による遡及的バリデーションをサポートしなければならない
 - REQ-NYQ-06: システムは `workflow.nyquist_validation: false` で無効化可能でなければならない
 
 **生成物:** `{phase}-VALIDATION.md` — テストカバレッジコントラクト
 
-**遡及的バリデーション（`/gsd:validate-phase [N]`）:**
+**遡及的バリデーション（`/redpill:validate-phase [N]`）:**
 - 実装をスキャンし、要件をテストにマッピング
 - 自動検証がない要件のギャップを特定
 - テストを生成するオーディターを起動（最大3回試行）
@@ -505,7 +505,7 @@
 **要件:**
 - REQ-POSTVER-01: システムはタスク完了だけでなく、フェーズ目標に対してチェックしなければならない
 - REQ-POSTVER-02: システムは合否分析を含む VERIFICATION.md を生成しなければならない
-- REQ-POSTVER-03: システムは `/gsd:verify-work` が対処すべき問題をログに記録しなければならない
+- REQ-POSTVER-03: システムは `/redpill:verify-work` が対処すべき問題をログに記録しなければならない
 - REQ-POSTVER-04: システムは `workflow.verifier: false` で無効化可能でなければならない
 
 ---
@@ -526,9 +526,9 @@
 
 ### 19. ヘルスバリデーション
 
-**コマンド:** `/gsd:health [--repair]`
+**コマンド:** `/redpill:health [--repair]`
 
-**目的:** `.planning/` ディレクトリの整合性を検証し、問題を自動修復します。
+**目的:** `.redpill/` ディレクトリの整合性を検証し、問題を自動修復します。
 
 **要件:**
 - REQ-HEALTH-01: システムは必須ファイルの欠落をチェックしなければならない
@@ -549,7 +549,7 @@
 - REQ-REGR-03: 回帰は実行後検証の前に表面化されなければならない
 - REQ-REGR-04: システムはどの過去フェーズのテストが壊れたかを特定しなければならない
 
-**実行タイミング:** `/gsd:execute-phase` の検証ステップの前に自動実行されます。
+**実行タイミング:** `/redpill:execute-phase` の検証ステップの前に自動実行されます。
 
 ---
 
@@ -563,7 +563,7 @@
 - REQ-COVGATE-03: カバーされていない要件はプランニング完了をブロックしなければならない
 - REQ-COVGATE-04: システムはどの特定の要件にプランカバレッジがないかを報告しなければならない
 
-**実行タイミング:** `/gsd:plan-phase` の末尾、プランチェッカーループの後に自動実行されます。
+**実行タイミング:** `/redpill:plan-phase` の末尾、プランチェッカーループの後に自動実行されます。
 
 ---
 
@@ -579,7 +579,7 @@
 - REQ-CTX-03: コンテキストモニターは残量 25% 以下で（CRITICAL）エージェント向け警告を注入しなければならない
 - REQ-CTX-04: 警告はデバウンスされなければならない（繰り返し警告間に5回のツール使用）
 - REQ-CTX-05: 重大度のエスカレーション（WARNING→CRITICAL）はデバウンスをバイパスしなければならない
-- REQ-CTX-06: コンテキストモニターは GSD アクティブ vs 非 GSD アクティブプロジェクトを区別しなければならない
+- REQ-CTX-06: コンテキストモニターは REDPILL アクティブ vs 非 REDPILL アクティブプロジェクトを区別しなければならない
 - REQ-CTX-07: 警告はアドバイザリーであり、ユーザーの意向を上書きする命令的なコマンドであってはならない
 - REQ-CTX-08: すべてのフックはサイレントに失敗し、ツール実行をブロックしてはならない
 
@@ -591,7 +591,7 @@
 
 ### 23. セッション管理
 
-**コマンド:** `/gsd:pause-work`、`/gsd:resume-work`、`/gsd:progress`
+**コマンド:** `/redpill:pause-work`、`/redpill:resume-work`、`/redpill:progress`
 
 **目的:** コンテキストリセットやセッション間でのプロジェクトの継続性を維持します。
 
@@ -608,7 +608,7 @@
 
 ### 24. セッションレポート
 
-**コマンド:** `/gsd:session-report`
+**コマンド:** `/redpill:session-report`
 
 **目的:** 実施した作業、達成した成果、推定リソース使用量をキャプチャした、構造化されたセッション後のサマリードキュメントを生成します。
 
@@ -619,7 +619,7 @@
 - REQ-REPORT-04: システムはアクティブなブロッカーと行った決定事項を含めなければならない
 - REQ-REPORT-05: システムは次のステップを推奨しなければならない
 
-**生成物:** `.planning/reports/SESSION_REPORT.md`
+**生成物:** `.redpill/reports/SESSION_REPORT.md`
 
 **レポートセクション:**
 - セッション概要（期間、マイルストーン、フェーズ）
@@ -647,7 +647,7 @@
 
 ### 26. モデルプロファイル
 
-**コマンド:** `/gsd:set-profile <quality|balanced|budget|inherit>`
+**コマンド:** `/redpill:set-profile <quality|balanced|budget|inherit>`
 
 **目的:** 各エージェントが使用する AI モデルを制御し、品質とコストのバランスを取ります。
 
@@ -664,18 +664,18 @@
 
 | エージェント | `quality` | `balanced` | `budget` | `inherit` |
 |-------------|-----------|------------|----------|-----------|
-| gsd-planner | Opus | Opus | Sonnet | Inherit |
-| gsd-roadmapper | Opus | Sonnet | Sonnet | Inherit |
-| gsd-executor | Opus | Sonnet | Sonnet | Inherit |
-| gsd-phase-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-project-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-debugger | Opus | Sonnet | Sonnet | Inherit |
-| gsd-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
-| gsd-verifier | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-planner | Opus | Opus | Sonnet | Inherit |
+| redpill-roadmapper | Opus | Sonnet | Sonnet | Inherit |
+| redpill-executor | Opus | Sonnet | Sonnet | Inherit |
+| redpill-phase-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-project-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-debugger | Opus | Sonnet | Sonnet | Inherit |
+| redpill-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
+| redpill-verifier | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-nyquist-auditor | Sonnet | Sonnet | Haiku | Inherit |
 
 ---
 
@@ -683,15 +683,15 @@
 
 ### 27. コードベースマッピング
 
-**コマンド:** `/gsd:map-codebase [area]`
+**コマンド:** `/redpill:map-codebase [area]`
 
 **目的:** 新しいプロジェクトを開始する前に既存のコードベースを分析し、GSD が既存の構成を理解できるようにします。
 
 **要件:**
 - REQ-MAP-01: システムは各分析領域に対して並列マッパーエージェントを起動しなければならない
-- REQ-MAP-02: システムは `.planning/codebase/` に構造化されたドキュメントを生成しなければならない
+- REQ-MAP-02: システムは `.redpill/codebase/` に構造化されたドキュメントを生成しなければならない
 - REQ-MAP-03: システムは技術スタック、アーキテクチャパターン、コーディング規約、懸念事項を検出しなければならない
-- REQ-MAP-04: 後続の `/gsd:new-project` はコードベースマッピングを読み込み、追加する内容に焦点を当てた質問を行わなければならない
+- REQ-MAP-04: 後続の `/redpill:new-project` はコードベースマッピングを読み込み、追加する内容に焦点を当てた質問を行わなければならない
 - REQ-MAP-05: オプションの `[area]` 引数はマッピングを特定の領域にスコープしなければならない
 
 **生成物:**
@@ -711,16 +711,16 @@
 
 ### 28. デバッグシステム
 
-**コマンド:** `/gsd:debug [description]`
+**コマンド:** `/redpill:debug [description]`
 
 **目的:** コンテキストリセットを超えて持続する状態を持つ、体系的なデバッグ。
 
 **要件:**
-- REQ-DEBUG-01: システムは `.planning/debug/` にデバッグセッションファイルを作成しなければならない
+- REQ-DEBUG-01: システムは `.redpill/debug/` にデバッグセッションファイルを作成しなければならない
 - REQ-DEBUG-02: システムは仮説、証拠、排除された理論を追跡しなければならない
 - REQ-DEBUG-03: システムはコンテキストリセット後もデバッグが継続するよう状態を永続化しなければならない
 - REQ-DEBUG-04: システムは解決済みとマークする前に人的検証を要求しなければならない
-- REQ-DEBUG-05: 解決済みセッションは `.planning/debug/knowledge-base.md` に追記されなければならない
+- REQ-DEBUG-05: 解決済みセッションは `.redpill/debug/knowledge-base.md` に追記されなければならない
 - REQ-DEBUG-06: ナレッジベースは再調査を防止するために新しいデバッグセッション時に参照されなければならない
 
 **デバッグセッションの状態:** `gathering` → `investigating` → `fixing` → `verifying` → `awaiting_human_verify` → `resolved`
@@ -729,21 +729,21 @@
 
 ### 29. Todo 管理
 
-**コマンド:** `/gsd:add-todo [desc]`、`/gsd:check-todos`
+**コマンド:** `/redpill:add-todo [desc]`、`/redpill:check-todos`
 
 **目的:** セッション中にアイデアやタスクをキャプチャし、後で作業できるようにします。
 
 **要件:**
 - REQ-TODO-01: システムは現在の会話コンテキストから Todo をキャプチャしなければならない
-- REQ-TODO-02: Todo は `.planning/todos/pending/` に保存されなければならない
-- REQ-TODO-03: 完了した Todo は `.planning/todos/completed/` に移動されなければならない
+- REQ-TODO-02: Todo は `.redpill/todos/pending/` に保存されなければならない
+- REQ-TODO-03: 完了した Todo は `.redpill/todos/completed/` に移動されなければならない
 - REQ-TODO-04: check-todos は保留中のすべてのアイテムを一覧表示し、作業するアイテムを選択できなければならない
 
 ---
 
 ### 30. 統計ダッシュボード
 
-**コマンド:** `/gsd:stats`
+**コマンド:** `/redpill:stats`
 
 **目的:** プロジェクトメトリクスを表示します — フェーズ、プラン、要件、git 履歴、タイムライン。
 
@@ -757,28 +757,28 @@
 
 ### 31. アップデートシステム
 
-**コマンド:** `/gsd:update`
+**コマンド:** `/redpill:update`
 
-**目的:** GSD を最新バージョンに更新し、チェンジログのプレビューを表示します。
+**目的:** REDPILL を最新バージョンに更新し、チェンジログのプレビューを表示します。
 
 **要件:**
 - REQ-UPDATE-01: システムは npm 経由で新しいバージョンをチェックしなければならない
 - REQ-UPDATE-02: システムは更新前に新しいバージョンのチェンジログを表示しなければならない
 - REQ-UPDATE-03: システムはランタイムを認識し、正しいディレクトリを対象としなければならない
 - REQ-UPDATE-04: システムはローカルで変更されたファイルを `gsd-local-patches/` にバックアップしなければならない
-- REQ-UPDATE-05: `/gsd:reapply-patches` は更新後にローカルの変更を復元しなければならない
+- REQ-UPDATE-05: `/redpill:reapply-patches` は更新後にローカルの変更を復元しなければならない
 
 ---
 
 ### 32. 設定管理
 
-**コマンド:** `/gsd:settings`
+**コマンド:** `/redpill:settings`
 
 **目的:** ワークフロートグルとモデルプロファイルのインタラクティブな設定。
 
 **要件:**
 - REQ-SETTINGS-01: システムは現在の設定をトグルオプション付きで表示しなければならない
-- REQ-SETTINGS-02: システムは `.planning/config.json` を更新しなければならない
+- REQ-SETTINGS-02: システムは `.redpill/config.json` を更新しなければならない
 - REQ-SETTINGS-03: システムはグローバルデフォルト（`~/.gsd/defaults.json`）としての保存をサポートしなければならない
 
 **設定可能な項目:**
@@ -796,7 +796,7 @@
 | `workflow.ui_safety_gate` | boolean | `true` | フロントエンドフェーズで ui-phase を促す |
 | `workflow.node_repair` | boolean | `true` | 自律的なタスクリペア |
 | `workflow.node_repair_budget` | number | `2` | タスクあたりの最大リペア試行回数 |
-| `planning.commit_docs` | boolean | `true` | `.planning/` ファイルを git にコミット |
+| `planning.commit_docs` | boolean | `true` | `.redpill/` ファイルを git にコミット |
 | `planning.search_gitignored` | boolean | `false` | gitignore されたファイルを検索に含める |
 | `parallelization.enabled` | boolean | `true` | 独立したプランを同時実行 |
 | `git.branching_strategy` | enum | `none` | `none`、`phase`、または `milestone` |
@@ -805,7 +805,7 @@
 
 ### 33. テスト生成
 
-**コマンド:** `/gsd:add-tests [N]`
+**コマンド:** `/redpill:add-tests [N]`
 
 **目的:** 完了したフェーズに対して、UAT 基準と実装に基づいてテストを生成します。
 
@@ -829,8 +829,8 @@
 - REQ-GIT-04: phase 戦略はフェーズごとに1つのブランチを作成しなければならない
 - REQ-GIT-05: milestone 戦略はマイルストーンごとに1つのブランチを作成しなければならない
 - REQ-GIT-06: complete-milestone はスカッシュマージ（推奨）または履歴付きマージを提案しなければならない
-- REQ-GIT-07: システムは `.planning/` ファイルに対して `commit_docs` 設定を尊重しなければならない
-- REQ-GIT-08: システムは `.gitignore` の `.planning/` を自動検出し、コミットをスキップしなければならない
+- REQ-GIT-07: システムは `.redpill/` ファイルに対して `commit_docs` 設定を尊重しなければならない
+- REQ-GIT-08: システムは `.gitignore` の `.redpill/` を自動検出し、コミットをスキップしなければならない
 
 **コミットフォーマット:**
 ```
@@ -861,14 +861,14 @@ fix(03-01): correct auth token expiry
 
 ### 36. マルチランタイムサポート
 
-**目的:** 6つの異なる AI コーディングエージェントランタイムで GSD を実行します。
+**目的:** 6つの異なる AI コーディングエージェントランタイムで REDPILL を実行します。
 
 **要件:**
 - REQ-RUNTIME-01: システムは Claude Code、OpenCode、Gemini CLI、Codex、Copilot、Antigravity をサポートしなければならない
 - REQ-RUNTIME-02: インストーラーはランタイムごとにコンテンツを変換しなければならない（ツール名、パス、フロントマター）
 - REQ-RUNTIME-03: インストーラーはインタラクティブおよび非インタラクティブ（`--claude --global`）モードをサポートしなければならない
 - REQ-RUNTIME-04: インストーラーはグローバルとローカルの両方のインストールをサポートしなければならない
-- REQ-RUNTIME-05: アンインストールは他の設定に影響を与えることなく、すべての GSD ファイルをクリーンに削除しなければならない
+- REQ-RUNTIME-05: アンインストールは他の設定に影響を与えることなく、すべての REDPILL ファイルをクリーンに削除しなければならない
 - REQ-RUNTIME-06: インストーラーはプラットフォームの違い（Windows、macOS、Linux、WSL、Docker）を処理しなければならない
 
 **ランタイム変換:**
@@ -897,14 +897,14 @@ fix(03-01): correct auth token expiry
 
 **ステータスライン表示:**
 ```
-[⬆ /gsd:update │] model │ [current task │] directory [█████░░░░░ 50%]
+[⬆ /redpill:update │] model │ [current task │] directory [█████░░░░░ 50%]
 ```
 
 カラーコーディング: 50% 未満は緑、65% 未満は黄、80% 未満はオレンジ、80% 以上はドクロ絵文字付き赤
 
 ### 38. 開発者プロファイリング
 
-**コマンド:** `/gsd:profile-user [--questionnaire] [--refresh]`
+**コマンド:** `/redpill:profile-user [--questionnaire] [--refresh]`
 
 **目的:** Claude Code のセッション履歴を分析し、8つの次元にわたる行動プロファイルを構築します。開発者のスタイルに合わせて Claude のレスポンスをパーソナライズするための成果物を生成します。
 
@@ -920,7 +920,7 @@ fix(03-01): correct auth token expiry
 
 **生成される成果物:**
 - `USER-PROFILE.md` — 証拠引用付きの完全な行動プロファイル
-- `/gsd:dev-preferences` コマンド — 任意のセッションで好みを読み込み
+- `/redpill:dev-preferences` コマンド — 任意のセッションで好みを読み込み
 - `CLAUDE.md` プロファイルセクション — Claude Code により自動検出
 
 **フラグ:**
@@ -930,7 +930,7 @@ fix(03-01): correct auth token expiry
 **パイプラインモジュール:**
 - `profile-pipeline.cjs` — セッションスキャン、メッセージ抽出、サンプリング
 - `profile-output.cjs` — プロファイルレンダリング、アンケート、成果物生成
-- `gsd-user-profiler` エージェント — セッションデータからの行動分析
+- `redpill-user-profiler` エージェント — セッションデータからの行動分析
 
 **要件:**
 - REQ-PROF-01: セッション分析は少なくとも8つの行動次元をカバーしなければならない
@@ -962,14 +962,14 @@ fix(03-01): correct auth token expiry
 
 ### 40. 検証デット追跡
 
-**コマンド:** `/gsd:audit-uat`
+**コマンド:** `/redpill:audit-uat`
 
 **目的:** 未解決のテストを持つフェーズを通過した際の UAT/検証項目のサイレントな喪失を防止します。すべての過去フェーズの検証デットを表面化し、項目が忘れられないようにします。
 
 **コンポーネント:**
 
 **1. クロスフェーズヘルスチェック**（progress.md ステップ 1.6）
-すべての `/gsd:progress` 呼び出しで、現在のマイルストーンのすべてのフェーズの未解決項目（pending、skipped、blocked、human_needed）をスキャンします。アクション可能なリンク付きのノンブロッキング警告セクションを表示します。
+すべての `/redpill:progress` 呼び出しで、現在のマイルストーンのすべてのフェーズの未解決項目（pending、skipped、blocked、human_needed）をスキャンします。アクション可能なリンク付きのノンブロッキング警告セクションを表示します。
 
 **2. `status: partial`**（verify-work.md、UAT.md）
 「セッション終了」と「すべてのテスト解決済み」を区別する新しい UAT ステータス。テストがまだ pending、blocked、または理由なく skipped の場合に `status: complete` を防止します。
@@ -984,12 +984,12 @@ fix(03-01): correct auth token expiry
 `phase complete` CLI は JSON 出力に検証デット警告を返します。トランジションワークフローは確認前に未解決項目を表面化します。
 
 **要件:**
-- REQ-DEBT-01: システムは `/gsd:progress` ですべての過去フェーズの未解決 UAT/検証項目を表面化しなければならない
+- REQ-DEBT-01: システムは `/redpill:progress` ですべての過去フェーズの未解決 UAT/検証項目を表面化しなければならない
 - REQ-DEBT-02: システムは不完全なテスト（partial）と完了したテスト（complete）を区別しなければならない
 - REQ-DEBT-03: システムはブロックされたテストを `blocked_by` タグでカテゴリ分けしなければならない
 - REQ-DEBT-04: システムは human_needed の検証項目を追跡可能な UAT ファイルとして永続化しなければならない
 - REQ-DEBT-05: システムは検証デットが存在する場合、フェーズ完了とトランジション時に警告（ノンブロッキング）しなければならない
-- REQ-DEBT-06: `/gsd:audit-uat` はすべてのフェーズをスキャンし、項目をテスト可能性別にカテゴリ分けし、人的テストプランを生成しなければならない
+- REQ-DEBT-06: `/redpill:audit-uat` はすべてのフェーズをスキャンし、項目をテスト可能性別にカテゴリ分けし、人的テストプランを生成しなければならない
 
 ---
 
@@ -997,25 +997,25 @@ fix(03-01): correct auth token expiry
 
 ### 41. Fast モード
 
-**コマンド:** `/gsd:fast [task description]`
+**コマンド:** `/redpill:fast [task description]`
 
 **目的:** サブエージェントの起動や PLAN.md ファイルの生成なしに、些細なタスクをインラインで実行します。プランニングのオーバーヘッドを正当化できないほど小さなタスク向け: タイポ修正、設定変更、小規模なリファクタリング、コミット忘れ、簡単な追加。
 
 **要件:**
 - REQ-FAST-01: システムはサブエージェントなしで現在のコンテキストでタスクを直接実行しなければならない
 - REQ-FAST-02: システムは変更に対してアトミックな git コミットを生成しなければならない
-- REQ-FAST-03: システムは状態の一貫性のためにタスクを `.planning/quick/` で追跡しなければならない
+- REQ-FAST-03: システムは状態の一貫性のためにタスクを `.redpill/quick/` で追跡しなければならない
 - REQ-FAST-04: リサーチ、マルチステッププランニング、または検証が必要なタスクにシステムを使用してはならない
 
-**`/gsd:quick` との使い分け:**
-- `/gsd:fast` — 2分以内に実行可能な一文のタスク（タイポ修正、設定変更、小規模な追加）
-- `/gsd:quick` — リサーチ、マルチステッププランニング、または検証が必要なもの
+**`/redpill:quick` との使い分け:**
+- `/redpill:fast` — 2分以内に実行可能な一文のタスク（タイポ修正、設定変更、小規模な追加）
+- `/redpill:quick` — リサーチ、マルチステッププランニング、または検証が必要なもの
 
 ---
 
 ### 42. クロス AI ピアレビュー
 
-**コマンド:** `/gsd:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`
+**コマンド:** `/redpill:review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`
 
 **目的:** 外部の AI CLI（Gemini、Claude、Codex、CodeRabbit）を呼び出して、フェーズプランを独立してレビューします。レビュアーごとのフィードバックを含む構造化された REVIEWS.md を生成します。
 
@@ -1024,7 +1024,7 @@ fix(03-01): correct auth token expiry
 - REQ-REVIEW-02: システムはフェーズプランから構造化されたレビュープロンプトを構築しなければならない
 - REQ-REVIEW-03: システムは選択された各 CLI を独立して呼び出さなければならない
 - REQ-REVIEW-04: システムはレスポンスを収集して `REVIEWS.md` を生成しなければならない
-- REQ-REVIEW-05: レビューは `/gsd:plan-phase --reviews` で使用可能でなければならない
+- REQ-REVIEW-05: レビューは `/redpill:plan-phase --reviews` で使用可能でなければならない
 
 **生成物:** `{phase}-REVIEWS.md` — レビュアーごとの構造化されたフィードバック
 
@@ -1032,51 +1032,51 @@ fix(03-01): correct auth token expiry
 
 ### 43. バックログパーキングロット
 
-**コマンド:** `/gsd:add-backlog <description>`、`/gsd:review-backlog`、`/gsd:plant-seed <idea>`
+**コマンド:** `/redpill:add-backlog <description>`、`/redpill:review-backlog`、`/redpill:plant-seed <idea>`
 
 **目的:** アクティブなプランニングの準備ができていないアイデアをキャプチャします。バックログ項目は 999.x の番号付けを使用して、アクティブなフェーズシーケンスの外に留まります。シードは、適切なマイルストーンで自動的に表面化するトリガー条件を持つ、将来を見据えたアイデアです。
 
 **要件:**
 - REQ-BACKLOG-01: バックログ項目はアクティブなフェーズシーケンスの外に留まるために 999.x の番号付けを使用しなければならない
-- REQ-BACKLOG-02: `/gsd:discuss-phase` と `/gsd:plan-phase` が動作するよう、フェーズディレクトリは即座に作成されなければならない
-- REQ-BACKLOG-03: `/gsd:review-backlog` は項目ごとにプロモート、維持、削除のアクションをサポートしなければならない
+- REQ-BACKLOG-02: `/redpill:discuss-phase` と `/redpill:plan-phase` が動作するよう、フェーズディレクトリは即座に作成されなければならない
+- REQ-BACKLOG-03: `/redpill:review-backlog` は項目ごとにプロモート、維持、削除のアクションをサポートしなければならない
 - REQ-BACKLOG-04: プロモートされた項目はアクティブなマイルストーンシーケンスに再番号付けされなければならない
 - REQ-SEED-01: シードは完全な WHY と表面化条件の WHEN をキャプチャしなければならない
-- REQ-SEED-02: `/gsd:new-milestone` はシードをスキャンして一致するものを提示しなければならない
+- REQ-SEED-02: `/redpill:new-milestone` はシードをスキャンして一致するものを提示しなければならない
 
 **生成物:**
 | 成果物 | 説明 |
 |--------|------|
-| `.planning/phases/999.x-slug/` | バックログ項目ディレクトリ |
-| `.planning/seeds/SEED-NNN-slug.md` | トリガー条件付きシード |
+| `.redpill/phases/999.x-slug/` | バックログ項目ディレクトリ |
+| `.redpill/seeds/SEED-NNN-slug.md` | トリガー条件付きシード |
 
 ---
 
 ### 44. 永続コンテキストスレッド
 
-**コマンド:** `/gsd:thread [name | description]`
+**コマンド:** `/redpill:thread [name | description]`
 
-**目的:** 複数セッションにまたがるが特定のフェーズには属さない作業のための、軽量なクロスセッションナレッジストア。`/gsd:pause-work` よりも軽量 — フェーズ状態やプランコンテキストは不要です。
+**目的:** 複数セッションにまたがるが特定のフェーズには属さない作業のための、軽量なクロスセッションナレッジストア。`/redpill:pause-work` よりも軽量 — フェーズ状態やプランコンテキストは不要です。
 
 **要件:**
 - REQ-THREAD-01: システムは作成、一覧、再開モードをサポートしなければならない
-- REQ-THREAD-02: スレッドは `.planning/threads/` にマークダウンファイルとして保存されなければならない
+- REQ-THREAD-02: スレッドは `.redpill/threads/` にマークダウンファイルとして保存されなければならない
 - REQ-THREAD-03: スレッドファイルには Goal、Context、References、Next Steps セクションを含めなければならない
 - REQ-THREAD-04: スレッドの再開時にその完全なコンテキストを現在のセッションに読み込まなければならない
 - REQ-THREAD-05: スレッドはフェーズまたはバックログ項目にプロモート可能でなければならない
 
-**生成物:** `.planning/threads/{slug}.md` — 永続コンテキストスレッド
+**生成物:** `.redpill/threads/{slug}.md` — 永続コンテキストスレッド
 
 ---
 
 ### 45. PR ブランチフィルタリング
 
-**コマンド:** `/gsd:pr-branch [target branch]`
+**コマンド:** `/redpill:pr-branch [target branch]`
 
-**目的:** `.planning/` のコミットを除外して、プルリクエストに適したクリーンなブランチを作成します。レビュアーにはコード変更のみが表示され、GSD プランニング成果物は表示されません。
+**目的:** `.redpill/` のコミットを除外して、プルリクエストに適したクリーンなブランチを作成します。レビュアーにはコード変更のみが表示され、GSD プランニング成果物は表示されません。
 
 **要件:**
-- REQ-PRBRANCH-01: システムは `.planning/` ファイルのみを変更するコミットを特定しなければならない
+- REQ-PRBRANCH-01: システムは `.redpill/` ファイルのみを変更するコミットを特定しなければならない
 - REQ-PRBRANCH-02: システムはプランニングコミットを除外した新しいブランチを作成しなければならない
 - REQ-PRBRANCH-03: コード変更はコミットされた通りに正確に保持されなければならない
 
@@ -1084,7 +1084,7 @@ fix(03-01): correct auth token expiry
 
 ### 46. セキュリティハードニング
 
-**目的:** GSD のプランニング成果物に対する多層防御セキュリティ。GSD は LLM のシステムプロンプトとなるマークダウンファイルを生成するため、これらのファイルに流入するユーザー制御テキストは間接的なプロンプトインジェクションの潜在的なベクターです。
+**目的:** REDPILL のプランニング成果物に対する多層防御セキュリティ。GSD は LLM のシステムプロンプトとなるマークダウンファイルを生成するため、これらのファイルに流入するユーザー制御テキストは間接的なプロンプトインジェクションの潜在的なベクターです。
 
 **コンポーネント:**
 
@@ -1095,11 +1095,11 @@ fix(03-01): correct auth token expiry
 - フィールド名バリデーション — 設定フィールド名を通じたインジェクションを防止
 - シェル引数バリデーション — シェル補間前にユーザーテキストをサニタイズ
 
-**2. プロンプトインジェクションガードフック**（`gsd-prompt-guard.js`）
-`.planning/` を対象とする Write/Edit 呼び出しをインジェクションパターンでスキャンする PreToolUse フック。アドバイザリーのみ — 正当な操作をブロックせず、検出を認識のためにログ記録します。
+**2. プロンプトインジェクションガードフック**（`redpill-prompt-guard.js`）
+`.redpill/` を対象とする Write/Edit 呼び出しをインジェクションパターンでスキャンする PreToolUse フック。アドバイザリーのみ — 正当な操作をブロックせず、検出を認識のためにログ記録します。
 
-**3. ワークフローガードフック**（`gsd-workflow-guard.js`）
-Claude が GSD ワークフローコンテキスト外でファイル編集を試行した際に検出する PreToolUse フック。直接編集の代わりに `/gsd:quick` や `/gsd:fast` の使用をアドバイスします。`hooks.workflow_guard`（デフォルト: false）で設定可能です。
+**3. ワークフローガードフック**（`redpill-workflow-guard.js`）
+Claude が REDPILL ワークフローコンテキスト外でファイル編集を試行した際に検出する PreToolUse フック。直接編集の代わりに `/redpill:quick` や `/redpill:fast` の使用をアドバイスします。`hooks.workflow_guard`（デフォルト: false）で設定可能です。
 
 **4. CI 対応インジェクションスキャナー**（`prompt-injection-scan.test.cjs`）
 すべてのエージェント、ワークフロー、コマンドファイルに埋め込まれたインジェクションベクターをスキャンするテストスイート。
@@ -1115,7 +1115,7 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 47. マルチリポワークスペースサポート
 
-**目的:** モノレポおよびマルチリポ構成のための自動検出とプロジェクトルート解決。`.planning/` がリポジトリ境界を超えて解決する必要がある場合のワークスペースをサポートします。
+**目的:** モノレポおよびマルチリポ構成のための自動検出とプロジェクトルート解決。`.redpill/` がリポジトリ境界を超えて解決する必要がある場合のワークスペースをサポートします。
 
 **要件:**
 - REQ-MULTIREPO-01: システムはマルチリポワークスペース設定を自動検出しなければならない
@@ -1126,7 +1126,7 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 48. ディスカッション監査証跡
 
-**目的:** `/gsd:discuss-phase` 中に `DISCUSSION-LOG.md` を自動生成し、ディスカッション中の決定事項の完全な監査証跡を残します。
+**目的:** `/redpill:discuss-phase` 中に `DISCUSSION-LOG.md` を自動生成し、ディスカッション中の決定事項の完全な監査証跡を残します。
 
 **要件:**
 - REQ-DISCLOG-01: システムは discuss-phase 中に DISCUSSION-LOG.md を自動生成しなければならない
@@ -1139,33 +1139,33 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 49. フォレンジクス
 
-**コマンド:** `/gsd:forensics [description]`
+**コマンド:** `/redpill:forensics [description]`
 
-**目的:** 失敗または停滞した GSD ワークフローのポストモーテム調査。
+**目的:** 失敗または停滞した REDPILL ワークフローのポストモーテム調査。
 
 **要件:**
 - REQ-FORENSICS-01: システムは git 履歴の異常（停滞ループ、長いギャップ、繰り返しコミット）を分析しなければならない
 - REQ-FORENSICS-02: システムは成果物の整合性をチェックしなければならない（完了したフェーズに期待されるファイルがあるか）
-- REQ-FORENSICS-03: システムは `.planning/forensics/` に保存されるマークダウンレポートを生成しなければならない
+- REQ-FORENSICS-03: システムは `.redpill/forensics/` に保存されるマークダウンレポートを生成しなければならない
 - REQ-FORENSICS-04: システムは調査結果で GitHub Issue の作成を提案しなければならない
 - REQ-FORENSICS-05: システムはプロジェクトファイルを変更してはならない（読み取り専用の調査）
 
 **生成物:**
 | 成果物 | 説明 |
 |--------|------|
-| `.planning/forensics/report-{timestamp}.md` | ポストモーテム調査レポート |
+| `.redpill/forensics/report-{timestamp}.md` | ポストモーテム調査レポート |
 
 **プロセス:**
 1. **スキャン** — git 履歴の異常を分析: 停滞ループ、コミット間の長いギャップ、繰り返しの同一コミット
 2. **整合性チェック** — 完了したフェーズに期待される成果物ファイルがあるか検証
-3. **レポート** — 調査結果を含むマークダウンレポートを生成し、`.planning/forensics/` に保存
+3. **レポート** — 調査結果を含むマークダウンレポートを生成し、`.redpill/forensics/` に保存
 4. **Issue** — チームの可視性のため、調査結果で GitHub Issue の作成を提案
 
 ---
 
 ### 50. マイルストーンサマリー
 
-**コマンド:** `/gsd:milestone-summary [version]`
+**コマンド:** `/redpill:milestone-summary [version]`
 
 **目的:** チームオンボーディングのためにマイルストーン成果物から包括的なプロジェクトサマリーを生成します。
 
@@ -1188,30 +1188,30 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 51. ワークストリームネームスペーシング
 
-**コマンド:** `/gsd:workstreams`
+**コマンド:** `/redpill:workstreams`
 
 **目的:** 異なるマイルストーン領域での同時作業のための並列ワークストリーム。
 
 **要件:**
-- REQ-WS-01: システムはワークストリーム状態を個別の `.planning/workstreams/{name}/` ディレクトリに分離しなければならない
+- REQ-WS-01: システムはワークストリーム状態を個別の `.redpill/workstreams/{name}/` ディレクトリに分離しなければならない
 - REQ-WS-02: システムはワークストリーム名を検証しなければならない（英数字とハイフンのみ、パストラバーサルなし）
 - REQ-WS-03: システムは list、create、switch、status、progress、complete、resume サブコマンドをサポートしなければならない
 
 **生成物:**
 | 成果物 | 説明 |
 |--------|------|
-| `.planning/workstreams/{name}/` | 分離されたワークストリームディレクトリ構造 |
+| `.redpill/workstreams/{name}/` | 分離されたワークストリームディレクトリ構造 |
 
 **プロセス:**
-1. **作成** — 分離された `.planning/workstreams/{name}/` ディレクトリで名前付きワークストリームを初期化
-2. **切り替え** — 後続の GSD コマンドのためにアクティブなワークストリームコンテキストを変更
+1. **作成** — 分離された `.redpill/workstreams/{name}/` ディレクトリで名前付きワークストリームを初期化
+2. **切り替え** — 後続の REDPILL コマンドのためにアクティブなワークストリームコンテキストを変更
 3. **管理** — ワークストリームの一覧表示、ステータス確認、進捗追跡、完了、または再開
 
 ---
 
 ### 52. マネージャーダッシュボード
 
-**コマンド:** `/gsd:manager`
+**コマンド:** `/redpill:manager`
 
 **目的:** 1つのターミナルから複数のフェーズを管理するためのインタラクティブなコマンドセンター。
 
@@ -1231,7 +1231,7 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 53. Assumptions ディスカッションモード
 
-**コマンド:** `/gsd:discuss-phase`（`workflow.discuss_mode: 'assumptions'` 設定時）
+**コマンド:** `/redpill:discuss-phase`（`workflow.discuss_mode: 'assumptions'` 設定時）
 
 **目的:** インタビュー形式の質問をコードベースファーストの仮定分析に置き換えます。
 
@@ -1257,26 +1257,26 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 
 ### 54. UI フェーズ自動検出
 
-**対象:** `/gsd:new-project` および `/gsd:progress`
+**対象:** `/redpill:new-project` および `/redpill:progress`
 
-**目的:** UI 重視のプロジェクトを自動検出し、`/gsd:ui-phase` の推奨を表面化します。
+**目的:** UI 重視のプロジェクトを自動検出し、`/redpill:ui-phase` の推奨を表面化します。
 
 **要件:**
 - REQ-UI-DETECT-01: システムはプロジェクト説明の UI シグナル（キーワード、フレームワーク参照）を検出しなければならない
 - REQ-UI-DETECT-02: システムは該当する場合に ROADMAP.md のフェーズに `ui_hint` をアノテーションしなければならない
-- REQ-UI-DETECT-03: システムは UI 重視フェーズのネクストステップに `/gsd:ui-phase` を提案しなければならない
-- REQ-UI-DETECT-04: システムは `/gsd:ui-phase` を必須にしてはならない
+- REQ-UI-DETECT-03: システムは UI 重視フェーズのネクストステップに `/redpill:ui-phase` を提案しなければならない
+- REQ-UI-DETECT-04: システムは `/redpill:ui-phase` を必須にしてはならない
 
 **プロセス:**
 1. **検出** — プロジェクト説明と技術スタックの UI シグナル（キーワード、フレームワーク参照）をスキャン
 2. **アノテーション** — ROADMAP.md の該当フェーズに `ui_hint` マーカーを追加
-3. **表面化** — UI 重視フェーズのネクストステップに `/gsd:ui-phase` の推奨を含める
+3. **表面化** — UI 重視フェーズのネクストステップに `/redpill:ui-phase` の推奨を含める
 
 ---
 
 ### 55. マルチランタイムインストーラー選択
 
-**対象:** `npx get-shit-done-cc`
+**対象:** `npx redpill-cc`
 
 **目的:** 1回のインタラクティブなインストールセッションで複数のランタイムを選択します。
 
@@ -1287,4 +1287,4 @@ Claude が GSD ワークフローコンテキスト外でファイル編集を�
 **プロセス:**
 1. **検出** — システム上で利用可能な AI CLI ランタイムを特定
 2. **プロンプト** — ランタイム選択のためのマルチセレクトインターフェースを提示
-3. **インストール** — 1回のセッションで選択されたすべてのランタイムに対して GSD を設定
+3. **インストール** — 1回のセッションで選択されたすべてのランタイムに対して REDPILL を設定

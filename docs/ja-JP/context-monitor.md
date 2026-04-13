@@ -19,7 +19,7 @@
 |--------|------|------------------|
 | Normal | > 35% | 警告なし |
 | WARNING | <= 35% | 現在のタスクをまとめ、新しい複雑な作業の開始を避ける |
-| CRITICAL | <= 25% | 即座に停止し、状態を保存する（`/gsd:pause-work`） |
+| CRITICAL | <= 25% | 即座に停止し、状態を保存する（`/redpill:pause-work`） |
 
 ## デバウンス
 
@@ -31,13 +31,13 @@
 ## アーキテクチャ
 
 ```
-ステータスラインフック (gsd-statusline.js)
+ステータスラインフック (redpill-statusline.js)
     | 書き込み
     v
 /tmp/claude-ctx-{session_id}.json
     ^ 読み取り
     |
-コンテキストモニター (gsd-context-monitor.js, PostToolUse/AfterTool)
+コンテキストモニター (redpill-context-monitor.js, PostToolUse/AfterTool)
     | 注入
     v
 additionalContext -> エージェントが警告を確認
@@ -54,13 +54,13 @@ additionalContext -> エージェントが警告を確認
 }
 ```
 
-## GSD との統合
+## REDPILL との統合
 
-GSD の `/gsd:pause-work` コマンドは実行状態を保存します。WARNING メッセージはこのコマンドの使用を提案し、CRITICAL メッセージは即座の状態保存を指示します。
+GSD の `/redpill:pause-work` コマンドは実行状態を保存します。WARNING メッセージはこのコマンドの使用を提案し、CRITICAL メッセージは即座の状態保存を指示します。
 
 ## セットアップ
 
-両フックは `npx get-shit-done-cc` のインストール時に自動的に登録されます:
+両フックは `npx redpill-cc` のインストール時に自動的に登録されます:
 
 - **ステータスライン**（ブリッジファイルの書き込み）: settings.json の `statusLine` として登録
 - **コンテキストモニター**（ブリッジファイルの読み取り）: settings.json の `PostToolUse` フックとして登録（Gemini では `AfterTool`）
@@ -71,7 +71,7 @@ GSD の `/gsd:pause-work` コマンドは実行状態を保存します。WARNIN
 {
   "statusLine": {
     "type": "command",
-    "command": "node ~/.claude/hooks/gsd-statusline.js"
+    "command": "node ~/.claude/hooks/redpill-statusline.js"
   },
   "hooks": {
     "PostToolUse": [
@@ -79,7 +79,7 @@ GSD の `/gsd:pause-work` コマンドは実行状態を保存します。WARNIN
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/hooks/gsd-context-monitor.js"
+            "command": "node ~/.claude/hooks/redpill-context-monitor.js"
           }
         ]
       }
@@ -98,7 +98,7 @@ Gemini CLI（`~/.gemini/settings.json`）の場合、`PostToolUse` の代わり�
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.gemini/hooks/gsd-context-monitor.js"
+            "command": "node ~/.gemini/hooks/redpill-context-monitor.js"
           }
         ]
       }

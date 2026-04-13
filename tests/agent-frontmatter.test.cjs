@@ -1,5 +1,5 @@
 /**
- * GSD Agent Frontmatter Tests
+ * REDPILL Agent Frontmatter Tests
  *
  * Validates that all agent .md files have correct frontmatter fields:
  * - Anti-heredoc instruction present in file-writing agents
@@ -142,13 +142,13 @@ describe('SPAWN: spawn type consistency', () => {
     }
   });
 
-  test('diagnose-issues uses gsd-debugger (not general-purpose)', () => {
+  test('diagnose-issues uses redpill-debugger (not general-purpose)', () => {
     const content = fs.readFileSync(
       path.join(WORKFLOWS_DIR, 'diagnose-issues.md'), 'utf-8'
     );
     assert.ok(
-      content.includes('subagent_type="gsd-debugger"'),
-      'diagnose-issues should spawn gsd-debugger, not general-purpose'
+      content.includes('subagent_type="redpill-debugger"'),
+      'diagnose-issues should spawn redpill-debugger, not general-purpose'
     );
   });
 
@@ -157,7 +157,7 @@ describe('SPAWN: spawn type consistency', () => {
     // context. Without an <available_agent_types> section, the orchestrator may
     // fall back to general-purpose, silently breaking agent capabilities.
     // PR #1139 added this to plan-phase and execute-phase but missed all other
-    // workflows that spawn named GSD agents.
+    // workflows that spawn named REDPILL agents.
     const dirs = [WORKFLOWS_DIR, COMMANDS_DIR];
     for (const dir of dirs) {
       if (!fs.existsSync(dir)) continue;
@@ -231,44 +231,44 @@ describe('AGENT: required frontmatter fields', () => {
 // ─── CLAUDE.md Compliance ───────────────────────────────────────────────────
 
 describe('CLAUDEMD: CLAUDE.md compliance enforcement', () => {
-  test('gsd-plan-checker has Dimension 10: CLAUDE.md Compliance', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-plan-checker.md'), 'utf-8');
+  test('redpill-plan-checker has Dimension 10: CLAUDE.md Compliance', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-plan-checker.md'), 'utf-8');
     assert.ok(
       content.includes('Dimension 10: CLAUDE.md Compliance'),
-      'gsd-plan-checker must have Dimension 10 for CLAUDE.md compliance checking'
+      'redpill-plan-checker must have Dimension 10 for CLAUDE.md compliance checking'
     );
     assert.ok(
       content.includes('claude_md_compliance'),
-      'gsd-plan-checker must use claude_md_compliance as dimension identifier'
+      'redpill-plan-checker must use claude_md_compliance as dimension identifier'
     );
   });
 
-  test('gsd-phase-researcher has CLAUDE.md enforcement directive', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-phase-researcher.md'), 'utf-8');
+  test('redpill-phase-researcher has CLAUDE.md enforcement directive', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-phase-researcher.md'), 'utf-8');
     assert.ok(
       content.includes('CLAUDE.md enforcement'),
-      'gsd-phase-researcher must enforce CLAUDE.md directives during research'
+      'redpill-phase-researcher must enforce CLAUDE.md directives during research'
     );
     assert.ok(
       content.includes('Project Constraints (from CLAUDE.md)'),
-      'gsd-phase-researcher must output a Project Constraints section from CLAUDE.md'
+      'redpill-phase-researcher must output a Project Constraints section from CLAUDE.md'
     );
   });
 
-  test('gsd-executor has CLAUDE.md enforcement directive', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-executor.md'), 'utf-8');
+  test('redpill-executor has CLAUDE.md enforcement directive', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-executor.md'), 'utf-8');
     assert.ok(
       content.includes('CLAUDE.md enforcement'),
-      'gsd-executor must enforce CLAUDE.md directives during execution'
+      'redpill-executor must enforce CLAUDE.md directives during execution'
     );
     assert.ok(
       content.includes('CLAUDE.md rule — it takes precedence over plan instructions'),
-      'gsd-executor must specify CLAUDE.md precedence over plan instructions'
+      'redpill-executor must specify CLAUDE.md precedence over plan instructions'
     );
   });
 
   test('all three agents read CLAUDE.md in project_context', () => {
-    const agents = ['gsd-plan-checker', 'gsd-phase-researcher', 'gsd-executor'];
+    const agents = ['redpill-plan-checker', 'redpill-phase-researcher', 'redpill-executor'];
     for (const agent of agents) {
       const content = fs.readFileSync(path.join(AGENTS_DIR, agent + '.md'), 'utf-8');
       assert.ok(
@@ -282,36 +282,36 @@ describe('CLAUDEMD: CLAUDE.md compliance enforcement', () => {
 // ─── Verification Data-Flow and Environment Audit (#1245) ────────────────────
 
 describe('VERIFY: data-flow trace, environment audit, and behavioral spot-checks', () => {
-  test('gsd-verifier has Step 4b: Data-Flow Trace', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-verifier.md'), 'utf-8');
+  test('redpill-verifier has Step 4b: Data-Flow Trace', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-verifier.md'), 'utf-8');
     assert.ok(
       content.includes('Step 4b: Data-Flow Trace'),
-      'gsd-verifier must have Step 4b for data-flow tracing'
+      'redpill-verifier must have Step 4b for data-flow tracing'
     );
     assert.ok(
       content.includes('HOLLOW'),
-      'gsd-verifier must define HOLLOW status for wired-but-disconnected artifacts'
+      'redpill-verifier must define HOLLOW status for wired-but-disconnected artifacts'
     );
     assert.ok(
       content.includes('DISCONNECTED'),
-      'gsd-verifier must define DISCONNECTED status for missing data sources'
+      'redpill-verifier must define DISCONNECTED status for missing data sources'
     );
   });
 
-  test('gsd-verifier has Step 7b: Behavioral Spot-Checks', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-verifier.md'), 'utf-8');
+  test('redpill-verifier has Step 7b: Behavioral Spot-Checks', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-verifier.md'), 'utf-8');
     assert.ok(
       content.includes('Step 7b: Behavioral Spot-Checks'),
-      'gsd-verifier must have Step 7b for behavioral spot-checks'
+      'redpill-verifier must have Step 7b for behavioral spot-checks'
     );
     assert.ok(
       content.includes('SKIP'),
-      'gsd-verifier spot-checks must support SKIP status for untestable items'
+      'redpill-verifier spot-checks must support SKIP status for untestable items'
     );
   });
 
-  test('gsd-verifier VERIFICATION.md template includes data-flow and spot-check sections', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-verifier.md'), 'utf-8');
+  test('redpill-verifier VERIFICATION.md template includes data-flow and spot-check sections', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-verifier.md'), 'utf-8');
     assert.ok(
       content.includes('Data-Flow Trace (Level 4)'),
       'VERIFICATION.md template must include Data-Flow Trace section'
@@ -322,8 +322,8 @@ describe('VERIFY: data-flow trace, environment audit, and behavioral spot-checks
     );
   });
 
-  test('gsd-verifier success criteria include data-flow and spot-checks', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-verifier.md'), 'utf-8');
+  test('redpill-verifier success criteria include data-flow and spot-checks', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-verifier.md'), 'utf-8');
     assert.ok(
       content.includes('Data-flow trace (Level 4)'),
       'success criteria must include data-flow trace step'
@@ -334,20 +334,20 @@ describe('VERIFY: data-flow trace, environment audit, and behavioral spot-checks
     );
   });
 
-  test('gsd-phase-researcher has Step 2.6: Environment Availability Audit', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-phase-researcher.md'), 'utf-8');
+  test('redpill-phase-researcher has Step 2.6: Environment Availability Audit', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-phase-researcher.md'), 'utf-8');
     assert.ok(
       content.includes('Step 2.6: Environment Availability Audit'),
-      'gsd-phase-researcher must have Step 2.6 for environment availability auditing'
+      'redpill-phase-researcher must have Step 2.6 for environment availability auditing'
     );
     assert.ok(
       content.includes('Environment Availability'),
-      'gsd-phase-researcher must include Environment Availability section in RESEARCH.md template'
+      'redpill-phase-researcher must include Environment Availability section in RESEARCH.md template'
     );
   });
 
-  test('gsd-phase-researcher success criteria include environment audit', () => {
-    const content = fs.readFileSync(path.join(AGENTS_DIR, 'gsd-phase-researcher.md'), 'utf-8');
+  test('redpill-phase-researcher success criteria include environment audit', () => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, 'redpill-phase-researcher.md'), 'utf-8');
     assert.ok(
       content.includes('Environment availability audited'),
       'success criteria must include environment availability audit step'
@@ -392,7 +392,7 @@ describe('COMPAT: agents must not use runtime-specific frontmatter keys', () => 
   // permissionMode is Claude Code-specific and breaks Gemini CLI agent loading.
   // It also has no effect on subagent Write permissions in Claude Code (blocked
   // at runtime level regardless). See #1522, #1387.
-  const AGENTS_WITH_WRITE = ['gsd-executor', 'gsd-debugger'];
+  const AGENTS_WITH_WRITE = ['redpill-executor', 'redpill-debugger'];
 
   for (const agent of AGENTS_WITH_WRITE) {
     test(`${agent} does not have permissionMode (breaks Gemini CLI)`, () => {

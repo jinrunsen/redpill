@@ -1,6 +1,6 @@
 # Debug Template
 
-Template for `.planning/debug/[slug].md` — active debug session tracking.
+Template for `.redpill/debug/[slug].md` — active debug session tracking.
 
 ---
 
@@ -99,7 +99,7 @@ files_changed: []
 
 <lifecycle>
 
-**Creation:** Immediately when /gsd:debug is called
+**Creation:** Immediately when /redpill:debug is called
 - Create file with trigger from user input
 - Set status to "gathering"
 - Current Focus: next_action = "gather symptoms"
@@ -134,7 +134,7 @@ files_changed: []
 
 **On resolution:**
 - status → "resolved"
-- Move file to .planning/debug/resolved/ (only after user confirms fix)
+- Move file to .redpill/debug/resolved/ (only after user confirms fix)
 
 </lifecycle>
 

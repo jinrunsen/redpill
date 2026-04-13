@@ -1,6 +1,6 @@
 # Milestone Archive Template
 
-This template is used by the complete-milestone workflow to create archive files in `.planning/milestones/`.
+This template is used by the complete-milestone workflow to create archive files in `.redpill/milestones/`.
 
 ---
 
@@ -89,7 +89,7 @@ Plans:
 
 ---
 
-_For current project status, see .planning/ROADMAP.md_
+_For current project status, see .redpill/ROADMAP.md_
 
 ---
 
@@ -112,8 +112,8 @@ _For current project status, see .planning/ROADMAP.md_
 
 **Archive location:**
 
-- Save to `.planning/milestones/v{VERSION}-{NAME}.md`
-- Example: `.planning/milestones/v1.0-mvp.md`
+- Save to `.redpill/milestones/v{VERSION}-{NAME}.md`
+- Example: `.redpill/milestones/v1.0-mvp.md`
 
 **After archiving:**
 

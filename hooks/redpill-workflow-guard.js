@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
-// GSD Workflow Guard — PreToolUse hook
-// Detects when Claude attempts file edits outside a GSD workflow context
-// (no active /gsd: command or Task subagent) and injects an advisory warning.
+// redpill-hook-version: {{REDPILL_VERSION}}
+// REDPILL Workflow Guard — PreToolUse hook
+// Detects when Claude attempts file edits outside a REDPILL workflow context
+// (no active /redpill: command or Task subagent) and injects an advisory warning.
 //
 // This is a SOFT guard — it advises, not blocks. The edit still proceeds.
-// The warning nudges Claude to use /gsd:quick or /gsd:fast instead of
+// The warning nudges Claude to use /redpill:quick or /redpill:fast instead of
 // making direct edits that bypass state tracking.
 //
 // Enable via config: hooks.workflow_guard: true (default: false)
-// Only triggers on Write/Edit tool calls to non-.planning/ files.
+// Only triggers on Write/Edit tool calls to non-.redpill/ files.
 
 const fs = require('fs');
 const path = require('path');
@@ -29,7 +29,7 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    // Check if we're inside a GSD workflow (Task subagent or /gsd: command)
+    // Check if we're inside a REDPILL workflow (Task subagent or /redpill: command)
     // Subagents have a session_id that differs from the parent
     // and typically have a description field set by the orchestrator
     if (data.tool_input?.is_subagent || data.session_type === 'task') {
@@ -39,12 +39,12 @@ process.stdin.on('end', () => {
     // Check the file being edited
     const filePath = data.tool_input?.file_path || data.tool_input?.path || '';
 
-    // Allow edits to .planning/ files (GSD state management)
-    if (filePath.includes('.planning/') || filePath.includes('.planning\\')) {
+    // Allow edits to .redpill/ files (GSD state management)
+    if (filePath.includes('.redpill/') || filePath.includes('.redpill\\')) {
       process.exit(0);
     }
 
-    // Allow edits to common config/docs files that don't need GSD tracking
+    // Allow edits to common config/docs files that don't need REDPILL tracking
     const allowedPatterns = [
       /\.gitignore$/,
       /\.env/,
@@ -59,7 +59,7 @@ process.stdin.on('end', () => {
 
     // Check if workflow guard is enabled
     const cwd = data.cwd || process.cwd();
-    const configPath = path.join(cwd, '.planning', 'config.json');
+    const configPath = path.join(cwd, '.redpill', 'config.json');
     if (fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -70,17 +70,17 @@ process.stdin.on('end', () => {
         process.exit(0);
       }
     } else {
-      process.exit(0); // No GSD project — don't guard
+      process.exit(0); // No REDPILL project — don't guard
     }
 
-    // If we get here: GSD project, guard enabled, file edit outside .planning/,
+    // If we get here: REDPILL project, guard enabled, file edit outside .redpill/,
     // not in a subagent context. Inject advisory warning.
     const output = {
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
-        additionalContext: `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a GSD command. ` +
+        additionalContext: `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a REDPILL command. ` +
           'This edit will not be tracked in STATE.md or produce a SUMMARY.md. ' +
-          'Consider using /gsd:fast for trivial fixes or /gsd:quick for larger changes ' +
+          'Consider using /redpill:fast for trivial fixes or /redpill:quick for larger changes ' +
           'to maintain project state tracking. ' +
           'If this is intentional (e.g., user explicitly asked for a direct edit), proceed normally.'
       }

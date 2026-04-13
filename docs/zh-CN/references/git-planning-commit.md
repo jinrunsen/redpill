@@ -4,20 +4,20 @@
 
 ## 通过 CLI 提交
 
-始终使用 `gsd-tools.cjs commit` 处理 `.planning/` 文件 — 它会自动处理 `commit_docs` 和 gitignore 检查：
+始终使用 `redpill-tools.cjs commit` 处理 `.redpill/` 文件 — 它会自动处理 `commit_docs` 和 gitignore 检查：
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs({scope}): {description}" --files .planning/STATE.md .planning/ROADMAP.md
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs({scope}): {description}" --files .redpill/STATE.md .redpill/ROADMAP.md
 ```
 
-如果 `commit_docs` 为 `false` 或 `.planning/` 被 gitignore，CLI 会返回 `skipped`（带原因）。无需手动条件检查。
+如果 `commit_docs` 为 `false` 或 `.redpill/` 被 gitignore，CLI 会返回 `skipped`（带原因）。无需手动条件检查。
 
 ## 修改上次提交
 
-将 `.planning/` 文件变更合并到上次提交：
+将 `.redpill/` 文件变更合并到上次提交：
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "" --files .planning/codebase/*.md --amend
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "" --files .redpill/codebase/*.md --amend
 ```
 
 ## 提交消息模式
@@ -34,5 +34,5 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "" --files .planning
 ## 何时跳过
 
 - config 中 `commit_docs: false`
-- `.planning/` 被 gitignore
-- 无变更可提交（用 `git status --porcelain .planning/` 检查）
+- `.redpill/` 被 gitignore
+- 无变更可提交（用 `git status --porcelain .redpill/` 检查）

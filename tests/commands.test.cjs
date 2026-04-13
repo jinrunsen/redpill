@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Commands
+ * REDPILL Tools Tests - Commands
  */
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
@@ -7,7 +7,7 @@ const assert = require('node:assert');
 const { execSync } = require('node:child_process');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 describe('history-digest command', () => {
   let tmpDir;
@@ -21,7 +21,7 @@ describe('history-digest command', () => {
   });
 
   test('empty phases directory returns valid schema', () => {
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -33,7 +33,7 @@ describe('history-digest command', () => {
 
   test('nested frontmatter fields extracted correctly', () => {
     // Create phase directory with SUMMARY containing nested frontmatter
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     const summaryContent = `---
@@ -62,7 +62,7 @@ key-decisions:
 
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), summaryContent);
 
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -106,7 +106,7 @@ key-decisions:
 
   test('multiple phases merged into single digest', () => {
     // Create phase 01
-    const phase01Dir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phase01Dir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phase01Dir, { recursive: true });
     fs.writeFileSync(
       path.join(phase01Dir, '01-01-SUMMARY.md'),
@@ -124,7 +124,7 @@ key-decisions:
     );
 
     // Create phase 02
-    const phase02Dir = path.join(tmpDir, '.planning', 'phases', '02-api');
+    const phase02Dir = path.join(tmpDir, '.redpill', 'phases', '02-api');
     fs.mkdirSync(phase02Dir, { recursive: true });
     fs.writeFileSync(
       path.join(phase02Dir, '02-01-SUMMARY.md'),
@@ -144,7 +144,7 @@ tech-stack:
 `
     );
 
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -161,7 +161,7 @@ tech-stack:
   });
 
   test('malformed SUMMARY.md skipped gracefully', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-test');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-test');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     // Valid summary
@@ -192,7 +192,7 @@ broken: [unclosed
 `
     );
 
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command should succeed despite malformed files: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -204,7 +204,7 @@ broken: [unclosed
   });
 
   test('flat provides field still works (backward compatibility)', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-test');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-test');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -217,7 +217,7 @@ provides:
 `
     );
 
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -229,7 +229,7 @@ provides:
   });
 
   test('inline array syntax supported', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-test');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-test');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -242,7 +242,7 @@ patterns-established: ["Pattern X", "Pattern Y"]
 `
     );
 
-    const result = runGsdTools('history-digest', tmpDir);
+    const result = runRedpillTools('history-digest', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const digest = JSON.parse(result.output);
@@ -276,7 +276,7 @@ describe('summary-extract command', () => {
   });
 
   test('missing file returns error', () => {
-    const result = runGsdTools('summary-extract .planning/phases/01-test/01-01-SUMMARY.md', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-test/01-01-SUMMARY.md', tmpDir);
     assert.ok(result.success, `Command should succeed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -284,7 +284,7 @@ describe('summary-extract command', () => {
   });
 
   test('extracts all fields from SUMMARY.md', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -315,11 +315,11 @@ Full summary content here.
 `
     );
 
-    const result = runGsdTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.path, '.planning/phases/01-foundation/01-01-SUMMARY.md', 'path correct');
+    assert.strictEqual(output.path, '.redpill/phases/01-foundation/01-01-SUMMARY.md', 'path correct');
     assert.strictEqual(output.one_liner, 'Set up Prisma with User and Project models', 'one-liner extracted');
     assert.deepStrictEqual(output.key_files, ['prisma/schema.prisma', 'src/lib/db.ts'], 'key files extracted');
     assert.deepStrictEqual(output.tech_added, ['prisma', 'zod'], 'tech added extracted');
@@ -329,7 +329,7 @@ Full summary content here.
   });
 
   test('selective extraction with --fields', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -351,7 +351,7 @@ requirements-completed:
 `
     );
 
-    const result = runGsdTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md --fields one_liner,key_files,requirements_completed', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-foundation/01-01-SUMMARY.md --fields one_liner,key_files,requirements_completed', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -364,7 +364,7 @@ requirements-completed:
   });
 
   test('extracts one-liner from body when not in frontmatter', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -386,7 +386,7 @@ key-files:
 `
     );
 
-    const result = runGsdTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -395,7 +395,7 @@ key-files:
   });
 
   test('handles missing frontmatter fields gracefully', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -408,7 +408,7 @@ one-liner: Minimal summary
 `
     );
 
-    const result = runGsdTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -421,7 +421,7 @@ one-liner: Minimal summary
   });
 
   test('parses key-decisions with rationale', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(phaseDir, { recursive: true });
 
     fs.writeFileSync(
@@ -434,7 +434,7 @@ key-decisions:
 `
     );
 
-    const result = runGsdTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
+    const result = runRedpillTools('summary-extract .redpill/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -463,16 +463,16 @@ describe('progress command', () => {
 
   test('renders JSON progress', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0 MVP\n`
     );
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Done');
     fs.writeFileSync(path.join(p1, '01-02-PLAN.md'), '# Plan 2');
 
-    const result = runGsdTools('progress json', tmpDir);
+    const result = runRedpillTools('progress json', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -485,15 +485,15 @@ describe('progress command', () => {
 
   test('renders bar format', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0\n`
     );
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-test');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-test');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Done');
 
-    const result = runGsdTools('progress bar --raw', tmpDir);
+    const result = runRedpillTools('progress bar --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     assert.ok(result.output.includes('1/1'), 'should include count');
     assert.ok(result.output.includes('100%'), 'should include 100%');
@@ -501,14 +501,14 @@ describe('progress command', () => {
 
   test('renders table format', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0 MVP\n`
     );
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
 
-    const result = runGsdTools('progress table --raw', tmpDir);
+    const result = runRedpillTools('progress table --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     assert.ok(result.output.includes('Phase'), 'should have table header');
     assert.ok(result.output.includes('foundation'), 'should include phase name');
@@ -516,10 +516,10 @@ describe('progress command', () => {
 
   test('does not crash when summaries exceed plans (orphaned SUMMARY.md)', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0 MVP\n`
     );
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-foundation');
     fs.mkdirSync(p1, { recursive: true });
     // 1 plan but 2 summaries (orphaned SUMMARY.md after PLAN.md deletion)
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
@@ -527,16 +527,16 @@ describe('progress command', () => {
     fs.writeFileSync(path.join(p1, '01-02-SUMMARY.md'), '# Orphaned summary');
 
     // bar format - should not crash with RangeError
-    const barResult = runGsdTools('progress bar --raw', tmpDir);
+    const barResult = runRedpillTools('progress bar --raw', tmpDir);
     assert.ok(barResult.success, `Bar format crashed: ${barResult.error}`);
     assert.ok(barResult.output.includes('100%'), 'percent should be clamped to 100%');
 
     // table format - should not crash with RangeError
-    const tableResult = runGsdTools('progress table --raw', tmpDir);
+    const tableResult = runRedpillTools('progress table --raw', tmpDir);
     assert.ok(tableResult.success, `Table format crashed: ${tableResult.error}`);
 
     // json format - percent should be clamped
-    const jsonResult = runGsdTools('progress json', tmpDir);
+    const jsonResult = runRedpillTools('progress json', tmpDir);
     assert.ok(jsonResult.success, `JSON format crashed: ${jsonResult.error}`);
     const output = JSON.parse(jsonResult.output);
     assert.ok(output.percent <= 100, `percent should be <= 100 but got ${output.percent}`);
@@ -560,14 +560,14 @@ describe('todo complete command', () => {
   });
 
   test('moves todo from pending to completed', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
     fs.writeFileSync(
       path.join(pendingDir, 'add-dark-mode.md'),
       `title: Add dark mode\narea: ui\ncreated: 2025-01-01\n`
     );
 
-    const result = runGsdTools('todo complete add-dark-mode.md', tmpDir);
+    const result = runRedpillTools('todo complete add-dark-mode.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -575,24 +575,24 @@ describe('todo complete command', () => {
 
     // Verify moved
     assert.ok(
-      !fs.existsSync(path.join(tmpDir, '.planning', 'todos', 'pending', 'add-dark-mode.md')),
+      !fs.existsSync(path.join(tmpDir, '.redpill', 'todos', 'pending', 'add-dark-mode.md')),
       'should be removed from pending'
     );
     assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'todos', 'completed', 'add-dark-mode.md')),
+      fs.existsSync(path.join(tmpDir, '.redpill', 'todos', 'completed', 'add-dark-mode.md')),
       'should be in completed'
     );
 
     // Verify completion timestamp added
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'todos', 'completed', 'add-dark-mode.md'),
+      path.join(tmpDir, '.redpill', 'todos', 'completed', 'add-dark-mode.md'),
       'utf-8'
     );
     assert.ok(content.startsWith('completed:'), 'should have completed timestamp');
   });
 
   test('fails for nonexistent todo', () => {
-    const result = runGsdTools('todo complete nonexistent.md', tmpDir);
+    const result = runRedpillTools('todo complete nonexistent.md', tmpDir);
     assert.ok(!result.success, 'should fail');
     assert.ok(result.error.includes('not found'), 'error mentions not found');
   });
@@ -611,7 +611,7 @@ describe('todo match-phase command', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('returns empty matches when no todos exist', () => {
-    const result = runGsdTools('todo match-phase 01', tmpDir);
+    const result = runRedpillTools('todo match-phase 01', tmpDir);
     assert.ok(result.success, 'should succeed');
     const output = JSON.parse(result.output);
     assert.strictEqual(output.todo_count, 0);
@@ -619,14 +619,14 @@ describe('todo match-phase command', () => {
   });
 
   test('matches todo by keyword overlap with phase name', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
     fs.writeFileSync(path.join(pendingDir, 'auth-todo.md'),
       'title: Add OAuth token refresh\narea: auth\ncreated: 2026-03-01\n\nNeed to handle token expiry for OAuth flows.');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 01: Authentication and Session Management\n\n**Goal:** Implement OAuth login and session handling\n');
 
-    const result = runGsdTools('todo match-phase 01', tmpDir);
+    const result = runRedpillTools('todo match-phase 01', tmpDir);
     assert.ok(result.success, 'should succeed');
     const output = JSON.parse(result.output);
     assert.strictEqual(output.todo_count, 1, 'should find 1 todo');
@@ -637,16 +637,16 @@ describe('todo match-phase command', () => {
   });
 
   test('does not match unrelated todo', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
     fs.writeFileSync(path.join(pendingDir, 'auth-todo.md'),
       'title: Add OAuth token refresh\narea: auth\ncreated: 2026-03-01\n\nOAuth token expiry.');
     fs.writeFileSync(path.join(pendingDir, 'unrelated-todo.md'),
       'title: Fix CSS grid layout in dashboard\narea: ui\ncreated: 2026-03-01\n\nGrid columns break on mobile.');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 01: Authentication and Session Management\n\n**Goal:** Implement OAuth login and session handling\n');
 
-    const result = runGsdTools('todo match-phase 01', tmpDir);
+    const result = runRedpillTools('todo match-phase 01', tmpDir);
     assert.ok(result.success, 'should succeed');
     const output = JSON.parse(result.output);
     const matchTitles = output.matches.map(m => m.title);
@@ -655,14 +655,14 @@ describe('todo match-phase command', () => {
   });
 
   test('matches todo by area overlap', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
     fs.writeFileSync(path.join(pendingDir, 'auth-todo.md'),
       'title: Add OAuth token refresh\narea: auth\ncreated: 2026-03-01\n\nOAuth token handling.');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 01: Auth System\n\n**Goal:** Build auth module\n');
 
-    const result = runGsdTools('todo match-phase 01', tmpDir);
+    const result = runRedpillTools('todo match-phase 01', tmpDir);
     const output = JSON.parse(result.output);
     const authMatch = output.matches.find(m => m.title === 'Add OAuth token refresh');
     assert.ok(authMatch, 'should find auth todo');
@@ -671,16 +671,16 @@ describe('todo match-phase command', () => {
   });
 
   test('sorts matches by score descending', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
     fs.writeFileSync(path.join(pendingDir, 'weak-match.md'),
       'title: Check token format\narea: general\ncreated: 2026-03-01\n\nToken format validation.');
     fs.writeFileSync(path.join(pendingDir, 'strong-match.md'),
       'title: Session management authentication OAuth token handling\narea: auth\ncreated: 2026-03-01\n\nSession auth OAuth tokens.');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'),
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 01: Authentication and Session Management\n\n**Goal:** Implement OAuth login, session handling, and token management\n');
 
-    const result = runGsdTools('todo match-phase 01', tmpDir);
+    const result = runRedpillTools('todo match-phase 01', tmpDir);
     const output = JSON.parse(result.output);
     assert.ok(output.matches.length >= 2, 'should have multiple matches');
     for (let i = 1; i < output.matches.length; i++) {
@@ -707,9 +707,9 @@ describe('scaffold command', () => {
   });
 
   test('scaffolds context file', () => {
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '03-api'), { recursive: true });
 
-    const result = runGsdTools('scaffold context --phase 3', tmpDir);
+    const result = runRedpillTools('scaffold context --phase 3', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -717,7 +717,7 @@ describe('scaffold command', () => {
 
     // Verify file content
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'phases', '03-api', '03-CONTEXT.md'),
+      path.join(tmpDir, '.redpill', 'phases', '03-api', '03-CONTEXT.md'),
       'utf-8'
     );
     assert.ok(content.includes('Phase 3'), 'should reference phase number');
@@ -726,16 +726,16 @@ describe('scaffold command', () => {
   });
 
   test('scaffolds UAT file', () => {
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '03-api'), { recursive: true });
 
-    const result = runGsdTools('scaffold uat --phase 3', tmpDir);
+    const result = runRedpillTools('scaffold uat --phase 3', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.created, true);
 
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'phases', '03-api', '03-UAT.md'),
+      path.join(tmpDir, '.redpill', 'phases', '03-api', '03-UAT.md'),
       'utf-8'
     );
     assert.ok(content.includes('User Acceptance Testing'), 'should have UAT heading');
@@ -743,39 +743,39 @@ describe('scaffold command', () => {
   });
 
   test('scaffolds verification file', () => {
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '03-api'), { recursive: true });
 
-    const result = runGsdTools('scaffold verification --phase 3', tmpDir);
+    const result = runRedpillTools('scaffold verification --phase 3', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.created, true);
 
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'phases', '03-api', '03-VERIFICATION.md'),
+      path.join(tmpDir, '.redpill', 'phases', '03-api', '03-VERIFICATION.md'),
       'utf-8'
     );
     assert.ok(content.includes('Goal-Backward Verification'), 'should have verification heading');
   });
 
   test('scaffolds phase directory', () => {
-    const result = runGsdTools('scaffold phase-dir --phase 5 --name User Dashboard', tmpDir);
+    const result = runRedpillTools('scaffold phase-dir --phase 5 --name User Dashboard', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.created, true);
     assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '05-user-dashboard')),
+      fs.existsSync(path.join(tmpDir, '.redpill', 'phases', '05-user-dashboard')),
       'directory should be created'
     );
   });
 
   test('does not overwrite existing files', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '03-api');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '03-api');
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '03-CONTEXT.md'), '# Existing content');
 
-    const result = runGsdTools('scaffold context --phase 3', tmpDir);
+    const result = runRedpillTools('scaffold context --phase 3', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -800,7 +800,7 @@ describe('generate-slug command', () => {
   });
 
   test('converts normal text to slug', () => {
-    const result = runGsdTools('generate-slug "Hello World"', tmpDir);
+    const result = runRedpillTools('generate-slug "Hello World"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -808,7 +808,7 @@ describe('generate-slug command', () => {
   });
 
   test('strips special characters', () => {
-    const result = runGsdTools('generate-slug "Test@#$%^Special!!!"', tmpDir);
+    const result = runRedpillTools('generate-slug "Test@#$%^Special!!!"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -816,7 +816,7 @@ describe('generate-slug command', () => {
   });
 
   test('preserves numbers', () => {
-    const result = runGsdTools('generate-slug "Phase 3 Plan"', tmpDir);
+    const result = runRedpillTools('generate-slug "Phase 3 Plan"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -824,7 +824,7 @@ describe('generate-slug command', () => {
   });
 
   test('strips leading and trailing hyphens', () => {
-    const result = runGsdTools('generate-slug "---leading-trailing---"', tmpDir);
+    const result = runRedpillTools('generate-slug "---leading-trailing---"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -832,7 +832,7 @@ describe('generate-slug command', () => {
   });
 
   test('fails when no text provided', () => {
-    const result = runGsdTools('generate-slug', tmpDir);
+    const result = runRedpillTools('generate-slug', tmpDir);
     assert.ok(!result.success, 'should fail without text');
     assert.ok(result.error.includes('text required'), 'error should mention text required');
   });
@@ -854,7 +854,7 @@ describe('current-timestamp command', () => {
   });
 
   test('date format returns YYYY-MM-DD', () => {
-    const result = runGsdTools('current-timestamp date', tmpDir);
+    const result = runRedpillTools('current-timestamp date', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -862,7 +862,7 @@ describe('current-timestamp command', () => {
   });
 
   test('filename format returns ISO without colons or fractional seconds', () => {
-    const result = runGsdTools('current-timestamp filename', tmpDir);
+    const result = runRedpillTools('current-timestamp filename', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -870,7 +870,7 @@ describe('current-timestamp command', () => {
   });
 
   test('full format returns full ISO string', () => {
-    const result = runGsdTools('current-timestamp full', tmpDir);
+    const result = runRedpillTools('current-timestamp full', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -878,7 +878,7 @@ describe('current-timestamp command', () => {
   });
 
   test('default (no format) returns full ISO string', () => {
-    const result = runGsdTools('current-timestamp', tmpDir);
+    const result = runRedpillTools('current-timestamp', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -902,7 +902,7 @@ describe('list-todos command', () => {
   });
 
   test('empty directory returns zero count', () => {
-    const result = runGsdTools('list-todos', tmpDir);
+    const result = runRedpillTools('list-todos', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -911,13 +911,13 @@ describe('list-todos command', () => {
   });
 
   test('returns multiple todos with correct fields', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
 
     fs.writeFileSync(path.join(pendingDir, 'add-tests.md'), 'title: Add unit tests\narea: testing\ncreated: 2026-01-15\n');
     fs.writeFileSync(path.join(pendingDir, 'fix-bug.md'), 'title: Fix login bug\narea: auth\ncreated: 2026-01-20\n');
 
-    const result = runGsdTools('list-todos', tmpDir);
+    const result = runRedpillTools('list-todos', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -932,13 +932,13 @@ describe('list-todos command', () => {
   });
 
   test('area filter returns only matching todos', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
 
     fs.writeFileSync(path.join(pendingDir, 'ui-task.md'), 'title: UI task\narea: ui\ncreated: 2026-01-01\n');
     fs.writeFileSync(path.join(pendingDir, 'api-task.md'), 'title: API task\narea: api\ncreated: 2026-01-01\n');
 
-    const result = runGsdTools('list-todos ui', tmpDir);
+    const result = runRedpillTools('list-todos ui', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -947,12 +947,12 @@ describe('list-todos command', () => {
   });
 
   test('area filter miss returns zero count', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
 
     fs.writeFileSync(path.join(pendingDir, 'task.md'), 'title: Some task\narea: backend\ncreated: 2026-01-01\n');
 
-    const result = runGsdTools('list-todos nonexistent-area', tmpDir);
+    const result = runRedpillTools('list-todos nonexistent-area', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -960,13 +960,13 @@ describe('list-todos command', () => {
   });
 
   test('malformed files use defaults', () => {
-    const pendingDir = path.join(tmpDir, '.planning', 'todos', 'pending');
+    const pendingDir = path.join(tmpDir, '.redpill', 'todos', 'pending');
     fs.mkdirSync(pendingDir, { recursive: true });
 
     // File with no title or area fields
     fs.writeFileSync(path.join(pendingDir, 'malformed.md'), 'some random content\nno fields here\n');
 
-    const result = runGsdTools('list-todos', tmpDir);
+    const result = runRedpillTools('list-todos', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -995,7 +995,7 @@ describe('verify-path-exists command', () => {
   test('existing file returns exists=true with type=file', () => {
     fs.writeFileSync(path.join(tmpDir, 'test-file.txt'), 'hello');
 
-    const result = runGsdTools('verify-path-exists test-file.txt', tmpDir);
+    const result = runRedpillTools('verify-path-exists test-file.txt', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1006,7 +1006,7 @@ describe('verify-path-exists command', () => {
   test('existing directory returns exists=true with type=directory', () => {
     fs.mkdirSync(path.join(tmpDir, 'test-dir'), { recursive: true });
 
-    const result = runGsdTools('verify-path-exists test-dir', tmpDir);
+    const result = runRedpillTools('verify-path-exists test-dir', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1015,7 +1015,7 @@ describe('verify-path-exists command', () => {
   });
 
   test('missing path returns exists=false', () => {
-    const result = runGsdTools('verify-path-exists nonexistent/path', tmpDir);
+    const result = runRedpillTools('verify-path-exists nonexistent/path', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1027,7 +1027,7 @@ describe('verify-path-exists command', () => {
     const absFile = path.join(tmpDir, 'abs-test.txt');
     fs.writeFileSync(absFile, 'content');
 
-    const result = runGsdTools(`verify-path-exists ${absFile}`, tmpDir);
+    const result = runRedpillTools(`verify-path-exists ${absFile}`, tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1036,7 +1036,7 @@ describe('verify-path-exists command', () => {
   });
 
   test('fails when no path provided', () => {
-    const result = runGsdTools('verify-path-exists', tmpDir);
+    const result = runRedpillTools('verify-path-exists', tmpDir);
     assert.ok(!result.success, 'should fail without path');
     assert.ok(result.error.includes('path required'), 'error should mention path required');
   });
@@ -1058,7 +1058,7 @@ describe('resolve-model command', () => {
   });
 
   test('known agent returns model and profile without unknown_agent', () => {
-    const result = runGsdTools('resolve-model gsd-planner', tmpDir);
+    const result = runRedpillTools('resolve-model redpill-planner', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1068,7 +1068,7 @@ describe('resolve-model command', () => {
   });
 
   test('unknown agent returns unknown_agent=true', () => {
-    const result = runGsdTools('resolve-model fake-nonexistent-agent', tmpDir);
+    const result = runRedpillTools('resolve-model fake-nonexistent-agent', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1077,7 +1077,7 @@ describe('resolve-model command', () => {
 
   test('default profile fallback when no config exists', () => {
     // tmpDir has no config.json, so defaults to balanced profile
-    const result = runGsdTools('resolve-model gsd-executor', tmpDir);
+    const result = runRedpillTools('resolve-model redpill-executor', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1086,7 +1086,7 @@ describe('resolve-model command', () => {
   });
 
   test('fails when no agent-type provided', () => {
-    const result = runGsdTools('resolve-model', tmpDir);
+    const result = runRedpillTools('resolve-model', tmpDir);
     assert.ok(!result.success, 'should fail without agent-type');
     assert.ok(result.error.includes('agent-type required'), 'error should mention agent-type required');
   });
@@ -1112,11 +1112,11 @@ describe('commit command', () => {
   test('skips when commit_docs is false', () => {
     // Write config with commit_docs: false
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ commit_docs: false })
     );
 
-    const result = runGsdTools('commit "test message"', tmpDir);
+    const result = runRedpillTools('commit "test message"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1125,12 +1125,12 @@ describe('commit command', () => {
   });
 
   test('skips when .planning is gitignored', () => {
-    // Add .planning/ to .gitignore and commit it so git recognizes the ignore
-    fs.writeFileSync(path.join(tmpDir, '.gitignore'), '.planning/\n');
+    // Add .redpill/ to .gitignore and commit it so git recognizes the ignore
+    fs.writeFileSync(path.join(tmpDir, '.gitignore'), '.redpill/\n');
     execSync('git add .gitignore', { cwd: tmpDir, stdio: 'pipe' });
     execSync('git commit -m "add gitignore"', { cwd: tmpDir, stdio: 'pipe' });
 
-    const result = runGsdTools('commit "test message"', tmpDir);
+    const result = runRedpillTools('commit "test message"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1140,7 +1140,7 @@ describe('commit command', () => {
 
   test('handles nothing to commit', () => {
     // Don't modify any files after initial commit
-    const result = runGsdTools('commit "test message"', tmpDir);
+    const result = runRedpillTools('commit "test message"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1149,10 +1149,10 @@ describe('commit command', () => {
   });
 
   test('creates real commit with correct hash', () => {
-    // Create a new file in .planning/
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'test-file.md'), '# Test\n');
+    // Create a new file in .redpill/
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'test-file.md'), '# Test\n');
 
-    const result = runGsdTools('commit "test: add test file" --files .planning/test-file.md', tmpDir);
+    const result = runRedpillTools('commit "test: add test file" --files .redpill/test-file.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1168,14 +1168,14 @@ describe('commit command', () => {
 
   test('amend mode works without crashing', () => {
     // Create a file and commit it first
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'amend-file.md'), '# Initial\n');
-    execSync('git add .planning/amend-file.md', { cwd: tmpDir, stdio: 'pipe' });
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'amend-file.md'), '# Initial\n');
+    execSync('git add .redpill/amend-file.md', { cwd: tmpDir, stdio: 'pipe' });
     execSync('git commit -m "initial file"', { cwd: tmpDir, stdio: 'pipe' });
 
     // Modify the file and amend
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'amend-file.md'), '# Amended\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'amend-file.md'), '# Amended\n');
 
-    const result = runGsdTools('commit "ignored" --files .planning/amend-file.md --amend', tmpDir);
+    const result = runRedpillTools('commit "ignored" --files .redpill/amend-file.md --amend', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1188,7 +1188,7 @@ describe('commit command', () => {
   test('creates strategy branch before first commit when branching_strategy is milestone', () => {
     // Configure milestone branching strategy
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({
         commit_docs: true,
         branching_strategy: 'milestone',
@@ -1197,14 +1197,14 @@ describe('commit command', () => {
     );
     // getMilestoneInfo reads ROADMAP.md for milestone version/name
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '## v1.0: Initial Release\n\n### Phase 1: Setup\n'
     );
 
     // Create a file to commit
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'test-context.md'), '# Context\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'test-context.md'), '# Context\n');
 
-    const result = runGsdTools('commit "docs: add context" --files .planning/test-context.md', tmpDir);
+    const result = runRedpillTools('commit "docs: add context" --files .redpill/test-context.md', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1219,7 +1219,7 @@ describe('commit command', () => {
   test('creates strategy branch before first commit when branching_strategy is phase', () => {
     // Configure phase branching strategy
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({
         commit_docs: true,
         branching_strategy: 'phase',
@@ -1227,17 +1227,17 @@ describe('commit command', () => {
       })
     );
     // Create ROADMAP.md with a phase
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-setup'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-setup'), { recursive: true });
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n## Phase 1: Setup\nGoal: Initial setup\n'
     );
 
     // Create a context file for phase 1
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'phases', '01-setup', '01-CONTEXT.md'), '# Context\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'phases', '01-setup', '01-CONTEXT.md'), '# Context\n');
 
-    const result = runGsdTools(
-      'commit "docs(01): add context" --files .planning/phases/01-setup/01-CONTEXT.md',
+    const result = runRedpillTools(
+      'commit "docs(01): add context" --files .redpill/phases/01-setup/01-CONTEXT.md',
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -1254,7 +1254,7 @@ describe('commit command', () => {
   test('decimal phase numbers are captured correctly in branching strategy', () => {
     // Configure phase branching strategy
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({
         commit_docs: true,
         branching_strategy: 'phase',
@@ -1262,17 +1262,17 @@ describe('commit command', () => {
       })
     );
     // Create ROADMAP.md with a decimal phase
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '45.14-golden-capture'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '45.14-golden-capture'), { recursive: true });
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n## Phase 45.14: Golden Capture\nGoal: Capture golden standard\n'
     );
 
     // Create a context file for phase 45.14
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'phases', '45.14-golden-capture', '45.14-CONTEXT.md'), '# Context\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'phases', '45.14-golden-capture', '45.14-CONTEXT.md'), '# Context\n');
 
-    const result = runGsdTools(
-      'commit "docs(45.14): add context" --files .planning/phases/45.14-golden-capture/45.14-CONTEXT.md',
+    const result = runRedpillTools(
+      'commit "docs(45.14): add context" --files .redpill/phases/45.14-golden-capture/45.14-CONTEXT.md',
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -1292,7 +1292,7 @@ describe('commit command', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('websearch command', () => {
-  const { cmdWebsearch } = require('../get-shit-done/bin/lib/commands.cjs');
+  const { cmdWebsearch } = require('../redpill/bin/lib/commands.cjs');
   let origFetch;
   let origApiKey;
   let origWriteSync;
@@ -1424,7 +1424,7 @@ describe('stats command', () => {
   });
 
   test('returns valid JSON with empty project', () => {
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1439,8 +1439,8 @@ describe('stats command', () => {
   });
 
   test('counts phases, plans, and summaries correctly', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
-    const p2 = path.join(tmpDir, '.planning', 'phases', '02-api');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
+    const p2 = path.join(tmpDir, '.redpill', 'phases', '02-api');
     fs.mkdirSync(p1, { recursive: true });
     fs.mkdirSync(p2, { recursive: true });
 
@@ -1454,7 +1454,7 @@ describe('stats command', () => {
     // Phase 2: 1 plan, 0 summaries (planned)
     fs.writeFileSync(path.join(p2, '02-01-PLAN.md'), '# Plan');
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1468,7 +1468,7 @@ describe('stats command', () => {
 
   test('counts requirements from REQUIREMENTS.md', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'REQUIREMENTS.md'),
+      path.join(tmpDir, '.redpill', 'REQUIREMENTS.md'),
       `# Requirements
 
 ## v1 Requirements
@@ -1480,7 +1480,7 @@ describe('stats command', () => {
 `
     );
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1490,11 +1490,11 @@ describe('stats command', () => {
 
   test('reads last activity from STATE.md', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# State\n\n**Current Phase:** 01\n**Status:** In progress\n**Last Activity:** 2025-06-15\n**Last Activity Description:** Working\n`
     );
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1503,11 +1503,11 @@ describe('stats command', () => {
 
   test('reads last activity from plain STATE.md template format', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\n## Current Position\n\nPhase: 1 of 2 (Foundation)\nPlan: 1 of 1 in current phase\nStatus: In progress\nLast activity: 2025-06-16 — Finished plan 01-01\n`
     );
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1515,8 +1515,8 @@ describe('stats command', () => {
   });
 
   test('includes roadmap-only phases in totals and preserves hyphenated names', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '14-auth-hardening');
-    const p2 = path.join(tmpDir, '.planning', 'phases', '15-proof-generation');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '14-auth-hardening');
+    const p2 = path.join(tmpDir, '.redpill', 'phases', '15-proof-generation');
     fs.mkdirSync(p1, { recursive: true });
     fs.mkdirSync(p2, { recursive: true });
     fs.writeFileSync(path.join(p1, '14-01-PLAN.md'), '# Plan');
@@ -1527,7 +1527,7 @@ describe('stats command', () => {
     fs.writeFileSync(path.join(p2, 'VERIFICATION.md'), '---\nstatus: passed\n---\n# Verified');
 
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap
 
 - [x] **Phase 14: Auth Hardening**
@@ -1547,7 +1547,7 @@ describe('stats command', () => {
 `
     );
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1570,7 +1570,7 @@ describe('stats command', () => {
     execSync('git config user.email "test@example.com"', { cwd: tmpDir, stdio: 'pipe' });
     execSync('git config user.name "Test User"', { cwd: tmpDir, stdio: 'pipe' });
 
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'PROJECT.md'), '# Project\n');
     execSync('git add -A', { cwd: tmpDir, stdio: 'pipe' });
     execSync('git commit -m "initial commit"', {
       cwd: tmpDir,
@@ -1594,7 +1594,7 @@ describe('stats command', () => {
       },
     });
 
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1603,13 +1603,13 @@ describe('stats command', () => {
   });
 
   test('table format renders readable output', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
     fs.writeFileSync(path.join(p1, 'VERIFICATION.md'), '---\nstatus: passed\n---\n# Verified');
 
-    const result = runGsdTools('stats table', tmpDir);
+    const result = runRedpillTools('stats table', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const parsed = JSON.parse(result.output);
@@ -1621,11 +1621,11 @@ describe('stats command', () => {
   });
 
   test('phase with summaries but no verification is Executed, not Complete', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1635,12 +1635,12 @@ describe('stats command', () => {
   });
 
   test('phase with passing verification is Complete', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
     fs.writeFileSync(path.join(p1, 'VERIFICATION.md'), '---\nstatus: passed\n---\n# Verification');
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1650,12 +1650,12 @@ describe('stats command', () => {
   });
 
   test('phase with gaps_found verification is Executed', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
     fs.writeFileSync(path.join(p1, 'VERIFICATION.md'), '---\nstatus: gaps_found\n---\n# Verification');
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1664,12 +1664,12 @@ describe('stats command', () => {
   });
 
   test('phase with human_needed verification shows Needs Review', () => {
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
     fs.writeFileSync(path.join(p1, 'VERIFICATION.md'), '---\nstatus: human_needed\n---\n# Verification');
-    const result = runGsdTools('stats', tmpDir);
+    const result = runRedpillTools('stats', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const stats = JSON.parse(result.output);
@@ -1679,15 +1679,15 @@ describe('stats command', () => {
 
   test('progress command also uses verification-aware status', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       `# Roadmap v1.0 MVP\n`
     );
-    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    const p1 = path.join(tmpDir, '.redpill', 'phases', '01-auth');
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
-    const result = runGsdTools('progress json', tmpDir);
+    const result = runRedpillTools('progress json', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1713,41 +1713,41 @@ describe('check-commit command', () => {
 
   test('allows commit when commit_docs is true', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ commit_docs: true })
     );
-    const result = runGsdTools('check-commit', tmpDir);
+    const result = runRedpillTools('check-commit', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.allowed, true);
   });
 
-  test('allows commit when no .planning/ files staged and commit_docs is false', () => {
+  test('allows commit when no .redpill/ files staged and commit_docs is false', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ commit_docs: false })
     );
     // Stage a non-planning file
     fs.writeFileSync(path.join(tmpDir, 'src.js'), 'console.log("hi")');
     execSync('git add src.js', { cwd: tmpDir, stdio: 'pipe' });
 
-    const result = runGsdTools('check-commit', tmpDir);
+    const result = runRedpillTools('check-commit', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const output = JSON.parse(result.output);
     assert.strictEqual(output.allowed, true);
   });
 
-  test('blocks commit when .planning/ files staged and commit_docs is false', () => {
+  test('blocks commit when .redpill/ files staged and commit_docs is false', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ commit_docs: false })
     );
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), '# State');
-    execSync('git add .planning/STATE.md', { cwd: tmpDir, stdio: 'pipe' });
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), '# State');
+    execSync('git add .redpill/STATE.md', { cwd: tmpDir, stdio: 'pipe' });
 
-    const result = runGsdTools('check-commit', tmpDir);
+    const result = runRedpillTools('check-commit', tmpDir);
     assert.ok(!result.success, 'should block commit');
-    assert.ok(result.error.includes('.planning/'), 'error should mention .planning/ files');
+    assert.ok(result.error.includes('.redpill/'), 'error should mention .redpill/ files');
     assert.ok(result.error.includes('unstage'), 'error should suggest unstage command');
   });
 });

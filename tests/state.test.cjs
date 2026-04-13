@@ -1,12 +1,12 @@
 /**
- * GSD Tools Tests - State
+ * REDPILL Tools Tests - State
  */
 
 const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 describe('state-snapshot command', () => {
   let tmpDir;
@@ -20,7 +20,7 @@ describe('state-snapshot command', () => {
   });
 
   test('missing STATE.md returns error', () => {
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command should succeed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -29,7 +29,7 @@ describe('state-snapshot command', () => {
 
   test('extracts basic fields from STATE.md', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 03
@@ -44,7 +44,7 @@ describe('state-snapshot command', () => {
 `
     );
 
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -60,7 +60,7 @@ describe('state-snapshot command', () => {
 
   test('extracts decisions table', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 01
@@ -74,7 +74,7 @@ describe('state-snapshot command', () => {
 `
     );
 
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -86,7 +86,7 @@ describe('state-snapshot command', () => {
 
   test('extracts blockers list', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 03
@@ -98,7 +98,7 @@ describe('state-snapshot command', () => {
 `
     );
 
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -110,7 +110,7 @@ describe('state-snapshot command', () => {
 
   test('extracts session continuity info', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 03
@@ -119,22 +119,22 @@ describe('state-snapshot command', () => {
 
 **Last Date:** 2024-01-15
 **Stopped At:** Phase 3, Plan 2, Task 1
-**Resume File:** .planning/phases/03-api/03-02-PLAN.md
+**Resume File:** .redpill/phases/03-api/03-02-PLAN.md
 `
     );
 
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.session.last_date, '2024-01-15', 'session date extracted');
     assert.strictEqual(output.session.stopped_at, 'Phase 3, Plan 2, Task 1', 'stopped at extracted');
-    assert.strictEqual(output.session.resume_file, '.planning/phases/03-api/03-02-PLAN.md', 'resume file extracted');
+    assert.strictEqual(output.session.resume_file, '.redpill/phases/03-api/03-02-PLAN.md', 'resume file extracted');
   });
 
   test('handles paused_at field', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 03
@@ -142,7 +142,7 @@ describe('state-snapshot command', () => {
 `
     );
 
-    const result = runGsdTools('state-snapshot', tmpDir);
+    const result = runRedpillTools('state-snapshot', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -153,7 +153,7 @@ describe('state-snapshot command', () => {
     let outsideDir;
 
     beforeEach(() => {
-      outsideDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-test-outside-'));
+      outsideDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'redpill-test-outside-'));
     });
 
     afterEach(() => {
@@ -162,7 +162,7 @@ describe('state-snapshot command', () => {
 
     test('supports --cwd override when command runs outside project root', () => {
       fs.writeFileSync(
-        path.join(tmpDir, '.planning', 'STATE.md'),
+        path.join(tmpDir, '.redpill', 'STATE.md'),
         `# Session State
 
 **Current Phase:** 03
@@ -170,7 +170,7 @@ describe('state-snapshot command', () => {
 `
       );
 
-      const result = runGsdTools(`state-snapshot --cwd "${tmpDir}"`, outsideDir);
+      const result = runRedpillTools(`state-snapshot --cwd "${tmpDir}"`, outsideDir);
       assert.ok(result.success, `Command failed: ${result.error}`);
 
       const output = JSON.parse(result.output);
@@ -181,7 +181,7 @@ describe('state-snapshot command', () => {
 
   test('returns error for invalid --cwd path', () => {
     const invalid = path.join(tmpDir, 'does-not-exist');
-    const result = runGsdTools(`state-snapshot --cwd "${invalid}"`, tmpDir);
+    const result = runRedpillTools(`state-snapshot --cwd "${invalid}"`, tmpDir);
     assert.ok(!result.success, 'should fail for invalid --cwd');
     assert.ok(result.error.includes('Invalid --cwd'), 'error should mention invalid --cwd');
   });
@@ -200,7 +200,7 @@ describe('state mutation commands', () => {
 
   test('add-decision preserves dollar amounts without corrupting Decisions section', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 ## Decisions
@@ -211,13 +211,13 @@ None
 `
     );
 
-    const result = runGsdTools(
+    const result = runRedpillTools(
       ['state', 'add-decision', '--phase', '11-01', '--summary', 'Benchmark prices moved from $0.50 to $2.00 to $5.00', '--rationale', 'track cost growth'],
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const state = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.match(
       state,
       /- \[Phase 11-01\]: Benchmark prices moved from \$0\.50 to \$2\.00 to \$5\.00 — track cost growth/,
@@ -229,7 +229,7 @@ None
 
   test('add-blocker preserves dollar strings without corrupting Blockers section', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 ## Decisions
@@ -240,17 +240,17 @@ None
 `
     );
 
-    const result = runGsdTools(['state', 'add-blocker', '--text', 'Waiting on vendor quote $1.00 before approval'], tmpDir);
+    const result = runRedpillTools(['state', 'add-blocker', '--text', 'Waiting on vendor quote $1.00 before approval'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const state = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.match(state, /- Waiting on vendor quote \$1\.00 before approval/, 'blocker entry should preserve literal dollar values');
     assert.strictEqual((state.match(/^## Blockers$/gm) || []).length, 1, 'Blockers heading should not be duplicated');
   });
 
   test('add-decision supports file inputs to preserve shell-sensitive dollar text', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 ## Decisions
@@ -266,13 +266,13 @@ None
     fs.writeFileSync(summaryPath, 'Price tiers: $0.50, $2.00, else $5.00\n');
     fs.writeFileSync(rationalePath, 'Keep exact currency literals for budgeting\n');
 
-    const result = runGsdTools(
+    const result = runRedpillTools(
       `state add-decision --phase 11-02 --summary-file "${summaryPath}" --rationale-file "${rationalePath}"`,
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const state = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.match(
       state,
       /- \[Phase 11-02\]: Price tiers: \$0\.50, \$2\.00, else \$5\.00 — Keep exact currency literals for budgeting/,
@@ -282,7 +282,7 @@ None
 
   test('add-blocker supports --text-file for shell-sensitive text', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 ## Decisions
@@ -296,10 +296,10 @@ None
     const blockerPath = path.join(tmpDir, 'blocker.txt');
     fs.writeFileSync(blockerPath, 'Vendor quote updated from $1.00 to $2.00 pending approval\n');
 
-    const result = runGsdTools(`state add-blocker --text-file "${blockerPath}"`, tmpDir);
+    const result = runRedpillTools(`state add-blocker --text-file "${blockerPath}"`, tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const state = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.match(state, /- Vendor quote updated from \$1\.00 to \$2\.00 pending approval/);
   });
 });
@@ -320,7 +320,7 @@ describe('state json command', () => {
   });
 
   test('missing STATE.md returns error', () => {
-    const result = runGsdTools('state json', tmpDir);
+    const result = runRedpillTools('state json', tmpDir);
     assert.ok(result.success, `Command should succeed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -329,7 +329,7 @@ describe('state json command', () => {
 
   test('builds frontmatter on-the-fly from body when no frontmatter exists', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 05
@@ -343,7 +343,7 @@ describe('state json command', () => {
 `
     );
 
-    const result = runGsdTools('state json', tmpDir);
+    const result = runRedpillTools('state json', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -360,7 +360,7 @@ describe('state json command', () => {
 
   test('reads existing frontmatter when present', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `---
 gsd_state_version: 1.0
 current_phase: 03
@@ -375,7 +375,7 @@ stopped_at: Plan 2 of Phase 3
 `
     );
 
-    const result = runGsdTools('state json', tmpDir);
+    const result = runRedpillTools('state json', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -397,11 +397,11 @@ stopped_at: Plan 2 of Phase 3
 
     for (const { input, expected } of statusTests) {
       fs.writeFileSync(
-        path.join(tmpDir, '.planning', 'STATE.md'),
+        path.join(tmpDir, '.redpill', 'STATE.md'),
         `# State\n\n**Current Phase:** 01\n**Status:** ${input}\n`
       );
 
-      const result = runGsdTools('state json', tmpDir);
+      const result = runRedpillTools('state json', tmpDir);
       assert.ok(result.success, `Command failed for status "${input}": ${result.error}`);
       const output = JSON.parse(result.output);
       assert.strictEqual(output.status, expected, `"${input}" should normalize to "${expected}"`);
@@ -426,7 +426,7 @@ describe('STATE.md frontmatter sync', () => {
 
   test('state update adds frontmatter to STATE.md', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 02
@@ -434,10 +434,10 @@ describe('STATE.md frontmatter sync', () => {
 `
     );
 
-    const result = runGsdTools('state update Status "Executing Plan 1"', tmpDir);
+    const result = runRedpillTools('state update Status "Executing Plan 1"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.startsWith('---\n'), 'should start with frontmatter delimiter');
     assert.ok(content.includes('gsd_state_version: 1.0'), 'should have version field');
     assert.ok(content.includes('current_phase: 02'), 'frontmatter should have current phase');
@@ -447,7 +447,7 @@ describe('STATE.md frontmatter sync', () => {
 
   test('state patch adds frontmatter', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 04
@@ -456,16 +456,16 @@ describe('STATE.md frontmatter sync', () => {
 `
     );
 
-    const result = runGsdTools('state patch --Status "In progress" --"Current Plan" 04-02', tmpDir);
+    const result = runRedpillTools('state patch --Status "In progress" --"Current Plan" 04-02', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.startsWith('---\n'), 'should have frontmatter after patch');
   });
 
   test('frontmatter is idempotent on multiple writes', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 01
@@ -473,10 +473,10 @@ describe('STATE.md frontmatter sync', () => {
 `
     );
 
-    runGsdTools('state update Status "In progress"', tmpDir);
-    runGsdTools('state update Status "Paused"', tmpDir);
+    runRedpillTools('state update Status "In progress"', tmpDir);
+    runRedpillTools('state update Status "Paused"', tmpDir);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     const delimiterCount = (content.match(/^---$/gm) || []).length;
     assert.strictEqual(delimiterCount, 2, 'should have exactly one frontmatter block (2 delimiters)');
     assert.ok(content.includes('status: paused'), 'frontmatter should reflect latest status');
@@ -485,7 +485,7 @@ describe('STATE.md frontmatter sync', () => {
   test('preserves frontmatter status when body Status field is missing', () => {
     // Simulate: frontmatter has status: executing, but body lost Status: field
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `---
 status: executing
 milestone: v1.0
@@ -499,16 +499,16 @@ milestone: v1.0
     );
 
     // Any writeStateMd triggers syncStateFrontmatter — use state update on a field that exists
-    runGsdTools('state update "Current Plan" "03-03"', tmpDir);
+    runRedpillTools('state update "Current Plan" "03-03"', tmpDir);
 
-    const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const content = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(content.includes('status: executing'), 'should preserve existing status, not overwrite with unknown');
     assert.ok(!content.includes('status: unknown'), 'should not contain unknown status');
   });
 
   test('round-trip: write then read via state json', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State
 
 **Current Phase:** 07
@@ -520,9 +520,9 @@ milestone: v1.0
 `
     );
 
-    runGsdTools('state update Status "Executing Plan 5"', tmpDir);
+    runRedpillTools('state update Status "Executing Plan 5"', tmpDir);
 
-    const result = runGsdTools('state json', tmpDir);
+    const result = runRedpillTools('state json', tmpDir);
     assert.ok(result.success, `state json failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -537,7 +537,7 @@ milestone: v1.0
 // stateExtractField and stateReplaceField helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const { stateExtractField, stateReplaceField, stateReplaceFieldWithFallback } = require('../get-shit-done/bin/lib/state.cjs');
+const { stateExtractField, stateReplaceField, stateReplaceFieldWithFallback } = require('../redpill/bin/lib/state.cjs');
 
 describe('stateExtractField and stateReplaceField helpers', () => {
   // stateExtractField tests
@@ -672,19 +672,19 @@ describe('cmdStateLoad (state load)', () => {
 
   test('returns config and state when STATE.md exists', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ mode: 'yolo' })
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n'
     );
 
-    const result = runGsdTools('state load', tmpDir);
+    const result = runRedpillTools('state load', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -695,7 +695,7 @@ describe('cmdStateLoad (state load)', () => {
   });
 
   test('returns state_exists false when STATE.md missing', () => {
-    const result = runGsdTools('state load', tmpDir);
+    const result = runRedpillTools('state load', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -705,15 +705,15 @@ describe('cmdStateLoad (state load)', () => {
 
   test('returns raw key=value format with --raw flag', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({ mode: 'yolo' })
     );
 
-    const result = runGsdTools('state load --raw', tmpDir);
+    const result = runRedpillTools('state load --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     assert.ok(result.output.includes('state_exists=true'), 'raw output should include state_exists=true');
@@ -734,9 +734,9 @@ describe('cmdStateGet (state get)', () => {
 
   test('returns full content when no section specified', () => {
     const stateContent = '# Project State\n\n**Status:** Active\n**Phase:** 03\n';
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateContent);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateContent);
 
-    const result = runGsdTools('state get', tmpDir);
+    const result = runRedpillTools('state get', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -746,11 +746,11 @@ describe('cmdStateGet (state get)', () => {
 
   test('extracts bold field value', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
 
-    const result = runGsdTools('state get Status', tmpDir);
+    const result = runRedpillTools('state get Status', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -759,11 +759,11 @@ describe('cmdStateGet (state get)', () => {
 
   test('extracts markdown section content', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n\n## Blockers\n\n- item1\n- item2\n'
     );
 
-    const result = runGsdTools('state get Blockers', tmpDir);
+    const result = runRedpillTools('state get Blockers', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -774,11 +774,11 @@ describe('cmdStateGet (state get)', () => {
 
   test('returns error for nonexistent field', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
 
-    const result = runGsdTools('state get Missing', tmpDir);
+    const result = runRedpillTools('state get Missing', tmpDir);
     assert.ok(result.success, `Command should exit 0 even for missing field: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -787,7 +787,7 @@ describe('cmdStateGet (state get)', () => {
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state get Status', tmpDir);
+    const result = runRedpillTools('state get Status', tmpDir);
     assert.ok(!result.success, 'command should fail when STATE.md is missing');
     assert.ok(
       result.error.includes('STATE.md') || result.output.includes('STATE.md'),
@@ -815,20 +815,20 @@ describe('cmdStatePatch and cmdStateUpdate (state patch, state update)', () => {
   });
 
   test('state patch updates multiple fields at once', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools('state patch --Status Complete --"Current Phase" 04', tmpDir);
+    const result = runRedpillTools('state patch --Status Complete --"Current Phase" 04', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('**Status:** Complete'), 'Status should be updated to Complete');
     assert.ok(updated.includes('**Last Activity:** 2024-01-15'), 'Last Activity should be unchanged');
   });
 
   test('state patch reports failed fields that do not exist', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools('state patch --Status Done --Missing value', tmpDir);
+    const result = runRedpillTools('state patch --Status Done --Missing value', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -839,24 +839,24 @@ describe('cmdStatePatch and cmdStateUpdate (state patch, state update)', () => {
   });
 
   test('state update changes a single field', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools('state update Status "Phase complete"', tmpDir);
+    const result = runRedpillTools('state update Status "Phase complete"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.updated, true, 'updated should be true');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('**Status:** Phase complete'), 'Status should be updated');
     assert.ok(updated.includes('**Current Phase:** 03'), 'Current Phase should be unchanged');
     assert.ok(updated.includes('**Last Activity:** 2024-01-15'), 'Last Activity should be unchanged');
   });
 
   test('state update reports field not found', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools('state update Missing value', tmpDir);
+    const result = runRedpillTools('state update Missing value', tmpDir);
     assert.ok(result.success, `Command should exit 0 for not-found field: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -865,7 +865,7 @@ describe('cmdStatePatch and cmdStateUpdate (state patch, state update)', () => {
   });
 
   test('state update returns error when STATE.md missing', () => {
-    const result = runGsdTools('state update Status value', tmpDir);
+    const result = runRedpillTools('state update Status value', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -902,10 +902,10 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
   });
 
   test('advances plan counter when not on last plan', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), advanceFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), advanceFixture);
 
     const before = new Date().toISOString().split('T')[0];
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -914,7 +914,7 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
     assert.strictEqual(output.current_plan, 2, 'current_plan should be 2');
     assert.strictEqual(output.total_plans, 3, 'total_plans should be 3');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('**Current Plan:** 2'), 'Current Plan should be updated to 2');
     assert.ok(updated.includes('**Status:** Ready to execute'), 'Status should be Ready to execute');
     const after = new Date().toISOString().split('T')[0];
@@ -926,9 +926,9 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
 
   test('marks phase complete on last plan', () => {
     const lastPlanFixture = advanceFixture.replace('**Current Plan:** 1', '**Current Plan:** 3');
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), lastPlanFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), lastPlanFixture);
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -936,12 +936,12 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
     assert.strictEqual(output.reason, 'last_plan', 'reason should be last_plan');
     assert.strictEqual(output.status, 'ready_for_verification', 'status should be ready_for_verification');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('Phase complete'), 'Status should contain Phase complete');
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -951,11 +951,11 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
 
   test('returns error when plan fields not parseable', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -965,11 +965,11 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
 
   test('advances plan in compound "Plan: X of Y" format', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\nPlan: 2 of 5 in current phase\nStatus: In progress\nLast activity: 2025-01-01\n`
     );
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -978,7 +978,7 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
     assert.strictEqual(output.current_plan, 3);
     assert.strictEqual(output.total_plans, 5);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('Plan: 3 of 5 in current phase'),
       'should preserve compound format with updated plan number');
     assert.ok(updated.includes('Status: Ready to execute'),
@@ -987,18 +987,18 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
 
   test('marks phase complete on last plan in compound format', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       `# Project State\n\nPlan: 3 of 3 in current phase\nStatus: In progress\nLast activity: 2025-01-01\n`
     );
 
-    const result = runGsdTools('state advance-plan', tmpDir);
+    const result = runRedpillTools('state advance-plan', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.advanced, false);
     assert.strictEqual(output.reason, 'last_plan');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('Phase complete'), 'Status should contain Phase complete');
   });
 });
@@ -1027,15 +1027,15 @@ describe('cmdStateRecordMetric (state record-metric)', () => {
   });
 
   test('appends metric row to existing table', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), metricsFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), metricsFixture);
 
-    const result = runGsdTools('state record-metric --phase 2 --plan 1 --duration 5min --tasks 3 --files 4', tmpDir);
+    const result = runRedpillTools('state record-metric --phase 2 --plan 1 --duration 5min --tasks 3 --files 4', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.recorded, true, 'recorded should be true');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('| Phase 2 P1 | 5min | 3 tasks | 4 files |'), 'new row should be present');
     assert.ok(updated.includes('| Phase 1 P1 | 3min | 2 tasks | 3 files |'), 'existing row should still be present');
   });
@@ -1052,20 +1052,20 @@ describe('cmdStateRecordMetric (state record-metric)', () => {
       '',
       '## Session Continuity',
     ].join('\n') + '\n';
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), noneYetFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), noneYetFixture);
 
-    const result = runGsdTools('state record-metric --phase 1 --plan 1 --duration 2min --tasks 1 --files 2', tmpDir);
+    const result = runRedpillTools('state record-metric --phase 1 --plan 1 --duration 2min --tasks 1 --files 2', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(!updated.includes('None yet'), 'None yet placeholder should be removed');
     assert.ok(updated.includes('| Phase 1 P1 | 2min | 1 tasks | 2 files |'), 'new row should be present');
   });
 
   test('returns error when required fields missing', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), metricsFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), metricsFixture);
 
-    const result = runGsdTools('state record-metric --phase 1', tmpDir);
+    const result = runRedpillTools('state record-metric --phase 1', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1077,7 +1077,7 @@ describe('cmdStateRecordMetric (state record-metric)', () => {
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state record-metric --phase 1 --plan 1 --duration 2min', tmpDir);
+    const result = runRedpillTools('state record-metric --phase 1 --plan 1 --duration 2min', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1099,22 +1099,22 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
 
   test('calculates progress from plan/summary counts', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Progress:** [░░░░░░░░░░] 0%\n'
     );
 
     // Phase 01: 1 PLAN + 1 SUMMARY = completed
-    const phase01Dir = path.join(tmpDir, '.planning', 'phases', '01');
+    const phase01Dir = path.join(tmpDir, '.redpill', 'phases', '01');
     fs.mkdirSync(phase01Dir, { recursive: true });
     fs.writeFileSync(path.join(phase01Dir, '01-01-PLAN.md'), '# Plan\n');
     fs.writeFileSync(path.join(phase01Dir, '01-01-SUMMARY.md'), '# Summary\n');
 
     // Phase 02: 1 PLAN only = not completed
-    const phase02Dir = path.join(tmpDir, '.planning', 'phases', '02');
+    const phase02Dir = path.join(tmpDir, '.redpill', 'phases', '02');
     fs.mkdirSync(phase02Dir, { recursive: true });
     fs.writeFileSync(path.join(phase02Dir, '02-01-PLAN.md'), '# Plan\n');
 
-    const result = runGsdTools('state update-progress', tmpDir);
+    const result = runRedpillTools('state update-progress', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1123,17 +1123,17 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
     assert.strictEqual(output.completed, 1, 'completed should be 1');
     assert.strictEqual(output.total, 2, 'total should be 2');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('50%'), 'STATE.md Progress should contain 50%');
   });
 
   test('handles zero plans gracefully', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Progress:** [░░░░░░░░░░] 0%\n'
     );
 
-    const result = runGsdTools('state update-progress', tmpDir);
+    const result = runRedpillTools('state update-progress', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1142,11 +1142,11 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
 
   test('returns error when Progress field missing', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n'
     );
 
-    const result = runGsdTools('state update-progress', tmpDir);
+    const result = runRedpillTools('state update-progress', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1155,7 +1155,7 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state update-progress', tmpDir);
+    const result = runRedpillTools('state update-progress', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1192,15 +1192,15 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
   });
 
   test('removes matching blocker line (case-insensitive substring match)', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), blockerFixture);
 
-    const result = runGsdTools('state resolve-blocker --text "api credentials"', tmpDir);
+    const result = runRedpillTools('state resolve-blocker --text "api credentials"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.resolved, true, 'resolved should be true');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(!updated.includes('Waiting for API credentials'), 'matched blocker should be removed');
     assert.ok(updated.includes('Need design review for dashboard'), 'other blocker should still be present');
     assert.ok(updated.includes('Pending vendor approval'), 'other blocker should still be present');
@@ -1216,12 +1216,12 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
       '',
       '## Session Continuity',
     ].join('\n') + '\n';
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), singleBlockerFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), singleBlockerFixture);
 
-    const result = runGsdTools('state resolve-blocker --text "single blocker"', tmpDir);
+    const result = runRedpillTools('state resolve-blocker --text "single blocker"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(!updated.includes('- Single blocker'), 'resolved blocker should be removed');
 
     // Section should contain "None" placeholder, not be empty
@@ -1231,9 +1231,9 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
   });
 
   test('returns error when text not provided', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), blockerFixture);
 
-    const result = runGsdTools('state resolve-blocker', tmpDir);
+    const result = runRedpillTools('state resolve-blocker', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1245,7 +1245,7 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state resolve-blocker --text "anything"', tmpDir);
+    const result = runRedpillTools('state resolve-blocker --text "anything"', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1254,9 +1254,9 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
   });
 
   test('returns resolved true even if no line matches', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), blockerFixture);
 
-    const result = runGsdTools('state resolve-blocker --text "nonexistent blocker text"', tmpDir);
+    const result = runRedpillTools('state resolve-blocker --text "nonexistent blocker text"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1286,10 +1286,10 @@ describe('cmdStateRecordSession (state record-session)', () => {
   });
 
   test('updates session fields with stopped-at and resume-file', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), sessionFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), sessionFixture);
 
-    const result = runGsdTools(
-      'state record-session --stopped-at "Phase 3, Plan 2" --resume-file ".planning/phases/03/03-02-PLAN.md"',
+    const result = runRedpillTools(
+      'state record-session --stopped-at "Phase 3, Plan 2" --resume-file ".redpill/phases/03/03-02-PLAN.md"',
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -1298,35 +1298,35 @@ describe('cmdStateRecordSession (state record-session)', () => {
     assert.strictEqual(output.recorded, true, 'recorded should be true');
     assert.ok(Array.isArray(output.updated), 'updated should be an array');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('Phase 3, Plan 2'), 'Stopped at should be updated');
-    assert.ok(updated.includes('.planning/phases/03/03-02-PLAN.md'), 'Resume file should be updated');
+    assert.ok(updated.includes('.redpill/phases/03/03-02-PLAN.md'), 'Resume file should be updated');
 
     const today = new Date().toISOString().split('T')[0];
     assert.ok(updated.includes(today), 'Last session should be updated to today');
   });
 
   test('updates Last session timestamp even with no other options', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), sessionFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), sessionFixture);
 
-    const result = runGsdTools('state record-session', tmpDir);
+    const result = runRedpillTools('state record-session', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
     assert.strictEqual(output.recorded, true, 'recorded should be true');
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     const today = new Date().toISOString().split('T')[0];
     assert.ok(updated.includes(today), 'Last session should contain today\'s date');
   });
 
   test('sets Resume file to None when not specified', () => {
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), sessionFixture);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), sessionFixture);
 
-    const result = runGsdTools('state record-session --stopped-at "Phase 1 complete"', tmpDir);
+    const result = runRedpillTools('state record-session --stopped-at "Phase 1 complete"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    const updated = fs.readFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8');
     assert.ok(updated.includes('Phase 1 complete'), 'Stopped at should be updated');
     // Resume file should be set to None (default)
     const resumeMatch = updated.match(/\*\*Resume file:\*\*\s*(.*)/i);
@@ -1335,7 +1335,7 @@ describe('cmdStateRecordSession (state record-session)', () => {
   });
 
   test('returns error when STATE.md missing', () => {
-    const result = runGsdTools('state record-session', tmpDir);
+    const result = runRedpillTools('state record-session', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1345,11 +1345,11 @@ describe('cmdStateRecordSession (state record-session)', () => {
 
   test('returns recorded false when no session fields found', () => {
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Status:** Active\n**Phase:** 03\n'
     );
 
-    const result = runGsdTools('state record-session', tmpDir);
+    const result = runRedpillTools('state record-session', tmpDir);
     assert.ok(result.success, `Command should exit 0: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -1376,7 +1376,7 @@ describe('milestone-scoped phase counting in frontmatter', () => {
   test('total_phases counts only current milestone phases', () => {
     // ROADMAP lists only phases 5-6 (current milestone)
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       [
         '## Roadmap v2.0: Next Release',
         '',
@@ -1391,7 +1391,7 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     // Disk has dirs 01-06 (01-04 are leftover from previous milestone)
     for (let i = 1; i <= 6; i++) {
       const padded = String(i).padStart(2, '0');
-      const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
+      const phaseDir = path.join(tmpDir, '.redpill', 'phases', `${padded}-phase-${i}`);
       fs.mkdirSync(phaseDir, { recursive: true });
       // Add a plan to each
       fs.writeFileSync(path.join(phaseDir, `${padded}-01-PLAN.md`), '# Plan');
@@ -1400,15 +1400,15 @@ describe('milestone-scoped phase counting in frontmatter', () => {
 
     // Write a STATE.md and trigger a write that will sync frontmatter
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Current Phase:** 05\n**Status:** In progress\n'
     );
 
-    const result = runGsdTools('state update Status "Executing"', tmpDir);
+    const result = runRedpillTools('state update Status "Executing"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     // Read the state json to check frontmatter
-    const jsonResult = runGsdTools('state json', tmpDir);
+    const jsonResult = runRedpillTools('state json', tmpDir);
     assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
 
     const output = JSON.parse(jsonResult.output);
@@ -1419,7 +1419,7 @@ describe('milestone-scoped phase counting in frontmatter', () => {
   test('total_phases includes ROADMAP phases without directories', () => {
     // ROADMAP lists 6 phases (5-10), but only 4 have directories on disk
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       [
         '## Roadmap v3.0',
         '',
@@ -1435,21 +1435,21 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     // Only phases 5-8 have directories (9 and 10 not yet planned)
     for (let i = 5; i <= 8; i++) {
       const padded = String(i).padStart(2, '0');
-      const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
+      const phaseDir = path.join(tmpDir, '.redpill', 'phases', `${padded}-phase-${i}`);
       fs.mkdirSync(phaseDir, { recursive: true });
       fs.writeFileSync(path.join(phaseDir, `${padded}-01-PLAN.md`), '# Plan');
       fs.writeFileSync(path.join(phaseDir, `${padded}-01-SUMMARY.md`), '# Summary');
     }
 
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Current Phase:** 08\n**Status:** In progress\n'
     );
 
-    const result = runGsdTools('state update Status "Executing"', tmpDir);
+    const result = runRedpillTools('state update Status "Executing"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const jsonResult = runGsdTools('state json', tmpDir);
+    const jsonResult = runRedpillTools('state json', tmpDir);
     assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
 
     const output = JSON.parse(jsonResult.output);
@@ -1461,20 +1461,20 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     // No ROADMAP.md — all phases should be counted
     for (let i = 1; i <= 4; i++) {
       const padded = String(i).padStart(2, '0');
-      const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
+      const phaseDir = path.join(tmpDir, '.redpill', 'phases', `${padded}-phase-${i}`);
       fs.mkdirSync(phaseDir, { recursive: true });
       fs.writeFileSync(path.join(phaseDir, `${padded}-01-PLAN.md`), '# Plan');
     }
 
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Project State\n\n**Current Phase:** 01\n**Status:** Planning\n'
     );
 
-    const result = runGsdTools('state update Status "In progress"', tmpDir);
+    const result = runRedpillTools('state update Status "In progress"', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
-    const jsonResult = runGsdTools('state json', tmpDir);
+    const jsonResult = runRedpillTools('state json', tmpDir);
     assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
 
     const output = JSON.parse(jsonResult.output);
@@ -1521,16 +1521,16 @@ Progress: [..........] 0%
 | Phase | Decision | Rationale |
 |-------|----------|-----------|
 `;
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
-    const result = runGsdTools(
+    const result = runRedpillTools(
       ['state', 'begin-phase', '--phase', '1', '--name', 'setup', '--plans', '4'],
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8'
+      path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8'
     );
 
     // Extract the Current Position section
@@ -1576,25 +1576,25 @@ Progress: [..........] 0%
 | Phase | Decision | Rationale |
 |-------|----------|-----------|
 `;
-    fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
+    fs.writeFileSync(path.join(tmpDir, '.redpill', 'STATE.md'), stateMd);
 
     // Step 1: begin-phase
-    const beginResult = runGsdTools(
+    const beginResult = runRedpillTools(
       ['state', 'begin-phase', '--phase', '1', '--name', 'setup', '--plans', '2'],
       tmpDir
     );
     assert.ok(beginResult.success, `begin-phase failed: ${beginResult.error}`);
 
     // Step 2: advance-plan to go from plan 1 to plan 2
-    const adv1 = runGsdTools(['state', 'advance-plan'], tmpDir);
+    const adv1 = runRedpillTools(['state', 'advance-plan'], tmpDir);
     assert.ok(adv1.success, `advance-plan 1 failed: ${adv1.error}`);
 
     // Step 3: advance-plan again — plan 2 of 2 is the last, should set "Phase complete"
-    const adv2 = runGsdTools(['state', 'advance-plan'], tmpDir);
+    const adv2 = runRedpillTools(['state', 'advance-plan'], tmpDir);
     assert.ok(adv2.success, `advance-plan 2 failed: ${adv2.error}`);
 
     const content = fs.readFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8'
+      path.join(tmpDir, '.redpill', 'STATE.md'), 'utf-8'
     );
     const posMatch = content.match(/## Current Position\s*\n([\s\S]*?)(?=\n##|$)/i);
     assert.ok(posMatch, 'Current Position section should exist after advance-plan');

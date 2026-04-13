@@ -1,7 +1,7 @@
 /**
- * GSD Agent Installation Validation Tests (#1371)
+ * REDPILL Agent Installation Validation Tests (#1371)
  *
- * Validates that GSD detects missing or incomplete agent installations and
+ * Validates that REDPILL detects missing or incomplete agent installations and
  * surfaces warnings through init commands and health checks. When agents are
  * not installed, Task(subagent_type="gsd-*") silently falls back to
  * general-purpose, losing specialized instructions.
@@ -11,18 +11,18 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 const AGENTS_DIR_NAME = 'agents';
-const MODEL_PROFILES = require('../get-shit-done/bin/lib/model-profiles.cjs').MODEL_PROFILES;
+const MODEL_PROFILES = require('../redpill/bin/lib/model-profiles.cjs').MODEL_PROFILES;
 const EXPECTED_AGENTS = Object.keys(MODEL_PROFILES);
 
 /**
- * Create a fake GSD install directory structure that mirrors what the installer
- * produces. gsd-tools.cjs lives at <configDir>/get-shit-done/bin/gsd-tools.cjs,
+ * Create a fake REDPILL install directory structure that mirrors what the installer
+ * produces. redpill-tools.cjs lives at <configDir>/redpill/bin/redpill-tools.cjs,
  * so the agents dir is at <configDir>/agents/.
  *
- * We use --cwd to point at the project, and GSD_INSTALL_DIR env to override
+ * We use --cwd to point at the project, and REDPILL_INSTALL_DIR env to override
  * the agents directory location for testing.
  */
 function createAgentsDir(configDir, agentNames = []) {
@@ -52,17 +52,17 @@ describe('init commands: agents_installed field (#1371)', () => {
 
   test('init execute-phase includes agents_installed=true when agents exist', () => {
     // Create phase dir for init
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
 
-    // Create agents dir as sibling of get-shit-done/ (the installed layout)
-    // gsd-tools.cjs resolves agents from GSD_INSTALL_DIR or __dirname/../../agents
+    // Create agents dir as sibling of redpill/ (the installed layout)
+    // redpill-tools.cjs resolves agents from REDPILL_INSTALL_DIR or __dirname/../../agents
     const gsdInstallDir = path.resolve(__dirname, '..', 'get-shit-done', 'bin');
     const configDir = path.resolve(gsdInstallDir, '..', '..');
     const agentsDir = path.join(configDir, 'agents');
 
-    // Agents already exist in the repo root /agents/ dir which is sibling to get-shit-done/
-    const result = runGsdTools('init execute-phase 1 --raw', tmpDir);
+    // Agents already exist in the repo root /agents/ dir which is sibling to redpill/
+    const result = runRedpillTools('init execute-phase 1 --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -74,10 +74,10 @@ describe('init commands: agents_installed field (#1371)', () => {
   });
 
   test('init plan-phase includes agents_installed=true when agents exist', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
 
-    const result = runGsdTools('init plan-phase 1 --raw', tmpDir);
+    const result = runRedpillTools('init plan-phase 1 --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -87,10 +87,10 @@ describe('init commands: agents_installed field (#1371)', () => {
   });
 
   test('init execute-phase includes missing_agents list when agents are missing', () => {
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    const phaseDir = path.join(tmpDir, '.redpill', 'phases', '01-setup');
     fs.mkdirSync(phaseDir, { recursive: true });
 
-    const result = runGsdTools('init execute-phase 1 --raw', tmpDir);
+    const result = runRedpillTools('init execute-phase 1 --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -99,7 +99,7 @@ describe('init commands: agents_installed field (#1371)', () => {
   });
 
   test('init quick includes agents_installed field', () => {
-    const result = runGsdTools(['init', 'quick', 'test description', '--raw'], tmpDir);
+    const result = runRedpillTools(['init', 'quick', 'test description', '--raw'], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -117,26 +117,26 @@ describe('validate health: agent installation check W010 (#1371)', () => {
     tmpDir = createTempProject();
     // Write minimal project files so health check doesn't fail on E001-E005
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'PROJECT.md'),
+      path.join(tmpDir, '.redpill', 'PROJECT.md'),
       '# Project\n\n## What This Is\nTest\n\n## Core Value\nTest\n\n## Requirements\nTest\n'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      path.join(tmpDir, '.redpill', 'ROADMAP.md'),
       '# Roadmap\n\n### Phase 1: Setup\n'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
+      path.join(tmpDir, '.redpill', 'STATE.md'),
       '# Session State\n\n## Current Position\n\nPhase: 1\n'
     );
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       JSON.stringify({
         model_profile: 'balanced',
         commit_docs: true,
         workflow: { nyquist_validation: true },
       }, null, 2)
     );
-    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-setup'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases', '01-setup'), { recursive: true });
   });
 
   afterEach(() => {
@@ -144,9 +144,9 @@ describe('validate health: agent installation check W010 (#1371)', () => {
   });
 
   test('health check reports healthy when agents are installed (repo layout)', () => {
-    // In the repo, agents/ exists as a sibling of get-shit-done/, so the
-    // health check should find them via the gsd-tools.cjs path resolution
-    const result = runGsdTools('validate health --raw', tmpDir);
+    // In the repo, agents/ exists as a sibling of redpill/, so the
+    // health check should find them via the redpill-tools.cjs path resolution
+    const result = runRedpillTools('validate health --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -170,7 +170,7 @@ describe('validate agents subcommand (#1371)', () => {
   });
 
   test('validate agents returns status with agent list', () => {
-    const result = runGsdTools('validate agents --raw', tmpDir);
+    const result = runRedpillTools('validate agents --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -181,7 +181,7 @@ describe('validate agents subcommand (#1371)', () => {
   });
 
   test('validate agents lists all expected agent types', () => {
-    const result = runGsdTools('validate agents --raw', tmpDir);
+    const result = runRedpillTools('validate agents --raw', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);

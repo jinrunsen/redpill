@@ -6,7 +6,7 @@
  * literal parts of skill/subagent names.
  */
 
-process.env.GSD_TEST_MODE = '1';
+process.env.REDPILL_TEST_MODE = '1';
 
 const { describe, test } = require('node:test');
 const assert = require('node:assert');
@@ -38,29 +38,29 @@ Test body
 
   test('preserves slash for slash commands in markdown body', () => {
     const input = `---
-name: gsd:plan-phase
+name: redpill:plan-phase
 description: Plan a phase
 ---
 
 Next:
-/gsd:execute-phase 17
+/redpill:execute-phase 17
 /gsd-help
-gsd:progress
+redpill:progress
 `;
 
     const result = convertClaudeCommandToCursorSkill(input, 'gsd-plan-phase');
 
     assert.ok(result.includes('/gsd-execute-phase 17'), 'slash command remains slash-prefixed');
     assert.ok(result.includes('/gsd-help'), 'existing slash command is preserved');
-    assert.ok(result.includes('gsd-progress'), 'non-slash gsd: references still normalize');
-    assert.ok(!result.includes('/gsd:execute-phase'), 'legacy colon command form is removed');
+    assert.ok(result.includes('gsd-progress'), 'non-slash redpill: references still normalize');
+    assert.ok(!result.includes('/redpill:execute-phase'), 'legacy colon command form is removed');
   });
 });
 
 describe('convertClaudeAgentToCursorAgent', () => {
   test('writes unquoted Cursor agent name in frontmatter', () => {
     const input = `---
-name: gsd-planner
+name: redpill-planner
 description: Planner agent
 tools: Read, Write
 color: green
@@ -75,7 +75,7 @@ Planner body
     const nameMatch = result.match(/^name:\s*(.+)$/m);
 
     assert.ok(nameMatch, 'frontmatter contains name field');
-    assert.strictEqual(nameMatch[1], 'gsd-planner', 'agent name is plain scalar');
-    assert.ok(!result.includes('name: "gsd-planner"'), 'quoted agent name is not emitted');
+    assert.strictEqual(nameMatch[1], 'redpill-planner', 'agent name is plain scalar');
+    assert.ok(!result.includes('name: "redpill-planner"'), 'quoted agent name is not emitted');
   });
 });

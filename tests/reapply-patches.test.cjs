@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - reapply-patches backup logic
+ * REDPILL Tools Tests - reapply-patches backup logic
  *
  * Validates that saveLocalPatches() in the installer correctly detects
  * user-modified files and saves pristine hashes for three-way merge.
@@ -32,7 +32,7 @@ function cleanup(dir) {
  * then run the saveLocalPatches detection logic.
  */
 function simulateManifestAndPatch(configDir, files) {
-  // Create the GSD files
+  // Create the REDPILL files
   for (const [relPath, content] of Object.entries(files.original)) {
     const fullPath = path.join(configDir, relPath);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
@@ -124,21 +124,21 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
   test('detects modified files and backs them up', () => {
     simulateManifestAndPatch(tmpDir, {
       original: {
-        'get-shit-done/workflows/execute-phase.md': '# Execute Phase\nOriginal content\n',
-        'get-shit-done/workflows/plan-phase.md': '# Plan Phase\nOriginal content\n',
+        'redpill/workflows/execute-phase.md': '# Execute Phase\nOriginal content\n',
+        'redpill/workflows/plan-phase.md': '# Plan Phase\nOriginal content\n',
       },
       modified: {
-        'get-shit-done/workflows/execute-phase.md': '# Execute Phase\nOriginal content\n\n## My Custom Step\nDo something special\n',
+        'redpill/workflows/execute-phase.md': '# Execute Phase\nOriginal content\n\n## My Custom Step\nDo something special\n',
       },
     });
 
     const result = saveLocalPatches(tmpDir);
 
     assert.strictEqual(result.length, 1, 'should detect exactly one modified file');
-    assert.ok(result.includes('get-shit-done/workflows/execute-phase.md'));
+    assert.ok(result.includes('redpill/workflows/execute-phase.md'));
 
     // Verify backup exists
-    const backupPath = path.join(tmpDir, 'gsd-local-patches', 'get-shit-done/workflows/execute-phase.md');
+    const backupPath = path.join(tmpDir, 'gsd-local-patches', 'redpill/workflows/execute-phase.md');
     assert.ok(fs.existsSync(backupPath), 'backup file should exist');
 
     const backupContent = fs.readFileSync(backupPath, 'utf8');
@@ -149,10 +149,10 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
     const originalContent = '# Execute Phase\nOriginal content\n';
     simulateManifestAndPatch(tmpDir, {
       original: {
-        'get-shit-done/workflows/execute-phase.md': originalContent,
+        'redpill/workflows/execute-phase.md': originalContent,
       },
       modified: {
-        'get-shit-done/workflows/execute-phase.md': originalContent + '\n## Custom\n',
+        'redpill/workflows/execute-phase.md': originalContent + '\n## Custom\n',
       },
     });
 
@@ -167,7 +167,7 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
     assert.ok(meta.pristine_hashes, 'meta should have pristine_hashes field');
     const expectedHash = sha256(originalContent);
     assert.strictEqual(
-      meta.pristine_hashes['get-shit-done/workflows/execute-phase.md'],
+      meta.pristine_hashes['redpill/workflows/execute-phase.md'],
       expectedHash,
       'pristine hash should match SHA-256 of original file content'
     );
@@ -175,8 +175,8 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
 
   test('backup-meta.json includes from_version and from_manifest_timestamp', () => {
     simulateManifestAndPatch(tmpDir, {
-      original: { 'get-shit-done/workflows/test.md': 'original' },
-      modified: { 'get-shit-done/workflows/test.md': 'modified' },
+      original: { 'redpill/workflows/test.md': 'original' },
+      modified: { 'redpill/workflows/test.md': 'modified' },
     });
 
     saveLocalPatches(tmpDir);
@@ -193,8 +193,8 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
   test('unmodified files are not backed up', () => {
     simulateManifestAndPatch(tmpDir, {
       original: {
-        'get-shit-done/workflows/a.md': 'content A',
-        'get-shit-done/workflows/b.md': 'content B',
+        'redpill/workflows/a.md': 'content A',
+        'redpill/workflows/b.md': 'content B',
       },
       // No modifications
     });
@@ -207,13 +207,13 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
   test('multiple modified files all get pristine hashes', () => {
     simulateManifestAndPatch(tmpDir, {
       original: {
-        'get-shit-done/workflows/a.md': 'original A',
-        'get-shit-done/workflows/b.md': 'original B',
-        'get-shit-done/workflows/c.md': 'original C',
+        'redpill/workflows/a.md': 'original A',
+        'redpill/workflows/b.md': 'original B',
+        'redpill/workflows/c.md': 'original C',
       },
       modified: {
-        'get-shit-done/workflows/a.md': 'modified A',
-        'get-shit-done/workflows/b.md': 'modified B',
+        'redpill/workflows/a.md': 'modified A',
+        'redpill/workflows/b.md': 'modified B',
       },
     });
 
@@ -225,10 +225,10 @@ describe('saveLocalPatches — patch backup and pristine hash tracking (#1469)',
     ));
 
     assert.strictEqual(Object.keys(meta.pristine_hashes).length, 2);
-    assert.strictEqual(meta.pristine_hashes['get-shit-done/workflows/a.md'], sha256('original A'));
-    assert.strictEqual(meta.pristine_hashes['get-shit-done/workflows/b.md'], sha256('original B'));
+    assert.strictEqual(meta.pristine_hashes['redpill/workflows/a.md'], sha256('original A'));
+    assert.strictEqual(meta.pristine_hashes['redpill/workflows/b.md'], sha256('original B'));
     // c.md should NOT have a pristine hash (it wasn't modified)
-    assert.strictEqual(meta.pristine_hashes['get-shit-done/workflows/c.md'], undefined);
+    assert.strictEqual(meta.pristine_hashes['redpill/workflows/c.md'], undefined);
   });
 
   test('returns empty array when no manifest exists', () => {

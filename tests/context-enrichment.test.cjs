@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Adaptive Context Enrichment for 1M Models
+ * REDPILL Tools Tests - Adaptive Context Enrichment for 1M Models
  *
  * Tests for feat/1m-context-enrichment-1473b:
  *   - Workflow template syntax validation (CONTEXT_WINDOW conditionals)

@@ -9,14 +9,14 @@ Para detalhes de implementação linha a linha, consulte [ARCHITECTURE.md em ing
 
 - **Orquestração leve** no contexto principal
 - **Trabalho pesado em subagentes**
-- **Artefatos persistentes** em `.planning/`
+- **Artefatos persistentes** em `.redpill/`
 - **Validação contínua** por fase
 - **Rastreabilidade** por commits atômicos
 
 ## Componentes centrais
 
 1. **Camada de comando**  
-   Recebe entrada do usuário (`/gsd:*`) e roteia fluxo.
+   Recebe entrada do usuário (`/redpill:*`) e roteia fluxo.
 
 2. **Camada de orquestração**  
    Coordena pesquisadores, planejadores, executores e verificadores.
@@ -33,10 +33,10 @@ Para detalhes de implementação linha a linha, consulte [ARCHITECTURE.md em ing
 ## Fluxo arquitetural (alto nível)
 
 ```text
-Entrada (/gsd:comando)
+Entrada (/redpill:comando)
   -> Orquestrador
   -> Subagentes especializados
-  -> Artefatos em .planning/
+  -> Artefatos em .redpill/
   -> Execução em ondas
   -> Verificação/UAT
   -> Atualização de estado + commits

@@ -1,5 +1,5 @@
 ---
-name: gsd:review-backlog
+name: redpill:review-backlog
 description: Review and promote backlog items to active milestone
 allowed-tools:
   - Read
@@ -16,12 +16,12 @@ milestone sequence or remove stale entries.
 
 1. **List backlog items:**
    ```bash
-   ls -d .planning/phases/999* 2>/dev/null || echo "No backlog items found"
+   ls -d .redpill/phases/999* 2>/dev/null || echo "No backlog items found"
    ```
 
 2. **Read ROADMAP.md** and extract all 999.x phase entries:
    ```bash
-   cat .planning/ROADMAP.md
+   cat .redpill/ROADMAP.md
    ```
    Show each backlog item with its description, any accumulated context (CONTEXT.md, RESEARCH.md), and creation date.
 
@@ -33,7 +33,7 @@ milestone sequence or remove stale entries.
    - Find the next sequential phase number in the active milestone
    - Rename the directory from `999.x-slug` to `{new_num}-slug`:
      ```bash
-     NEW_NUM=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase add "${DESCRIPTION}" --raw)
+     NEW_NUM=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase add "${DESCRIPTION}" --raw)
      ```
    - Move accumulated artifacts to the new phase directory
    - Update ROADMAP.md: move the entry from `## Backlog` section to the active phase list
@@ -46,7 +46,7 @@ milestone sequence or remove stale entries.
 
 6. **Commit changes:**
    ```bash
-   node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: review backlog — promoted N, removed M" --files .planning/ROADMAP.md
+   node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit "docs: review backlog — promoted N, removed M" --files .redpill/ROADMAP.md
    ```
 
 7. **Report summary:**

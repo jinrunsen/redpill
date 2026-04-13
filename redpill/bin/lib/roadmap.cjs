@@ -4,10 +4,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { escapeRegex, normalizePhaseName, planningPaths, withPlanningLock, output, error, findPhaseInternal, stripShippedMilestones, extractCurrentMilestone, replaceInCurrentMilestone } = require('./core.cjs');
+const { escapeRegex, normalizePhaseName, redpillPaths, withPlanningLock, output, error, findPhaseInternal, stripShippedMilestones, extractCurrentMilestone, replaceInCurrentMilestone } = require('./core.cjs');
 
 function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
-  const roadmapPath = planningPaths(cwd).roadmap;
+  const roadmapPath = redpillPaths(cwd).roadmap;
 
   if (!fs.existsSync(roadmapPath)) {
     output({ found: false, error: 'ROADMAP.md not found' }, raw, '');
@@ -91,7 +91,7 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
 }
 
 function cmdRoadmapAnalyze(cwd, raw) {
-  const roadmapPath = planningPaths(cwd).roadmap;
+  const roadmapPath = redpillPaths(cwd).roadmap;
 
   if (!fs.existsSync(roadmapPath)) {
     output({ error: 'ROADMAP.md not found', milestones: [], phases: [], current_phase: null }, raw);
@@ -100,7 +100,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
 
   const rawContent = fs.readFileSync(roadmapPath, 'utf-8');
   const content = extractCurrentMilestone(rawContent, cwd);
-  const phasesDir = planningPaths(cwd).phases;
+  const phasesDir = redpillPaths(cwd).phases;
 
   // Extract all phase headings: ## Phase N: Name or ### Phase N: Name
   const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:\s*([^\n]+)/gi;
@@ -159,7 +159,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
     const roadmapComplete = checkboxMatch ? checkboxMatch[1] === 'x' : false;
 
     // If roadmap marks phase complete, trust that over disk file structure.
-    // Phases completed before GSD tracking (or via external tools) may lack
+    // Phases completed before REDPILL tracking (or via external tools) may lack
     // the standard PLAN/SUMMARY pairs but are still done.
     if (roadmapComplete && diskStatus !== 'complete') {
       diskStatus = 'complete';
@@ -230,7 +230,7 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
     error('phase number required for roadmap update-plan-progress');
   }
 
-  const roadmapPath = planningPaths(cwd).roadmap;
+  const roadmapPath = redpillPaths(cwd).roadmap;
 
   const phaseInfo = findPhaseInternal(cwd, phaseNum);
   if (!phaseInfo) {

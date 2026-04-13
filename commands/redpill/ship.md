@@ -1,5 +1,5 @@
 ---
-name: gsd:ship
+name: redpill:ship
 description: Create PR, run review, and prepare for merge after verification passes
 argument-hint: "[phase number or milestone, e.g., '4' or 'v1.0']"
 allowed-tools:
@@ -11,13 +11,13 @@ allowed-tools:
   - AskUserQuestion
 ---
 <objective>
-Bridge local completion → merged PR. After /gsd:verify-work passes, ship the work: push branch, create PR with auto-generated body, optionally trigger review, and track the merge.
+Bridge local completion → merged PR. After /redpill:verify-work passes, ship the work: push branch, create PR with auto-generated body, optionally trigger review, and track the merge.
 
 Closes the plan → execute → verify → ship loop.
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/ship.md
+@~/.claude/redpill/workflows/ship.md
 </execution_context>
 
-Execute the ship workflow from @~/.claude/get-shit-done/workflows/ship.md end-to-end.
+Execute the ship workflow from @~/.claude/redpill/workflows/ship.md end-to-end.

@@ -1,8 +1,8 @@
 /**
- * GSD Tools Tests - config.cjs
+ * REDPILL Tools Tests - config.cjs
  *
  * CLI integration tests for config-ensure-section, config-set, and config-get
- * commands exercised through gsd-tools.cjs via execSync.
+ * commands exercised through redpill-tools.cjs via execSync.
  *
  * Requirements: TEST-13
  */
@@ -11,17 +11,17 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runRedpillTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function readConfig(tmpDir) {
-  const configPath = path.join(tmpDir, '.planning', 'config.json');
+  const configPath = path.join(tmpDir, '.redpill', 'config.json');
   return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 }
 
 function writeConfig(tmpDir, obj) {
-  const configPath = path.join(tmpDir, '.planning', 'config.json');
+  const configPath = path.join(tmpDir, '.redpill', 'config.json');
   fs.writeFileSync(configPath, JSON.stringify(obj, null, 2), 'utf-8');
 }
 
@@ -39,7 +39,7 @@ describe('config-ensure-section command', () => {
   });
 
   test('creates config.json with expected structure and types', () => {
-    const result = runGsdTools('config-ensure-section', tmpDir);
+    const result = runRedpillTools('config-ensure-section', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -64,12 +64,12 @@ describe('config-ensure-section command', () => {
   });
 
   test('is idempotent — returns already_exists on second call', () => {
-    const first = runGsdTools('config-ensure-section', tmpDir);
+    const first = runRedpillTools('config-ensure-section', tmpDir);
     assert.ok(first.success, `First call failed: ${first.error}`);
     const firstOutput = JSON.parse(first.output);
     assert.strictEqual(firstOutput.created, true);
 
-    const second = runGsdTools('config-ensure-section', tmpDir);
+    const second = runRedpillTools('config-ensure-section', tmpDir);
     assert.ok(second.success, `Second call failed: ${second.error}`);
     const secondOutput = JSON.parse(second.output);
     assert.strictEqual(secondOutput.created, false);
@@ -77,13 +77,13 @@ describe('config-ensure-section command', () => {
   });
 
   test('detects Brave Search from file-based key', () => {
-    // runGsdTools sandboxes HOME=tmpDir, so brave_api_key is written there —
+    // runRedpillTools sandboxes HOME=tmpDir, so brave_api_key is written there —
     // no real filesystem side effects, cleanup happens via afterEach.
     const gsdDir = path.join(tmpDir, '.gsd');
     fs.mkdirSync(gsdDir, { recursive: true });
     fs.writeFileSync(path.join(gsdDir, 'brave_api_key'), 'test-key', 'utf-8');
 
-    const result = runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -91,7 +91,7 @@ describe('config-ensure-section command', () => {
   });
 
   test('merges user defaults from defaults.json', () => {
-    // runGsdTools sandboxes HOME=tmpDir, so defaults.json is written there —
+    // runRedpillTools sandboxes HOME=tmpDir, so defaults.json is written there —
     // no real filesystem side effects, cleanup happens via afterEach.
     const gsdDir = path.join(tmpDir, '.gsd');
     fs.mkdirSync(gsdDir, { recursive: true });
@@ -100,7 +100,7 @@ describe('config-ensure-section command', () => {
       commit_docs: false,
     }), 'utf-8');
 
-    const result = runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -111,7 +111,7 @@ describe('config-ensure-section command', () => {
   });
 
   test('merges nested workflow keys from defaults.json preserving unset keys', () => {
-    // runGsdTools sandboxes HOME=tmpDir, so defaults.json is written there —
+    // runRedpillTools sandboxes HOME=tmpDir, so defaults.json is written there —
     // no real filesystem side effects, cleanup happens via afterEach.
     const gsdDir = path.join(tmpDir, '.gsd');
     fs.mkdirSync(gsdDir, { recursive: true });
@@ -119,7 +119,7 @@ describe('config-ensure-section command', () => {
       workflow: { research: false },
     }), 'utf-8');
 
-    const result = runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -137,7 +137,7 @@ describe('config-set command', () => {
   beforeEach(() => {
     tmpDir = createTempProject();
     // Create initial config
-    runGsdTools('config-ensure-section', tmpDir);
+    runRedpillTools('config-ensure-section', tmpDir);
   });
 
   afterEach(() => {
@@ -145,7 +145,7 @@ describe('config-set command', () => {
   });
 
   test('sets a top-level string value', () => {
-    const result = runGsdTools('config-set model_profile quality', tmpDir);
+    const result = runRedpillTools('config-set model_profile quality', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -158,7 +158,7 @@ describe('config-set command', () => {
   });
 
   test('coerces true to boolean', () => {
-    const result = runGsdTools('config-set commit_docs true', tmpDir);
+    const result = runRedpillTools('config-set commit_docs true', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -167,7 +167,7 @@ describe('config-set command', () => {
   });
 
   test('coerces false to boolean', () => {
-    const result = runGsdTools('config-set commit_docs false', tmpDir);
+    const result = runRedpillTools('config-set commit_docs false', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -176,7 +176,7 @@ describe('config-set command', () => {
   });
 
   test('coerces numeric strings to numbers', () => {
-    const result = runGsdTools('config-set granularity 42', tmpDir);
+    const result = runRedpillTools('config-set granularity 42', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -185,7 +185,7 @@ describe('config-set command', () => {
   });
 
   test('preserves plain strings', () => {
-    const result = runGsdTools('config-set model_profile hello', tmpDir);
+    const result = runRedpillTools('config-set model_profile hello', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -194,7 +194,7 @@ describe('config-set command', () => {
   });
 
   test('sets nested values via dot-notation', () => {
-    const result = runGsdTools('config-set workflow.research false', tmpDir);
+    const result = runRedpillTools('config-set workflow.research false', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -205,7 +205,7 @@ describe('config-set command', () => {
     // Start with empty config
     writeConfig(tmpDir, {});
 
-    const result = runGsdTools('config-set workflow.research false', tmpDir);
+    const result = runRedpillTools('config-set workflow.research false', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -214,7 +214,7 @@ describe('config-set command', () => {
   });
 
   test('rejects unknown config keys', () => {
-    const result = runGsdTools('config-set workflow.nyquist_validation_enabled false', tmpDir);
+    const result = runRedpillTools('config-set workflow.nyquist_validation_enabled false', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Unknown config key'),
@@ -225,7 +225,7 @@ describe('config-set command', () => {
   test('sets workflow.text_mode for remote session support', () => {
     writeConfig(tmpDir, {});
 
-    const result = runGsdTools('config-set workflow.text_mode true', tmpDir);
+    const result = runRedpillTools('config-set workflow.text_mode true', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -235,7 +235,7 @@ describe('config-set command', () => {
   test('sets workflow.use_worktrees to disable worktree isolation', () => {
     writeConfig(tmpDir, {});
 
-    const result = runGsdTools('config-set workflow.use_worktrees false', tmpDir);
+    const result = runRedpillTools('config-set workflow.use_worktrees false', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -245,7 +245,7 @@ describe('config-set command', () => {
   test('sets git.base_branch for non-main default branches', () => {
     writeConfig(tmpDir, {});
 
-    const result = runGsdTools('config-set git.base_branch master', tmpDir);
+    const result = runRedpillTools('config-set git.base_branch master', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -253,12 +253,12 @@ describe('config-set command', () => {
   });
 
   test('errors when no key path provided', () => {
-    const result = runGsdTools('config-set', tmpDir);
+    const result = runRedpillTools('config-set', tmpDir);
     assert.strictEqual(result.success, false);
   });
 
   test('rejects known invalid nyquist alias keys with a suggestion', () => {
-    const result = runGsdTools('config-set workflow.nyquist_validation_enabled false', tmpDir);
+    const result = runRedpillTools('config-set workflow.nyquist_validation_enabled false', tmpDir);
     assert.strictEqual(result.success, false);
     assert.match(result.error, /Unknown config key: workflow\.nyquist_validation_enabled/);
     assert.match(result.error, /workflow\.nyquist_validation/);
@@ -277,7 +277,7 @@ describe('config-get command', () => {
   beforeEach(() => {
     tmpDir = createTempProject();
     // Create config with known values — sandbox HOME to avoid global defaults
-    runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
   });
 
   afterEach(() => {
@@ -285,7 +285,7 @@ describe('config-get command', () => {
   });
 
   test('gets a top-level value', () => {
-    const result = runGsdTools('config-get model_profile', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools('config-get model_profile', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -293,7 +293,7 @@ describe('config-get command', () => {
   });
 
   test('gets a nested value via dot-notation', () => {
-    const result = runGsdTools('config-get workflow.research', tmpDir);
+    const result = runRedpillTools('config-get workflow.research', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -301,7 +301,7 @@ describe('config-get command', () => {
   });
 
   test('errors for nonexistent key', () => {
-    const result = runGsdTools('config-get nonexistent_key', tmpDir);
+    const result = runRedpillTools('config-get nonexistent_key', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Key not found'),
@@ -310,7 +310,7 @@ describe('config-get command', () => {
   });
 
   test('errors for deeply nested nonexistent key', () => {
-    const result = runGsdTools('config-get workflow.nonexistent', tmpDir);
+    const result = runRedpillTools('config-get workflow.nonexistent', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Key not found'),
@@ -330,7 +330,7 @@ describe('config-get command', () => {
     });
 
     test('errors when config.json does not exist', () => {
-      const result = runGsdTools('config-get model_profile', emptyTmpDir);
+      const result = runRedpillTools('config-get model_profile', emptyTmpDir);
       assert.strictEqual(result.success, false);
       assert.ok(
         result.error.includes('No config.json'),
@@ -340,8 +340,8 @@ describe('config-get command', () => {
   });
 
   test('gets git.base_branch after it is set', () => {
-    runGsdTools('config-set git.base_branch master', tmpDir);
-    const result = runGsdTools('config-get git.base_branch', tmpDir);
+    runRedpillTools('config-set git.base_branch master', tmpDir);
+    const result = runRedpillTools('config-get git.base_branch', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -352,7 +352,7 @@ describe('config-get command', () => {
     // Default config from config-ensure-section does not include git.base_branch,
     // so config-get should return "Key not found" — this triggers auto-detect
     // fallback in the workflow (origin/HEAD detection).
-    const result = runGsdTools('config-get git.base_branch', tmpDir);
+    const result = runRedpillTools('config-get git.base_branch', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Key not found'),
@@ -361,7 +361,7 @@ describe('config-get command', () => {
   });
 
   test('errors when no key path provided', () => {
-    const result = runGsdTools('config-get', tmpDir);
+    const result = runRedpillTools('config-get', tmpDir);
     assert.strictEqual(result.success, false);
   });
 });
@@ -388,7 +388,7 @@ describe('config-new-project command', () => {
       model_profile: 'balanced',
       workflow: { research: true, plan_check: true, verifier: true, nyquist_validation: true },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools(['config-new-project', choices], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -436,7 +436,7 @@ describe('config-new-project command', () => {
       model_profile: 'quality',
       workflow: { research: false, plan_check: false, verifier: true, nyquist_validation: false },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools(['config-new-project', choices], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -455,7 +455,7 @@ describe('config-new-project command', () => {
   });
 
   test('works with empty choices — all defaults materialized', () => {
-    const result = runGsdTools(['config-new-project', '{}'], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools(['config-new-project', '{}'], tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -479,12 +479,12 @@ describe('config-new-project command', () => {
   test('is idempotent — returns already_exists if config exists', () => {
     const choices = JSON.stringify({ mode: 'yolo', granularity: 'fine' });
 
-    const first = runGsdTools(['config-new-project', choices], tmpDir);
+    const first = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(first.success, `First call failed: ${first.error}`);
     const firstOut = JSON.parse(first.output);
     assert.strictEqual(firstOut.created, true);
 
-    const second = runGsdTools(['config-new-project', choices], tmpDir);
+    const second = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(second.success, `Second call failed: ${second.error}`);
     const secondOut = JSON.parse(second.output);
     assert.strictEqual(secondOut.created, false);
@@ -502,7 +502,7 @@ describe('config-new-project command', () => {
       granularity: 'standard',
       workflow: { research: true, plan_check: true, verifier: true, nyquist_validation: true, auto_advance: true },
     });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -510,18 +510,18 @@ describe('config-new-project command', () => {
   });
 
   test('rejects invalid JSON choices', () => {
-    const result = runGsdTools(['config-new-project', '{not-json}'], tmpDir);
+    const result = runRedpillTools(['config-new-project', '{not-json}'], tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(result.error.includes('Invalid JSON'), `Expected "Invalid JSON" in: ${result.error}`);
   });
 
   test('output has created:true and path on success', () => {
     const choices = JSON.stringify({ mode: 'interactive', granularity: 'standard' });
-    const result = runGsdTools(['config-new-project', choices], tmpDir);
+    const result = runRedpillTools(['config-new-project', choices], tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
     const out = JSON.parse(result.output);
     assert.strictEqual(out.created, true);
-    assert.strictEqual(out.path, '.planning/config.json');
+    assert.strictEqual(out.path, '.redpill/config.json');
   });
 });
 
@@ -532,7 +532,7 @@ describe('config-set research_before_questions and discuss_mode', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
   });
 
   afterEach(() => {
@@ -540,7 +540,7 @@ describe('config-set research_before_questions and discuss_mode', () => {
   });
 
   test('workflow.research_before_questions is a valid config key', () => {
-    const result = runGsdTools('config-set workflow.research_before_questions true', tmpDir);
+    const result = runRedpillTools('config-set workflow.research_before_questions true', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -548,7 +548,7 @@ describe('config-set research_before_questions and discuss_mode', () => {
   });
 
   test('workflow.discuss_mode is a valid config key', () => {
-    const result = runGsdTools('config-set workflow.discuss_mode assumptions', tmpDir);
+    const result = runRedpillTools('config-set workflow.discuss_mode assumptions', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -566,7 +566,7 @@ describe('config-set research_before_questions and discuss_mode', () => {
   });
 
   test('hooks.research_questions is rejected with suggestion', () => {
-    const result = runGsdTools('config-set hooks.research_questions true', tmpDir);
+    const result = runRedpillTools('config-set hooks.research_questions true', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Unknown config key'),
@@ -586,7 +586,7 @@ describe('config-set unknown key (no suggestion)', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    runGsdTools('config-ensure-section', tmpDir);
+    runRedpillTools('config-ensure-section', tmpDir);
   });
 
   afterEach(() => {
@@ -594,7 +594,7 @@ describe('config-set unknown key (no suggestion)', () => {
   });
 
   test('rejects a key that has no suggestion', () => {
-    const result = runGsdTools('config-set totally.unknown.key value', tmpDir);
+    const result = runRedpillTools('config-set totally.unknown.key value', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Unknown config key'),
@@ -619,7 +619,7 @@ describe('config-get edge cases', () => {
   test('errors when traversing a dot-path through a non-object value', () => {
     // model_profile is a string — requesting model_profile.something traverses into a non-object
     writeConfig(tmpDir, { model_profile: 'balanced' });
-    const result = runGsdTools('config-get model_profile.something', tmpDir);
+    const result = runRedpillTools('config-get model_profile.something', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Key not found'),
@@ -628,10 +628,10 @@ describe('config-get edge cases', () => {
   });
 
   test('errors when config.json contains malformed JSON', () => {
-    const configPath = path.join(tmpDir, '.planning', 'config.json');
-    fs.mkdirSync(path.join(tmpDir, '.planning'), { recursive: true });
+    const configPath = path.join(tmpDir, '.redpill', 'config.json');
+    fs.mkdirSync(path.join(tmpDir, '.redpill'), { recursive: true });
     fs.writeFileSync(configPath, '{not valid json', 'utf-8');
-    const result = runGsdTools('config-get model_profile', tmpDir);
+    const result = runRedpillTools('config-get model_profile', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Failed to read config.json'),
@@ -647,7 +647,7 @@ describe('config-set-model-profile command', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
   });
 
   afterEach(() => {
@@ -655,7 +655,7 @@ describe('config-set-model-profile command', () => {
   });
 
   test('sets a valid profile and updates config', () => {
-    const result = runGsdTools('config-set-model-profile quality', tmpDir);
+    const result = runRedpillTools('config-set-model-profile quality', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const out = JSON.parse(result.output);
@@ -668,7 +668,7 @@ describe('config-set-model-profile command', () => {
   });
 
   test('reports previous profile in output', () => {
-    const result = runGsdTools('config-set-model-profile budget', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const result = runRedpillTools('config-set-model-profile budget', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const out = JSON.parse(result.output);
@@ -678,8 +678,8 @@ describe('config-set-model-profile command', () => {
 
   test('setting the same profile is a no-op on config but still succeeds', () => {
     // Set to quality first, then set to quality again
-    runGsdTools('config-set-model-profile quality', tmpDir);
-    const result = runGsdTools('config-set-model-profile quality', tmpDir);
+    runRedpillTools('config-set-model-profile quality', tmpDir);
+    const result = runRedpillTools('config-set-model-profile quality', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const out = JSON.parse(result.output);
@@ -688,7 +688,7 @@ describe('config-set-model-profile command', () => {
   });
 
   test('is case-insensitive', () => {
-    const result = runGsdTools('config-set-model-profile BALANCED', tmpDir);
+    const result = runRedpillTools('config-set-model-profile BALANCED', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -696,7 +696,7 @@ describe('config-set-model-profile command', () => {
   });
 
   test('rejects invalid profile', () => {
-    const result = runGsdTools('config-set-model-profile turbo', tmpDir);
+    const result = runRedpillTools('config-set-model-profile turbo', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Invalid profile'),
@@ -705,7 +705,7 @@ describe('config-set-model-profile command', () => {
   });
 
   test('errors when no profile provided', () => {
-    const result = runGsdTools('config-set-model-profile', tmpDir);
+    const result = runRedpillTools('config-set-model-profile', tmpDir);
     assert.strictEqual(result.success, false);
   });
 
@@ -721,7 +721,7 @@ describe('config-set-model-profile command', () => {
     });
 
     test('creates config if missing before setting profile', () => {
-      const result = runGsdTools('config-set-model-profile budget', emptyDir);
+      const result = runRedpillTools('config-set-model-profile budget', emptyDir);
       assert.ok(result.success, `Command failed: ${result.error}`);
 
       const config = readConfig(emptyDir);
@@ -737,7 +737,7 @@ describe('config-set workflow.skip_discuss', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    runGsdTools('config-ensure-section', tmpDir);
+    runRedpillTools('config-ensure-section', tmpDir);
   });
 
   afterEach(() => {
@@ -745,7 +745,7 @@ describe('config-set workflow.skip_discuss', () => {
   });
 
   test('workflow.skip_discuss is a valid config key', () => {
-    const result = runGsdTools('config-set workflow.skip_discuss true', tmpDir);
+    const result = runRedpillTools('config-set workflow.skip_discuss true', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -758,8 +758,8 @@ describe('config-set workflow.skip_discuss', () => {
   });
 
   test('skip_discuss can be toggled back to false', () => {
-    runGsdTools('config-set workflow.skip_discuss true', tmpDir);
-    const result = runGsdTools('config-set workflow.skip_discuss false', tmpDir);
+    runRedpillTools('config-set workflow.skip_discuss true', tmpDir);
+    const result = runRedpillTools('config-set workflow.skip_discuss false', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const config = readConfig(tmpDir);
@@ -778,7 +778,7 @@ describe('config-set workflow.skip_discuss', () => {
     });
 
     test('skip_discuss is present in config-new-project output', () => {
-      const result = runGsdTools(['config-new-project', '{}'], emptyDir, { HOME: emptyDir, USERPROFILE: emptyDir });
+      const result = runRedpillTools(['config-new-project', '{}'], emptyDir, { HOME: emptyDir, USERPROFILE: emptyDir });
       assert.ok(result.success, `Command failed: ${result.error}`);
 
       const config = readConfig(emptyDir);
@@ -789,7 +789,7 @@ describe('config-set workflow.skip_discuss', () => {
       const choices = JSON.stringify({
         workflow: { skip_discuss: true },
       });
-      const result = runGsdTools(['config-new-project', choices], emptyDir, { HOME: emptyDir, USERPROFILE: emptyDir });
+      const result = runRedpillTools(['config-new-project', choices], emptyDir, { HOME: emptyDir, USERPROFILE: emptyDir });
       assert.ok(result.success, `Command failed: ${result.error}`);
 
       const config = readConfig(emptyDir);
@@ -798,8 +798,8 @@ describe('config-set workflow.skip_discuss', () => {
   });
 
   test('config-get workflow.skip_discuss returns the set value', () => {
-    runGsdTools('config-set workflow.skip_discuss true', tmpDir);
-    const result = runGsdTools('config-get workflow.skip_discuss', tmpDir);
+    runRedpillTools('config-set workflow.skip_discuss true', tmpDir);
+    const result = runRedpillTools('config-get workflow.skip_discuss', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -814,7 +814,7 @@ describe('config-set/config-get workflow.use_worktrees', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    runGsdTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
+    runRedpillTools('config-ensure-section', tmpDir, { HOME: tmpDir, USERPROFILE: tmpDir });
   });
 
   afterEach(() => {
@@ -822,8 +822,8 @@ describe('config-set/config-get workflow.use_worktrees', () => {
   });
 
   test('config-get workflow.use_worktrees returns false after setting to false', () => {
-    runGsdTools('config-set workflow.use_worktrees false', tmpDir);
-    const result = runGsdTools('config-get workflow.use_worktrees', tmpDir);
+    runRedpillTools('config-set workflow.use_worktrees false', tmpDir);
+    const result = runRedpillTools('config-get workflow.use_worktrees', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -834,7 +834,7 @@ describe('config-set/config-get workflow.use_worktrees', () => {
     // config-ensure-section does NOT include use_worktrees in hardcoded defaults,
     // so config-get should error with "Key not found". This is the expected behavior
     // that workflows rely on: the shell fallback `|| echo "true"` provides the default.
-    const result = runGsdTools('config-get workflow.use_worktrees', tmpDir);
+    const result = runRedpillTools('config-get workflow.use_worktrees', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(
       result.error.includes('Key not found'),
@@ -843,8 +843,8 @@ describe('config-set/config-get workflow.use_worktrees', () => {
   });
 
   test('config-get workflow.use_worktrees returns true after setting to true', () => {
-    runGsdTools('config-set workflow.use_worktrees true', tmpDir);
-    const result = runGsdTools('config-get workflow.use_worktrees', tmpDir);
+    runRedpillTools('config-set workflow.use_worktrees true', tmpDir);
+    const result = runRedpillTools('config-get workflow.use_worktrees', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
@@ -852,9 +852,9 @@ describe('config-set/config-get workflow.use_worktrees', () => {
   });
 
   test('use_worktrees can be toggled back and forth', () => {
-    runGsdTools('config-set workflow.use_worktrees false', tmpDir);
-    runGsdTools('config-set workflow.use_worktrees true', tmpDir);
-    const result = runGsdTools('config-get workflow.use_worktrees', tmpDir);
+    runRedpillTools('config-set workflow.use_worktrees false', tmpDir);
+    runRedpillTools('config-set workflow.use_worktrees true', tmpDir);
+    const result = runRedpillTools('config-get workflow.use_worktrees', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);

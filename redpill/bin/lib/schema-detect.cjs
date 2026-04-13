@@ -204,7 +204,7 @@ function checkSchemaDrift(changedFiles, executionLog, options = {}) {
     'Required push commands:',
     pushCommands,
     '',
-    'Run the appropriate push command, or set GSD_SKIP_SCHEMA_CHECK=true to bypass this gate.',
+    'Run the appropriate push command, or set REDPILL_SKIP_SCHEMA_CHECK=true to bypass this gate.',
   ].join('\n');
 
   if (skipCheck) {
@@ -215,7 +215,7 @@ function checkSchemaDrift(changedFiles, executionLog, options = {}) {
       schemaFiles: detection.matches,
       orms: detection.orms,
       unpushedOrms,
-      message: 'Schema drift detected but check was skipped (GSD_SKIP_SCHEMA_CHECK=true).',
+      message: 'Schema drift detected but check was skipped (REDPILL_SKIP_SCHEMA_CHECK=true).',
     };
   }
 

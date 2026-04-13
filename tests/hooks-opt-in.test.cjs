@@ -1,5 +1,5 @@
 /**
- * GSD Tools Tests - Community Hooks (opt-in)
+ * REDPILL Tools Tests - Community Hooks (opt-in)
  *
  * Tests for feat/hooks-opt-in-1473d:
  *   - Hook file existence and permissions
@@ -22,7 +22,7 @@ const isWindows = process.platform === 'win32';
 
 function createTempProject(prefix = 'gsd-hook-test-') {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
+  fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases'), { recursive: true });
   return tmpDir;
 }
 
@@ -32,7 +32,7 @@ function cleanup(tmpDir) {
 
 function writeConfigWithHooks(tmpDir, enabled) {
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'config.json'),
+    path.join(tmpDir, '.redpill', 'config.json'),
     JSON.stringify({
       model_profile: 'balanced',
       hooks: { community: enabled }
@@ -43,7 +43,7 @@ function writeConfigWithHooks(tmpDir, enabled) {
 function writeMinimalStateMd(tmpDir, content) {
   const defaultContent = content || '# Session State\n\n**Current Phase:** 01\n**Status:** Active\n';
   fs.writeFileSync(
-    path.join(tmpDir, '.planning', 'STATE.md'),
+    path.join(tmpDir, '.redpill', 'STATE.md'),
     defaultContent
   );
 }
@@ -53,37 +53,37 @@ function writeMinimalStateMd(tmpDir, content) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('hook file validation', () => {
-  test('gsd-session-state.sh exists', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-session-state.sh');
-    assert.ok(fs.existsSync(hookPath), 'gsd-session-state.sh should exist');
+  test('redpill-session-state.sh exists', () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-session-state.sh');
+    assert.ok(fs.existsSync(hookPath), 'redpill-session-state.sh should exist');
   });
 
-  test('gsd-validate-commit.sh exists', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
-    assert.ok(fs.existsSync(hookPath), 'gsd-validate-commit.sh should exist');
+  test('redpill-validate-commit.sh exists', () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
+    assert.ok(fs.existsSync(hookPath), 'redpill-validate-commit.sh should exist');
   });
 
-  test('gsd-phase-boundary.sh exists', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-phase-boundary.sh');
-    assert.ok(fs.existsSync(hookPath), 'gsd-phase-boundary.sh should exist');
+  test('redpill-phase-boundary.sh exists', () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-phase-boundary.sh');
+    assert.ok(fs.existsSync(hookPath), 'redpill-phase-boundary.sh should exist');
   });
 
-  test('gsd-session-state.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-session-state.sh');
+  test('redpill-session-state.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-session-state.sh');
     const stat = fs.statSync(hookPath);
-    assert.ok((stat.mode & 0o111) !== 0, 'gsd-session-state.sh should be executable');
+    assert.ok((stat.mode & 0o111) !== 0, 'redpill-session-state.sh should be executable');
   });
 
-  test('gsd-validate-commit.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+  test('redpill-validate-commit.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const stat = fs.statSync(hookPath);
-    assert.ok((stat.mode & 0o111) !== 0, 'gsd-validate-commit.sh should be executable');
+    assert.ok((stat.mode & 0o111) !== 0, 'redpill-validate-commit.sh should be executable');
   });
 
-  test('gsd-phase-boundary.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-phase-boundary.sh');
+  test('redpill-phase-boundary.sh is executable', { skip: isWindows ? 'Windows has no POSIX file permissions' : false }, () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-phase-boundary.sh');
     const stat = fs.statSync(hookPath);
-    assert.ok((stat.mode & 0o111) !== 0, 'gsd-phase-boundary.sh should be executable');
+    assert.ok((stat.mode & 0o111) !== 0, 'redpill-phase-boundary.sh should be executable');
   });
 });
 
@@ -99,10 +99,10 @@ describe('installer hook registration', () => {
     installSource = fs.readFileSync(installJsPath, 'utf-8');
   });
 
-  test('install.js contains gsd-validate-commit registration block', () => {
+  test('install.js contains redpill-validate-commit registration block', () => {
     assert.ok(
-      installSource.includes('gsd-validate-commit'),
-      'install.js should contain gsd-validate-commit hook registration'
+      installSource.includes('redpill-validate-commit'),
+      'install.js should contain redpill-validate-commit hook registration'
     );
     assert.ok(
       installSource.includes('validateCommitCommand'),
@@ -114,10 +114,10 @@ describe('installer hook registration', () => {
     );
   });
 
-  test('install.js contains gsd-session-state registration block', () => {
+  test('install.js contains redpill-session-state registration block', () => {
     assert.ok(
-      installSource.includes('gsd-session-state'),
-      'install.js should contain gsd-session-state hook registration'
+      installSource.includes('redpill-session-state'),
+      'install.js should contain redpill-session-state hook registration'
     );
     assert.ok(
       installSource.includes('sessionStateCommand'),
@@ -129,10 +129,10 @@ describe('installer hook registration', () => {
     );
   });
 
-  test('install.js contains gsd-phase-boundary registration block', () => {
+  test('install.js contains redpill-phase-boundary registration block', () => {
     assert.ok(
-      installSource.includes('gsd-phase-boundary'),
-      'install.js should contain gsd-phase-boundary hook registration'
+      installSource.includes('redpill-phase-boundary'),
+      'install.js should contain redpill-phase-boundary hook registration'
     );
     assert.ok(
       installSource.includes('phaseBoundaryCommand'),
@@ -169,16 +169,16 @@ describe('installer hook registration', () => {
 
     const gsdHooksContent = gsdHooksMatch[1];
     assert.ok(
-      gsdHooksContent.includes('gsd-session-state.sh'),
-      'gsdHooks should include gsd-session-state.sh'
+      gsdHooksContent.includes('redpill-session-state.sh'),
+      'gsdHooks should include redpill-session-state.sh'
     );
     assert.ok(
-      gsdHooksContent.includes('gsd-validate-commit.sh'),
-      'gsdHooks should include gsd-validate-commit.sh'
+      gsdHooksContent.includes('redpill-validate-commit.sh'),
+      'gsdHooks should include redpill-validate-commit.sh'
     );
     assert.ok(
-      gsdHooksContent.includes('gsd-phase-boundary.sh'),
-      'gsdHooks should include gsd-phase-boundary.sh'
+      gsdHooksContent.includes('redpill-phase-boundary.sh'),
+      'gsdHooks should include redpill-phase-boundary.sh'
     );
   });
 
@@ -207,7 +207,7 @@ describe('opt-in gating behavior', { skip: isWindows ? 'bash hooks require unix 
 
   test('validate-commit is a no-op when hooks.community is false', () => {
     writeConfigWithHooks(tmpDir, false);
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "WIP save"' }
     });
@@ -225,7 +225,7 @@ describe('opt-in gating behavior', { skip: isWindows ? 'bash hooks require unix 
   test('validate-commit is a no-op when config.json is absent', () => {
     // No config.json at all
     const bareDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hook-bare-'));
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "WIP save"' }
     });
@@ -246,7 +246,7 @@ describe('opt-in gating behavior', { skip: isWindows ? 'bash hooks require unix 
   test('session-state is a no-op when hooks.community is false', () => {
     writeConfigWithHooks(tmpDir, false);
     writeMinimalStateMd(tmpDir);
-    const hookPath = path.join(HOOKS_DIR, 'gsd-session-state.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-session-state.sh');
 
     const result = spawnSync('bash', [hookPath], {
       input: '',
@@ -264,9 +264,9 @@ describe('opt-in gating behavior', { skip: isWindows ? 'bash hooks require unix 
 
   test('phase-boundary is a no-op when hooks.community is false', () => {
     writeConfigWithHooks(tmpDir, false);
-    const hookPath = path.join(HOOKS_DIR, 'gsd-phase-boundary.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-phase-boundary.sh');
     const input = JSON.stringify({
-      tool_input: { file_path: '.planning/STATE.md' }
+      tool_input: { file_path: '.redpill/STATE.md' }
     });
 
     const result = spawnSync('bash', [hookPath], {
@@ -277,7 +277,7 @@ describe('opt-in gating behavior', { skip: isWindows ? 'bash hooks require unix 
 
     assert.strictEqual(result.status, 0, `Should exit 0: ${result.stderr}`);
     assert.ok(
-      !result.stdout.includes('.planning/ file modified'),
+      !result.stdout.includes('.redpill/ file modified'),
       `Should not output warning when disabled: ${result.stdout}`
     );
   });
@@ -300,7 +300,7 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
   });
 
   test('validate-commit allows valid conventional commit', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "fix(core): add locking mechanism"' }
     });
@@ -315,7 +315,7 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
   });
 
   test('validate-commit blocks non-conventional commit', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "WIP save"' }
     });
@@ -332,7 +332,7 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
   });
 
   test('validate-commit allows non-commit commands', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git push origin main' }
     });
@@ -348,7 +348,7 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
 
   test('session-state outputs state info when enabled', () => {
     writeMinimalStateMd(tmpDir);
-    const hookPath = path.join(HOOKS_DIR, 'gsd-session-state.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-session-state.sh');
 
     const result = spawnSync('bash', [hookPath], {
       input: '',
@@ -363,12 +363,12 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
     );
   });
 
-  test('session-state exits 0 without .planning/ (in enabled project)', () => {
+  test('session-state exits 0 without .redpill/ (in enabled project)', () => {
     // Create a dir with config but no STATE.md
     const noStateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hook-nostate-'));
-    fs.mkdirSync(path.join(noStateDir, '.planning'), { recursive: true });
+    fs.mkdirSync(path.join(noStateDir, '.redpill'), { recursive: true });
     writeConfigWithHooks(noStateDir, true);
-    const hookPath = path.join(HOOKS_DIR, 'gsd-session-state.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-session-state.sh');
 
     try {
       const result = spawnSync('bash', [hookPath], {
@@ -379,7 +379,7 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
 
       assert.strictEqual(result.status, 0, `Should exit 0: ${result.stderr}`);
       assert.ok(
-        result.stdout.includes('No .planning/ found') || result.stdout.includes('Project State'),
+        result.stdout.includes('No .redpill/ found') || result.stdout.includes('Project State'),
         `Should handle missing STATE.md gracefully: ${result.stdout}`
       );
     } finally {
@@ -387,10 +387,10 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
     }
   });
 
-  test('phase-boundary detects .planning/ writes when enabled', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-phase-boundary.sh');
+  test('phase-boundary detects .redpill/ writes when enabled', () => {
+    const hookPath = path.join(HOOKS_DIR, 'redpill-phase-boundary.sh');
     const input = JSON.stringify({
-      tool_input: { file_path: '.planning/STATE.md' }
+      tool_input: { file_path: '.redpill/STATE.md' }
     });
 
     const result = spawnSync('bash', [hookPath], {
@@ -401,8 +401,8 @@ describe('hook execution when enabled', { skip: isWindows ? 'bash hooks require 
 
     assert.strictEqual(result.status, 0, `Should exit 0: ${result.stderr}`);
     assert.ok(
-      result.stdout.includes('.planning/ file modified'),
-      `stdout should contain ".planning/ file modified": ${result.stdout}`
+      result.stdout.includes('.redpill/ file modified'),
+      `stdout should contain ".redpill/ file modified": ${result.stdout}`
     );
   });
 });
@@ -424,7 +424,7 @@ describe('hook security tests', { skip: isWindows ? 'bash hooks require unix she
   });
 
   test('validate-commit blocks message with shell metacharacters', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "$(rm -rf /)"' }
     });
@@ -440,7 +440,7 @@ describe('hook security tests', { skip: isWindows ? 'bash hooks require unix she
   });
 
   test('validate-commit blocks message with backtick injection', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "`whoami`"' }
     });
@@ -456,7 +456,7 @@ describe('hook security tests', { skip: isWindows ? 'bash hooks require unix she
   });
 
   test('validate-commit allows commit with scope containing special chars', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "fix(api/v2): handle edge case"' }
     });
@@ -471,7 +471,7 @@ describe('hook security tests', { skip: isWindows ? 'bash hooks require unix she
   });
 
   test('phase-boundary handles malformed JSON input gracefully', () => {
-    const hookPath = path.join(HOOKS_DIR, 'gsd-phase-boundary.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-phase-boundary.sh');
     const input = 'not json at all';
 
     const result = spawnSync('bash', [hookPath], {
@@ -486,11 +486,11 @@ describe('hook security tests', { skip: isWindows ? 'bash hooks require unix she
   test('hooks handle config.json with broken JSON gracefully', () => {
     // Write malformed JSON config
     fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'config.json'),
+      path.join(tmpDir, '.redpill', 'config.json'),
       '{ broken json'
     );
 
-    const hookPath = path.join(HOOKS_DIR, 'gsd-validate-commit.sh');
+    const hookPath = path.join(HOOKS_DIR, 'redpill-validate-commit.sh');
     const input = JSON.stringify({
       tool_input: { command: 'git commit -m "WIP save"' }
     });

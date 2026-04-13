@@ -1,9 +1,9 @@
 ---
-name: gsd:help
-description: Show available GSD commands and usage guide
+name: redpill:help
+description: Show available REDPILL commands and usage guide
 ---
 <objective>
-Display the complete GSD command reference.
+Display the complete REDPILL command reference.
 
 Output ONLY the reference content below. Do NOT add:
 - Project-specific analysis
@@ -13,10 +13,10 @@ Output ONLY the reference content below. Do NOT add:
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/help.md
+@~/.claude/redpill/workflows/help.md
 </execution_context>
 
 <process>
-Output the complete GSD command reference from @~/.claude/get-shit-done/workflows/help.md.
+Output the complete REDPILL command reference from @~/.claude/redpill/workflows/help.md.
 Display the reference content directly — no additions or modifications.
 </process>

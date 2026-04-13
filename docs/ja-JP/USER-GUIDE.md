@@ -1,4 +1,4 @@
-# GSD ユーザーガイド
+# REDPILL ユーザーガイド
 
 ワークフロー、トラブルシューティング、設定の詳細なリファレンスです。クイックスタートの設定については、[README](../README.md) をご覧ください。
 
@@ -26,7 +26,7 @@
 ```
   ┌──────────────────────────────────────────────────┐
   │                   NEW PROJECT                    │
-  │  /gsd:new-project                                │
+  │  /redpill:new-project                                │
   │  Questions -> Research -> Requirements -> Roadmap│
   └─────────────────────────┬────────────────────────┘
                             │
@@ -34,27 +34,27 @@
              │      FOR EACH PHASE:       │
              │                            │
              │  ┌────────────────────┐    │
-             │  │ /gsd:discuss-phase │    │  <- Lock in preferences
+             │  │ /redpill:discuss-phase │    │  <- Lock in preferences
              │  └──────────┬─────────┘    │
              │             │              │
              │  ┌──────────▼─────────┐    │
-             │  │ /gsd:ui-phase      │    │  <- Design contract (frontend)
+             │  │ /redpill:ui-phase      │    │  <- Design contract (frontend)
              │  └──────────┬─────────┘    │
              │             │              │
              │  ┌──────────▼─────────┐    │
-             │  │ /gsd:plan-phase    │    │  <- Research + Plan + Verify
+             │  │ /redpill:plan-phase    │    │  <- Research + Plan + Verify
              │  └──────────┬─────────┘    │
              │             │              │
              │  ┌──────────▼─────────┐    │
-             │  │ /gsd:execute-phase │    │  <- Parallel execution
+             │  │ /redpill:execute-phase │    │  <- Parallel execution
              │  └──────────┬─────────┘    │
              │             │              │
              │  ┌──────────▼─────────┐    │
-             │  │ /gsd:verify-work   │    │  <- Manual UAT
+             │  │ /redpill:verify-work   │    │  <- Manual UAT
              │  └──────────┬─────────┘    │
              │             │              │
              │  ┌──────────▼─────────┐    │
-             │  │ /gsd:ship          │    │  <- Create PR (optional)
+             │  │ /redpill:ship          │    │  <- Create PR (optional)
              │  └──────────┬─────────┘    │
              │             │              │
              │     Next Phase?────────────┘
@@ -62,8 +62,8 @@
              └─────────────┼──────────────┘
                             │
             ┌───────────────▼──────────────┐
-            │  /gsd:audit-milestone        │
-            │  /gsd:complete-milestone     │
+            │  /redpill:audit-milestone        │
+            │  /redpill:complete-milestone     │
             └───────────────┬──────────────┘
                             │
                    Another milestone?
@@ -71,14 +71,14 @@
                       Yes         No -> Done!
                        │
                ┌───────▼──────────────┐
-               │  /gsd:new-milestone  │
+               │  /redpill:new-milestone  │
                └──────────────────────┘
 ```
 
 ### プランニングエージェントの連携
 
 ```
-  /gsd:plan-phase N
+  /redpill:plan-phase N
          │
          ├── Phase Researcher (x4 parallel)
          │     ├── Stack researcher
@@ -119,14 +119,14 @@ plan-phase のリサーチ時に、GSD はコードが書かれる前に各フ�
 
 **出力：** `{phase}-VALIDATION.md` -- フェーズのフィードバックコントラクト。
 
-**無効化：** テストインフラが重視されないラピッドプロトタイピングフェーズでは、`/gsd:settings` で `workflow.nyquist_validation: false` を設定してください。
+**無効化：** テストインフラが重視されないラピッドプロトタイピングフェーズでは、`/redpill:settings` で `workflow.nyquist_validation: false` を設定してください。
 
-### 遡及バリデーション (`/gsd:validate-phase`)
+### 遡及バリデーション (`/redpill:validate-phase`)
 
 Nyquist バリデーションが存在する前に実行されたフェーズ、または従来のテストスイートのみを持つ既存コードベースに対して、遡及的に監査しカバレッジのギャップを埋めます：
 
 ```
-  /gsd:validate-phase N
+  /redpill:validate-phase N
          |
          +-- Detect state (VALIDATION.md exists? SUMMARY.md exists?)
          |
@@ -146,13 +146,13 @@ Nyquist バリデーションが存在する前に実行されたフェーズ、
 
 オーディターは実装コードを変更しません — テストファイルと VALIDATION.md のみを変更します。テストが実装のバグを発見した場合、対処が必要なエスカレーションとしてフラグが立てられます。
 
-**使用タイミング：** Nyquist が有効化される前にプランニングされたフェーズを実行した後、または `/gsd:audit-milestone` が Nyquist コンプライアンスのギャップを検出した後。
+**使用タイミング：** Nyquist が有効化される前にプランニングされたフェーズを実行した後、または `/redpill:audit-milestone` が Nyquist コンプライアンスのギャップを検出した後。
 
 ### 前提確認ディスカッションモード
 
-デフォルトでは、`/gsd:discuss-phase` は実装の好みについてオープンエンドな質問を行います。前提確認モードではこれを反転させます：GSD がまずコードベースを読み込み、フェーズの構築方法に関する構造化された前提を提示し、修正が必要な箇所のみを確認します。
+デフォルトでは、`/redpill:discuss-phase` は実装の好みについてオープンエンドな質問を行います。前提確認モードではこれを反転させます：GSD がまずコードベースを読み込み、フェーズの構築方法に関する構造化された前提を提示し、修正が必要な箇所のみを確認します。
 
-**有効化：** `/gsd:settings` で `workflow.discuss_mode` を `'assumptions'` に設定します。
+**有効化：** `/redpill:settings` で `workflow.discuss_mode` を `'assumptions'` に設定します。
 
 **動作の仕組み：**
 1. PROJECT.md、コードベースマッピング、既存の規約を読み込む
@@ -175,18 +175,18 @@ Nyquist バリデーションが存在する前に実行されたフェーズ、
 
 AI 生成のフロントエンドの見た目が一貫しないのは、Claude Code の UI 能力が低いからではなく、実行前にデザインコントラクトが存在しなかったためです。共通のスペーシングスケール、カラーコントラクト、コピーライティング基準なしに構築された5つのコンポーネントは、5つのわずかに異なるビジュアル上の判断を生み出します。
 
-`/gsd:ui-phase` はプランニング前にデザインコントラクトを確定させます。`/gsd:ui-review` は実行後に結果を監査します。
+`/redpill:ui-phase` はプランニング前にデザインコントラクトを確定させます。`/redpill:ui-review` は実行後に結果を監査します。
 
 ### コマンド
 
 | コマンド | 説明 |
 |---------|-------------|
-| `/gsd:ui-phase [N]` | フロントエンドフェーズ用の UI-SPEC.md デザインコントラクトを生成 |
-| `/gsd:ui-review [N]` | 実装済み UI の遡及的6ピラービジュアル監査 |
+| `/redpill:ui-phase [N]` | フロントエンドフェーズ用の UI-SPEC.md デザインコントラクトを生成 |
+| `/redpill:ui-review [N]` | 実装済み UI の遡及的6ピラービジュアル監査 |
 
-### ワークフロー：`/gsd:ui-phase`
+### ワークフロー：`/redpill:ui-phase`
 
-**実行タイミング：** `/gsd:discuss-phase` の後、`/gsd:plan-phase` の前 — フロントエンド/UI 作業を含むフェーズで使用。
+**実行タイミング：** `/redpill:discuss-phase` の後、`/redpill:plan-phase` の前 — フロントエンド/UI 作業を含むフェーズで使用。
 
 **フロー：**
 1. CONTEXT.md、RESEARCH.md、REQUIREMENTS.md を読み込んで既存の決定事項を確認
@@ -197,13 +197,13 @@ AI 生成のフロントエンドの見た目が一貫しないのは、Claude C
 6. 6つの次元で検証（コピーライティング、ビジュアル、カラー、タイポグラフィ、スペーシング、レジストリの安全性）
 7. BLOCKED の場合はリビジョンループ（最大2回）
 
-**出力：** `.planning/phases/{phase-dir}/` 内の `{padded_phase}-UI-SPEC.md`
+**出力：** `.redpill/phases/{phase-dir}/` 内の `{padded_phase}-UI-SPEC.md`
 
-### ワークフロー：`/gsd:ui-review`
+### ワークフロー：`/redpill:ui-review`
 
-**実行タイミング：** `/gsd:execute-phase` または `/gsd:verify-work` の後 — フロントエンドコードを含むプロジェクトで使用。
+**実行タイミング：** `/redpill:execute-phase` または `/redpill:verify-work` の後 — フロントエンドコードを含むプロジェクトで使用。
 
-**スタンドアロン：** GSD 管理プロジェクトに限らず、あらゆるプロジェクトで動作します。UI-SPEC.md が存在しない場合は、抽象的な6ピラー基準に基づいて監査します。
+**スタンドアロン：** REDPILL 管理プロジェクトに限らず、あらゆるプロジェクトで動作します。UI-SPEC.md が存在しない場合は、抽象的な6ピラー基準に基づいて監査します。
 
 **6ピラー（各1-4点）：**
 1. コピーライティング — CTA ラベル、空状態、エラー状態
@@ -220,9 +220,9 @@ AI 生成のフロントエンドの見た目が一貫しないのは、Claude C
 | 設定 | デフォルト | 説明 |
 |---------|---------|-------------|
 | `workflow.ui_phase` | `true` | フロントエンドフェーズ用の UI デザインコントラクトを生成 |
-| `workflow.ui_safety_gate` | `true` | plan-phase 時にフロントエンドフェーズで /gsd:ui-phase の実行を促す |
+| `workflow.ui_safety_gate` | `true` | plan-phase 時にフロントエンドフェーズで /redpill:ui-phase の実行を促す |
 
-どちらも「未設定＝有効」パターンに従います。`/gsd:settings` から無効化できます。
+どちらも「未設定＝有効」パターンに従います。`/redpill:settings` から無効化できます。
 
 ### shadcn の初期化
 
@@ -233,7 +233,7 @@ React/Next.js/Vite プロジェクトの場合、UI リサーチャーは `compo
 3. `npx shadcn init --preset {paste}` を実行
 4. プリセットはデザインシステム全体をエンコード — カラー、ボーダーラディウス、フォント
 
-プリセット文字列は GSD の第一級プランニングアーティファクトとなり、フェーズやマイルストーンをまたいで再現可能です。
+プリセット文字列は REDPILL の第一級プランニングアーティファクトとなり、フェーズやマイルストーンをまたいで再現可能です。
 
 ### レジストリの安全性ゲート
 
@@ -245,7 +245,7 @@ React/Next.js/Vite プロジェクトの場合、UI リサーチャーは `compo
 
 ### スクリーンショットの保存
 
-`/gsd:ui-review` は Playwright CLI を使用してスクリーンショットを `.planning/ui-reviews/` にキャプチャします。バイナリファイルが git に含まれないよう、`.gitignore` が自動的に作成されます。スクリーンショットは `/gsd:complete-milestone` 時にクリーンアップされます。
+`/redpill:ui-review` は Playwright CLI を使用してスクリーンショットを `.redpill/ui-reviews/` にキャプチャします。バイナリファイルが git に含まれないよう、`.gitignore` が自動的に作成されます。スクリーンショットは `/redpill:complete-milestone` 時にクリーンアップされます。
 
 ---
 
@@ -256,47 +256,47 @@ React/Next.js/Vite プロジェクトの場合、UI リサーチャーは `compo
 アクティブなプランニングの準備ができていないアイデアは、999.x 番号を使用してバックログに格納され、アクティブなフェーズシーケンスの外に保持されます。
 
 ```
-/gsd:add-backlog "GraphQL API layer"     # Creates 999.1-graphql-api-layer/
-/gsd:add-backlog "Mobile responsive"     # Creates 999.2-mobile-responsive/
+/redpill:add-backlog "GraphQL API layer"     # Creates 999.1-graphql-api-layer/
+/redpill:add-backlog "Mobile responsive"     # Creates 999.2-mobile-responsive/
 ```
 
-バックログアイテムは完全なフェーズディレクトリを取得するため、`/gsd:discuss-phase 999.1` でアイデアをさらに探索したり、準備が整ったら `/gsd:plan-phase 999.1` を使用できます。
+バックログアイテムは完全なフェーズディレクトリを取得するため、`/redpill:discuss-phase 999.1` でアイデアをさらに探索したり、準備が整ったら `/redpill:plan-phase 999.1` を使用できます。
 
-**レビューとプロモーション** は `/gsd:review-backlog` で行います — すべてのバックログアイテムを表示し、プロモーション（アクティブシーケンスへの移動）、保持（バックログに残す）、または削除を選択できます。
+**レビューとプロモーション** は `/redpill:review-backlog` で行います — すべてのバックログアイテムを表示し、プロモーション（アクティブシーケンスへの移動）、保持（バックログに残す）、または削除を選択できます。
 
 ### シード
 
 シードは、トリガー条件を持つ将来を見据えたアイデアです。バックログアイテムとは異なり、適切なマイルストーンが到来すると自動的に表面化されます。
 
 ```
-/gsd:plant-seed "Add real-time collab when WebSocket infra is in place"
+/redpill:plant-seed "Add real-time collab when WebSocket infra is in place"
 ```
 
-シードは完全な WHY と表面化タイミングを保持します。`/gsd:new-milestone` はすべてのシードをスキャンし、一致するものを提示します。
+シードは完全な WHY と表面化タイミングを保持します。`/redpill:new-milestone` はすべてのシードをスキャンし、一致するものを提示します。
 
-**保存場所：** `.planning/seeds/SEED-NNN-slug.md`
+**保存場所：** `.redpill/seeds/SEED-NNN-slug.md`
 
 ### 永続コンテキストスレッド
 
 スレッドは、複数のセッションにまたがるが特定のフェーズに属さない作業のための、軽量なクロスセッション知識ストアです。
 
 ```
-/gsd:thread                              # List all threads
-/gsd:thread fix-deploy-key-auth          # Resume existing thread
-/gsd:thread "Investigate TCP timeout"    # Create new thread
+/redpill:thread                              # List all threads
+/redpill:thread fix-deploy-key-auth          # Resume existing thread
+/redpill:thread "Investigate TCP timeout"    # Create new thread
 ```
 
-スレッドは `/gsd:pause-work` より軽量です — フェーズ状態やプランコンテキストはありません。各スレッドファイルには Goal、Context、References、Next Steps セクションが含まれます。
+スレッドは `/redpill:pause-work` より軽量です — フェーズ状態やプランコンテキストはありません。各スレッドファイルには Goal、Context、References、Next Steps セクションが含まれます。
 
-スレッドは成熟した段階でフェーズ (`/gsd:add-phase`) やバックログアイテム (`/gsd:add-backlog`) にプロモーションできます。
+スレッドは成熟した段階でフェーズ (`/redpill:add-phase`) やバックログアイテム (`/redpill:add-backlog`) にプロモーションできます。
 
-**保存場所：** `.planning/threads/{slug}.md`
+**保存場所：** `.redpill/threads/{slug}.md`
 
 ---
 
 ## ワークストリーム
 
-ワークストリームを使うと、状態の衝突なしに複数のマイルストーン領域で並行作業できます。各ワークストリームは独立した `.planning/` 状態を持つため、切り替え時に進捗が上書きされることはありません。
+ワークストリームを使うと、状態の衝突なしに複数のマイルストーン領域で並行作業できます。各ワークストリームは独立した `.redpill/` 状態を持つため、切り替え時に進捗が上書きされることはありません。
 
 **使用タイミング：** 異なる関心領域にまたがるマイルストーン機能（例：バックエンド API とフロントエンドダッシュボード）に取り組んでいて、コンテキストの混在なしに独立してプランニング・実行・ディスカッションしたい場合。
 
@@ -304,16 +304,16 @@ React/Next.js/Vite プロジェクトの場合、UI リサーチャーは `compo
 
 | コマンド | 用途 |
 |---------|---------|
-| `/gsd:workstreams create <name>` | 独立したプランニング状態を持つ新しいワークストリームを作成 |
-| `/gsd:workstreams switch <name>` | アクティブコンテキストを別のワークストリームに切り替え |
-| `/gsd:workstreams list` | すべてのワークストリームとアクティブなものを表示 |
-| `/gsd:workstreams complete <name>` | ワークストリームを完了としてマークし、状態をアーカイブ |
+| `/redpill:workstreams create <name>` | 独立したプランニング状態を持つ新しいワークストリームを作成 |
+| `/redpill:workstreams switch <name>` | アクティブコンテキストを別のワークストリームに切り替え |
+| `/redpill:workstreams list` | すべてのワークストリームとアクティブなものを表示 |
+| `/redpill:workstreams complete <name>` | ワークストリームを完了としてマークし、状態をアーカイブ |
 
 ### 動作の仕組み
 
-各ワークストリームは独自の `.planning/` ディレクトリサブツリーを維持します。ワークストリームを切り替えると、GSD はアクティブなプランニングコンテキストを入れ替え、`/gsd:progress`、`/gsd:discuss-phase`、`/gsd:plan-phase` などのコマンドがそのワークストリームの状態に対して動作するようにします。
+各ワークストリームは独自の `.redpill/` ディレクトリサブツリーを維持します。ワークストリームを切り替えると、GSD はアクティブなプランニングコンテキストを入れ替え、`/redpill:progress`、`/redpill:discuss-phase`、`/redpill:plan-phase` などのコマンドがそのワークストリームの状態に対して動作するようにします。
 
-これは `/gsd:new-workspace`（別のリポジトリワークツリーを作成）より軽量です。ワークストリームは同じコードベースと git 履歴を共有しつつ、プランニングアーティファクトを分離します。
+これは `/redpill:new-workspace`（別のリポジトリワークツリーを作成）より軽量です。ワークストリームは同じコードベースと git 履歴を共有しつつ、プランニングアーティファクトを分離します。
 
 ---
 
@@ -330,8 +330,8 @@ GSD はマークダウンファイルを生成し、それが LLM のシステ�
 `security.cjs` モジュールは、ユーザー提供テキストがプランニングアーティファクトに入る前に、既知のインジェクションパターン（ロールオーバーライド、インストラクションバイパス、system タグインジェクション）をスキャンします。
 
 **ランタイムフック：**
-- `gsd-prompt-guard.js` — `.planning/` への Write/Edit 呼び出しをインジェクションパターンでスキャン（常時有効、アドバイザリーのみ）
-- `gsd-workflow-guard.js` — GSD ワークフローコンテキスト外でのファイル編集を警告（`hooks.workflow_guard` でオプトイン）
+- `redpill-prompt-guard.js` — `.redpill/` への Write/Edit 呼び出しをインジェクションパターンでスキャン（常時有効、アドバイザリーのみ）
+- `redpill-workflow-guard.js` — REDPILL ワークフローコンテキスト外でのファイル編集を警告（`hooks.workflow_guard` でオプトイン）
 
 **CI スキャナー：**
 `prompt-injection-scan.test.cjs` は、すべてのエージェント、ワークフロー、コマンドファイルに埋め込まれたインジェクションベクターをスキャンします。テストスイートの一部として実行されます。
@@ -341,7 +341,7 @@ GSD はマークダウンファイルを生成し、それが LLM のシステ�
 ### 実行ウェーブの調整
 
 ```
-  /gsd:execute-phase N
+  /redpill:execute-phase N
          │
          ├── Analyze plan dependencies
          │
@@ -356,13 +356,13 @@ GSD はマークダウンファイルを生成し、それが LLM のシステ�
                └── Check codebase against phase goals
                      │
                      ├── PASS -> VERIFICATION.md (success)
-                     └── FAIL -> Issues logged for /gsd:verify-work
+                     └── FAIL -> Issues logged for /redpill:verify-work
 ```
 
 ### ブラウンフィールドワークフロー（既存コードベース）
 
 ```
-  /gsd:map-codebase
+  /redpill:map-codebase
          │
          ├── Stack Mapper     -> codebase/STACK.md
          ├── Arch Mapper      -> codebase/ARCHITECTURE.md
@@ -370,7 +370,7 @@ GSD はマークダウンファイルを生成し、それが LLM のシステ�
          └── Concern Mapper   -> codebase/CONCERNS.md
                 │
         ┌───────▼──────────┐
-        │ /gsd:new-project │  <- Questions focus on what you're ADDING
+        │ /redpill:new-project │  <- Questions focus on what you're ADDING
         └──────────────────┘
 ```
 
@@ -382,80 +382,80 @@ GSD はマークダウンファイルを生成し、それが LLM のシステ�
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:new-project` | フルプロジェクト初期化：質問、リサーチ、要件定義、ロードマップ | 新規プロジェクトの開始時 |
-| `/gsd:new-project --auto @idea.md` | ドキュメントからの自動初期化 | PRD やアイデアドキュメントが準備済みの場合 |
-| `/gsd:discuss-phase [N]` | 実装上の決定事項を記録 | プランニング前に、構築方法を決定するため |
-| `/gsd:ui-phase [N]` | UI デザインコントラクトを生成 | discuss-phase の後、plan-phase の前（フロントエンドフェーズ） |
-| `/gsd:plan-phase [N]` | リサーチ + プランニング + 検証 | フェーズ実行前 |
-| `/gsd:execute-phase <N>` | すべてのプランを並列ウェーブで実行 | プランニング完了後 |
-| `/gsd:verify-work [N]` | 自動診断付き手動 UAT | 実行完了後 |
-| `/gsd:ship [N]` | 検証済みの作業から PR を作成 | 検証合格後 |
-| `/gsd:fast <text>` | インラインの軽微なタスク — プランニングを完全にスキップ | タイプミス修正、設定変更、小規模リファクタリング |
-| `/gsd:next` | 状態を自動検出して次のステップを実行 | いつでも — 「次に何をすべき？」 |
-| `/gsd:ui-review [N]` | 遡及的6ピラービジュアル監査 | 実行後または verify-work 後（フロントエンドプロジェクト） |
-| `/gsd:audit-milestone` | マイルストーンの完了定義を満たしているか検証 | マイルストーン完了前 |
-| `/gsd:complete-milestone` | マイルストーンをアーカイブし、リリースタグを作成 | 全フェーズの検証完了後 |
-| `/gsd:new-milestone [name]` | 次のバージョンサイクルを開始 | マイルストーン完了後 |
+| `/redpill:new-project` | フルプロジェクト初期化：質問、リサーチ、要件定義、ロードマップ | 新規プロジェクトの開始時 |
+| `/redpill:new-project --auto @idea.md` | ドキュメントからの自動初期化 | PRD やアイデアドキュメントが準備済みの場合 |
+| `/redpill:discuss-phase [N]` | 実装上の決定事項を記録 | プランニング前に、構築方法を決定するため |
+| `/redpill:ui-phase [N]` | UI デザインコントラクトを生成 | discuss-phase の後、plan-phase の前（フロントエンドフェーズ） |
+| `/redpill:plan-phase [N]` | リサーチ + プランニング + 検証 | フェーズ実行前 |
+| `/redpill:execute-phase <N>` | すべてのプランを並列ウェーブで実行 | プランニング完了後 |
+| `/redpill:verify-work [N]` | 自動診断付き手動 UAT | 実行完了後 |
+| `/redpill:ship [N]` | 検証済みの作業から PR を作成 | 検証合格後 |
+| `/redpill:fast <text>` | インラインの軽微なタスク — プランニングを完全にスキップ | タイプミス修正、設定変更、小規模リファクタリング |
+| `/redpill:next` | 状態を自動検出して次のステップを実行 | いつでも — 「次に何をすべき？」 |
+| `/redpill:ui-review [N]` | 遡及的6ピラービジュアル監査 | 実行後または verify-work 後（フロントエンドプロジェクト） |
+| `/redpill:audit-milestone` | マイルストーンの完了定義を満たしているか検証 | マイルストーン完了前 |
+| `/redpill:complete-milestone` | マイルストーンをアーカイブし、リリースタグを作成 | 全フェーズの検証完了後 |
+| `/redpill:new-milestone [name]` | 次のバージョンサイクルを開始 | マイルストーン完了後 |
 
 ### ナビゲーション
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:progress` | 状態と次のステップを表示 | いつでも -- 「今どこにいる？」 |
-| `/gsd:resume-work` | 前回のセッションからフルコンテキストを復元 | 新しいセッションの開始時 |
-| `/gsd:pause-work` | 構造化されたハンドオフを保存（HANDOFF.json + continue-here.md） | フェーズの途中で作業を中断する時 |
-| `/gsd:session-report` | 作業内容と成果を含むセッションサマリーを生成 | セッション終了時、ステークホルダーへの共有時 |
-| `/gsd:help` | すべてのコマンドを表示 | クイックリファレンス |
-| `/gsd:update` | 変更履歴プレビュー付きで GSD を更新 | 新バージョンの確認時 |
-| `/gsd:join-discord` | Discord コミュニティの招待リンクを開く | 質問やコミュニティ参加時 |
+| `/redpill:progress` | 状態と次のステップを表示 | いつでも -- 「今どこにいる？」 |
+| `/redpill:resume-work` | 前回のセッションからフルコンテキストを復元 | 新しいセッションの開始時 |
+| `/redpill:pause-work` | 構造化されたハンドオフを保存（HANDOFF.json + continue-here.md） | フェーズの途中で作業を中断する時 |
+| `/redpill:session-report` | 作業内容と成果を含むセッションサマリーを生成 | セッション終了時、ステークホルダーへの共有時 |
+| `/redpill:help` | すべてのコマンドを表示 | クイックリファレンス |
+| `/redpill:update` | 変更履歴プレビュー付きで REDPILL を更新 | 新バージョンの確認時 |
+| `/redpill:join-discord` | Discord コミュニティの招待リンクを開く | 質問やコミュニティ参加時 |
 
 ### フェーズ管理
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:add-phase` | ロードマップに新しいフェーズを追加 | 初期プランニング後にスコープが拡大した場合 |
-| `/gsd:insert-phase [N]` | 緊急作業を挿入（小数番号） | マイルストーン中の緊急修正 |
-| `/gsd:remove-phase [N]` | 将来のフェーズを削除して番号を振り直す | 機能のスコープ縮小 |
-| `/gsd:list-phase-assumptions [N]` | Claude の意図するアプローチをプレビュー | プランニング前に方向性を確認 |
-| `/gsd:plan-milestone-gaps` | 監査ギャップに対するフェーズを作成 | 監査で不足項目が見つかった後 |
-| `/gsd:research-phase [N]` | エコシステムの深いリサーチのみ | 複雑または不慣れなドメイン |
+| `/redpill:add-phase` | ロードマップに新しいフェーズを追加 | 初期プランニング後にスコープが拡大した場合 |
+| `/redpill:insert-phase [N]` | 緊急作業を挿入（小数番号） | マイルストーン中の緊急修正 |
+| `/redpill:remove-phase [N]` | 将来のフェーズを削除して番号を振り直す | 機能のスコープ縮小 |
+| `/redpill:list-phase-assumptions [N]` | Claude の意図するアプローチをプレビュー | プランニング前に方向性を確認 |
+| `/redpill:plan-milestone-gaps` | 監査ギャップに対するフェーズを作成 | 監査で不足項目が見つかった後 |
+| `/redpill:research-phase [N]` | エコシステムの深いリサーチのみ | 複雑または不慣れなドメイン |
 
 ### ブラウンフィールドとユーティリティ
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:map-codebase` | 既存コードベースを分析 | 既存コードに対する `/gsd:new-project` の前 |
-| `/gsd:quick` | GSD 保証付きのアドホックタスク | バグ修正、小機能、設定変更 |
-| `/gsd:debug [desc]` | 永続状態を持つ体系的デバッグ | 何かが壊れた時 |
-| `/gsd:forensics` | ワークフロー障害の診断レポート | 状態、アーティファクト、git 履歴が破損していると思われる場合 |
-| `/gsd:add-todo [desc]` | 後でやるアイデアを記録 | セッション中にアイデアが浮かんだ時 |
-| `/gsd:check-todos` | 保留中の TODO を一覧表示 | 記録したアイデアのレビュー |
-| `/gsd:settings` | ワークフロートグルとモデルプロファイルを設定 | モデル変更、エージェントのトグル |
-| `/gsd:set-profile <profile>` | クイックプロファイル切り替え | コスト/品質トレードオフの変更 |
-| `/gsd:reapply-patches` | アップデート後にローカル変更を復元 | ローカル編集がある場合の `/gsd:update` 後 |
+| `/redpill:map-codebase` | 既存コードベースを分析 | 既存コードに対する `/redpill:new-project` の前 |
+| `/redpill:quick` | REDPILL 保証付きのアドホックタスク | バグ修正、小機能、設定変更 |
+| `/redpill:debug [desc]` | 永続状態を持つ体系的デバッグ | 何かが壊れた時 |
+| `/redpill:forensics` | ワークフロー障害の診断レポート | 状態、アーティファクト、git 履歴が破損していると思われる場合 |
+| `/redpill:add-todo [desc]` | 後でやるアイデアを記録 | セッション中にアイデアが浮かんだ時 |
+| `/redpill:check-todos` | 保留中の TODO を一覧表示 | 記録したアイデアのレビュー |
+| `/redpill:settings` | ワークフロートグルとモデルプロファイルを設定 | モデル変更、エージェントのトグル |
+| `/redpill:set-profile <profile>` | クイックプロファイル切り替え | コスト/品質トレードオフの変更 |
+| `/redpill:reapply-patches` | アップデート後にローカル変更を復元 | ローカル編集がある場合の `/redpill:update` 後 |
 
 ### コード品質とレビュー
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:review --phase N` | 外部 CLI からのクロス AI ピアレビュー | 実行前にプランを検証 |
-| `/gsd:pr-branch` | `.planning/` コミットをフィルタリングしたクリーンな PR ブランチ | プランニングフリーの diff で PR を作成する前 |
-| `/gsd:audit-uat` | 全フェーズの検証負債を監査 | マイルストーン完了前 |
+| `/redpill:review --phase N` | 外部 CLI からのクロス AI ピアレビュー | 実行前にプランを検証 |
+| `/redpill:pr-branch` | `.redpill/` コミットをフィルタリングしたクリーンな PR ブランチ | プランニングフリーの diff で PR を作成する前 |
+| `/redpill:audit-uat` | 全フェーズの検証負債を監査 | マイルストーン完了前 |
 
 ### バックログとスレッド
 
 | コマンド | 用途 | 使用タイミング |
 |---------|---------|-------------|
-| `/gsd:add-backlog <desc>` | バックログパーキングロットにアイデアを追加（999.x） | アクティブなプランニングの準備ができていないアイデア |
-| `/gsd:review-backlog` | バックログアイテムのプロモーション/保持/削除 | 新マイルストーン前の優先順位付け |
-| `/gsd:plant-seed <idea>` | トリガー条件付きの将来を見据えたアイデア | 将来のマイルストーンで表面化すべきアイデア |
-| `/gsd:thread [name]` | 永続コンテキストスレッド | フェーズ構造外のクロスセッション作業 |
+| `/redpill:add-backlog <desc>` | バックログパーキングロットにアイデアを追加（999.x） | アクティブなプランニングの準備ができていないアイデア |
+| `/redpill:review-backlog` | バックログアイテムのプロモーション/保持/削除 | 新マイルストーン前の優先順位付け |
+| `/redpill:plant-seed <idea>` | トリガー条件付きの将来を見据えたアイデア | 将来のマイルストーンで表面化すべきアイデア |
+| `/redpill:thread [name]` | 永続コンテキストスレッド | フェーズ構造外のクロスセッション作業 |
 
 ---
 
 ## 設定リファレンス
 
-GSD はプロジェクト設定を `.planning/config.json` に保存します。`/gsd:new-project` 時に設定するか、後から `/gsd:settings` で更新できます。
+GSD はプロジェクト設定を `.redpill/config.json` に保存します。`/redpill:new-project` 時に設定するか、後から `/redpill:settings` で更新できます。
 
 ### 完全な config.json スキーマ
 
@@ -505,10 +505,10 @@ GSD はプロジェクト設定を `.planning/config.json` に保存します。
 
 | 設定 | オプション | デフォルト | 制御内容 |
 |---------|---------|---------|------------------|
-| `planning.commit_docs` | `true`, `false` | `true` | `.planning/` ファイルを git にコミットするかどうか |
-| `planning.search_gitignored` | `true`, `false` | `false` | `.planning/` を含めるためにブロード検索に `--no-ignore` を追加 |
+| `planning.commit_docs` | `true`, `false` | `true` | `.redpill/` ファイルを git にコミットするかどうか |
+| `planning.search_gitignored` | `true`, `false` | `false` | `.redpill/` を含めるためにブロード検索に `--no-ignore` を追加 |
 
-> **注：** `.planning/` が `.gitignore` に含まれている場合、設定値に関係なく `commit_docs` は自動的に `false` になります。
+> **注：** `.redpill/` が `.gitignore` に含まれている場合、設定値に関係なく `commit_docs` は自動的に `false` になります。
 
 ### ワークフロートグル
 
@@ -519,7 +519,7 @@ GSD はプロジェクト設定を `.planning/config.json` に保存します。
 | `workflow.verifier` | `true`, `false` | `true` | 実行後のフェーズ目標に対する検証 |
 | `workflow.nyquist_validation` | `true`, `false` | `true` | plan-phase 時のバリデーションアーキテクチャリサーチ、8番目の plan-check 次元 |
 | `workflow.ui_phase` | `true`, `false` | `true` | フロントエンドフェーズ用の UI デザインコントラクトを生成 |
-| `workflow.ui_safety_gate` | `true`, `false` | `true` | plan-phase 時にフロントエンドフェーズで /gsd:ui-phase の実行を促す |
+| `workflow.ui_safety_gate` | `true`, `false` | `true` | plan-phase 時にフロントエンドフェーズで /redpill:ui-phase の実行を促す |
 | `workflow.research_before_questions` | `true`, `false` | `false` | ディスカッション質問の後ではなく前にリサーチを実行 |
 | `workflow.discuss_mode` | `standard`, `assumptions` | `standard` | ディスカッションスタイル：オープンエンドの質問 vs. コードベース駆動の前提確認 |
 | `workflow.skip_discuss` | `true`, `false` | `false` | 自律モードで discuss-phase を完全にスキップ、ROADMAP のフェーズ目標から最小限の CONTEXT.md を作成 |
@@ -529,7 +529,7 @@ GSD はプロジェクト設定を `.planning/config.json` に保存します。
 | 設定 | オプション | デフォルト | 制御内容 |
 |---------|---------|---------|------------------|
 | `hooks.context_warnings` | `true`, `false` | `true` | コンテキストウィンドウ使用量の警告 |
-| `hooks.workflow_guard` | `true`, `false` | `false` | GSD ワークフローコンテキスト外でのファイル編集の警告 |
+| `hooks.workflow_guard` | `true`, `false` | `false` | REDPILL ワークフローコンテキスト外でのファイル編集の警告 |
 
 慣れたドメインやトークン節約時に、ワークフロートグルを無効にしてフェーズを高速化できます。
 
@@ -540,7 +540,7 @@ GSD はプロジェクト設定を `.planning/config.json` に保存します。
 | `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | ブランチ作成のタイミングと方法 |
 | `git.phase_branch_template` | テンプレート文字列 | `gsd/phase-{phase}-{slug}` | phase 戦略のブランチ名 |
 | `git.milestone_branch_template` | テンプレート文字列 | `gsd/{milestone}-{slug}` | milestone 戦略のブランチ名 |
-| `git.quick_branch_template` | テンプレート文字列 または `null` | `null` | `/gsd:quick` タスク用のオプションブランチ名 |
+| `git.quick_branch_template` | テンプレート文字列 または `null` | `null` | `/redpill:quick` タスク用のオプションブランチ名 |
 
 **ブランチ戦略の説明：**
 
@@ -564,17 +564,17 @@ quick タスクのブランチ設定例：
 
 | エージェント | `quality` | `balanced` | `budget` | `inherit` |
 |-------|-----------|------------|----------|-----------|
-| gsd-planner | Opus | Opus | Sonnet | Inherit |
-| gsd-roadmapper | Opus | Sonnet | Sonnet | Inherit |
-| gsd-executor | Opus | Sonnet | Sonnet | Inherit |
-| gsd-phase-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-project-researcher | Opus | Sonnet | Haiku | Inherit |
-| gsd-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-debugger | Opus | Sonnet | Sonnet | Inherit |
-| gsd-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
-| gsd-verifier | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
-| gsd-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-planner | Opus | Opus | Sonnet | Inherit |
+| redpill-roadmapper | Opus | Sonnet | Sonnet | Inherit |
+| redpill-executor | Opus | Sonnet | Sonnet | Inherit |
+| redpill-phase-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-project-researcher | Opus | Sonnet | Haiku | Inherit |
+| redpill-research-synthesizer | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-debugger | Opus | Sonnet | Sonnet | Inherit |
+| redpill-codebase-mapper | Sonnet | Haiku | Haiku | Inherit |
+| redpill-verifier | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-plan-checker | Sonnet | Sonnet | Haiku | Inherit |
+| redpill-integration-checker | Sonnet | Sonnet | Haiku | Inherit |
 
 **プロファイルの方針：**
 - **quality** -- すべての意思決定エージェントに Opus、読み取り専用の検証に Sonnet。クォータに余裕があり、重要な作業に使用。
@@ -590,60 +590,60 @@ quick タスクのブランチ設定例：
 
 ```bash
 claude --dangerously-skip-permissions
-/gsd:new-project            # 質問に回答、設定、ロードマップを承認
+/redpill:new-project            # 質問に回答、設定、ロードマップを承認
 /clear
-/gsd:discuss-phase 1        # 好みを確定
-/gsd:ui-phase 1             # デザインコントラクト（フロントエンドフェーズ）
-/gsd:plan-phase 1           # リサーチ + プラン + 検証
-/gsd:execute-phase 1        # 並列実行
-/gsd:verify-work 1          # 手動 UAT
-/gsd:ship 1                 # 検証済み作業から PR を作成
-/gsd:ui-review 1            # ビジュアル監査（フロントエンドフェーズ）
+/redpill:discuss-phase 1        # 好みを確定
+/redpill:ui-phase 1             # デザインコントラクト（フロントエンドフェーズ）
+/redpill:plan-phase 1           # リサーチ + プラン + 検証
+/redpill:execute-phase 1        # 並列実行
+/redpill:verify-work 1          # 手動 UAT
+/redpill:ship 1                 # 検証済み作業から PR を作成
+/redpill:ui-review 1            # ビジュアル監査（フロントエンドフェーズ）
 /clear
-/gsd:next                   # 自動検出して次のステップを実行
+/redpill:next                   # 自動検出して次のステップを実行
 ...
-/gsd:audit-milestone        # すべて出荷されたか確認
-/gsd:complete-milestone     # アーカイブ、タグ付け、完了
-/gsd:session-report         # セッションサマリーを生成
+/redpill:audit-milestone        # すべて出荷されたか確認
+/redpill:complete-milestone     # アーカイブ、タグ付け、完了
+/redpill:session-report         # セッションサマリーを生成
 ```
 
 ### 既存ドキュメントからの新規プロジェクト
 
 ```bash
-/gsd:new-project --auto @prd.md   # ドキュメントからリサーチ/要件/ロードマップを自動実行
+/redpill:new-project --auto @prd.md   # ドキュメントからリサーチ/要件/ロードマップを自動実行
 /clear
-/gsd:discuss-phase 1               # ここから通常のフロー
+/redpill:discuss-phase 1               # ここから通常のフロー
 ```
 
 ### 既存コードベース
 
 ```bash
-/gsd:map-codebase           # 既存のコードを分析（並列エージェント）
-/gsd:new-project            # 追加する内容に焦点を当てた質問
+/redpill:map-codebase           # 既存のコードを分析（並列エージェント）
+/redpill:new-project            # 追加する内容に焦点を当てた質問
 # （ここから通常のフェーズワークフロー）
 ```
 
 ### クイックバグ修正
 
 ```bash
-/gsd:quick
+/redpill:quick
 > "Fix the login button not responding on mobile Safari"
 ```
 
 ### 休憩後の再開
 
 ```bash
-/gsd:progress               # 前回の続きと次のステップを確認
+/redpill:progress               # 前回の続きと次のステップを確認
 # または
-/gsd:resume-work            # 前回のセッションからフルコンテキストを復元
+/redpill:resume-work            # 前回のセッションからフルコンテキストを復元
 ```
 
 ### リリース準備
 
 ```bash
-/gsd:audit-milestone        # 要件カバレッジを確認、スタブを検出
-/gsd:plan-milestone-gaps    # 監査でギャップが見つかった場合、フェーズを作成して埋める
-/gsd:complete-milestone     # アーカイブ、タグ付け、完了
+/redpill:audit-milestone        # 要件カバレッジを確認、スタブを検出
+/redpill:plan-milestone-gaps    # 監査でギャップが見つかった場合、フェーズを作成して埋める
+/redpill:complete-milestone     # アーカイブ、タグ付け、完了
 ```
 
 ### スピード vs 品質プリセット
@@ -654,40 +654,40 @@ claude --dangerously-skip-permissions
 | 通常開発 | `interactive` | `standard` | `balanced` | オン | オン | オン |
 | プロダクション | `interactive` | `fine` | `quality` | オン | オン | オン |
 
-**自律モードでの discuss-phase スキップ：** `yolo` モードで実行中に、PROJECT.md に既に十分な設定が記録されている場合は、`/gsd:settings` で `workflow.skip_discuss: true` を設定してください。これにより discuss-phase を完全にバイパスし、ROADMAP のフェーズ目標から最小限の CONTEXT.md を作成します。PROJECT.md と規約がディスカッションで新しい情報を追加しないほど包括的な場合に有用です。
+**自律モードでの discuss-phase スキップ：** `yolo` モードで実行中に、PROJECT.md に既に十分な設定が記録されている場合は、`/redpill:settings` で `workflow.skip_discuss: true` を設定してください。これにより discuss-phase を完全にバイパスし、ROADMAP のフェーズ目標から最小限の CONTEXT.md を作成します。PROJECT.md と規約がディスカッションで新しい情報を追加しないほど包括的な場合に有用です。
 
 ### マイルストーン中のスコープ変更
 
 ```bash
-/gsd:add-phase              # ロードマップに新しいフェーズを追加
+/redpill:add-phase              # ロードマップに新しいフェーズを追加
 # または
-/gsd:insert-phase 3         # フェーズ 3 と 4 の間に緊急作業を挿入
+/redpill:insert-phase 3         # フェーズ 3 と 4 の間に緊急作業を挿入
 # または
-/gsd:remove-phase 7         # フェーズ 7 をスコープ外にして番号を振り直す
+/redpill:remove-phase 7         # フェーズ 7 をスコープ外にして番号を振り直す
 ```
 
 ### マルチプロジェクトワークスペース
 
-独立した GSD 状態を持つ複数のリポジトリや機能で並行作業できます。
+独立した REDPILL 状態を持つ複数のリポジトリや機能で並行作業できます。
 
 ```bash
 # モノレポからリポジトリを含むワークスペースを作成
-/gsd:new-workspace --name feature-b --repos hr-ui,ZeymoAPI
+/redpill:new-workspace --name feature-b --repos hr-ui,ZeymoAPI
 
-# フィーチャーブランチの分離 — 独自の .planning/ を持つ現在のリポジトリのワークツリー
-/gsd:new-workspace --name feature-b --repos .
+# フィーチャーブランチの分離 — 独自の .redpill/ を持つ現在のリポジトリのワークツリー
+/redpill:new-workspace --name feature-b --repos .
 
-# ワークスペースに移動して GSD を初期化
+# ワークスペースに移動して REDPILL を初期化
 cd ~/gsd-workspaces/feature-b
-/gsd:new-project
+/redpill:new-project
 
 # ワークスペースの一覧と管理
-/gsd:list-workspaces
-/gsd:remove-workspace feature-b
+/redpill:list-workspaces
+/redpill:remove-workspace feature-b
 ```
 
 各ワークスペースには以下が含まれます：
-- 独自の `.planning/` ディレクトリ（ソースリポジトリから完全に独立）
+- 独自の `.redpill/` ディレクトリ（ソースリポジトリから完全に独立）
 - 指定されたリポジトリの Git ワークツリー（デフォルト）またはクローン
 - メンバーリポジトリを追跡する `WORKSPACE.md` マニフェスト
 
@@ -697,15 +697,15 @@ cd ~/gsd-workspaces/feature-b
 
 ### 「Project already initialized」
 
-`/gsd:new-project` を実行したが、`.planning/PROJECT.md` が既に存在しています。これは安全チェックです。やり直したい場合は、まず `.planning/` ディレクトリを削除してください。
+`/redpill:new-project` を実行したが、`.redpill/PROJECT.md` が既に存在しています。これは安全チェックです。やり直したい場合は、まず `.redpill/` ディレクトリを削除してください。
 
 ### 長時間セッションでのコンテキスト劣化
 
-主要なコマンド間でコンテキストウィンドウをクリアしてください：Claude Code では `/clear` を使用します。GSD はフレッシュなコンテキストを前提に設計されています — すべてのサブエージェントはクリーンな 200K ウィンドウを取得します。メインセッションで品質が低下している場合は、クリアして `/gsd:resume-work` または `/gsd:progress` で状態を復元してください。
+主要なコマンド間でコンテキストウィンドウをクリアしてください：Claude Code では `/clear` を使用します。GSD はフレッシュなコンテキストを前提に設計されています — すべてのサブエージェントはクリーンな 200K ウィンドウを取得します。メインセッションで品質が低下している場合は、クリアして `/redpill:resume-work` または `/redpill:progress` で状態を復元してください。
 
 ### プランが誤っている、または方向性がずれている
 
-プランニング前に `/gsd:discuss-phase [N]` を実行してください。プランの品質問題のほとんどは、CONTEXT.md があれば防げたはずの前提を Claude が置いてしまうことに起因します。`/gsd:list-phase-assumptions [N]` を使用して、プランにコミットする前に Claude の意図を確認することもできます。
+プランニング前に `/redpill:discuss-phase [N]` を実行してください。プランの品質問題のほとんどは、CONTEXT.md があれば防げたはずの前提を Claude が置いてしまうことに起因します。`/redpill:list-phase-assumptions [N]` を使用して、プランにコミットする前に Claude の意図を確認することもできます。
 
 ### 実行が失敗する、またはスタブが生成される
 
@@ -713,59 +713,59 @@ cd ~/gsd-workspaces/feature-b
 
 ### 現在地がわからなくなった
 
-`/gsd:progress` を実行してください。すべての状態ファイルを読み込み、現在地と次にやるべきことを正確に教えてくれます。
+`/redpill:progress` を実行してください。すべての状態ファイルを読み込み、現在地と次にやるべきことを正確に教えてくれます。
 
 ### 実行後に変更が必要
 
-`/gsd:execute-phase` を再実行しないでください。ターゲットを絞った修正には `/gsd:quick` を使用するか、`/gsd:verify-work` で体系的に問題を特定し UAT を通じて修正してください。
+`/redpill:execute-phase` を再実行しないでください。ターゲットを絞った修正には `/redpill:quick` を使用するか、`/redpill:verify-work` で体系的に問題を特定し UAT を通じて修正してください。
 
 ### モデルのコストが高すぎる
 
-budget プロファイルに切り替えてください：`/gsd:set-profile budget`。ドメインに慣れている場合（またはClaude が慣れている場合）は、`/gsd:settings` でリサーチエージェントと plan-check エージェントを無効にしてください。
+budget プロファイルに切り替えてください：`/redpill:set-profile budget`。ドメインに慣れている場合（またはClaude が慣れている場合）は、`/redpill:settings` でリサーチエージェントと plan-check エージェントを無効にしてください。
 
 ### 非 Claude ランタイムの使用（Codex、OpenCode、Gemini CLI）
 
-非 Claude ランタイム用に GSD をインストールした場合、インストーラーがモデル解決を設定済みのため、すべてのエージェントがランタイムのデフォルトモデルを使用します。手動設定は不要です。具体的には、インストーラーが設定に `resolve_model_ids: "omit"` を設定し、GSD に Anthropic モデル ID の解決をスキップしてランタイム独自のデフォルトモデルを使用するよう指示します。
+非 Claude ランタイム用に REDPILL をインストールした場合、インストーラーがモデル解決を設定済みのため、すべてのエージェントがランタイムのデフォルトモデルを使用します。手動設定は不要です。具体的には、インストーラーが設定に `resolve_model_ids: "omit"` を設定し、GSD に Anthropic モデル ID の解決をスキップしてランタイム独自のデフォルトモデルを使用するよう指示します。
 
-非 Claude ランタイムで異なるエージェントに異なるモデルを割り当てるには、ランタイムが認識する完全修飾モデル ID を使用して `.planning/config.json` に `model_overrides` を追加します：
+非 Claude ランタイムで異なるエージェントに異なるモデルを割り当てるには、ランタイムが認識する完全修飾モデル ID を使用して `.redpill/config.json` に `model_overrides` を追加します：
 
 ```json
 {
   "resolve_model_ids": "omit",
   "model_overrides": {
-    "gsd-planner": "o3",
-    "gsd-executor": "o4-mini",
-    "gsd-debugger": "o3"
+    "redpill-planner": "o3",
+    "redpill-executor": "o4-mini",
+    "redpill-debugger": "o3"
   }
 }
 ```
 
-インストーラーは Gemini CLI、OpenCode、Codex 用に `resolve_model_ids: "omit"` を自動設定します。非 Claude ランタイムを手動で設定する場合は、`.planning/config.json` に自分で追加してください。
+インストーラーは Gemini CLI、OpenCode、Codex 用に `resolve_model_ids: "omit"` を自動設定します。非 Claude ランタイムを手動で設定する場合は、`.redpill/config.json` に自分で追加してください。
 
 完全な説明は[設定リファレンス](../CONFIGURATION.md#non-claude-runtimes-codex-opencode-gemini-cli)をご覧ください。
 
 ### 非 Anthropic プロバイダーでの Claude Code の使用（OpenRouter、ローカル）
 
-GSD サブエージェントが Anthropic モデルを呼び出し、OpenRouter やローカルプロバイダーを通じて支払っている場合は、`inherit` プロファイルに切り替えてください：`/gsd:set-profile inherit`。これにより、すべてのエージェントが特定の Anthropic モデルの代わりに現在のセッションモデルを使用します。`/gsd:settings` → モデルプロファイル → Inherit も参照してください。
+GSD サブエージェントが Anthropic モデルを呼び出し、OpenRouter やローカルプロバイダーを通じて支払っている場合は、`inherit` プロファイルに切り替えてください：`/redpill:set-profile inherit`。これにより、すべてのエージェントが特定の Anthropic モデルの代わりに現在のセッションモデルを使用します。`/redpill:settings` → モデルプロファイル → Inherit も参照してください。
 
 ### 機密/プライベートプロジェクトでの作業
 
-`/gsd:new-project` 時または `/gsd:settings` で `commit_docs: false` を設定してください。`.planning/` を `.gitignore` に追加してください。プランニングアーティファクトはローカルに保持され、git に含まれません。
+`/redpill:new-project` 時または `/redpill:settings` で `commit_docs: false` を設定してください。`.redpill/` を `.gitignore` に追加してください。プランニングアーティファクトはローカルに保持され、git に含まれません。
 
-### GSD アップデートがローカル変更を上書きした
+### REDPILL アップデートがローカル変更を上書きした
 
-v1.17 以降、インストーラーはローカルで変更されたファイルを `gsd-local-patches/` にバックアップします。`/gsd:reapply-patches` を実行して変更をマージし直してください。
+v1.17 以降、インストーラーはローカルで変更されたファイルを `gsd-local-patches/` にバックアップします。`/redpill:reapply-patches` を実行して変更をマージし直してください。
 
-### ワークフロー診断 (`/gsd:forensics`)
+### ワークフロー診断 (`/redpill:forensics`)
 
-ワークフローが明確でない形で失敗した場合 -- プランが存在しないファイルを参照する、実行が予期しない結果を生成する、状態が破損しているように見える -- `/gsd:forensics` を実行して診断レポートを生成してください。
+ワークフローが明確でない形で失敗した場合 -- プランが存在しないファイルを参照する、実行が予期しない結果を生成する、状態が破損しているように見える -- `/redpill:forensics` を実行して診断レポートを生成してください。
 
 **チェック内容：**
 - Git 履歴の異常（孤立コミット、予期しないブランチ状態、rebase アーティファクト）
 - アーティファクトの整合性（欠落または不正なプランニングファイル、壊れた相互参照）
 - 状態の不整合（ROADMAP のステータスと実際のファイル存在の不一致、設定のドリフト）
 
-**出力：** `.planning/forensics/` に書き出される診断レポート。検出事項と推奨される修復手順が含まれます。
+**出力：** `.redpill/forensics/` に書き出される診断レポート。検出事項と推奨される修復手順が含まれます。
 
 ### サブエージェントが失敗したように見えるが作業は完了している
 
@@ -780,7 +780,7 @@ Claude Code の分類バグに対する既知の回避策があります。GSD �
 All subagent/executor commits MUST use `--no-verify`.
 ```
 
-並列実行を完全に無効にするには：`/gsd:settings` → `parallelization.enabled` を `false` に設定。
+並列実行を完全に無効にするには：`/redpill:settings` → `parallelization.enabled` を `false` に設定。
 
 ### Windows：保護されたディレクトリでインストールがクラッシュする
 
@@ -792,19 +792,19 @@ Windows でインストーラーが `EPERM: operation not permitted, scandir` �
 
 | 問題 | 解決策 |
 |---------|----------|
-| コンテキストの喪失 / 新セッション | `/gsd:resume-work` または `/gsd:progress` |
+| コンテキストの喪失 / 新セッション | `/redpill:resume-work` または `/redpill:progress` |
 | フェーズが失敗した | フェーズのコミットを `git revert` して再プランニング |
-| スコープ変更が必要 | `/gsd:add-phase`、`/gsd:insert-phase`、または `/gsd:remove-phase` |
-| マイルストーン監査でギャップを発見 | `/gsd:plan-milestone-gaps` |
-| 何かが壊れた | `/gsd:debug "description"` |
-| ワークフロー状態が破損している可能性 | `/gsd:forensics` |
-| ターゲットを絞った修正 | `/gsd:quick` |
-| プランがビジョンに合わない | `/gsd:discuss-phase [N]` で再プランニング |
-| コストが高い | `/gsd:set-profile budget` と `/gsd:settings` でエージェントをオフ |
-| アップデートがローカル変更を壊した | `/gsd:reapply-patches` |
-| ステークホルダー向けセッションサマリーが欲しい | `/gsd:session-report` |
-| 次のステップがわからない | `/gsd:next` |
-| 並列実行でビルドエラー | GSD を更新するか `parallelization.enabled: false` を設定 |
+| スコープ変更が必要 | `/redpill:add-phase`、`/redpill:insert-phase`、または `/redpill:remove-phase` |
+| マイルストーン監査でギャップを発見 | `/redpill:plan-milestone-gaps` |
+| 何かが壊れた | `/redpill:debug "description"` |
+| ワークフロー状態が破損している可能性 | `/redpill:forensics` |
+| ターゲットを絞った修正 | `/redpill:quick` |
+| プランがビジョンに合わない | `/redpill:discuss-phase [N]` で再プランニング |
+| コストが高い | `/redpill:set-profile budget` と `/redpill:settings` でエージェントをオフ |
+| アップデートがローカル変更を壊した | `/redpill:reapply-patches` |
+| ステークホルダー向けセッションサマリーが欲しい | `/redpill:session-report` |
+| 次のステップがわからない | `/redpill:next` |
+| 並列実行でビルドエラー | REDPILL を更新するか `parallelization.enabled: false` を設定 |
 
 ---
 
@@ -813,22 +813,22 @@ Windows でインストーラーが `EPERM: operation not permitted, scandir` �
 参考として、GSD がプロジェクトに作成するファイル構造を示します：
 
 ```
-.planning/
+.redpill/
   PROJECT.md              # プロジェクトのビジョンとコンテキスト（常に読み込まれる）
   REQUIREMENTS.md         # スコープ付き v1/v2 要件（ID 付き）
   ROADMAP.md              # ステータス追跡付きフェーズ分割
   STATE.md                # 決定事項、ブロッカー、セッションメモリ
   config.json             # ワークフロー設定
   MILESTONES.md           # 完了したマイルストーンのアーカイブ
-  HANDOFF.json            # 構造化セッション引き継ぎ（/gsd:pause-work から）
-  research/               # /gsd:new-project からのドメインリサーチ
-  reports/                # セッションレポート（/gsd:session-report から）
+  HANDOFF.json            # 構造化セッション引き継ぎ（/redpill:pause-work から）
+  research/               # /redpill:new-project からのドメインリサーチ
+  reports/                # セッションレポート（/redpill:session-report から）
   todos/
     pending/              # 作業待ちのキャプチャされたアイデア
     done/                 # 完了した TODO
   debug/                  # アクティブなデバッグセッション
     resolved/             # アーカイブされたデバッグセッション
-  codebase/               # ブラウンフィールドコードベースマッピング（/gsd:map-codebase から）
+  codebase/               # ブラウンフィールドコードベースマッピング（/redpill:map-codebase から）
   phases/
     XX-phase-name/
       XX-YY-PLAN.md       # アトミック実行プラン
@@ -836,7 +836,7 @@ Windows でインストーラーが `EPERM: operation not permitted, scandir` �
       CONTEXT.md          # 実装の好み
       RESEARCH.md         # エコシステムリサーチの成果
       VERIFICATION.md     # 実行後の検証結果
-      XX-UI-SPEC.md       # UI デザインコントラクト（/gsd:ui-phase から）
-      XX-UI-REVIEW.md     # ビジュアル監査スコア（/gsd:ui-review から）
-  ui-reviews/             # /gsd:ui-review からのスクリーンショット（gitignore 対象）
+      XX-UI-SPEC.md       # UI デザインコントラクト（/redpill:ui-phase から）
+      XX-UI-REVIEW.md     # ビジュアル監査スコア（/redpill:ui-review から）
+  ui-reviews/             # /redpill:ui-review からのスクリーンショット（gitignore 対象）
 ```

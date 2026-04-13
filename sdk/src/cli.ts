@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * CLI entry point for gsd-sdk.
+ * CLI entry point for redpill-sdk.
  *
- * Usage: gsd-sdk run "<prompt>" [--project-dir <dir>] [--ws-port <port>]
+ * Usage: redpill-sdk run "<prompt>" [--project-dir <dir>] [--ws-port <port>]
  *                                [--model <model>] [--max-budget <n>]
  */
 
@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GSD } from './index.js';
+import { REDPILL } from './index.js';
 import { CLITransport } from './cli-transport.js';
 import { WSTransport } from './ws-transport.js';
 import { InitRunner } from './init-runner.js';
@@ -77,7 +77,7 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
 // ─── Usage ───────────────────────────────────────────────────────────────────
 
 export const USAGE = `
-Usage: gsd-sdk <command> [args] [options]
+Usage: redpill-sdk <command> [args] [options]
 
 Commands:
   run <prompt>          Run a full milestone from a text prompt
@@ -155,9 +155,9 @@ async function readStdin(): Promise<string> {
   if (stdin.isTTY) {
     throw new Error(
       'No input provided. Usage:\n' +
-      '  gsd-sdk init @path/to/prd.md\n' +
-      '  gsd-sdk init "build a todo app"\n' +
-      '  cat prd.md | gsd-sdk init'
+      '  redpill-sdk init @path/to/prd.md\n' +
+      '  redpill-sdk init "build a todo app"\n' +
+      '  cat prd.md | redpill-sdk init'
     );
   }
 
@@ -190,19 +190,19 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 
   if (args.version) {
     const ver = await getVersion();
-    console.log(`gsd-sdk v${ver}`);
+    console.log(`redpill-sdk v${ver}`);
     return;
   }
 
   if (args.command !== 'run' && args.command !== 'init' && args.command !== 'auto') {
-    console.error('Error: Expected "gsd-sdk run <prompt>", "gsd-sdk auto", or "gsd-sdk init [input]"');
+    console.error('Error: Expected "redpill-sdk run <prompt>", "redpill-sdk auto", or "redpill-sdk init [input]"');
     console.error(USAGE);
     process.exitCode = 1;
     return;
   }
 
   if (args.command === 'run' && !args.prompt) {
-    console.error('Error: "gsd-sdk run" requires a prompt');
+    console.error('Error: "redpill-sdk run" requires a prompt');
     console.error(USAGE);
     process.exitCode = 1;
     return;
@@ -221,7 +221,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 
     console.log(`[init] Resolved input: ${input.length} chars`);
 
-    // Build GSD instance for tools and event stream
+    // Build REDPILL instance for tools and event stream
     const gsd = new GSD({
       projectDir: args.projectDir,
       model: args.model,
@@ -379,7 +379,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 
   // ─── Run command ─────────────────────────────────────────────────────────
 
-  // Build GSD instance
+  // Build REDPILL instance
   const gsd = new GSD({
     projectDir: args.projectDir,
     model: args.model,

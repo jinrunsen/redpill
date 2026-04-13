@@ -58,14 +58,14 @@ function makePlan(overrides: Partial<ParsedPlan> = {}): ParsedPlan {
 }
 
 const SAMPLE_AGENT_DEF = `---
-name: gsd-executor
-description: Executes GSD plans
+name: redpill-executor
+description: Executes REDPILL plans
 tools: Read, Write, Edit, Bash, Grep, Glob
 permissionMode: acceptEdits
 ---
 
 <role>
-You are a GSD plan executor. You execute PLAN.md files atomically.
+You are a REDPILL plan executor. You execute PLAN.md files atomically.
 </role>
 
 <execution_flow>

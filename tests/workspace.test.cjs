@@ -1,7 +1,7 @@
 /**
- * GSD Workspace Tests
+ * REDPILL Workspace Tests
  *
- * Tests for /gsd:new-workspace, /gsd:list-workspaces, /gsd:remove-workspace
+ * Tests for /redpill:new-workspace, /redpill:list-workspaces, /redpill:remove-workspace
  * init functions and integration with gsd-tools routing.
  */
 
@@ -11,8 +11,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execSync } = require('child_process');
-const { runGsdTools, createTempDir, cleanup } = require('./helpers.cjs');
-const { detectChildRepos } = require('../get-shit-done/bin/lib/init.cjs');
+const { runRedpillTools, createTempDir, cleanup } = require('./helpers.cjs');
+const { detectChildRepos } = require('../redpill/bin/lib/init.cjs');
 
 // ─── detectChildRepos ────────────────────────────────────────────────────────
 
@@ -89,7 +89,7 @@ describe('init new-workspace', () => {
   });
 
   test('returns expected JSON fields', () => {
-    const result = runGsdTools('init new-workspace', tmpDir);
+    const result = runRedpillTools('init new-workspace', tmpDir);
     assert.ok(result.success, `init failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.ok('default_workspace_base' in data);
@@ -106,14 +106,14 @@ describe('init new-workspace', () => {
     fs.mkdirSync(repo);
     execSync('git init', { cwd: repo, stdio: 'pipe' });
 
-    const result = runGsdTools('init new-workspace', tmpDir);
+    const result = runRedpillTools('init new-workspace', tmpDir);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.child_repo_count, 1);
     assert.strictEqual(data.child_repos[0].name, 'my-repo');
   });
 
   test('reports no git repo when cwd is not a git repo', () => {
-    const result = runGsdTools('init new-workspace', tmpDir);
+    const result = runRedpillTools('init new-workspace', tmpDir);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.is_git_repo, false);
   });
@@ -133,7 +133,7 @@ describe('init list-workspaces', () => {
   });
 
   test('returns empty list when no workspaces exist', () => {
-    const result = runGsdTools('init list-workspaces', tmpDir, { HOME: tmpDir });
+    const result = runRedpillTools('init list-workspaces', tmpDir, { HOME: tmpDir });
     assert.ok(result.success, `init failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.workspace_count, 0);
@@ -143,7 +143,7 @@ describe('init list-workspaces', () => {
   test('finds workspaces with WORKSPACE.md', () => {
     const wsBase = path.join(tmpDir, 'gsd-workspaces');
     const ws1 = path.join(wsBase, 'feature-a');
-    fs.mkdirSync(path.join(ws1, '.planning'), { recursive: true });
+    fs.mkdirSync(path.join(ws1, '.redpill'), { recursive: true });
     fs.writeFileSync(path.join(ws1, 'WORKSPACE.md'), [
       '# Workspace: feature-a',
       '',
@@ -157,7 +157,7 @@ describe('init list-workspaces', () => {
       '| hr-ui | /tmp/hr-ui | workspace/feature-a | worktree |',
     ].join('\n'));
 
-    const result = runGsdTools('init list-workspaces', tmpDir, { HOME: tmpDir });
+    const result = runRedpillTools('init list-workspaces', tmpDir, { HOME: tmpDir });
     const data = JSON.parse(result.output);
     assert.strictEqual(data.workspace_count, 1);
     assert.strictEqual(data.workspaces[0].name, 'feature-a');
@@ -180,13 +180,13 @@ describe('init remove-workspace', () => {
   });
 
   test('errors when no name provided', () => {
-    const result = runGsdTools('init remove-workspace', tmpDir);
+    const result = runRedpillTools('init remove-workspace', tmpDir);
     assert.strictEqual(result.success, false);
     assert.ok(result.error.includes('workspace name required'));
   });
 
   test('errors when workspace not found', () => {
-    const result = runGsdTools('init remove-workspace nonexistent', tmpDir, { HOME: tmpDir });
+    const result = runRedpillTools('init remove-workspace nonexistent', tmpDir, { HOME: tmpDir });
     assert.strictEqual(result.success, false);
     assert.ok(result.error.includes('Workspace not found'));
   });
@@ -208,7 +208,7 @@ describe('init remove-workspace', () => {
       '| api | /tmp/api | workspace/test-ws | clone |',
     ].join('\n'));
 
-    const result = runGsdTools('init remove-workspace test-ws', tmpDir, { HOME: tmpDir });
+    const result = runRedpillTools('init remove-workspace test-ws', tmpDir, { HOME: tmpDir });
     assert.ok(result.success, `init failed: ${result.error}`);
     const data = JSON.parse(result.output);
     assert.strictEqual(data.workspace_name, 'test-ws');
@@ -247,7 +247,7 @@ describe('workspace worktree integration', () => {
   test('creates workspace with git worktree', () => {
     const wsPath = path.join(tmpDir, 'my-workspace');
     fs.mkdirSync(wsPath);
-    fs.mkdirSync(path.join(wsPath, '.planning'));
+    fs.mkdirSync(path.join(wsPath, '.redpill'));
 
     // Create worktree
     execSync(`git worktree add "${path.join(wsPath, 'source-repo')}" -b workspace/test`, {
@@ -317,7 +317,7 @@ describe('workspace command files', () => {
 
   test('new-workspace command exists with correct frontmatter', () => {
     const content = fs.readFileSync(path.join(baseDir, 'commands/gsd/new-workspace.md'), 'utf8');
-    assert.ok(content.includes('name: gsd:new-workspace'));
+    assert.ok(content.includes('name: redpill:new-workspace'));
     assert.ok(content.includes('--name'));
     assert.ok(content.includes('--repos'));
     assert.ok(content.includes('--strategy'));
@@ -326,18 +326,18 @@ describe('workspace command files', () => {
 
   test('list-workspaces command exists with correct frontmatter', () => {
     const content = fs.readFileSync(path.join(baseDir, 'commands/gsd/list-workspaces.md'), 'utf8');
-    assert.ok(content.includes('name: gsd:list-workspaces'));
+    assert.ok(content.includes('name: redpill:list-workspaces'));
     assert.ok(content.includes('workflows/list-workspaces.md'));
   });
 
   test('remove-workspace command exists with correct frontmatter', () => {
     const content = fs.readFileSync(path.join(baseDir, 'commands/gsd/remove-workspace.md'), 'utf8');
-    assert.ok(content.includes('name: gsd:remove-workspace'));
+    assert.ok(content.includes('name: redpill:remove-workspace'));
     assert.ok(content.includes('workflows/remove-workspace.md'));
   });
 
   test('new-workspace workflow exists', () => {
-    const content = fs.readFileSync(path.join(baseDir, 'get-shit-done/workflows/new-workspace.md'), 'utf8');
+    const content = fs.readFileSync(path.join(baseDir, 'redpill/workflows/new-workspace.md'), 'utf8');
     assert.ok(content.includes('init new-workspace'));
     assert.ok(content.includes('WORKSPACE.md'));
     assert.ok(content.includes('git worktree add'));
@@ -345,12 +345,12 @@ describe('workspace command files', () => {
   });
 
   test('list-workspaces workflow exists', () => {
-    const content = fs.readFileSync(path.join(baseDir, 'get-shit-done/workflows/list-workspaces.md'), 'utf8');
+    const content = fs.readFileSync(path.join(baseDir, 'redpill/workflows/list-workspaces.md'), 'utf8');
     assert.ok(content.includes('init list-workspaces'));
   });
 
   test('remove-workspace workflow exists', () => {
-    const content = fs.readFileSync(path.join(baseDir, 'get-shit-done/workflows/remove-workspace.md'), 'utf8');
+    const content = fs.readFileSync(path.join(baseDir, 'redpill/workflows/remove-workspace.md'), 'utf8');
     assert.ok(content.includes('init remove-workspace'));
     assert.ok(content.includes('git worktree remove'));
   });
@@ -361,7 +361,7 @@ describe('workspace command files', () => {
 describe('workspace routing in gsd-tools', () => {
   test('init new-workspace is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'gsd-tools.cjs'),
+      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'new-workspace'"));
@@ -370,7 +370,7 @@ describe('workspace routing in gsd-tools', () => {
 
   test('init list-workspaces is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'gsd-tools.cjs'),
+      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'list-workspaces'"));
@@ -379,7 +379,7 @@ describe('workspace routing in gsd-tools', () => {
 
   test('init remove-workspace is routed correctly', () => {
     const toolsContent = fs.readFileSync(
-      path.join(__dirname, '..', 'get-shit-done', 'bin', 'gsd-tools.cjs'),
+      path.join(__dirname, '..', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
       'utf8'
     );
     assert.ok(toolsContent.includes("case 'remove-workspace'"));

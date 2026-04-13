@@ -5,13 +5,13 @@ status: draft
 author: jinrunsen
 ---
 
-# GSD → REDPILL 全量重命名设计文档
+# REDPILL → REDPILL 全量重命名设计文档
 
 ## 目标
 
 将 get-shit-done (GSD) 工具系统完整 fork 为 redpill 品牌，作为部门内部工具使用。
-保留 GSD 的全部功能，仅变更命名、路径、输出文案。Repo 完成后只保留 redpill
-一套，不再保留 GSD 目录。
+保留 REDPILL 的全部功能，仅变更命名、路径、输出文案。Repo 完成后只保留 redpill
+一套，不再保留 REDPILL 目录。
 
 ## 非目标
 
@@ -26,12 +26,12 @@ author: jinrunsen
 
 | 原路径 | 新路径 |
 |---|---|
-| `get-shit-done/` | `redpill/` |
-| `get-shit-done/bin/gsd-tools.cjs` | `redpill/bin/redpill-tools.cjs` |
-| `get-shit-done/bin/lib/*.cjs` | `redpill/bin/lib/*.cjs`（文件名不变） |
-| `get-shit-done/workflows/*.md` | `redpill/workflows/*.md` |
-| `get-shit-done/templates/*` | `redpill/templates/*` |
-| `get-shit-done/references/*.md` | `redpill/references/*.md` |
+| `redpill/` | `redpill/` |
+| `redpill/bin/redpill-tools.cjs` | `redpill/bin/redpill-tools.cjs` |
+| `redpill/bin/lib/*.cjs` | `redpill/bin/lib/*.cjs`（文件名不变） |
+| `redpill/workflows/*.md` | `redpill/workflows/*.md` |
+| `redpill/templates/*` | `redpill/templates/*` |
+| `redpill/references/*.md` | `redpill/references/*.md` |
 | `commands/gsd/*.md` | `commands/redpill/*.md` |
 | `agents/gsd-*.md` | `agents/redpill-*.md`（每个文件逐一重命名） |
 
@@ -39,57 +39,57 @@ author: jinrunsen
 
 ```
 # ── 路径类（最长优先）──────────────────────────────────────
-1.  "$HOME/.claude/get-shit-done/"   →  "$HOME/.claude/redpill/"
-2.  "~/.claude/get-shit-done/"       →  "~/.claude/redpill/"
-3.  "get-shit-done/bin/gsd-tools"    →  "redpill/bin/redpill-tools"
-4.  "get-shit-done/"                 →  "redpill/"
+1.  "$HOME/.claude/redpill/"   →  "$HOME/.claude/redpill/"
+2.  "~/.claude/redpill/"       →  "~/.claude/redpill/"
+3.  "redpill/bin/redpill-tools"    →  "redpill/bin/redpill-tools"
+4.  "redpill/"                 →  "redpill/"
 
 # ── 二进制名 ────────────────────────────────────────────────
-5.  "gsd-tools.cjs"                  →  "redpill-tools.cjs"
+5.  "redpill-tools.cjs"                  →  "redpill-tools.cjs"
 
 # ── 命令名（frontmatter + 引用）─────────────────────────────
-6.  "name: gsd:"                     →  "name: redpill:"
-7.  "/gsd:"                          →  "/redpill:"
-8.  "gsd:"  (在 skill/command 上下文中) →  "redpill:"
+6.  "name: redpill:"                     →  "name: redpill:"
+7.  "/redpill:"                          →  "/redpill:"
+8.  "redpill:"  (在 skill/command 上下文中) →  "redpill:"
 
 # ── Agent 名（文件内 name 字段 + subagent_type 引用）─────────
-9.  "gsd-advisor-researcher"         →  "redpill-advisor-researcher"
-10. "gsd-assumptions-analyzer"       →  "redpill-assumptions-analyzer"
-11. "gsd-codebase-mapper"            →  "redpill-codebase-mapper"
-12. "gsd-debugger"                   →  "redpill-debugger"
-13. "gsd-doc-verifier"               →  "redpill-doc-verifier"
-14. "gsd-doc-writer"                 →  "redpill-doc-writer"
-15. "gsd-executor"                   →  "redpill-executor"
-16. "gsd-feature-reviewer"           →  "redpill-feature-reviewer"
-17. "gsd-integration-checker"        →  "redpill-integration-checker"
-18. "gsd-nyquist-auditor"            →  "redpill-nyquist-auditor"
-19. "gsd-phase-researcher"           →  "redpill-phase-researcher"
-20. "gsd-plan-checker"               →  "redpill-plan-checker"
-21. "gsd-planner"                    →  "redpill-planner"
-22. "gsd-project-researcher"         →  "redpill-project-researcher"
-23. "gsd-research-synthesizer"       →  "redpill-research-synthesizer"
-24. "gsd-roadmapper"                 →  "redpill-roadmapper"
-25. "gsd-security-auditor"           →  "redpill-security-auditor"
-26. "gsd-step-writer"                →  "redpill-step-writer"
-27. "gsd-ui-auditor"                 →  "redpill-ui-auditor"
-28. "gsd-ui-checker"                 →  "redpill-ui-checker"
-29. "gsd-ui-researcher"              →  "redpill-ui-researcher"
-30. "gsd-user-profiler"              →  "redpill-user-profiler"
-31. "gsd-verifier"                   →  "redpill-verifier"
+9.  "redpill-advisor-researcher"         →  "redpill-advisor-researcher"
+10. "redpill-assumptions-analyzer"       →  "redpill-assumptions-analyzer"
+11. "redpill-codebase-mapper"            →  "redpill-codebase-mapper"
+12. "redpill-debugger"                   →  "redpill-debugger"
+13. "redpill-doc-verifier"               →  "redpill-doc-verifier"
+14. "redpill-doc-writer"                 →  "redpill-doc-writer"
+15. "redpill-executor"                   →  "redpill-executor"
+16. "redpill-feature-reviewer"           →  "redpill-feature-reviewer"
+17. "redpill-integration-checker"        →  "redpill-integration-checker"
+18. "redpill-nyquist-auditor"            →  "redpill-nyquist-auditor"
+19. "redpill-phase-researcher"           →  "redpill-phase-researcher"
+20. "redpill-plan-checker"               →  "redpill-plan-checker"
+21. "redpill-planner"                    →  "redpill-planner"
+22. "redpill-project-researcher"         →  "redpill-project-researcher"
+23. "redpill-research-synthesizer"       →  "redpill-research-synthesizer"
+24. "redpill-roadmapper"                 →  "redpill-roadmapper"
+25. "redpill-security-auditor"           →  "redpill-security-auditor"
+26. "redpill-step-writer"                →  "redpill-step-writer"
+27. "redpill-ui-auditor"                 →  "redpill-ui-auditor"
+28. "redpill-ui-checker"                 →  "redpill-ui-checker"
+29. "redpill-ui-researcher"              →  "redpill-ui-researcher"
+30. "redpill-user-profiler"              →  "redpill-user-profiler"
+31. "redpill-verifier"                   →  "redpill-verifier"
 
 # ── 状态目录 ─────────────────────────────────────────────────
-32. ".planning/"                     →  ".redpill/"
-33. "planningDir"                    →  "redpillDir"
-34. "planningRoot"                   →  "redpillRoot"
-35. "planningPaths"                  →  "redpillPaths"
-36. "planning_exists"                →  "redpill_dir_exists"
-37. "planningDir("                   →  "redpillDir("
-38. "planningRoot("                  →  "redpillRoot("
+32. ".redpill/"                     →  ".redpill/"
+33. "redpillDir"                    →  "redpillDir"
+34. "redpillRoot"                   →  "redpillRoot"
+35. "redpillPaths"                  →  "redpillPaths"
+36. "redpill_dir_exists"                →  "redpill_dir_exists"
+37. "redpillDir("                   →  "redpillDir("
+38. "redpillRoot("                  →  "redpillRoot("
 
 # ── Banner / 显示品牌 ───────────────────────────────────────
-39. "GSD ►"                          →  "REDPILL ►"
-40. "GSD >"                          →  "REDPILL >"  (plain text 变体)
-41. " GSD "  (空格包围)               →  " REDPILL "
+39. "REDPILL ►"                          →  "REDPILL ►"
+40. "REDPILL >"                          →  "REDPILL >"  (plain text 变体)
+41. " REDPILL "  (空格包围)               →  " REDPILL "
 
 # ── package.json ─────────────────────────────────────────────
 42. "\"name\": \"get-shit-done\""    →  "\"name\": \"redpill\""
@@ -119,7 +119,7 @@ cd ../redpill-rebrand
 按以下顺序执行 `git mv`，保留 git 历史追踪：
 
 1. `git mv get-shit-done redpill`
-2. `git mv redpill/bin/gsd-tools.cjs redpill/bin/redpill-tools.cjs`
+2. `git mv redpill/bin/redpill-tools.cjs redpill/bin/redpill-tools.cjs`
 3. `git mv commands/gsd commands/redpill`
 4. 逐个重命名 agent 文件：
    ```bash
@@ -141,11 +141,11 @@ cd ../redpill-rebrand
 
 ```javascript
 const rules = [
-  ['$HOME/.claude/get-shit-done/', '$HOME/.claude/redpill/'],
-  ['~/.claude/get-shit-done/', '~/.claude/redpill/'],
-  ['get-shit-done/bin/gsd-tools', 'redpill/bin/redpill-tools'],
-  ['get-shit-done/', 'redpill/'],
-  ['gsd-tools.cjs', 'redpill-tools.cjs'],
+  ['$HOME/.claude/redpill/', '$HOME/.claude/redpill/'],
+  ['~/.claude/redpill/', '~/.claude/redpill/'],
+  ['redpill/bin/redpill-tools', 'redpill/bin/redpill-tools'],
+  ['redpill/', 'redpill/'],
+  ['redpill-tools.cjs', 'redpill-tools.cjs'],
   // ... 完整规则表
 ];
 
@@ -173,14 +173,14 @@ for (const file of allFiles) {
 
 以下文件需要人工审查（脚本无法安全自动处理）：
 
-1. **`redpill/bin/lib/core.cjs`** — `planningDir()`、`planningRoot()`、
-   `planningPaths()` 函数定义需重命名为 `redpillDir()`、`redpillRoot()`、
+1. **`redpill/bin/lib/core.cjs`** — `redpillDir()`、`redpillRoot()`、
+   `redpillPaths()` 函数定义需重命名为 `redpillDir()`、`redpillRoot()`、
    `redpillPaths()`。函数内部的 `.planning` 字符串常量也需更新。
 
 2. **`tests/helpers.cjs`** — `TOOLS_PATH` 变量指向
-   `../get-shit-done/bin/gsd-tools.cjs`，需改为
+   `../redpill/bin/redpill-tools.cjs`，需改为
    `../redpill/bin/redpill-tools.cjs`。`createTempProject()` 中
-   `fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'))` 需改为
+   `fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases'))` 需改为
    `.redpill`。
 
 3. **`package.json`** — `name`、`description`、`bin`（如有）、`scripts`
@@ -219,7 +219,7 @@ for (const file of allFiles) {
 1. 删除旧的 untracked `redpill/` 残留（如果 Phase 1 的 git mv 没有完全覆盖）
 2. 删除 `docs/superpowers/specs/` 和 `docs/superpowers/plans/` 中与本次
    rebrand 无关的旧 spec/plan 文件（可选，按需决定）
-3. 最终 commit：`feat: rebrand GSD to REDPILL`
+3. 最终 commit：`feat: rebrand REDPILL to REDPILL`
 
 ## 影响范围预估
 
@@ -239,41 +239,41 @@ for (const file of allFiles) {
 ## 风险
 
 1. **双重替换**：规则表按特异性从高到低排序执行，长串优先匹配。例如
-   `get-shit-done/bin/gsd-tools` 在规则 3 中完整匹配，不会被规则 4
-   (`get-shit-done/`) 和规则 5 (`gsd-tools.cjs`) 重复处理。
+   `redpill/bin/redpill-tools` 在规则 3 中完整匹配，不会被规则 4
+   (`redpill/`) 和规则 5 (`redpill-tools.cjs`) 重复处理。
 
 2. **非品牌上下文中的 `gsd` 子串**：例如变量名 `gsdPhaseDir`。替换规则
-   只匹配完整的品牌模式（`gsd-executor`、`/gsd:`、`gsd-tools`），不做
+   只匹配完整的品牌模式（`redpill-executor`、`/redpill:`、`gsd-tools`），不做
    裸 `gsd` → `redpill` 全局替换。裸 `gsd` 残留由 Phase 4 的 grep 扫描
    捕获并手动判断。
 
-3. **`.planning/` → `.redpill/` 的范围大**：涉及 core.cjs 中 3 个核心
+3. **`.redpill/` → `.redpill/` 的范围大**：涉及 core.cjs 中 3 个核心
    函数重命名 + ~100 处函数调用 + ~150 处 workflow/template 中的路径引用。
    函数重命名在 Phase 3 中手动处理，路径引用在 Phase 2 脚本中覆盖。
 
 4. **测试中 `createTempProject` 创建的目录**：`helpers.cjs` 里
-   `fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'))` 需改为
-   `.redpill`。所有测试中直接构造 `.planning/` 路径的代码也需更新。
+   `fs.mkdirSync(path.join(tmpDir, '.redpill', 'phases'))` 需改为
+   `.redpill`。所有测试中直接构造 `.redpill/` 路径的代码也需更新。
 
 5. **npm publish 兼容性**：如果 `package.json` 的 `name` 字段用于 npm
    发布，改名后需确认 `redpill` 包名在 npm 上可用。（内部工具可忽略）
 
 ## 成功标准
 
-- [ ] Repo 中不存在 `get-shit-done/` 目录
+- [ ] Repo 中不存在 `redpill/` 目录
 - [ ] Repo 中不存在 `commands/gsd/` 目录
 - [ ] Repo 中不存在 `agents/gsd-*.md` 文件
 - [ ] `grep -r "get-shit-done" --include="*.md" --include="*.cjs"` 返回零结果
       （CHANGELOG.md 除外）
-- [ ] `grep -r "/gsd:" --include="*.md" --include="*.cjs"` 返回零结果
+- [ ] `grep -r "/redpill:" --include="*.md" --include="*.cjs"` 返回零结果
 - [ ] `grep -r "gsd-tools" --include="*.md" --include="*.cjs"` 返回零结果
-- [ ] `grep -r "planningDir\|planningRoot\|planningPaths" --include="*.cjs"` 
+- [ ] `grep -r "redpillDir\|redpillRoot\|redpillPaths" --include="*.cjs"` 
       返回零结果
-- [ ] `grep -r "\.planning/" --include="*.md" --include="*.cjs" --include="*.json"` 
+- [ ] `grep -r "\.redpill/" --include="*.md" --include="*.cjs" --include="*.json"` 
       返回零结果（CHANGELOG.md 除外）
 - [ ] 所有 command frontmatter 包含 `name: redpill:`
 - [ ] 所有 agent frontmatter 包含 `name: redpill-`
 - [ ] `node --test tests/*.test.cjs` 通过（允许与 rebrand 无关的 pre-existing failures）
 - [ ] `node redpill/bin/redpill-tools.cjs init clarify-feature` 输出有效 JSON
 - [ ] `node redpill/bin/redpill-tools.cjs init quick "test"` 输出有效 JSON
-- [ ] Banner 输出包含 `REDPILL ►` 而非 `GSD ►`
+- [ ] Banner 输出包含 `REDPILL ►` 而非 `REDPILL ►`

@@ -6,7 +6,7 @@
  * literal parts of skill/subagent names.
  */
 
-process.env.GSD_TEST_MODE = '1';
+process.env.REDPILL_TEST_MODE = '1';
 
 const { describe, test } = require('node:test');
 const assert = require('node:assert');
@@ -39,21 +39,21 @@ Test body
 
   test('preserves slash for slash commands in markdown body', () => {
     const input = `---
-name: gsd:plan-phase
+name: redpill:plan-phase
 description: Plan a phase
 ---
 
 Next:
-/gsd:execute-phase 17
+/redpill:execute-phase 17
 /gsd-help
-gsd:progress
+redpill:progress
 `;
 
     const result = convertClaudeCommandToWindsurfSkill(input, 'gsd-plan-phase');
-    // Slash commands: /gsd:execute-phase -> /gsd-execute-phase
-    assert.ok(result.includes('/gsd-execute-phase 17'), 'slash command gsd: -> gsd-');
+    // Slash commands: /redpill:execute-phase -> /gsd-execute-phase
+    assert.ok(result.includes('/gsd-execute-phase 17'), 'slash command redpill: -> gsd-');
     assert.ok(result.includes('/gsd-help'), '/gsd-help preserved');
-    assert.ok(result.includes('gsd-progress'), 'bare gsd: -> gsd-');
+    assert.ok(result.includes('gsd-progress'), 'bare redpill: -> gsd-');
   });
 
   test('includes windsurf_skill_adapter block', () => {
@@ -125,10 +125,10 @@ describe('convertClaudeToWindsurfMarkdown', () => {
     assert.ok(result.includes('StrReplace('), 'Edit -> StrReplace');
   });
 
-  test('replaces $ARGUMENTS with {{GSD_ARGS}}', () => {
+  test('replaces $ARGUMENTS with {{REDPILL_ARGS}}', () => {
     const input = 'Pass $ARGUMENTS to the command.';
     const result = convertClaudeToWindsurfMarkdown(input);
-    assert.ok(result.includes('{{GSD_ARGS}}'), '$ARGUMENTS replaced');
+    assert.ok(result.includes('{{REDPILL_ARGS}}'), '$ARGUMENTS replaced');
   });
 
   test('removes classifyHandoffIfNeeded workarounds', () => {

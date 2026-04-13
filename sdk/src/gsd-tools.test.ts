@@ -12,7 +12,7 @@ describe('GSDTools', () => {
     tmpDir = join(tmpdir(), `gsd-tools-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     fixtureDir = join(tmpDir, 'fixtures');
     await mkdir(fixtureDir, { recursive: true });
-    await mkdir(join(tmpDir, '.planning'), { recursive: true });
+    await mkdir(join(tmpDir, '.redpill'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -94,10 +94,10 @@ describe('GSDTools', () => {
       }
     });
 
-    it('throws GSDToolsError with context when gsd-tools.cjs not found', async () => {
+    it('throws GSDToolsError with context when redpill-tools.cjs not found', async () => {
       const tools = new GSDTools({
         projectDir: tmpDir,
-        gsdToolsPath: '/nonexistent/path/gsd-tools.cjs',
+        gsdToolsPath: '/nonexistent/path/redpill-tools.cjs',
       });
 
       await expect(tools.exec('state', ['load'])).rejects.toThrow(GSDToolsError);
@@ -270,7 +270,7 @@ describe('GSDTools', () => {
         commit_docs: true,
         project_exists: false,
         has_codebase_map: false,
-        planning_exists: false,
+        redpill_dir_exists: false,
         has_existing_code: false,
         has_package_file: false,
         is_brownfield: false,
@@ -279,7 +279,7 @@ describe('GSDTools', () => {
         brave_search_available: false,
         firecrawl_available: false,
         exa_search_available: false,
-        project_path: '.planning/PROJECT.md',
+        project_path: '.redpill/PROJECT.md',
         project_root: '/tmp/test',
       };
 
@@ -303,7 +303,7 @@ describe('GSDTools', () => {
       expect(result.project_exists).toBe(false);
       expect(result.has_git).toBe(true);
       expect(result.is_brownfield).toBe(false);
-      expect(result.project_path).toBe('.planning/PROJECT.md');
+      expect(result.project_path).toBe('.redpill/PROJECT.md');
     });
 
     it('propagates errors from gsd-tools', async () => {
@@ -324,23 +324,23 @@ describe('GSDTools', () => {
     it('returns repo-local path when it exists', async () => {
       const localBinDir = join(tmpDir, '.claude', 'get-shit-done', 'bin');
       await mkdir(localBinDir, { recursive: true });
-      await writeFile(join(localBinDir, 'gsd-tools.cjs'), '// stub');
+      await writeFile(join(localBinDir, 'redpill-tools.cjs'), '// stub');
 
       const result = resolveGsdToolsPath(tmpDir);
-      expect(result).toBe(join(localBinDir, 'gsd-tools.cjs'));
+      expect(result).toBe(join(localBinDir, 'redpill-tools.cjs'));
     });
 
     it('falls back to global path when repo-local does not exist', () => {
       const result = resolveGsdToolsPath(tmpDir);
       expect(result).toBe(
-        join(homedir(), '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs'),
+        join(homedir(), '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs'),
       );
     });
 
     it('constructor uses repo-local path when available', async () => {
       const localBinDir = join(tmpDir, '.claude', 'get-shit-done', 'bin');
       await mkdir(localBinDir, { recursive: true });
-      const scriptPath = join(localBinDir, 'gsd-tools.cjs');
+      const scriptPath = join(localBinDir, 'redpill-tools.cjs');
       await writeFile(
         scriptPath,
         `process.stdout.write(JSON.stringify({ source: "local" }));`,

@@ -8,9 +8,9 @@
 
 **Resolve context rot — a degradação de qualidade que acontece conforme o Claude enche a janela de contexto.**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/get-shit-done/actions/workflows/test.yml)
+[![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
+[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/redpill/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
 [![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
@@ -20,7 +20,7 @@
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 **Funciona em Mac, Windows e Linux.**
@@ -63,7 +63,7 @@ O sistema dá ao Claude tudo que ele precisa para fazer o trabalho *e* validar o
 
 Vibe coding ganhou má fama. Você descreve algo, a IA gera código, e sai um resultado inconsistente que quebra em escala.
 
-O GSD corrige isso. É a camada de engenharia de contexto que torna o Claude Code confiável.
+O REDPILL corrige isso. É a camada de engenharia de contexto que torna o Claude Code confiável.
 
 ---
 
@@ -78,7 +78,7 @@ Quality gates embutidos capturam problemas reais: detecção de schema drift sin
 ## Primeiros passos
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 O instalador pede:
@@ -86,11 +86,11 @@ O instalador pede:
 2. **Local** — Global (todos os projetos) ou local (apenas projeto atual)
 
 Verifique com:
-- Claude Code / Gemini: `/gsd:help`
+- Claude Code / Gemini: `/redpill:help`
 - OpenCode: `/gsd-help`
 - Codex: `$gsd-help`
-- Copilot: `/gsd:help`
-- Antigravity: `/gsd:help`
+- Copilot: `/redpill:help`
+- Antigravity: `/redpill:help`
 
 > [!NOTE]
 > A instalação do Codex usa skills (`skills/gsd-*/SKILL.md`) em vez de prompts customizados.
@@ -98,7 +98,7 @@ Verifique com:
 ### Mantendo atualizado
 
 ```bash
-npx get-shit-done-cc@latest
+npx redpill-cc@latest
 ```
 
 <details>
@@ -106,33 +106,33 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global
-npx get-shit-done-cc --claude --local
+npx redpill-cc --claude --global
+npx redpill-cc --claude --local
 
 # OpenCode
-npx get-shit-done-cc --opencode --global
+npx redpill-cc --opencode --global
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global
+npx redpill-cc --gemini --global
 
 # Codex
-npx get-shit-done-cc --codex --global
-npx get-shit-done-cc --codex --local
+npx redpill-cc --codex --global
+npx redpill-cc --codex --local
 
 # Copilot
-npx get-shit-done-cc --copilot --global
-npx get-shit-done-cc --copilot --local
+npx redpill-cc --copilot --global
+npx redpill-cc --copilot --local
 
 # Cursor
-npx get-shit-done-cc --cursor --global
-npx get-shit-done-cc --cursor --local
+npx redpill-cc --cursor --global
+npx redpill-cc --cursor --local
 
 # Antigravity
-npx get-shit-done-cc --antigravity --global
-npx get-shit-done-cc --antigravity --local
+npx redpill-cc --antigravity --global
+npx redpill-cc --antigravity --local
 
 # Todos
-npx get-shit-done-cc --all --global
+npx redpill-cc --all --global
 ```
 
 Use `--global` (`-g`) ou `--local` (`-l`) para pular a pergunta de local.
@@ -153,12 +153,12 @@ claude --dangerously-skip-permissions
 
 ## Como funciona
 
-> **Já tem código?** Rode `/gsd:map-codebase` primeiro para analisar stack, arquitetura, convenções e riscos.
+> **Já tem código?** Rode `/redpill:map-codebase` primeiro para analisar stack, arquitetura, convenções e riscos.
 
 ### 1. Inicializar projeto
 
 ```
-/gsd:new-project
+/redpill:new-project
 ```
 
 O sistema:
@@ -167,12 +167,12 @@ O sistema:
 3. **Extrai requisitos** (v1, v2 e fora de escopo)
 4. **Monta roadmap** por fases
 
-**Cria:** `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`, `.planning/research/`
+**Cria:** `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`, `.redpill/research/`
 
 ### 2. Discutir fase
 
 ```
-/gsd:discuss-phase 1
+/redpill:discuss-phase 1
 ```
 
 Captura suas preferências de implementação antes do planejamento.
@@ -182,7 +182,7 @@ Captura suas preferências de implementação antes do planejamento.
 ### 3. Planejar fase
 
 ```
-/gsd:plan-phase 1
+/redpill:plan-phase 1
 ```
 
 1. Pesquisa abordagens
@@ -194,7 +194,7 @@ Captura suas preferências de implementação antes do planejamento.
 ### 4. Executar fase
 
 ```
-/gsd:execute-phase 1
+/redpill:execute-phase 1
 ```
 
 1. Executa planos em ondas
@@ -207,7 +207,7 @@ Captura suas preferências de implementação antes do planejamento.
 ### 5. Verificar trabalho
 
 ```
-/gsd:verify-work 1
+/redpill:verify-work 1
 ```
 
 Validação manual orientada para confirmar que a feature realmente funciona como esperado.
@@ -217,25 +217,25 @@ Validação manual orientada para confirmar que a feature realmente funciona com
 ### 6. Repetir -> Entregar -> Completar
 
 ```
-/gsd:discuss-phase 2
-/gsd:plan-phase 2
-/gsd:execute-phase 2
-/gsd:verify-work 2
-/gsd:ship 2
-/gsd:complete-milestone
-/gsd:new-milestone
+/redpill:discuss-phase 2
+/redpill:plan-phase 2
+/redpill:execute-phase 2
+/redpill:verify-work 2
+/redpill:ship 2
+/redpill:complete-milestone
+/redpill:new-milestone
 ```
 
-Ou deixe o GSD decidir:
+Ou deixe o REDPILL decidir:
 
 ```
-/gsd:next
+/redpill:next
 ```
 
 ### Modo rápido
 
 ```
-/gsd:quick
+/redpill:quick
 ```
 
 Para tarefas ad-hoc sem ciclo completo de planejamento.
@@ -291,36 +291,36 @@ Cada tarefa gera commit próprio, facilitando `git bisect`, rollback e rastreabi
 
 | Comando | O que faz |
 |---------|-----------|
-| `/gsd:new-project [--auto]` | Inicializa projeto completo |
-| `/gsd:discuss-phase [N] [--auto] [--analyze] [--chain]` | Captura decisões antes do plano (`--chain` encadeia automaticamente em plan+execute) |
-| `/gsd:plan-phase [N] [--auto] [--reviews]` | Pesquisa + plano + validação |
-| `/gsd:execute-phase <N>` | Executa planos em ondas paralelas |
-| `/gsd:verify-work [N]` | UAT manual |
-| `/gsd:ship [N] [--draft]` | Cria PR da fase validada |
-| `/gsd:next` | Avança automaticamente para o próximo passo |
-| `/gsd:fast <text>` | Tarefas triviais sem planejamento |
-| `/gsd:complete-milestone` | Fecha o marco e marca release |
-| `/gsd:new-milestone [name]` | Inicia próximo marco |
+| `/redpill:new-project [--auto]` | Inicializa projeto completo |
+| `/redpill:discuss-phase [N] [--auto] [--analyze] [--chain]` | Captura decisões antes do plano (`--chain` encadeia automaticamente em plan+execute) |
+| `/redpill:plan-phase [N] [--auto] [--reviews]` | Pesquisa + plano + validação |
+| `/redpill:execute-phase <N>` | Executa planos em ondas paralelas |
+| `/redpill:verify-work [N]` | UAT manual |
+| `/redpill:ship [N] [--draft]` | Cria PR da fase validada |
+| `/redpill:next` | Avança automaticamente para o próximo passo |
+| `/redpill:fast <text>` | Tarefas triviais sem planejamento |
+| `/redpill:complete-milestone` | Fecha o marco e marca release |
+| `/redpill:new-milestone [name]` | Inicia próximo marco |
 
 ### Qualidade e utilidades
 
 | Comando | O que faz |
 |---------|-----------|
-| `/gsd:review` | Peer review com múltiplas IAs |
-| `/gsd:pr-branch` | Cria branch limpa para PR |
-| `/gsd:settings` | Configura perfis e agentes |
-| `/gsd:set-profile <profile>` | Troca perfil (quality/balanced/budget/inherit) |
-| `/gsd:quick [--full] [--discuss] [--research]` | Execução rápida com garantias do GSD (`--full` ativa todas as etapas, `--validate` ativa apenas verificação) |
-| `/gsd:health [--repair]` | Verifica e repara `.planning/` |
+| `/redpill:review` | Peer review com múltiplas IAs |
+| `/redpill:pr-branch` | Cria branch limpa para PR |
+| `/redpill:settings` | Configura perfis e agentes |
+| `/redpill:set-profile <profile>` | Troca perfil (quality/balanced/budget/inherit) |
+| `/redpill:quick [--full] [--discuss] [--research]` | Execução rápida com garantias do REDPILL (`--full` ativa todas as etapas, `--validate` ativa apenas verificação) |
+| `/redpill:health [--repair]` | Verifica e repara `.redpill/` |
 
-> Para a lista completa de comandos e opções, use `/gsd:help`.
+> Para a lista completa de comandos e opções, use `/redpill:help`.
 
 ---
 
 ## Configuração
 
-As configurações do projeto ficam em `.planning/config.json`.
-Você pode configurar no `/gsd:new-project` ou ajustar depois com `/gsd:settings`.
+As configurações do projeto ficam em `.redpill/config.json`.
+Você pode configurar no `/redpill:new-project` ou ajustar depois com `/redpill:settings`.
 
 ### Ajustes principais
 
@@ -340,7 +340,7 @@ Você pode configurar no `/gsd:new-project` ou ajustar depois com `/gsd:settings
 
 Troca rápida:
 ```
-/gsd:set-profile budget
+/redpill:set-profile budget
 ```
 
 ---
@@ -349,7 +349,7 @@ Troca rápida:
 
 ### Endurecimento embutido
 
-O GSD inclui proteções como:
+O REDPILL inclui proteções como:
 - prevenção de path traversal
 - detecção de prompt injection
 - validação de argumentos de shell
@@ -384,43 +384,43 @@ Adicione padrões sensíveis ao deny list do Claude Code:
 - Verifique se os arquivos foram instalados no diretório correto
 
 **Comandos não funcionam como esperado?**
-- Rode `/gsd:help`
-- Reinstale com `npx get-shit-done-cc@latest`
+- Rode `/redpill:help`
+- Reinstale com `npx redpill-cc@latest`
 
 **Em Docker/container?**
 - Defina `CLAUDE_CONFIG_DIR` antes da instalação:
 
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx redpill-cc --global
 ```
 
 ### Desinstalar
 
 ```bash
 # Instalações globais
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
-npx get-shit-done-cc --gemini --global --uninstall
-npx get-shit-done-cc --codex --global --uninstall
-npx get-shit-done-cc --copilot --global --uninstall
-npx get-shit-done-cc --cursor --global --uninstall
-npx get-shit-done-cc --antigravity --global --uninstall
+npx redpill-cc --claude --global --uninstall
+npx redpill-cc --opencode --global --uninstall
+npx redpill-cc --gemini --global --uninstall
+npx redpill-cc --codex --global --uninstall
+npx redpill-cc --copilot --global --uninstall
+npx redpill-cc --cursor --global --uninstall
+npx redpill-cc --antigravity --global --uninstall
 
 # Instalações locais (projeto atual)
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
-npx get-shit-done-cc --gemini --local --uninstall
-npx get-shit-done-cc --codex --local --uninstall
-npx get-shit-done-cc --copilot --local --uninstall
-npx get-shit-done-cc --cursor --local --uninstall
-npx get-shit-done-cc --antigravity --local --uninstall
+npx redpill-cc --claude --local --uninstall
+npx redpill-cc --opencode --local --uninstall
+npx redpill-cc --gemini --local --uninstall
+npx redpill-cc --codex --local --uninstall
+npx redpill-cc --copilot --local --uninstall
+npx redpill-cc --cursor --local --uninstall
+npx redpill-cc --antigravity --local --uninstall
 ```
 
 ---
 
 ## Community Ports
 
-OpenCode, Gemini CLI e Codex agora são suportados nativamente via `npx get-shit-done-cc`.
+OpenCode, Gemini CLI e Codex agora são suportados nativamente via `npx redpill-cc`.
 
 | Projeto | Plataforma | Descrição |
 |---------|------------|-----------|
@@ -449,6 +449,6 @@ Licença MIT. Veja [LICENSE](LICENSE).
 
 <div align="center">
 
-**Claude Code é poderoso. O GSD o torna confiável.**
+**Claude Code é poderoso. O REDPILL o torna confiável.**
 
 </div>

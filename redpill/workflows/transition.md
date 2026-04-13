@@ -2,15 +2,15 @@
 
 **This is an INTERNAL workflow — NOT a user-facing command.**
 
-There is no `/gsd:transition` command. This workflow is invoked automatically by
+There is no `/redpill:transition` command. This workflow is invoked automatically by
 `execute-phase` during auto-advance, or inline by the orchestrator after phase
-verification. Users should never be told to run `/gsd:transition`.
+verification. Users should never be told to run `/redpill:transition`.
 
 **Valid user commands for phase progression:**
-- `/gsd:discuss-phase {N}` — discuss a phase before planning
-- `/gsd:plan-phase {N}` — plan a phase
-- `/gsd:execute-phase {N}` — execute a phase
-- `/gsd:progress` — see roadmap progress
+- `/redpill:discuss-phase {N}` — discuss a phase before planning
+- `/redpill:plan-phase {N}` — plan a phase
+- `/redpill:execute-phase {N}` — execute a phase
+- `/redpill:progress` — see roadmap progress
 
 </internal_workflow>
 
@@ -18,9 +18,9 @@ verification. Users should never be told to run `/gsd:transition`.
 
 **Read these files NOW:**
 
-1. `.planning/STATE.md`
-2. `.planning/PROJECT.md`
-3. `.planning/ROADMAP.md`
+1. `.redpill/STATE.md`
+2. `.redpill/PROJECT.md`
+3. `.redpill/ROADMAP.md`
 4. Current phase's plan files (`*-PLAN.md`)
 5. Current phase's summary files (`*-SUMMARY.md`)
 
@@ -41,8 +41,8 @@ Mark current phase complete and advance to next. This is the natural point where
 Before transition, read project state:
 
 ```bash
-cat .planning/STATE.md 2>/dev/null || true
-cat .planning/PROJECT.md 2>/dev/null || true
+cat .redpill/STATE.md 2>/dev/null || true
+cat .redpill/PROJECT.md 2>/dev/null || true
 ```
 
 Parse current position to verify we're transitioning the right phase.
@@ -55,8 +55,8 @@ Note accumulated context that may need updating after transition.
 Check current phase has all plan summaries:
 
 ```bash
-(ls .planning/phases/XX-current/*-PLAN.md 2>/dev/null || true) | sort
-(ls .planning/phases/XX-current/*-SUMMARY.md 2>/dev/null || true) | sort
+(ls .redpill/phases/XX-current/*-PLAN.md 2>/dev/null || true) | sort
+(ls .redpill/phases/XX-current/*-SUMMARY.md 2>/dev/null || true) | sort
 ```
 
 **Verification logic:**
@@ -69,7 +69,7 @@ Check current phase has all plan summaries:
 <config-check>
 
 ```bash
-cat .planning/config.json 2>/dev/null || true
+cat .redpill/config.json 2>/dev/null || true
 ```
 
 </config-check>
@@ -79,7 +79,7 @@ cat .planning/config.json 2>/dev/null || true
 ```bash
 # Count outstanding items in current phase
 OUTSTANDING=""
-for f in .planning/phases/XX-current/*-UAT.md .planning/phases/XX-current/*-VERIFICATION.md; do
+for f in .redpill/phases/XX-current/*-UAT.md .redpill/phases/XX-current/*-VERIFICATION.md; do
   [ -f "$f" ] || continue
   grep -q "result: pending\|result: blocked\|status: partial\|status: human_needed\|status: diagnosed" "$f" && OUTSTANDING="$OUTSTANDING\n$(basename $f)"
 done
@@ -93,7 +93,7 @@ Append to the completion confirmation message (regardless of mode):
 Outstanding verification items in this phase:
 {list filenames}
 
-These will carry forward as debt. Review: `/gsd:audit-uat`
+These will carry forward as debt. Review: `/redpill:audit-uat`
 ```
 
 This does NOT block transition — it ensures the user sees the debt before confirming.
@@ -151,7 +151,7 @@ Wait for user decision.
 Check for lingering handoffs:
 
 ```bash
-ls .planning/phases/XX-current/.continue-here*.md 2>/dev/null || true
+ls .redpill/phases/XX-current/.continue-here*.md 2>/dev/null || true
 ```
 
 If found, delete them — phase is complete, handoffs are stale.
@@ -163,7 +163,7 @@ If found, delete them — phase is complete, handoffs are stale.
 **Delegate ROADMAP.md and STATE.md updates to gsd-tools:**
 
 ```bash
-TRANSITION=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" phase complete "${current_phase}")
+TRANSITION=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" phase complete "${current_phase}")
 ```
 
 The CLI handles:
@@ -191,7 +191,7 @@ Evolve PROJECT.md to reflect learnings from completed phase.
 **Read phase summaries:**
 
 ```bash
-cat .planning/phases/XX-current/*-SUMMARY.md
+cat .redpill/phases/XX-current/*-SUMMARY.md
 ```
 
 **Assess requirement changes:**
@@ -278,7 +278,7 @@ After (Phase 2 shipped JWT auth, discovered rate limiting needed):
 Verify the updates are correct by reading STATE.md. If the progress bar needs updating, use:
 
 ```bash
-PROGRESS=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" progress bar --raw)
+PROGRESS=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" progress bar --raw)
 ```
 
 Update the progress bar line in STATE.md with the result.
@@ -299,7 +299,7 @@ Update Project Reference section in STATE.md.
 ```markdown
 ## Project Reference
 
-See: .planning/PROJECT.md (updated [today])
+See: .redpill/PROJECT.md (updated [today])
 
 **Core value:** [Current core value from PROJECT.md]
 **Current focus:** [Next phase name]
@@ -387,7 +387,7 @@ The `next_phase` and `next_phase_name` fields give you the next phase details.
 
 If you need additional context, use:
 ```bash
-ROADMAP=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" roadmap analyze)
+ROADMAP=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" roadmap analyze)
 ```
 
 This returns all phases with goals, disk status, and completion info.
@@ -400,20 +400,20 @@ Before routing to Route B, check whether other workstreams are still active.
 This prevents one workstream from advancing or completing the milestone while
 other workstreams are still working on their phases.
 
-**Skip this check if NOT in workstream mode** (i.e., `GSD_WORKSTREAM` is not set / flat mode).
+**Skip this check if NOT in workstream mode** (i.e., `REDPILL_WORKSTREAM` is not set / flat mode).
 In flat mode, go directly to **Route B**.
 
 ```bash
 # Only check if we're in workstream mode
-if [ -n "$GSD_WORKSTREAM" ]; then
-  WS_LIST=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" workstream list --raw)
+if [ -n "$REDPILL_WORKSTREAM" ]; then
+  WS_LIST=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" workstream list --raw)
 fi
 ```
 
 Parse the JSON result. The output has `{ mode, workstreams: [...] }`.
 Each workstream entry has: `name`, `status`, `current_phase`, `phase_count`, `completed_phases`.
 
-Filter out the current workstream (`$GSD_WORKSTREAM`) and any workstreams with
+Filter out the current workstream (`$REDPILL_WORKSTREAM`) and any workstreams with
 status containing "milestone complete" or "archived" (case-insensitive).
 The remaining entries are **other active workstreams**.
 
@@ -429,7 +429,7 @@ Read ROADMAP.md to get the next phase's name and goal.
 **Check if next phase has CONTEXT.md:**
 
 ```bash
-ls .planning/phases/*[X+1]*/*-CONTEXT.md 2>/dev/null || true
+ls .redpill/phases/*[X+1]*/*-CONTEXT.md 2>/dev/null || true
 ```
 
 **If next phase exists:**
@@ -446,7 +446,7 @@ Next: Phase [X+1] — [Name]
 ⚡ Auto-continuing: Plan Phase [X+1] in detail
 ```
 
-Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1] --auto ${GSD_WS}")
+Exit skill and invoke SlashCommand("/redpill:plan-phase [X+1] --auto ${REDPILL_WS}")
 
 **If CONTEXT.md does NOT exist:**
 
@@ -458,7 +458,7 @@ Next: Phase [X+1] — [Name]
 ⚡ Auto-continuing: Discuss Phase [X+1] first
 ```
 
-Exit skill and invoke SlashCommand("/gsd:discuss-phase [X+1] --auto ${GSD_WS}")
+Exit skill and invoke SlashCommand("/redpill:discuss-phase [X+1] --auto ${REDPILL_WS}")
 
 </if>
 
@@ -475,15 +475,15 @@ Exit skill and invoke SlashCommand("/gsd:discuss-phase [X+1] --auto ${GSD_WS}")
 
 **Phase [X+1]: [Name]** — [Goal from ROADMAP.md]
 
-`/gsd:discuss-phase [X+1] ${GSD_WS}` — gather context and clarify approach
+`/redpill:discuss-phase [X+1] ${REDPILL_WS}` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:plan-phase [X+1] ${GSD_WS}` — skip discussion, plan directly
-- `/gsd:research-phase [X+1] ${GSD_WS}` — investigate unknowns
+- `/redpill:plan-phase [X+1] ${REDPILL_WS}` — skip discussion, plan directly
+- `/redpill:research-phase [X+1] ${REDPILL_WS}` — investigate unknowns
 
 ---
 ```
@@ -500,15 +500,15 @@ Exit skill and invoke SlashCommand("/gsd:discuss-phase [X+1] --auto ${GSD_WS}")
 **Phase [X+1]: [Name]** — [Goal from ROADMAP.md]
 <sub>✓ Context gathered, ready to plan</sub>
 
-`/gsd:plan-phase [X+1] ${GSD_WS}`
+`/redpill:plan-phase [X+1] ${REDPILL_WS}`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:discuss-phase [X+1] ${GSD_WS}` — revisit context
-- `/gsd:research-phase [X+1] ${GSD_WS}` — investigate unknowns
+- `/redpill:discuss-phase [X+1] ${REDPILL_WS}` — revisit context
+- `/redpill:research-phase [X+1] ${REDPILL_WS}` — investigate unknowns
 
 ---
 ```
@@ -526,7 +526,7 @@ to the next milestone — other workstreams are still working.
 **Clear auto-advance chain flag** — workstream boundary is the natural stopping point:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-set workflow._auto_chain_active false
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" config-set workflow._auto_chain_active false
 ```
 
 <if mode="yolo">
@@ -554,18 +554,18 @@ This workstream's phases are complete. Other workstreams are still active:
 
 Archive this workstream:
 
-`/gsd:workstreams complete {current_ws_name} ${GSD_WS}`
+`/redpill:workstreams complete {current_ws_name} ${REDPILL_WS}`
 
 See overall milestone progress:
 
-`/gsd:workstreams progress ${GSD_WS}`
+`/redpill:workstreams progress ${REDPILL_WS}`
 
 <sub>Milestone completion will be available once all workstreams finish.</sub>
 
 ---
 ```
 
-Do NOT suggest `/gsd:complete-milestone` or `/gsd:new-milestone`.
+Do NOT suggest `/redpill:complete-milestone` or `/redpill:new-milestone`.
 Do NOT auto-invoke any further slash commands.
 
 **Stop here.** The user must explicitly decide what to do next.
@@ -580,7 +580,7 @@ Do NOT auto-invoke any further slash commands.
 **Clear auto-advance chain flag** — milestone boundary is the natural stopping point:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-set workflow._auto_chain_active false
+node "$HOME/.claude/redpill/bin/redpill-tools.cjs" config-set workflow._auto_chain_active false
 ```
 
 <if mode="yolo">
@@ -593,7 +593,7 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Complete milestone and archive
 ```
 
-Exit skill and invoke SlashCommand("/gsd:complete-milestone {version} ${GSD_WS}")
+Exit skill and invoke SlashCommand("/redpill:complete-milestone {version} ${REDPILL_WS}")
 
 </if>
 
@@ -610,7 +610,7 @@ Exit skill and invoke SlashCommand("/gsd:complete-milestone {version} ${GSD_WS}"
 
 **Complete Milestone {version}** — archive and prepare for next
 
-`/gsd:complete-milestone {version} ${GSD_WS}`
+`/redpill:complete-milestone {version} ${REDPILL_WS}`
 
 <sub>`/clear` first → fresh context window</sub>
 

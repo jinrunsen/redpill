@@ -1,5 +1,5 @@
 /**
- * CLI Transport — renders GSD events as rich ANSI-colored output to a Writable stream.
+ * CLI Transport — renders REDPILL events as rich ANSI-colored output to a Writable stream.
  *
  * Implements TransportHandler with colored banners, step indicators, spawn markers,
  * and running cost totals. No external dependencies — ANSI codes are inline constants.
@@ -52,7 +52,7 @@ export class CLITransport implements TransportHandler {
     this.out = out ?? process.stdout;
   }
 
-  /** Format and write a GSD event as a rich ANSI-colored line. Never throws. */
+  /** Format and write a REDPILL event as a rich ANSI-colored line. Never throws. */
   onEvent(event: GSDEvent): void {
     try {
       const line = this.formatEvent(event);
@@ -86,7 +86,7 @@ export class CLITransport implements TransportHandler {
         return `[${time}] [TOOL] ${event.toolName}(${truncate(JSON.stringify(event.input), 80)})`;
 
       case GSDEventType.PhaseStart:
-        return `${BOLD}${CYAN}━━━ GSD ► PHASE ${event.phaseNumber}: ${event.phaseName} ━━━${RESET}`;
+        return `${BOLD}${CYAN}━━━ REDPILL ► PHASE ${event.phaseNumber}: ${event.phaseName} ━━━${RESET}`;
 
       case GSDEventType.PhaseComplete:
         return `[${time}] [PHASE] Phase ${event.phaseNumber} complete — success: ${event.success}, cost: ${usd(event.totalCostUsd)}, running: ${usd(this.runningCostUsd)}`;
@@ -111,7 +111,7 @@ export class CLITransport implements TransportHandler {
       }
 
       case GSDEventType.MilestoneStart:
-        return `${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n${BOLD}  GSD Milestone — ${event.phaseCount} phases${RESET}\n${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}`;
+        return `${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n${BOLD}  REDPILL Milestone — ${event.phaseCount} phases${RESET}\n${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}`;
 
       case GSDEventType.MilestoneComplete:
         return `${BOLD}━━━ Milestone complete — success: ${event.success}, cost: ${usd(event.totalCostUsd)}, running: ${usd(this.runningCostUsd)} ━━━${RESET}`;

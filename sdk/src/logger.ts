@@ -1,5 +1,5 @@
 /**
- * Structured JSON logger for GSD debugging.
+ * Structured JSON logger for REDPILL debugging.
  *
  * Writes structured log entries to stderr (or configurable writable stream).
  * This is a debugging facility (R019), separate from the event stream.

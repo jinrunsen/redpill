@@ -32,7 +32,7 @@ const sdkPromptsDir = join(__dirname, '..', 'prompts');
 const BLOCKED_PATTERNS: Array<[string, RegExp]> = [
   ['AskUserQuestion', /AskUserQuestion\s*\(/],
   ['SlashCommand', /SlashCommand\s*\(/],
-  ['/gsd: command', /\/gsd:\S+/],
+  ['/redpill: command', /\/redpill:\S+/],
   ['@file: reference', /@file:\S+/],
   ['STOP + wait directive', /\bSTOP\b\s+(?:and\s+)?(?:wait|ask)/i],
   ['bare STOP directive', /^\s*STOP\s*[.!]?\s*$/m],
@@ -174,23 +174,23 @@ describe('InitRunner assembled output', () => {
   } as unknown as GSDEventStream;
 
   beforeAll(async () => {
-    // Create temp directory with .planning/ structure for InitRunner file reads
+    // Create temp directory with .redpill/ structure for InitRunner file reads
     tmpDir = await mkdtemp(join(tmpdir(), 'assembled-prompts-'));
-    const planningDir = join(tmpDir, '.planning');
-    const researchDir = join(planningDir, 'research');
+    const redpillDir = join(tmpDir, '.redpill');
+    const researchDir = join(redpillDir, 'research');
     await mkdir(researchDir, { recursive: true });
 
     // Write minimal stubs that InitRunner reads
     await writeFile(
-      join(planningDir, 'PROJECT.md'),
+      join(redpillDir, 'PROJECT.md'),
       '# Test Project\n\nA minimal test project for contract testing.\n',
     );
     await writeFile(
-      join(planningDir, 'config.json'),
+      join(redpillDir, 'config.json'),
       JSON.stringify({ mode: 'yolo', parallelization: true }, null, 2),
     );
     await writeFile(
-      join(planningDir, 'REQUIREMENTS.md'),
+      join(redpillDir, 'REQUIREMENTS.md'),
       '# Requirements\n\n## R001 — Test Requirement\n',
     );
     await writeFile(
@@ -334,7 +334,7 @@ describe('InitRunner assembled output', () => {
     });
 
     it('contains agent definition content', () => {
-      // Roadmap prompt loads gsd-roadmapper.md
+      // Roadmap prompt loads redpill-roadmapper.md
       expect(output).toContain('agent_definition');
     });
 

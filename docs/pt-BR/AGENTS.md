@@ -7,7 +7,7 @@ Para a listagem completa com regras detalhadas, consulte [AGENTS.md em inglês](
 
 ## Visão geral
 
-O GSD usa um **orquestrador leve** para coordenar subagentes especializados por etapa:
+O REDPILL usa um **orquestrador leve** para coordenar subagentes especializados por etapa:
 
 - pesquisa
 - planejamento

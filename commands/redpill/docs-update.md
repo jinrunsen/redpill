@@ -1,5 +1,5 @@
 ---
-name: gsd:docs-update
+name: redpill:docs-update
 description: Generate or update project documentation verified against the codebase
 argument-hint: "[--force] [--verify-only]"
 allowed-tools:
@@ -13,27 +13,27 @@ allowed-tools:
   - AskUserQuestion
 ---
 <objective>
-Generate and update up to 9 documentation files for the current project. Each doc type is written by a gsd-doc-writer subagent that explores the codebase directly — no hallucinated paths, phantom endpoints, or stale signatures.
+Generate and update up to 9 documentation files for the current project. Each doc type is written by a redpill-doc-writer subagent that explores the codebase directly — no hallucinated paths, phantom endpoints, or stale signatures.
 
 Flag handling rule:
 - The optional flags documented below are available behaviors, not implied active behaviors
 - A flag is active only when its literal token appears in `$ARGUMENTS`
 - If a documented flag is absent from `$ARGUMENTS`, treat it as inactive
-- `--force`: skip preservation prompts, regenerate all docs regardless of existing content or GSD markers
+- `--force`: skip preservation prompts, regenerate all docs regardless of existing content or REDPILL markers
 - `--verify-only`: check existing docs for accuracy against codebase, no generation (full verification requires Phase 4 verifier)
 - If `--force` and `--verify-only` both appear in `$ARGUMENTS`, `--force` takes precedence
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/docs-update.md
+@~/.claude/redpill/workflows/docs-update.md
 </execution_context>
 
 <context>
 Arguments: $ARGUMENTS
 
 **Available optional flags (documentation only — not automatically active):**
-- `--force` — Regenerate all docs. Overwrites hand-written and GSD docs alike. No preservation prompts.
-- `--verify-only` — Check existing docs for accuracy against the codebase. No files are written. Reports VERIFY marker count. Full codebase fact-checking requires the gsd-doc-verifier agent (Phase 4).
+- `--force` — Regenerate all docs. Overwrites hand-written and REDPILL docs alike. No preservation prompts.
+- `--verify-only` — Check existing docs for accuracy against the codebase. No files are written. Reports VERIFY marker count. Full codebase fact-checking requires the redpill-doc-verifier agent (Phase 4).
 
 **Active flags must be derived from `$ARGUMENTS`:**
 - `--force` is active only if the literal `--force` token is present in `$ARGUMENTS`
@@ -43,6 +43,6 @@ Arguments: $ARGUMENTS
 </context>
 
 <process>
-Execute the docs-update workflow from @~/.claude/get-shit-done/workflows/docs-update.md end-to-end.
+Execute the docs-update workflow from @~/.claude/redpill/workflows/docs-update.md end-to-end.
 Preserve all workflow gates (preservation_check, flag handling, wave execution, monorepo dispatch, commit, reporting).
 </process>

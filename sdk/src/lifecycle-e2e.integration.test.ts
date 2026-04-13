@@ -3,7 +3,7 @@
  * the full phase lifecycle: discuss → research → plan → execute → verify → advance
  * after bootstrapping a real project via InitRunner.
  *
- * This is the capstone proof that `gsd-sdk auto` works end-to-end
+ * This is the capstone proof that `redpill-sdk auto` works end-to-end
  * without human intervention. InitRunner bootstraps the project,
  * then GSD.runPhase() drives Phase 1 through the complete lifecycle.
  *
@@ -19,7 +19,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 
-import { GSD } from './index.js';
+import { REDPILL } from './index.js';
 import { InitRunner } from './init-runner.js';
 import { GSDTools } from './gsd-tools.js';
 import { GSDEventStream } from './event-stream.js';
@@ -38,7 +38,7 @@ try {
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const sdkPromptsDir = join(__dirname, '..', 'prompts');
-const GSD_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+const REDPILL_TOOLS_PATH = join(homedir(), '.claude', 'get-shit-done', 'bin', 'redpill-tools.cjs');
 
 // ─── Lifecycle step ordering for monotonicity check ──────────────────────────
 
@@ -62,7 +62,7 @@ describe.skipIf(!cliAvailable)('E2E Lifecycle: InitRunner → GSD.runPhase() ful
 
   // ── Bootstrap: create temp dir, git init, run InitRunner ──────────────
   beforeAll(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'gsd-sdk-lifecycle-e2e-'));
+    tmpDir = await mkdtemp(join(tmpdir(), 'redpill-sdk-lifecycle-e2e-'));
 
     // Git init (required by InitRunner and phase lifecycle)
     execSync('git init', { cwd: tmpDir, stdio: 'ignore' });
@@ -71,7 +71,7 @@ describe.skipIf(!cliAvailable)('E2E Lifecycle: InitRunner → GSD.runPhase() ful
 
     tools = new GSDTools({
       projectDir: tmpDir,
-      gsdToolsPath: GSD_TOOLS_PATH,
+      gsdToolsPath: REDPILL_TOOLS_PATH,
       timeoutMs: 30_000,
     });
 
@@ -108,7 +108,7 @@ describe.skipIf(!cliAvailable)('E2E Lifecycle: InitRunner → GSD.runPhase() ful
       } catch {
         // If roadmap analyze fails, try scanning the phases dir directly
         try {
-          const phasesDir = join(tmpDir, '.planning', 'phases');
+          const phasesDir = join(tmpDir, '.redpill', 'phases');
           const entries = await readdir(phasesDir);
           const phaseEntries = entries
             .filter(e => /^\d+/.test(e))
@@ -143,7 +143,7 @@ describe.skipIf(!cliAvailable)('E2E Lifecycle: InitRunner → GSD.runPhase() ful
     }
 
     // Verify ROADMAP.md exists and contains at least one phase
-    const roadmapPath = join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapPath = join(tmpDir, '.redpill', 'ROADMAP.md');
     const roadmapStat = await stat(roadmapPath).catch(() => null);
     expect(roadmapStat).not.toBeNull();
 
@@ -160,7 +160,7 @@ describe.skipIf(!cliAvailable)('E2E Lifecycle: InitRunner → GSD.runPhase() ful
     // Collect all events during the phase lifecycle
     const events: GSDEvent[] = [];
 
-    // Construct GSD with autoMode: true
+    // Construct REDPILL with autoMode: true
     const gsd = new GSD({
       projectDir: tmpDir,
       autoMode: true,
