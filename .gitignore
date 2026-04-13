@@ -9,8 +9,7 @@ commands.html
 .claude/
 .worktree/
 
-# Build artifacts (committed to npm, not git)
-hooks/dist/
+# hooks/dist/ is tracked in git so clone-based installs work without a build step
 
 # Coverage artifacts
 coverage/
