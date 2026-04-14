@@ -93,7 +93,7 @@ Verifique com:
 - Antigravity: `/redpill:help`
 
 > [!NOTE]
-> A instalação do Codex usa skills (`skills/redpill-*/SKILL.md`) em vez de prompts customizados.
+> Claude Code instala como commands (`commands/redpill/*.md`). Codex usa skills (`skills/redpill-*/SKILL.md`). O instalador lida com isso automaticamente.
 
 ### Mantendo atualizado
 

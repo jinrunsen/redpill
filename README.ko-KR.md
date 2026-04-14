@@ -95,7 +95,7 @@ npx redpill-cc@latest
 - Antigravity: `/redpill:help`
 
 > [!NOTE]
-> Codex 설치는 커스텀 프롬프트 대신 스킬(`skills/redpill-*/SKILL.md`)을 사용합니다.
+> Claude Code는 commands(`commands/redpill/*.md`)로 설치됩니다. Codex는 스킬(`skills/redpill-*/SKILL.md`)을 사용합니다. 설치 프로그램이 자동으로 처리합니다.
 
 ### 업데이트 유지
 

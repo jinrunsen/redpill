@@ -3873,7 +3873,15 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
     }
   } else {
-    // Claude Code: remove skills/gsd-*/ and skills/redpill-*/ directories
+    // Claude Code: remove commands/redpill/ directory
+    const redpillCommandsDir = path.join(targetDir, 'commands', 'redpill');
+    if (fs.existsSync(redpillCommandsDir)) {
+      fs.rmSync(redpillCommandsDir, { recursive: true });
+      removedCount++;
+      console.log(`  ${green}✓${reset} Removed commands/redpill/`);
+    }
+
+    // Also clean up legacy skills/gsd-*/ and skills/redpill-*/ from older installs
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
       let skillCount = 0;
@@ -3886,30 +3894,16 @@ function uninstall(isGlobal, runtime = 'claude') {
       }
       if (skillCount > 0) {
         removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Claude Code skills`);
+        console.log(`  ${green}✓${reset} Removed ${skillCount} legacy Claude Code skills`);
       }
     }
 
     // Also clean up legacy commands/gsd/ from older installs
     const legacyCommandsDir = path.join(targetDir, 'commands', 'gsd');
     if (fs.existsSync(legacyCommandsDir)) {
-      // Preserve user-generated files before legacy wipe (#1423)
-      const devPrefsPath = path.join(legacyCommandsDir, 'dev-preferences.md');
-      const preservedDevPrefs = fs.existsSync(devPrefsPath) ? fs.readFileSync(devPrefsPath, 'utf-8') : null;
-
       fs.rmSync(legacyCommandsDir, { recursive: true });
       removedCount++;
       console.log(`  ${green}✓${reset} Removed legacy commands/gsd/`);
-
-      if (preservedDevPrefs) {
-        try {
-          fs.mkdirSync(legacyCommandsDir, { recursive: true });
-          fs.writeFileSync(devPrefsPath, preservedDevPrefs);
-          console.log(`  ${green}✓${reset} Preserved commands/gsd/dev-preferences.md`);
-        } catch (err) {
-          console.error(`  ${red}✗${reset} Failed to restore dev-preferences.md: ${err.message}`);
-        }
-      }
     }
   }
 
@@ -4375,7 +4369,8 @@ function writeManifest(configDir, runtime = 'claude') {
   for (const [rel, hash] of Object.entries(gsdHashes)) {
     manifest.files['redpill/' + rel] = hash;
   }
-  if (isGemini && fs.existsSync(commandsDir)) {
+  const isClaude = !isOpencode && !isGemini && !isCodex && !isCopilot && !isAntigravity && !isCursor && !isWindsurf;
+  if ((isGemini || isClaude) && fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
     for (const [rel, hash] of Object.entries(cmdHashes)) {
       manifest.files['commands/redpill/' + rel] = hash;
@@ -4388,7 +4383,7 @@ function writeManifest(configDir, runtime = 'claude') {
       }
     }
   }
-  if ((isCodex || isCopilot || isAntigravity || isCursor || isWindsurf || (!isOpencode && !isGemini)) && fs.existsSync(codexSkillsDir)) {
+  if ((isCodex || isCopilot || isAntigravity || isCursor || isWindsurf) && fs.existsSync(codexSkillsDir)) {
     for (const skillName of listCodexSkillNames(codexSkillsDir)) {
       const skillRoot = path.join(codexSkillsDir, skillName);
       const skillHashes = generateManifest(skillRoot);
@@ -4568,7 +4563,7 @@ function install(isGlobal, runtime = 'claude') {
   // Clean up orphaned files from previous versions
   cleanupOrphanedFiles(targetDir);
 
-  // OpenCode uses command/ (flat), Codex uses skills/, Claude/Gemini use commands/gsd/
+  // OpenCode uses command/ (flat), Codex uses skills/, Claude/Gemini use commands/redpill/
   if (isOpencode) {
     // OpenCode: flat structure in command/ directory
     const commandDir = path.join(targetDir, 'command');
@@ -4665,20 +4660,33 @@ function install(isGlobal, runtime = 'claude') {
       failures.push('commands/redpill');
     }
   } else {
-    // Claude Code: skills/ format (2.1.88+ compatibility)
-    const skillsDir = path.join(targetDir, 'skills');
+    // Claude Code: commands/redpill/ format (native commands mechanism)
+    const commandsDir = path.join(targetDir, 'commands');
+    fs.mkdirSync(commandsDir, { recursive: true });
     const gsdSrc = path.join(src, 'commands', 'redpill');
-    copyCommandsAsClaudeSkills(gsdSrc, skillsDir, 'redpill', pathPrefix, runtime, isGlobal);
-    if (fs.existsSync(skillsDir)) {
-      const count = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory() && e.name.startsWith('redpill-')).length;
-      if (count > 0) {
-        console.log(`  ${green}✓${reset} Installed ${count} skills to skills/`);
-      } else {
-        failures.push('skills/redpill-*');
-      }
+    const redpillDest = path.join(commandsDir, 'redpill');
+    copyWithPathReplacement(gsdSrc, redpillDest, pathPrefix, runtime, false, isGlobal);
+    if (verifyInstalled(redpillDest, 'commands/redpill')) {
+      const count = fs.readdirSync(redpillDest).filter(f => f.endsWith('.md')).length;
+      console.log(`  ${green}✓${reset} Installed ${count} commands to commands/redpill/`);
     } else {
-      failures.push('skills/redpill-*');
+      failures.push('commands/redpill');
+    }
+
+    // Clean up legacy skills/redpill-*/ from previous installs
+    const legacySkillsDir = path.join(targetDir, 'skills');
+    if (fs.existsSync(legacySkillsDir)) {
+      let legacyCount = 0;
+      const entries = fs.readdirSync(legacySkillsDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory() && (entry.name.startsWith('redpill-') || entry.name.startsWith('gsd-'))) {
+          fs.rmSync(path.join(legacySkillsDir, entry.name), { recursive: true });
+          legacyCount++;
+        }
+      }
+      if (legacyCount > 0) {
+        console.log(`  ${green}✓${reset} Removed ${legacyCount} legacy skills`);
+      }
     }
 
     // Clean up legacy commands/gsd/ from previous installs

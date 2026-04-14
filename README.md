@@ -93,7 +93,7 @@ Verify with:
 - Codex: `$redpill-help`
 
 > [!NOTE]
-> Claude Code 2.1.88+ and Codex install as skills (`skills/redpill-*/SKILL.md`). Older Claude Code versions use `commands/redpill/`. The installer handles this automatically.
+> Claude Code installs as commands (`commands/redpill/*.md`). Codex installs as skills (`skills/redpill-*/SKILL.md`). The installer handles this automatically.
 
 ### Staying Updated
 
@@ -764,7 +764,7 @@ This prevents Claude from reading these files entirely, regardless of what comma
 
 **Commands not found after install?**
 - Restart your runtime to reload commands/skills
-- Verify files exist in `~/.claude/skills/redpill-*/SKILL.md` (Claude Code 2.1.88+) or `~/.claude/commands/redpill/` (legacy)
+- For Claude Code, verify files exist in `~/.claude/commands/redpill/*.md` (global) or `./.claude/commands/redpill/*.md` (local)
 - For Codex, verify skills exist in `~/.codex/skills/redpill-*/SKILL.md` (global) or `./.codex/skills/redpill-*/SKILL.md` (local)
 
 **Commands not working as expected?**

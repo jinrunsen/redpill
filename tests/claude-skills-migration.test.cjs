@@ -316,9 +316,9 @@ describe('Legacy commands/gsd/ cleanup', () => {
   });
 });
 
-// ─── writeManifest tracks skills/ for Claude ────────────────────────────────
+// ─── writeManifest tracks commands/redpill/ for Claude ──────────────────────
 
-describe('writeManifest tracks skills/ for Claude', () => {
+describe('writeManifest tracks commands/redpill/ for Claude', () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -329,12 +329,11 @@ describe('writeManifest tracks skills/ for Claude', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('manifest includes skills/gsd-xxx/SKILL.md entries for Claude runtime', () => {
-    // Create skills directory structure (as install would)
-    const skillsDir = path.join(tmpDir, 'skills');
-    const skillDir = path.join(skillsDir, 'gsd-next');
-    fs.mkdirSync(skillDir, { recursive: true });
-    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'skill content');
+  test('manifest includes commands/redpill/ entries for Claude runtime', () => {
+    // Create commands directory structure (as install would)
+    const commandsDir = path.join(tmpDir, 'commands', 'redpill');
+    fs.mkdirSync(commandsDir, { recursive: true });
+    fs.writeFileSync(path.join(commandsDir, 'next.md'), 'command content');
 
     // Create redpill directory (required by writeManifest)
     const gsdDir = path.join(tmpDir, 'redpill');
@@ -347,21 +346,21 @@ describe('writeManifest tracks skills/ for Claude', () => {
       fs.readFileSync(path.join(tmpDir, 'gsd-file-manifest.json'), 'utf8')
     );
 
-    // Should have skills/ entries
+    // Should have commands/redpill/ entries
+    const cmdEntries = Object.keys(manifest.files).filter(k =>
+      k.startsWith('commands/redpill/')
+    );
+    assert.ok(cmdEntries.length > 0, 'manifest has commands/redpill/ entries');
+    assert.ok(
+      cmdEntries.some(k => k === 'commands/redpill/next.md'),
+      'manifest has commands/redpill/next.md'
+    );
+
+    // Should NOT have skills/ entries
     const skillEntries = Object.keys(manifest.files).filter(k =>
       k.startsWith('skills/')
     );
-    assert.ok(skillEntries.length > 0, 'manifest has skills/ entries');
-    assert.ok(
-      skillEntries.some(k => k === 'skills/gsd-next/SKILL.md'),
-      'manifest has skills/gsd-next/SKILL.md'
-    );
-
-    // Should NOT have commands/gsd/ entries
-    const cmdEntries = Object.keys(manifest.files).filter(k =>
-      k.startsWith('commands/gsd/')
-    );
-    assert.strictEqual(cmdEntries.length, 0, 'manifest has no commands/gsd/ entries');
+    assert.strictEqual(skillEntries.length, 0, 'manifest has no skills/ entries');
   });
 });
 

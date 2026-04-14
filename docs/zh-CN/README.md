@@ -91,7 +91,7 @@ npx redpill-cc@latest
 - Codex: `$redpill-help`
 
 > [!NOTE]
-> Codex 安装使用技能（`skills/redpill-*/SKILL.md`）而非自定义提示。
+> Claude Code 安装为 commands（`commands/redpill/*.md`）。Codex 安装使用技能（`skills/redpill-*/SKILL.md`）。安装器会自动处理。
 
 ### 保持更新
 

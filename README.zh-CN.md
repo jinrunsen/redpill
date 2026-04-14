@@ -93,7 +93,7 @@ npx redpill-cc@latest
 - Antigravity：`/redpill:help`
 
 > [!NOTE]
-> Codex 安装走的是 skill 机制（`skills/redpill-*/SKILL.md`），不是自定义 prompt。
+> Claude Code 安装为 commands（`commands/redpill/*.md`）。Codex 安装走的是 skill 机制（`skills/redpill-*/SKILL.md`）。安装器会自动处理。
 
 ### 保持更新
 
