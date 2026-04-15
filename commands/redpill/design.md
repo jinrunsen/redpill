@@ -1,5 +1,5 @@
 ---
-name: redpill:design-feature
+name: redpill:design
 description: Create a technical design document from .feature files — interactively or autonomously (--auto). Covers architecture, API, data models, implementation order, and risks. Reviewed by tech reviewer agent.
 argument-hint: "<feature-name-or-path> [--auto] [--skip-review]"
 allowed-tools:
@@ -35,7 +35,7 @@ loop (up to `design_review_max_rounds` rounds, default 3).
 </objective>
 
 <execution_context>
-@~/.claude/redpill/workflows/design-feature.md
+@~/.claude/redpill/workflows/design.md
 </execution_context>
 
 <context>
@@ -50,8 +50,8 @@ First argument: feature name, slug, task_id, or path to a .feature file.
 </context>
 
 <process>
-Execute the design-feature workflow from
-@~/.claude/redpill/workflows/design-feature.md end-to-end.
+Execute the design workflow from
+@~/.claude/redpill/workflows/design.md end-to-end.
 Follow all steps: init, feature location, context loading, design generation
 (interactive or auto), tech review loop (max 3 rounds), and commit.
 </process>

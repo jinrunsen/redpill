@@ -8,7 +8,7 @@
 - One command entry (`commands/gsd/clarify-feature.md`) delegating to one workflow (`redpill/workflows/clarify-feature.md`).
 - A new init handler (`cmdInitClarifyFeature` in `lib/init.cjs`) reuses the existing quick-task YYMMDD-xxx ID scheme and surfaces feature-file scanning results.
 - A new read-only subagent (`agents/redpill-feature-reviewer.md`) emits a structured `<FEATURE_REVIEW>` block with per-issue `category: auto-fixable | product-decision` classification.
-- Workspace layout mirrors `.redpill/quick/` so future `/redpill:design-feature`, `/redpill:run-bdd`, and `/redpill:archive-feature` commands share the same per-task directory.
+- Workspace layout mirrors `.redpill/quick/` so future `/redpill:design`, `/redpill:run-bdd`, and `/redpill:archive-feature` commands share the same per-task directory.
 
 **Tech Stack:** Node.js (redpill-tools.cjs), Markdown workflows, Claude Code subagent frontmatter, `node:test` for unit tests.
 
@@ -1222,7 +1222,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
 
  Next:
    /redpill:run-bdd ${TASK_DIR}/${SLUG}.feature
-   /redpill:design-feature ${task_id}    — technical design (future)
+   /redpill:design ${task_id}    — technical design (future)
    /redpill:archive-feature ${task_id}   — promote to features/ (future)
 ```
 
@@ -1549,5 +1549,5 @@ Before executing this plan, check against `docs/superpowers/specs/2026-04-11-gsd
 - `redpill-tools.cjs state record-feature-task` helper: per the spec's Risks
   section, graceful degradation is acceptable. The workflow does not invoke
   a non-existent state helper. Adding that helper is a follow-up plan.
-- `/redpill:design-feature`, `/redpill:archive-feature`: out of spec scope entirely.
+- `/redpill:design`, `/redpill:archive-feature`: out of spec scope entirely.
   Only referenced in the completion banner as future commands.

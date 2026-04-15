@@ -26,7 +26,7 @@ workflow 融合为一个 REDPILL 原生命令，满足以下要求：
 - 把 staging 的 feature 归档/升级到正式的 `features/` 目录。归档流程不在
   本次范围；本 spec 仅在 `TASK.md` 中保留足够元数据，供未来的
   `/redpill:archive-feature` 命令接续。
-- 设计后续的 `/redpill:design-feature` 和 BDD-feature 命令。这些命令将共享同一
+- 设计后续的 `/redpill:design` 和 BDD-feature 命令。这些命令将共享同一
   工作区——本 spec 只保证目录结构为它们预留空间。
 - 生成 BDD step 定义或生产代码——那仍是 `/redpill:bdd-phase` / `/redpill:run-bdd`
   的职责。
@@ -65,7 +65,7 @@ workflow 融合为一个 REDPILL 原生命令，满足以下要求：
   251011-a3f-user-login/              ← 一个 feature task workspace
     TASK.md                            ← 元数据 frontmatter + 备注
     user-login.feature                 ← clarify-feature 的产出（本 spec 范围）
-    user-login-DESIGN.md               ← 未来 /redpill:design-feature 的产出
+    user-login-DESIGN.md               ← 未来 /redpill:design 的产出
     user-login-BDD-PROGRESS.json       ← 未来 BDD 迭代状态
     user-login-BDD-SUMMARY.md          ← 未来 BDD 完成总结
 ```
@@ -318,7 +318,7 @@ deferred TODO，而不是失败。
 
  Next:
    /redpill:run-bdd .redpill/features/${task_id}-${slug}/${slug}.feature
-   /redpill:design-feature ${task_id}    — 技术设计（未来）
+   /redpill:design ${task_id}    — 技术设计（未来）
    /redpill:archive-feature ${task_id}   — 归档到 features/（未来）
 ```
 
@@ -460,7 +460,7 @@ summary: "一段话的整体评估"
 - `scanFeatureFiles(root)` —— 递归 `*.feature` 扫描
 - `extractFeatureDomains(paths)` —— 一级子目录提取（作为 DDD domain 列表）
 
-这些 helper 将被未来的 `init design-feature` 和 `init archive-feature`
+这些 helper 将被未来的 `init design` 和 `init archive-feature`
 handler 复用。
 
 ## Config 新增项

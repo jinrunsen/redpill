@@ -442,7 +442,7 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
 
  Next:
    /redpill:run-bdd ${TASK_DIR}/${SLUG}.feature
-   /redpill:design-feature ${task_id}    — technical design (future)
+   /redpill:design ${task_id}    — technical design (future)
    /redpill:archive-feature ${task_id}   — promote to features/ (future)
 ```
 
