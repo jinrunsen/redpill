@@ -82,7 +82,7 @@ REDPILL BDD 模式是一套**行为驱动开发**（Behavior-Driven Development�
 │          └── redpill-feature-reviewer（最多 3 轮）   │
 │  Step 3.5 设计审查 → redpill-design-reviewer         │
 │          └── 需求覆盖 + 发明检查（最多 3 轮）        │
-│  Step 4. 自动技术设计 → /redpill:auto-design         │
+│  Step 4. 自动技术设计 → /redpill:design-feature --auto         │
 │          └── redpill-verifier 审查（最多 3 轮）       │
 │  Step 5. 创建隔离 worktree                           │
 │  Step 6. BDD 主循环 → /redpill:run-bdd               │
@@ -177,13 +177,17 @@ Scenario: 分组A查看报表
 
 ---
 
-### `/redpill:auto-design` — 自动技术设计
+### `/redpill:design-feature` — 技术设计
 
-**用途：** 从 .feature 文件自动生成技术设计文档。
+**用途：** 从 .feature 文件创建技术设计文档。交互式（默认）或自主式（`--auto`）。
 
 ```
-/redpill:auto-design <feature文件路径或名称> [--skip-review]
+/redpill:design-feature <feature文件路径或名称> [--auto] [--skip-review]
 ```
+
+**两种模式：**
+- **默认（交互式）**：引导用户讨论架构方案、接口设计、数据模型、实现顺序
+- **`--auto`**：一次性自主生成，不提问
 
 **产出：** `{task_dir}/{slug}-DESIGN.md`，包含 7 个章节：
 
@@ -430,7 +434,7 @@ BDD 模式产出的文件分布：
 /redpill:clarify-feature "用户注册功能" --auto --domain auth
 
 # 步骤 2：生成技术设计
-/redpill:auto-design .redpill/features/260414-xxx-user-register/user-register.feature
+/redpill:design-feature --auto .redpill/features/260414-xxx-user-register/user-register.feature
 
 # 步骤 3：运行 BDD
 /redpill:run-bdd .redpill/features/260414-xxx-user-register/user-register.feature \
@@ -497,9 +501,9 @@ BDD 模式产出的文件分布：
 /redpill:clarify-feature "你的需求" --auto
 ```
 
-### "Unknown init workflow: auto-design"
+### "Unknown init workflow: design-feature"
 
-这是正常的——`auto-design` 复用 `init clarify-feature`。如果看到这个错误，
+这是正常的——`design-feature` 复用 `init clarify-feature`。如果看到这个错误，
 说明工具版本未更新，重新安装：
 
 ```bash

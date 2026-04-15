@@ -1,6 +1,6 @@
 <purpose>
 Execute the full BDD lifecycle autonomously from a single requirement input.
-Pipeline: init → auto-feature → auto-design → worktree → BDD loop → finish-branch → report.
+Pipeline: init → auto-feature → design-feature --auto → worktree → BDD loop → finish-branch → report.
 Each stage has guard rails that exit cleanly with guidance rather than producing low-quality output.
 Requires a requirement description or PRD file path as input — refuses to start without one.
 
@@ -187,14 +187,14 @@ have been auto-fixed where possible and product questions are recorded.
 
 **Skip if:** `--skip-design` flag is set.
 
-Invoke `/redpill:auto-design` to generate a technical design document from
-the feature file. This includes a tech reviewer loop (max 3 rounds).
+Invoke `/redpill:design-feature` in auto mode to generate a technical design
+document from the feature file. This includes a tech reviewer loop (max 3 rounds).
 
 ```
-Skill(skill="redpill:auto-design", args="${FEATURE_FILE}")
+Skill(skill="redpill:design-feature", args="${FEATURE_FILE} --auto")
 ```
 
-The auto-design workflow:
+The design-feature --auto workflow:
 1. Loads project context (architecture, conventions, tech stack)
 2. Generates DESIGN.md covering: architecture, API/interfaces, data models,
    service layer, implementation order, error handling, risks
@@ -322,7 +322,7 @@ Display completion:
 - [ ] Guard rail: exits cleanly if feature generation signals NEEDS_HUMAN_DESIGN
 - [ ] design-reviewer spawned after feature generation (max 3 rounds via design_review_max_rounds)
 - [ ] Guard rail: exits cleanly if design-reviewer signals NEEDS_HUMAN_DESIGN
-- [ ] auto-design produces a DESIGN.md (skippable via --skip-design)
+- [ ] design-feature --auto produces a DESIGN.md (skippable via --skip-design)
 - [ ] Guard rail: exits cleanly if design is too complex for autonomous handling
 - [ ] Worktree created for isolation (skippable via --skip-worktree)
 - [ ] BDD loop invoked via /redpill:run-bdd with feature file and design
