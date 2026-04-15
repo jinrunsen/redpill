@@ -1,6 +1,6 @@
 <purpose>
 Execute the full BDD lifecycle autonomously from a single requirement input.
-Pipeline: init → auto-feature → design-feature --auto → worktree → BDD loop → finish-branch → report.
+Pipeline: init → auto-feature → design --auto → worktree → BDD loop → finish-branch → report.
 Each stage has guard rails that exit cleanly with guidance rather than producing low-quality output.
 Requires a requirement description or PRD file path as input — refuses to start without one.
 
@@ -18,9 +18,10 @@ Read CLAUDE.md (if it exists) for project conventions.
 Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
 - redpill-feature-reviewer — Reviews Gherkin spec quality, business language, and sample data authenticity. Read-only.
 - redpill-design-reviewer — Reviews whether .feature files faithfully represent original requirements. Acts as human proxy. Read-only.
+- redpill-tech-reviewer — Reviews technical design for scenario coverage, codebase consistency, over-design detection, and pattern conformance. Read-only.
 - redpill-step-writer — Writes BDD step definitions (Python/behave), never writes production code
 - redpill-executor — Executes implementation tasks, commits work
-- redpill-verifier — Verifies implementation quality and design alignment
+- redpill-verifier — Verifies implementation quality and design alignment (BDD REVIEW phase)
 </available_agent_types>
 
 <process>
@@ -187,18 +188,18 @@ have been auto-fixed where possible and product questions are recorded.
 
 **Skip if:** `--skip-design` flag is set.
 
-Invoke `/redpill:design-feature` in auto mode to generate a technical design
+Invoke `/redpill:design` in auto mode to generate a technical design
 document from the feature file. This includes a tech reviewer loop (max 3 rounds).
 
 ```
-Skill(skill="redpill:design-feature", args="${FEATURE_FILE} --auto")
+Skill(skill="redpill:design", args="${FEATURE_FILE} --auto")
 ```
 
-The design-feature --auto workflow:
+The design --auto workflow:
 1. Loads project context (architecture, conventions, tech stack)
 2. Generates DESIGN.md covering: architecture, API/interfaces, data models,
    service layer, implementation order, error handling, risks
-3. Spawns tech reviewer (redpill-verifier) for up to 3 rounds of review
+3. Spawns tech reviewer (redpill-tech-reviewer) for up to 3 rounds of review
 4. Auto-fixes BLOCKING issues; logs ADVISORY issues
 5. Commits the design document
 
@@ -244,7 +245,8 @@ orchestrator — you coordinate, you do NOT write code. The architecture is:
 - `redpill-step-writer` — writes step definitions (RED phase)
 - `redpill-step-reviewer` — reviews step definitions
 - **`redpill-executor`** — writes ALL production/backend/service code (WORK phase)
-- `redpill-verifier` — reviews implementation quality (REVIEW phase)
+- `redpill-tech-reviewer` — reviews technical design (Step 4)
+- `redpill-verifier` — reviews implementation quality (BDD REVIEW phase)
 
 If a scenario fails after step definitions are written, you MUST spawn
 `redpill-executor` via `Agent(subagent_type="redpill-executor", ...)` to
@@ -322,7 +324,7 @@ Display completion:
 - [ ] Guard rail: exits cleanly if feature generation signals NEEDS_HUMAN_DESIGN
 - [ ] design-reviewer spawned after feature generation (max 3 rounds via design_review_max_rounds)
 - [ ] Guard rail: exits cleanly if design-reviewer signals NEEDS_HUMAN_DESIGN
-- [ ] design-feature --auto produces a DESIGN.md (skippable via --skip-design)
+- [ ] design --auto produces a DESIGN.md (skippable via --skip-design)
 - [ ] Guard rail: exits cleanly if design is too complex for autonomous handling
 - [ ] Worktree created for isolation (skippable via --skip-worktree)
 - [ ] BDD loop invoked via /redpill:run-bdd with feature file and design
