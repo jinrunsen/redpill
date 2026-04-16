@@ -46,6 +46,7 @@ Evaluate `$ARGUMENTS` against these routing rules. Apply the **first matching** 
 | Writing or clarifying a .feature file, "编写 feature", "clarify feature", "行为设计", describing scenarios/behaviors to formalize | `/redpill:clarify-feature` | Interactive or auto feature authoring with reviewer |
 | Editing an existing .feature file in-place, "修改 feature", "edit feature", "调整场景", pointing at a .feature path to refine | `/redpill:edit-feature` | In-place feature editing with reviewer (no task workspace) |
 | Running BDD scenarios against existing .feature files, "run BDD", "运行场景", "behave" | `/redpill:run-bdd` | Phase-independent BDD runner |
+| Scanning/listing scenario status across feature files, "feature status", "扫描 feature", "场景进度", "哪些场景还没做" | `/redpill:feature-scan` | Static scan of @status-* tags across all .feature files |
 | Executing a phase using BDD mode, "BDD phase N", "用 BDD 执行" | `/redpill:bdd-phase` | Scenario-driven phase execution |
 | A complex task: refactoring, migration, multi-file architecture, system redesign | `/redpill:add-phase` | Needs a full phase with plan/build cycle |
 | Planning a specific phase or "plan phase N" | `/redpill:plan-phase` | Direct planning request |

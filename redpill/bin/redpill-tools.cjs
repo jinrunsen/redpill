@@ -157,6 +157,7 @@ const profilePipeline = require('./lib/profile-pipeline.cjs');
 const profileOutput = require('./lib/profile-output.cjs');
 const workstream = require('./lib/workstream.cjs');
 const docs = require('./lib/docs.cjs');
+const bdd = require('./lib/bdd.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -697,6 +698,18 @@ async function runCommand(command, args, cwd, raw) {
     case 'stats': {
       const subcommand = args[1] || 'json';
       commands.cmdStats(cwd, subcommand, raw);
+      break;
+    }
+
+    case 'bdd': {
+      const subcommand = args[1];
+      if (subcommand === 'summary') {
+        const dirIdx = args.indexOf('--dir');
+        const featuresDir = dirIdx !== -1 ? args[dirIdx + 1] : 'features';
+        bdd.cmdBddSummary(cwd, featuresDir, raw);
+      } else {
+        error('Unknown bdd subcommand. Available: summary');
+      }
       break;
     }
 
