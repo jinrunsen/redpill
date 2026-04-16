@@ -1724,6 +1724,60 @@ function cmdInitClarifyFeature(cwd, raw) {
   output(withProjectRoot(cwd, result), raw);
 }
 
+/**
+ * init edit-feature — lightweight init for in-place feature editing.
+ * Same shape as clarify-feature but without task_id or features_task_dir_base
+ * (no task workspace is created).
+ */
+function cmdInitEditFeature(cwd, raw) {
+  const config = loadConfig(cwd);
+
+  const existingFeatures = scanFeatureFiles(cwd);
+  const existingDomains = extractFeatureDomains(existingFeatures);
+
+  // Tech stack hint — best-effort, file existence only.
+  let techStackHint = null;
+  try {
+    techStackHint = {
+      has_package_json: fs.existsSync(path.join(cwd, 'package.json')),
+      has_pyproject_toml: fs.existsSync(path.join(cwd, 'pyproject.toml')),
+      has_cargo_toml: fs.existsSync(path.join(cwd, 'Cargo.toml')),
+      has_go_mod: fs.existsSync(path.join(cwd, 'go.mod')),
+    };
+  } catch {
+    techStackHint = null;
+  }
+
+  const result = {
+    // Models
+    verifier_model: resolveModelInternal(cwd, 'redpill-verifier'),
+
+    // Config flags
+    text_mode: config.text_mode,
+
+    // Environment
+    redpill_dir_exists: fs.existsSync(redpillRoot(cwd)),
+
+    // Paths
+    state_path: toPosixPath(path.relative(cwd, path.join(redpillDir(cwd), 'STATE.md'))),
+    claude_md_path: './CLAUDE.md',
+
+    // Feature inventory
+    existing_features: existingFeatures,
+    existing_feature_domains: existingDomains,
+    has_existing_features: existingFeatures.length > 0,
+
+    // Tech stack hint (best-effort)
+    tech_stack_hint: techStackHint,
+
+    // Review config
+    feature_review_max_rounds: config.feature_review_max_rounds,
+    feature_auto_scenario_cap: config.feature_auto_scenario_cap,
+  };
+
+  output(withProjectRoot(cwd, result), raw);
+}
+
 module.exports = {
   cmdInitExecutePhase,
   cmdInitPlanPhase,
@@ -1749,4 +1803,5 @@ module.exports = {
   scanFeatureFiles,
   extractFeatureDomains,
   cmdInitClarifyFeature,
+  cmdInitEditFeature,
 };
