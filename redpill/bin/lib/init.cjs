@@ -1580,12 +1580,24 @@ function cmdInitBddPhase(cwd, phase, raw) {
     result.has_feature_files = false;
   }
 
-  // Check behave availability
+  // Check behave availability + --fail-focus support (requires custom fork:
+  // https://github.com/jinrunsen/behave.git). Both signals are surfaced so
+  // workflows can tell "behave missing" from "behave present but stock".
   try {
     execSync('behave --version', { stdio: 'pipe', timeout: 5000 });
     result.behave_available = true;
   } catch {
     result.behave_available = false;
+  }
+  if (result.behave_available) {
+    try {
+      const help = execSync('behave --help', { stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 }).toString();
+      result.behave_fail_focus_supported = /--fail-focus\b/.test(help);
+    } catch {
+      result.behave_fail_focus_supported = false;
+    }
+  } else {
+    result.behave_fail_focus_supported = false;
   }
 
   output(withProjectRoot(cwd, result), raw);
@@ -1641,12 +1653,23 @@ function cmdInitRunBdd(cwd, raw) {
     result.has_feature_files = false;
   }
 
-  // Check behave availability
+  // Check behave availability + --fail-focus support (requires custom fork:
+  // https://github.com/jinrunsen/behave.git).
   try {
     execSync('behave --version', { stdio: 'pipe', timeout: 5000 });
     result.behave_available = true;
   } catch {
     result.behave_available = false;
+  }
+  if (result.behave_available) {
+    try {
+      const help = execSync('behave --help', { stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 }).toString();
+      result.behave_fail_focus_supported = /--fail-focus\b/.test(help);
+    } catch {
+      result.behave_fail_focus_supported = false;
+    }
+  } else {
+    result.behave_fail_focus_supported = false;
   }
 
   output(withProjectRoot(cwd, result), raw);

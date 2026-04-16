@@ -226,6 +226,76 @@ Exit.
 
 On success: `✓ Middleware: all {count} services reachable`
 
+### 3c.1 Check BDD Tooling (behave)
+
+REDPILL's BDD workflows (`/redpill:bdd-phase`, `/redpill:run-bdd`, `/redpill:auto-run-bdd`) require the custom `behave` fork that adds `--fail-focus` support. Only run this check if the project uses BDD.
+
+```bash
+if [[ -d features ]] && ls features/**/*.feature features/*.feature 2>/dev/null | head -1 > /dev/null; then
+  USES_BDD=true
+else
+  USES_BDD=false
+fi
+```
+
+If `USES_BDD` is false → skip this section.
+
+Otherwise, check behave is installed:
+
+```bash
+behave --version
+```
+
+If `behave --version` fails (command not found or non-zero exit):
+
+```
+❌ behave not found (required for BDD workflows)
+
+This project uses BDD (.feature files detected) and REDPILL needs the custom
+behave fork that supports the `--fail-focus` flag.
+
+Install it from the fork:
+  pip install 'git+https://github.com/jinrunsen/behave.git'
+
+Or if you use a virtualenv:
+  pip install --force-reinstall 'git+https://github.com/jinrunsen/behave.git'
+
+Then re-run /redpill:check-env.
+```
+
+Exit.
+
+Check `--fail-focus` is supported:
+
+```bash
+behave --help 2>&1 | grep -q -- '--fail-focus'
+```
+
+If the grep fails (exit code non-zero), the installed behave is the stock upstream version and lacks `--fail-focus`:
+
+```
+❌ behave is installed but does not support --fail-focus
+
+REDPILL BDD workflows need the custom behave fork. Your current behave is
+missing the `--fail-focus` flag.
+
+  Installed: $(behave --version 2>&1 | head -1)
+  Required:  custom fork at https://github.com/jinrunsen/behave.git
+
+Reinstall from the fork:
+  pip uninstall -y behave
+  pip install 'git+https://github.com/jinrunsen/behave.git'
+
+Or force-reinstall in one step:
+  pip install --force-reinstall 'git+https://github.com/jinrunsen/behave.git'
+
+Then re-run /redpill:check-env.
+```
+
+Exit.
+
+On success: `✓ BDD tooling: behave with --fail-focus support`
+
 ### 3d. Run Install
 
 ```bash
@@ -324,6 +394,7 @@ Exit if not verified.
 
  ✓ Prerequisites:  {count} checks passed
  ✓ Middleware:     {count} services reachable
+ ✓ BDD tooling:    behave with --fail-focus support  (omit line if project has no features/)
  ✓ Install:        dependencies installed
  ✓ Build:          compilation successful
  ✓ Service:        verified running locally
@@ -343,6 +414,7 @@ Exit if not verified.
 - [ ] Frontmatter parsed and required fields validated
 - [ ] Prerequisites checked (presence + version)
 - [ ] Middleware connectivity verified
+- [ ] BDD tooling checked when `features/` present (behave installed + supports `--fail-focus`)
 - [ ] Install command succeeds
 - [ ] Build command succeeds
 - [ ] Service starts and verify command passes

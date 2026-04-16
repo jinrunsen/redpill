@@ -35,7 +35,7 @@ INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init bdd-phase "$PHASE
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `phase_req_ids`, `redpill_dir_exists`, `roadmap_exists`, `state_path`, `roadmap_path`, `requirements_path`, `design_path`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
+Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `phase_req_ids`, `redpill_dir_exists`, `roadmap_exists`, `state_path`, `roadmap_path`, `requirements_path`, `design_path`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`, `behave_fail_focus_supported`.
 
 ## 2. Parse Arguments
 
@@ -159,7 +159,15 @@ No DESIGN.md found for Phase {N}. Provide a technical design document at:
 
 **Check 8:** `behave_available` is false → Error:
 ```
-behave not found. Install it: pip install behave
+behave not found. Install the REDPILL custom fork (required for --fail-focus):
+  pip install 'git+https://github.com/jinrunsen/behave.git'
+```
+
+**Check 8b:** `behave_available` is true but `behave_fail_focus_supported` is false → Error:
+```
+behave is installed but does not support --fail-focus.
+REDPILL requires the custom fork. Reinstall:
+  pip install --force-reinstall 'git+https://github.com/jinrunsen/behave.git'
 ```
 
 ## 4. Initialize Progress Tracking

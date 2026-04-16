@@ -35,7 +35,7 @@ INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init run-bdd)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `redpill_dir_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`.
+Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `redpill_dir_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`, `behave_fail_focus_supported`.
 
 ## 2. Parse Arguments
 
@@ -162,7 +162,15 @@ Then re-run: /redpill:run-bdd
 
 **Check 4:** `behave_available` is false:
 ```
-behave not found. Install it: pip install behave
+behave not found. Install the REDPILL custom fork (required for --fail-focus):
+  pip install 'git+https://github.com/jinrunsen/behave.git'
+```
+
+**Check 4b:** `behave_available` is true but `behave_fail_focus_supported` is false:
+```
+behave is installed but does not support --fail-focus.
+REDPILL requires the custom fork. Reinstall:
+  pip install --force-reinstall 'git+https://github.com/jinrunsen/behave.git'
 ```
 
 **Check 5:** If `--design` provided, verify the file exists:
