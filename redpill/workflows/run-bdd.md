@@ -1,19 +1,10 @@
 <purpose>
 Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the REDPILL phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .redpill/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
 
-**CRITICAL ARCHITECTURE RULE — you are the TEAM LEAD, not the implementer:**
-You MUST delegate ALL coding work to your Agent Team teammates. You NEVER
-write production code, service code, API handlers, or backend logic yourself.
-Your role is to coordinate the BDD loop: run behave, parse output, send
-messages to the right teammate (step-writer for steps, executor for
-implementation, reviewer for review), and track progress. If you catch
-yourself about to write or edit a source file that is NOT in `features/`
-or `.redpill/`, STOP and send the task to the executor teammate instead.
-
-**Agent Teams advantage:** Unlike subagents that start fresh each time,
-teammates persist across the entire BDD run. The executor remembers prior
-implementation context, the step-writer knows which helpers already exist,
-and the reviewer tracks cross-scenario patterns.
+**Your role:** Coordinate the BDD loop AND directly implement backend code.
+You run behave, parse output, dispatch step-writing/reviewing to teammates,
+and implement the backend yourself when a scenario needs code. You own the
+full RED → WORK → GREEN cycle in the current context.
 </purpose>
 
 <required_reading>
@@ -24,24 +15,18 @@ Read config.json for behavior settings (if it exists).
 </required_reading>
 
 <agent_team>
-This workflow uses Claude Code Agent Teams for coordination. At initialization,
-create a persistent team with four teammates. Each teammate maintains context
-across the entire BDD run, so they accumulate project knowledge as scenarios
-progress.
+This workflow uses Claude Code Agent Teams for step writing and reviewing.
+Implementation (WORK phase) is done directly in the current context — no executor teammate.
 
-**Team roles (create all four at init):**
+**Team roles (create three at init):**
 
 | Teammate ID   | Agent definition       | Role                                                       |
 |---------------|------------------------|------------------------------------------------------------|
 | step-writer   | redpill-step-writer    | Writes BDD step definitions (Python/behave), never writes production code |
 | step-reviewer | redpill-step-reviewer  | Reviews step definitions against Gherkin intent and API contract; read-only |
-| executor      | redpill-executor       | Implements backend code, commits work                      |
 | reviewer      | redpill-verifier       | Reviews implementation quality and design alignment        |
 
-**Key advantage over subagents:** Teammates persist across iterations, so the
-executor remembers prior implementation context, the step-writer knows which
-helpers already exist, and the reviewer tracks cross-scenario patterns — no
-repeated context-loading per scenario.
+Teammates persist across iterations so they accumulate project knowledge.
 </agent_team>
 
 <process>
@@ -53,7 +38,7 @@ INIT=$(node "$HOME/.claude/redpill/bin/redpill-tools.cjs" init run-bdd)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
-Parse JSON for: `executor_model`, `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `redpill_dir_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`, `behave_fail_focus_supported`.
+Parse JSON for: `step_writer_model`, `step_reviewer_model`, `verifier_model`, `commit_docs`, `text_mode`, `redpill_dir_exists`, `state_path`, `bdd_dir`, `bdd_progress_path`, `has_bdd_progress`, `has_feature_files`, `behave_available`, `behave_fail_focus_supported`.
 
 ## 2. Parse Arguments
 
@@ -250,11 +235,11 @@ BDD_START_EPOCH=$(date +%s)
 
 ## 4b. Create Agent Team
 
-Create the BDD agent team with four teammates. Each teammate uses the corresponding
+Create the BDD agent team with three teammates. Each teammate uses the corresponding
 agent definition from `~/.claude/agents/` and the model from init JSON.
 
 ```
-Create an agent team for this BDD run with 4 teammates:
+Create an agent team for this BDD run with 3 teammates:
 
 1. **step-writer** — Uses the redpill-step-writer agent definition.
    Model: {step_writer_model}.
@@ -266,15 +251,10 @@ Create an agent team for this BDD run with 4 teammates:
    Role: Review step definitions against Gherkin intent and API contract.
    Read-only — never modify files.
 
-3. **executor** — Uses the redpill-executor agent definition.
-   Model: {executor_model}.
-   Role: Implement backend code to make scenarios pass. Commit atomically.
-   Never modify files in features/ directory.
-
-4. **reviewer** — Uses the redpill-verifier agent definition.
+3. **reviewer** — Uses the redpill-verifier agent definition.
    Model: {verifier_model}.
    Role: Review implementation quality, correctness, and design alignment.
-   Read-only — flag issues for the executor to fix.
+   Read-only — flag issues for the orchestrator to fix.
 
 Project context for all teammates:
 - Working directory: {cwd}
@@ -282,7 +262,7 @@ Project context for all teammates:
 - Design document: {DESIGN_PATH or "none"}
 ```
 
-Wait for all four teammates to be ready before proceeding.
+Wait for all three teammates to be ready before proceeding.
 
 ## 5. Discover Scenarios
 
@@ -505,46 +485,26 @@ If `signals:` in the review payload contains `SCENARIO_INCOMPLETE`, `SCENARIO_CO
 
 ## 8. WORK — Implement Backend Code
 
-**CRITICAL — MANDATORY TEAMMATE DISPATCH:**
-You MUST send the task to the **executor** teammate for implementation.
-You are the team lead — you NEVER write production code, service code, or
-backend code yourself. If you find yourself reading source files to
-"understand the implementation" or writing code directly, STOP. That is
-the executor teammate's job. Your only job is to message the teammate,
-wait for the result, and verify with behave.
+Implement backend code directly in the current context to make the scenario pass.
 
 Get latest failure output:
 ```bash
 behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
-Display: `◆ Dispatching to executor teammate: {scenario_name}`
+Display: `◆ Implementing: {scenario_name}`
 
-Build the design context block:
-- If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design — follow architecture decisions)`
-- If not: omit the design line
+**Read before writing:**
+- `{feature_file}` — understand expected behavior
+- `features/steps/` — understand the API calls the steps make
+- `{DESIGN_PATH}` (if provided) — follow architecture decisions
+- `./CLAUDE.md` (if exists) — project conventions
 
-Send message to the **executor** teammate:
-
-```
-Implement backend code to make ONE scenario pass: {scenario_name}
-Use `behave --include {feature_file} -n '{scenario_name}'` to verify.
-
-Read these files:
-- {feature_file} (Scenario — understand expected behavior)
-- features/steps/ (Read step definitions to understand API calls)
-{- DESIGN_PATH line if provided}
-- ./CLAUDE.md (Project instructions, if exists)
-
-Behave output (current failure):
-{latest_behave_output}
-
-Constraints:
-- Do NOT modify files in features/ directory
+**Implement:**
+- Write backend code to satisfy the API calls made by the step definitions
 - Fix ONE scenario only — do not implement beyond what this scenario tests
+- Do NOT modify any file under `features/`
 - Commit each meaningful change atomically
-- Use behave to verify after implementation
-```
 
 ## 9. GREEN — Verify Scenario Passes
 
@@ -559,25 +519,12 @@ echo "EXIT_CODE=$?"
 
 Track `fix_attempt` (starts at 0, max configurable via config, default 2).
 
-Send message to the **executor** teammate with the failure context:
+**Fix directly in the current context:**
+- Read the behave failure output: `{failure_output}`
+- Diagnose what is missing or wrong in the implementation
+- Apply a targeted fix — do not rewrite from scratch
 
-```
-Previous implementation attempt failed. Fix the remaining issue.
-Scenario: {scenario_name}
-
-Read these files if needed:
-- {feature_file}
-- features/steps/
-{- DESIGN_PATH line if provided}
-- ./CLAUDE.md (if exists)
-
-Previous attempt failed — behave output:
-{failure_output}
-
-Fix the remaining issue. Do not rewrite from scratch.
-```
-
-After executor returns, re-verify with behave. If passes → step 10. If fails and `fix_attempt >= max_fix_attempts`:
+Re-verify with behave after each fix. If passes → step 10. If fails and `fix_attempt >= max_fix_attempts`:
 
 ```
 STUCK: Scenario "{scenario_name}" failed after {N} implementation attempts.
@@ -620,7 +567,7 @@ Review dimensions:
 1. Scenario match — does the code do what the scenario describes?
 2. Design alignment — does the implementation follow the technical design? (skip if no design provided)
 3. Code quality — no obvious bugs, security issues, or anti-patterns?
-4. Scope — did the executor stay within the scenario boundary?
+4. Scope — does the implementation stay within the scenario boundary?
 
 Return ONE of:
 - ## REVIEW PASSED — all dimensions acceptable
@@ -630,26 +577,10 @@ Return ONE of:
 **Handle return:**
 - **`## REVIEW PASSED`** → proceed to step 11.
 - **ADVISORY only** → log findings to `review_log` array, proceed.
-- **BLOCKING** → message executor teammate with review feedback (max 1 fix round):
-
-Send message to the **executor** teammate:
-
-```
-Fix blocking review issues for scenario: {scenario_name}
-
-Read these files if needed:
-- {feature_file}
-{- DESIGN_PATH line if provided}
-- features/steps/ (Step definitions)
-- ./CLAUDE.md (if exists)
-
-Review feedback (blocking issues):
-{blocking_issues}
-
-Constraints:
-- Fix these issues only. Do not change unrelated code.
-- Verify with: behave --include {feature_file} -n '{scenario_name}'
-```
+- **BLOCKING** → fix directly in the current context (max 1 fix round):
+  - Apply fixes for the blocking issues listed by the reviewer
+  - Do not change unrelated code
+  - Verify with: `behave --include {feature_file} -n '{scenario_name}'`
 
 After fix, proceed to step 11 (no re-review to prevent infinite loops).
 
@@ -676,12 +607,12 @@ Previously passing scenarios now failing:
 - {scenario_name}: {failure_reason}
 
 Options:
-1. Auto-fix — message executor teammate to fix regressions
+1. Auto-fix — fix regressions directly in the current context
 2. Manual — pause for human intervention
 3. Rollback — git reset to last good commit, skip current scenario
 ```
 
-If "Auto-fix": message executor teammate with regression details. Max 2 attempts. Still failing → fall back to "Manual".
+If "Auto-fix": diagnose and fix the regression directly. Max 2 attempts. Still failing → fall back to "Manual".
 
 ### 11b. Persist progress
 
@@ -855,10 +786,10 @@ Summary: .redpill/bdd/BDD-SUMMARY.md
 - [ ] BDD-PROGRESS.json created/loaded in .redpill/bdd/
 - [ ] Scenarios discovered via behave --dry-run with correct filters
 - [ ] Each scenario iterated: RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
-- [ ] Agent Team created with 4 teammates (step-writer, step-reviewer, executor, reviewer)
+- [ ] Agent Team created with 3 teammates (step-writer, step-reviewer, reviewer)
 - [ ] step-writer teammate messaged for undefined steps
 - [ ] step-reviewer teammate messaged after step-writer (unless --skip-review) and its verdict honored
-- [ ] executor teammate messaged for implementation
+- [ ] backend code implemented directly in current context (no executor subagent)
 - [ ] reviewer teammate messaged for review (unless --skip-review)
 - [ ] Agent Team cleaned up on completion
 - [ ] Design document passed to agents when --design is provided
