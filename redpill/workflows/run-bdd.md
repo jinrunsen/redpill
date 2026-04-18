@@ -1,14 +1,19 @@
 <purpose>
 Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the REDPILL phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .redpill/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
 
-**CRITICAL ARCHITECTURE RULE — you are the ORCHESTRATOR, not the implementer:**
-You MUST dispatch subagents for ALL coding work. You NEVER write production
-code, service code, API handlers, or backend logic yourself. Your role is
-to coordinate the BDD loop: run behave, parse output, dispatch the right
-subagent (step-writer for steps, executor for implementation, verifier for
-review), and track progress. If you catch yourself about to write or edit
-a source file that is NOT in `features/` or `.redpill/`, STOP and dispatch
-`redpill-executor` instead.
+**CRITICAL ARCHITECTURE RULE — you are the TEAM LEAD, not the implementer:**
+You MUST delegate ALL coding work to your Agent Team teammates. You NEVER
+write production code, service code, API handlers, or backend logic yourself.
+Your role is to coordinate the BDD loop: run behave, parse output, send
+messages to the right teammate (step-writer for steps, executor for
+implementation, reviewer for review), and track progress. If you catch
+yourself about to write or edit a source file that is NOT in `features/`
+or `.redpill/`, STOP and send the task to the executor teammate instead.
+
+**Agent Teams advantage:** Unlike subagents that start fresh each time,
+teammates persist across the entire BDD run. The executor remembers prior
+implementation context, the step-writer knows which helpers already exist,
+and the reviewer tracks cross-scenario patterns.
 </purpose>
 
 <required_reading>
@@ -18,13 +23,26 @@ Read config.json for behavior settings (if it exists).
 @~/.claude/redpill/references/git-integration.md
 </required_reading>
 
-<available_agent_types>
-Valid REDPILL subagent types (use exact names — do not fall back to 'general-purpose'):
-- redpill-step-writer — Writes BDD step definitions (Python/behave), never writes production code
-- redpill-step-reviewer — Reviews step definitions against Gherkin intent and API contract; read-only
-- redpill-executor — Executes implementation tasks, commits work
-- redpill-verifier — Verifies implementation quality and design alignment
-</available_agent_types>
+<agent_team>
+This workflow uses Claude Code Agent Teams for coordination. At initialization,
+create a persistent team with four teammates. Each teammate maintains context
+across the entire BDD run, so they accumulate project knowledge as scenarios
+progress.
+
+**Team roles (create all four at init):**
+
+| Teammate ID   | Agent definition       | Role                                                       |
+|---------------|------------------------|------------------------------------------------------------|
+| step-writer   | redpill-step-writer    | Writes BDD step definitions (Python/behave), never writes production code |
+| step-reviewer | redpill-step-reviewer  | Reviews step definitions against Gherkin intent and API contract; read-only |
+| executor      | redpill-executor       | Implements backend code, commits work                      |
+| reviewer      | redpill-verifier       | Reviews implementation quality and design alignment        |
+
+**Key advantage over subagents:** Teammates persist across iterations, so the
+executor remembers prior implementation context, the step-writer knows which
+helpers already exist, and the reviewer tracks cross-scenario patterns — no
+repeated context-loading per scenario.
+</agent_team>
 
 <process>
 
@@ -45,7 +63,7 @@ Extract from $ARGUMENTS:
 - **`--tag @tag_name`**: behave tag filter
 - **`--design path/to/DESIGN.md`**: optional technical design document path
 - **`--resume`**: continue from last checkpoint
-- **`--skip-review`**: skip review agent
+- **`--skip-review`**: skip reviewer teammate
 
 If no feature files or tags specified, default to `features/` (all features).
 
@@ -230,6 +248,42 @@ Record BDD start time:
 BDD_START_EPOCH=$(date +%s)
 ```
 
+## 4b. Create Agent Team
+
+Create the BDD agent team with four teammates. Each teammate uses the corresponding
+agent definition from `~/.claude/agents/` and the model from init JSON.
+
+```
+Create an agent team for this BDD run with 4 teammates:
+
+1. **step-writer** — Uses the redpill-step-writer agent definition.
+   Model: {step_writer_model}.
+   Role: Write BDD step definitions as thin glue calling backend API via HTTP.
+   Never write production code. Only work in features/steps/.
+
+2. **step-reviewer** — Uses the redpill-step-reviewer agent definition.
+   Model: {step_reviewer_model}.
+   Role: Review step definitions against Gherkin intent and API contract.
+   Read-only — never modify files.
+
+3. **executor** — Uses the redpill-executor agent definition.
+   Model: {executor_model}.
+   Role: Implement backend code to make scenarios pass. Commit atomically.
+   Never modify files in features/ directory.
+
+4. **reviewer** — Uses the redpill-verifier agent definition.
+   Model: {verifier_model}.
+   Role: Review implementation quality, correctness, and design alignment.
+   Read-only — flag issues for the executor to fix.
+
+Project context for all teammates:
+- Working directory: {cwd}
+- CLAUDE.md: ./CLAUDE.md (if exists)
+- Design document: {DESIGN_PATH or "none"}
+```
+
+Wait for all four teammates to be ready before proceeding.
+
 ## 5. Discover Scenarios
 
 Build the behave discovery command based on input:
@@ -305,42 +359,46 @@ Undefined indicators (any one triggers):
 
 Track `step_writer_dispatched = false`. It flips to `true` in 7b if the step-writer is invoked; 7d uses it to decide whether a review is needed.
 
-### 7b. If undefined steps → dispatch redpill-step-writer
+### 7b. If undefined steps → build api_context and message step-writer teammate
 
 Set `step_writer_dispatched = true`.
 
-Display: `Spawning step-writer for: {scenario_name}`
+**Build `<api_context>` before dispatching:**
+
+If `DESIGN_PATH` is set:
+- Read the design document
+- Extract the endpoint(s), request schema, and response schema relevant to `{scenario_name}`
+- Format as the `<api_context>` block below
+
+If `DESIGN_PATH` is not set:
+- Set `<api_context>` to `no design document provided — step-writer will PRUNE if context is insufficient`
+
+Display: `Dispatching to step-writer teammate: {scenario_name}`
+
+Send message to the **step-writer** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-step-writer",
-  model="{step_writer_model}",
-  description="Write steps for: {scenario_name}",
-  prompt="
-    <objective>
-    Write step definitions for ONE scenario: {scenario_name}
-    from feature file: {feature_file}
-    </objective>
+TARGET_FEATURE: {feature_file}
+TARGET_SCENARIO: {scenario_name}
 
-    <files_to_read>
-    - {feature_file}
-    - {DESIGN_PATH} (Technical design — if provided)
-    - features/steps/ (Existing step definitions — reuse first)
-    - features/environment.py
-    - ./CLAUDE.md (Project instructions, if exists)
-    </files_to_read>
+Read these files first:
+- {feature_file}
+- features/steps/ (Existing step definitions — reuse first)
+- features/environment.py
+- ./CLAUDE.md (Project instructions, if exists)
 
-    <behave_output>
-    {dry_run_output}
-    </behave_output>
+<api_context>
+{extracted api context from DESIGN_PATH, or "no design document provided"}
+</api_context>
 
-    <constraint>
-    Only write steps for THIS scenario. Do not touch other scenarios.
-    Steps must call backend API via HTTP (thin glue layer).
-    All steps must be defined after your work — no undefined remaining.
-    </constraint>
-  "
-)
+<behave_output>
+{dry_run_output}
+</behave_output>
+
+Constraints:
+- Only supplement missing steps for TARGET_SCENARIO. Do not touch other scenarios.
+- Steps must call backend API via HTTP (thin glue layer).
+- All steps must be defined after your work — no undefined remaining.
 ```
 
 ### 7c. Verify steps defined
@@ -367,81 +425,62 @@ If user selects "Abort" → go to step 12 (Completion) with partial results.
 **Skip if:** `step_writer_dispatched` is false (steps were already defined from a prior iteration; already reviewed).
 **Skip if:** `--skip-review` flag is set.
 
-Otherwise, dispatch `redpill-step-reviewer` to audit the steps the writer just produced. This catches contract mismatches, missing assertions, and intent-level bugs **before** the executor wastes cycles implementing against a broken spec.
+Otherwise, message the **step-reviewer** teammate to audit the steps the writer just produced. This catches contract mismatches, missing assertions, and intent-level bugs **before** the executor wastes cycles implementing against a broken spec.
 
 Build the design context block:
 - If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design / API contract)`
 - If not: omit the design line from `<files_to_read>`
 
-Display: `Spawning step-reviewer for: {scenario_name}`
+Display: `Dispatching to step-reviewer teammate: {scenario_name}`
+
+Send message to the **step-reviewer** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-step-reviewer",
-  model="{step_reviewer_model}",
-  description="Review steps for: {scenario_name}",
-  prompt="
-    <objective>
-    Review the step definitions for ONE scenario: {scenario_name}
-    from feature file: {feature_file}
+Review the step definitions for ONE scenario: {scenario_name}
+from feature file: {feature_file}
 
-    Verify each Given/When/Then step is defined, calls the system via an
-    external interface, matches the API contract, and faithfully implements
-    the scenario's behavioral intent.
-    </objective>
+Verify each Given/When/Then step is defined, calls the system via an
+external interface, matches the API contract, and faithfully implements
+the scenario's behavioral intent.
 
-    <files_to_read>
-    - {feature_file} (Scenario — the only spec)
-    - features/steps/ (Step definitions written by step-writer)
-    - features/steps/helpers/ (Helpers the steps call through)
-    - features/environment.py
-    {- DESIGN_PATH line if provided}
-    - ./CLAUDE.md (Project instructions, if exists)
-    </files_to_read>
+Read these files:
+- {feature_file} (Scenario — the only spec)
+- features/steps/ (Step definitions written by step-writer)
+- features/steps/helpers/ (Helpers the steps call through)
+- features/environment.py
+{- DESIGN_PATH line if provided}
+- ./CLAUDE.md (Project instructions, if exists)
 
-    <constraint>
-    Read-only review. Do NOT modify any files.
-    Return the structured STEP REVIEW verdict defined in your agent spec.
-    </constraint>
-  "
-)
+Constraints:
+- Read-only review. Do NOT modify any files.
+- Return the structured STEP REVIEW verdict defined in your agent spec.
 ```
 
 **Handle return:**
 
 - **`VERDICT: APPROVED`** → proceed to step 7e.
 - **MINOR defects only** → log findings to `review_log` with tag `step-review`, proceed to step 7e.
-- **`VERDICT: REJECTED` (CRITICAL or IMPORTANT defects)** → re-dispatch `redpill-step-writer` with the reviewer's defect list as feedback (max 1 fix round):
+- **`VERDICT: REJECTED` (CRITICAL or IMPORTANT defects)** → message **step-writer** teammate with the reviewer's defect list as feedback (max 1 fix round):
+
+Send message to the **step-writer** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-step-writer",
-  model="{step_writer_model}",
-  description="Fix step review defects: {scenario_name}",
-  prompt="
-    <objective>
-    The step-reviewer rejected your previous step definitions for scenario:
-    {scenario_name}. Fix the defects listed below. Do not touch unrelated steps.
-    </objective>
+The step-reviewer rejected your previous step definitions for scenario:
+{scenario_name}. Fix the defects listed below. Do not touch unrelated steps.
 
-    <files_to_read>
-    - {feature_file}
-    - features/steps/
-    - features/steps/helpers/
-    {- DESIGN_PATH line if provided}
-    - ./CLAUDE.md (if exists)
-    </files_to_read>
+Read these files:
+- {feature_file}
+- features/steps/
+- features/steps/helpers/
+{- DESIGN_PATH line if provided}
+- ./CLAUDE.md (if exists)
 
-    <review_defects>
-    {rejected_defects_block}
-    </review_defects>
+Review defects to fix:
+{rejected_defects_block}
 
-    <constraint>
-    Only fix the listed defects. Verify with `behave --dry-run` that no steps
-    are left undefined.
-    </constraint>
-  "
-)
+Constraints:
+- Only fix the listed defects.
+- Verify with `behave --dry-run` that no steps are left undefined.
 ```
 
 After the fix round, re-run the step-reviewer ONCE. If still `REJECTED` → mark STUCK:
@@ -466,55 +505,45 @@ If `signals:` in the review payload contains `SCENARIO_INCOMPLETE`, `SCENARIO_CO
 
 ## 8. WORK — Implement Backend Code
 
-**CRITICAL — MANDATORY SUBAGENT DISPATCH:**
-You MUST use the `Agent` tool to spawn a `redpill-executor` subagent for
-implementation. You are the orchestrator — you NEVER write production code,
-service code, or backend code yourself. If you find yourself reading source
-files to "understand the implementation" or writing code directly, STOP.
-That is the executor's job. Your only job is to dispatch the agent, wait for
-the result, and verify with behave.
+**CRITICAL — MANDATORY TEAMMATE DISPATCH:**
+You MUST send the task to the **executor** teammate for implementation.
+You are the team lead — you NEVER write production code, service code, or
+backend code yourself. If you find yourself reading source files to
+"understand the implementation" or writing code directly, STOP. That is
+the executor teammate's job. Your only job is to message the teammate,
+wait for the result, and verify with behave.
 
 Get latest failure output:
 ```bash
 behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
-Display: `◆ Spawning executor for: {scenario_name}`
+Display: `◆ Dispatching to executor teammate: {scenario_name}`
 
 Build the design context block:
 - If `DESIGN_PATH` is set: include `- {DESIGN_PATH} (Technical design — follow architecture decisions)`
-- If not: omit the design line from `<files_to_read>`
+- If not: omit the design line
+
+Send message to the **executor** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-executor",
-  model="{executor_model}",
-  description="Implement backend for: {scenario_name}",
-  prompt="
-    <objective>
-    Implement backend code to make ONE scenario pass: {scenario_name}
-    Use `behave --include {feature_file} -n '{scenario_name}'` to verify.
-    </objective>
+Implement backend code to make ONE scenario pass: {scenario_name}
+Use `behave --include {feature_file} -n '{scenario_name}'` to verify.
 
-    <files_to_read>
-    - {feature_file} (Scenario — understand expected behavior)
-    - features/steps/ (Read step definitions to understand API calls)
-    {- DESIGN_PATH line if provided}
-    - ./CLAUDE.md (Project instructions, if exists)
-    </files_to_read>
+Read these files:
+- {feature_file} (Scenario — understand expected behavior)
+- features/steps/ (Read step definitions to understand API calls)
+{- DESIGN_PATH line if provided}
+- ./CLAUDE.md (Project instructions, if exists)
 
-    <behave_output>
-    {latest_behave_output}
-    </behave_output>
+Behave output (current failure):
+{latest_behave_output}
 
-    <constraints>
-    - Do NOT modify files in features/ directory
-    - Fix ONE scenario only — do not implement beyond what this scenario tests
-    - Commit each meaningful change atomically
-    - Use behave to verify after implementation
-    </constraints>
-  "
-)
+Constraints:
+- Do NOT modify files in features/ directory
+- Fix ONE scenario only — do not implement beyond what this scenario tests
+- Commit each meaningful change atomically
+- Use behave to verify after implementation
 ```
 
 ## 9. GREEN — Verify Scenario Passes
@@ -530,35 +559,22 @@ echo "EXIT_CODE=$?"
 
 Track `fix_attempt` (starts at 0, max configurable via config, default 2).
 
-Re-dispatch executor with previous attempt context:
+Send message to the **executor** teammate with the failure context:
 
 ```
-Agent(
-  subagent_type="redpill-executor",
-  model="{executor_model}",
-  description="Fix failing scenario: {scenario_name}",
-  prompt="
-    <objective>
-    Previous implementation attempt failed. Fix the remaining issue.
-    Scenario: {scenario_name}
-    </objective>
+Previous implementation attempt failed. Fix the remaining issue.
+Scenario: {scenario_name}
 
-    <files_to_read>
-    - {feature_file}
-    - features/steps/
-    {- DESIGN_PATH line if provided}
-    - ./CLAUDE.md (if exists)
-    </files_to_read>
+Read these files if needed:
+- {feature_file}
+- features/steps/
+{- DESIGN_PATH line if provided}
+- ./CLAUDE.md (if exists)
 
-    <previous_attempt>
-    Implementation attempted but scenario still fails.
-    Behave output:
-    {failure_output}
+Previous attempt failed — behave output:
+{failure_output}
 
-    Fix the remaining issue. Do not rewrite from scratch.
-    </previous_attempt>
-  "
-)
+Fix the remaining issue. Do not rewrite from scratch.
 ```
 
 After executor returns, re-verify with behave. If passes → step 10. If fails and `fix_attempt >= max_fix_attempts`:
@@ -584,77 +600,55 @@ Get code changes since scenario start:
 SCENARIO_DIFF=$(git diff {SCENARIO_START_COMMIT}..HEAD)
 ```
 
-Display: `Spawning reviewer for: {scenario_name}`
+Display: `Dispatching to reviewer teammate: {scenario_name}`
+
+Send message to the **reviewer** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-verifier",
-  model="{verifier_model}",
-  description="Review implementation: {scenario_name}",
-  prompt="
-    <objective>
-    Review the implementation for scenario: {scenario_name}
-    Verify code quality, correctness, and alignment with design.
-    </objective>
+Review the implementation for scenario: {scenario_name}
+Verify code quality, correctness, and alignment with design.
 
-    <files_to_read>
-    - {feature_file} (Scenario intent)
-    {- DESIGN_PATH line if provided}
-    - ./CLAUDE.md (Project conventions, if exists)
-    </files_to_read>
+Read these files:
+- {feature_file} (Scenario intent)
+{- DESIGN_PATH line if provided}
+- ./CLAUDE.md (Project conventions, if exists)
 
-    <code_changes>
-    {SCENARIO_DIFF}
-    </code_changes>
+Code changes since scenario start:
+{SCENARIO_DIFF}
 
-    <review_dimensions>
-    1. Scenario match — does the code do what the scenario describes?
-    2. Design alignment — does the implementation follow the technical design? (skip if no design provided)
-    3. Code quality — no obvious bugs, security issues, or anti-patterns?
-    4. Scope — did the executor stay within the scenario boundary?
-    </review_dimensions>
+Review dimensions:
+1. Scenario match — does the code do what the scenario describes?
+2. Design alignment — does the implementation follow the technical design? (skip if no design provided)
+3. Code quality — no obvious bugs, security issues, or anti-patterns?
+4. Scope — did the executor stay within the scenario boundary?
 
-    <output>
-    Return ONE of:
-    - ## REVIEW PASSED — all dimensions acceptable
-    - ## ISSUES FOUND — list issues with severity (BLOCKING / ADVISORY)
-    </output>
-  "
-)
+Return ONE of:
+- ## REVIEW PASSED — all dimensions acceptable
+- ## ISSUES FOUND — list issues with severity (BLOCKING / ADVISORY)
 ```
 
 **Handle return:**
 - **`## REVIEW PASSED`** → proceed to step 11.
 - **ADVISORY only** → log findings to `review_log` array, proceed.
-- **BLOCKING** → re-dispatch executor with review feedback (max 1 fix round):
+- **BLOCKING** → message executor teammate with review feedback (max 1 fix round):
+
+Send message to the **executor** teammate:
 
 ```
-Agent(
-  subagent_type="redpill-executor",
-  model="{executor_model}",
-  description="Fix review issues: {scenario_name}",
-  prompt="
-    <objective>
-    Fix blocking review issues for scenario: {scenario_name}
-    </objective>
+Fix blocking review issues for scenario: {scenario_name}
 
-    <files_to_read>
-    - {feature_file}
-    {- DESIGN_PATH line if provided}
-    - features/steps/ (Step definitions)
-    - ./CLAUDE.md (if exists)
-    </files_to_read>
+Read these files if needed:
+- {feature_file}
+{- DESIGN_PATH line if provided}
+- features/steps/ (Step definitions)
+- ./CLAUDE.md (if exists)
 
-    <review_feedback>
-    {blocking_issues}
-    </review_feedback>
+Review feedback (blocking issues):
+{blocking_issues}
 
-    <constraint>
-    Fix these issues only. Do not change unrelated code.
-    Verify with: behave --include {feature_file} -n '{scenario_name}'
-    </constraint>
-  "
-)
+Constraints:
+- Fix these issues only. Do not change unrelated code.
+- Verify with: behave --include {feature_file} -n '{scenario_name}'
 ```
 
 After fix, proceed to step 11 (no re-review to prevent infinite loops).
@@ -682,12 +676,12 @@ Previously passing scenarios now failing:
 - {scenario_name}: {failure_reason}
 
 Options:
-1. Auto-fix — dispatch executor to fix regressions
+1. Auto-fix — message executor teammate to fix regressions
 2. Manual — pause for human intervention
 3. Rollback — git reset to last good commit, skip current scenario
 ```
 
-If "Auto-fix": dispatch executor with regression details. Max 2 attempts. Still failing → fall back to "Manual".
+If "Auto-fix": message executor teammate with regression details. Max 2 attempts. Still failing → fall back to "Manual".
 
 ### 11b. Persist progress
 
@@ -826,7 +820,16 @@ node "$HOME/.claude/redpill/bin/redpill-tools.cjs" commit \
   --files ".redpill/bdd/BDD-SUMMARY.md" ".redpill/bdd/BDD-PROGRESS.json" .redpill/STATE.md
 ```
 
-### 12e. Display completion
+### 12e. Clean up Agent Team
+
+Shut down all teammates:
+```
+Clean up the team — all BDD work is complete.
+```
+
+Wait for all teammates to confirm shutdown before displaying completion.
+
+### 12f. Display completion
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -852,10 +855,12 @@ Summary: .redpill/bdd/BDD-SUMMARY.md
 - [ ] BDD-PROGRESS.json created/loaded in .redpill/bdd/
 - [ ] Scenarios discovered via behave --dry-run with correct filters
 - [ ] Each scenario iterated: RED → WORK → GREEN → REVIEW → REGRESSION → PERSIST
-- [ ] redpill-step-writer dispatched for undefined steps
-- [ ] redpill-step-reviewer dispatched after step-writer (unless --skip-review) and its verdict honored
-- [ ] redpill-executor dispatched for implementation
-- [ ] redpill-verifier dispatched for review (unless --skip-review)
+- [ ] Agent Team created with 4 teammates (step-writer, step-reviewer, executor, reviewer)
+- [ ] step-writer teammate messaged for undefined steps
+- [ ] step-reviewer teammate messaged after step-writer (unless --skip-review) and its verdict honored
+- [ ] executor teammate messaged for implementation
+- [ ] reviewer teammate messaged for review (unless --skip-review)
+- [ ] Agent Team cleaned up on completion
 - [ ] Design document passed to agents when --design is provided
 - [ ] Design document gracefully omitted when not provided
 - [ ] Regression check runs all previously passed scenarios
