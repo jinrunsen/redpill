@@ -1,7 +1,7 @@
 ---
 name: redpill:frontend-steps-writer
-description: Write behave + Playwright (Python sync API) step definitions for frontend BS E2E .feature files. Three-layer architecture with single-entry resolver and context-driven config. 
-argument-hint: "[features/domain/xxx.feature] [--headed] [--base-url http://...] [--env-check]"
+description: Write behave + Playwright (Python sync API) step definitions for the UI stage of frontend BS E2E tests. Uses behave's native --stage=ui mechanism with single-entry resolver, context-driven config, and stage-isolated step definitions. Writes exclusively to features/ui_steps/ (with helpers in features/ui_steps/helper/). Separate from API-stage step writing (handled by redpill-step-writer subagent).
+argument-hint: "[features/xxx.feature] [--headed] [--base-url http://...] [--env-check]"
 allowed-tools:
   - Read
   - Write
@@ -14,36 +14,52 @@ allowed-tools:
 ---
 
 <objective>
-Write behave + Playwright (Python sync API) step definitions for frontend BS E2E testing.
+Write behave + Playwright (Python sync API) step definitions for the **UI stage** of frontend BS E2E testing.
 
-This command targets **frontend browser tests** in the redpill E2E stack — Python behave as the
-BDD runner, playwright-python (sync API) as the browser driver. Distinct from redpill's core
-backend BDD which tests HTTP contracts via a different code path.
+This project uses behave's native `--stage` mechanism to run the same feature files against
+two physically separate step sets:
+
+```
+features/
+  *.feature              ← shared, declarative Gherkin (no UI/API wording)
+  fixtures/              ← cross-stage data seed (shared, read-only preferred)
+  api_steps/             ← API-stage steps (owned by redpill-step-writer subagent)
+  api_environment.py
+  ui_steps/              ← THIS command's territory
+    helper/              ← UI-stage helpers (resolver, page_actions, context_init)
+  ui_environment.py      ← THIS command's territory (Playwright lifecycle)
+```
 
 Architecture (three layers + single-entry resolver):
   Feature (.feature)
-    → Step Definitions (features/steps/*.py)
-        → Helpers (features/support/*.py)
-            → resolve(page, "@sem:...")  ← single locator entry
+    → UI-stage Step Definitions (features/ui_steps/*.py)
+        → UI helpers (features/ui_steps/helper/*.py)
+            → resolve(page, "@sem:...")     ← single locator entry
                 → Playwright Page / Locator
 
 Input:
-- Feature file path: `features/device/device-access.feature`
+- Feature file path: `features/device/device-list.feature`
 - `--headed` — run with visible browser (HEADED=1)
-- `--base-url` — override BASE_URL (default: http://localhost:9080)
+- `--base-url` — override WEB_BASE_URL (default: http://localhost:9080)
 - `--env-check` — only verify environment, do not write steps
 
-Progress tracked alongside feature file. Never modifies files outside the e2e project root.
+## Hard constraints (non-negotiable)
 
-## Hard constraints 
-1. **Single locator entry**: every element location goes through `resolve(page, selector)`.
-   Step code MUST NOT call `page.locator/get_by_*/click/fill` directly.
-2. **Context-driven config**: every URL / account / token comes from `context.env` / `context.users`.
-   Zero string literals for hosts/credentials in step or helper code.
+1. **Single locator entry**: every element location goes through `resolve(page, selector)` in
+   `features/ui_steps/helper/resolver.py`. Step/helper code MUST NOT call
+   `page.locator/get_by_*/click/fill` directly (only the resolver may).
+2. **Context-driven config**: every URL / account / token comes from `context.env` /
+   `context.users`. Zero string literals for hosts/credentials.
 3. **Fixed failure artifact format**: on scenario failure, dump to
-   `artifacts/<run_id>/<scenario_id>/{screenshot.png, page_url.txt, console.log, action_trace.json}`.
+   `artifacts/run-<ts>/<scenario_id>/{screenshot.png, page_url.txt, console.log, action_trace.json, context_snapshot.json}`.
+4. **Stage isolation**: you write to `features/ui_steps/` ONLY. You MUST NOT import from
+   `features/api_steps/`, or call `api_request` / `requests.*` from UI-stage step code.
+5. **Single-driver discipline**: UI-stage steps do not make HTTP calls to validate data state.
+   Data prerequisites come from `features/fixtures/*.py` seeding functions (invoked via
+   a separate `Given` step, not inline in a UI step). Mixing UI interaction and API verification
+   in one step function is forbidden — this is the failure mode we learned the hard way.
 
-These three are non-negotiable. Everything else is judgment.
+These are non-negotiable.
 </objective>
 
 <execution_context>
@@ -57,5 +73,6 @@ $ARGUMENTS
 <process>
 Execute the frontend-steps-writer workflow from @~/.claude/redpill/workflows/frontend-steps-writer.md end-to-end.
 Always run ENV_PRECHECK first — never assume missing dependencies.
-Follow the three-layer architecture strictly, and enforce the three hard constraints above.
+Always run with `--stage=ui`. Never run bare `behave` (would use default stage, which this project does not use).
+Follow the three-layer architecture strictly, and enforce the five hard constraints above.
 </process>
