@@ -94,7 +94,7 @@ Please re-invoke with all three inputs.
 - Write Python step definitions using `behave` framework
 - Extract shared logic to `features/api_steps/helpers/` modules
 - Make all HTTP calls via `api_request` helper (no direct `requests.*` in steps)
-- Initialize `context.env` / `context.auth` / `context.action_trace` / `context.http_log` via `features/support/context_init.py`
+- Initialize `context.env` / `context.auth` / `context.action_trace` / `context.http_log` via `features/api_steps/helpers/context_init.py`
 - Ensure `features/api_environment.py` hooks dump the fixed-schema failure artifact
 - Run `behave --dry-run` scoped to the target scenario to verify all steps are defined
 - Run `behave` scoped to the target scenario to confirm it FAILS due to missing backend implementation
@@ -220,10 +220,8 @@ features/
       __init__.py
       api_client.py                # SINGLE HTTP ENTRY — traceid, http_log, action_trace
       assertions.py                # Shared assertion helpers
+      context_init.py              # env / auth / users / trace initialization
       data_builders.py             # Test data factories
-  support/
-    __init__.py
-    context_init.py                # env / auth / users / trace initialization
 artifacts/
   run-<YYYYMMDD-HHMMSS>/
     <feature>__<scenario>/
@@ -370,7 +368,7 @@ def assert_json_field_eq(context, field, expected):
         f"Field '{field}': expected {expected!r}, got {data.get(field)!r}"
 ```
 
-## Mandatory Module: features/support/context_init.py
+## Mandatory Helper: features/api_steps/helpers/context_init.py
 
 ```python
 """TestContext initialization. Populates context.env / context.auth / context.users /
@@ -417,7 +415,7 @@ import os
 import json
 import time
 from pathlib import Path
-from features.support.context_init import (
+from features.api_steps.helpers.context_init import (
     init_env, init_auth, init_users, init_trace,
 )
 
@@ -505,11 +503,11 @@ def _describe_failed_step(scenario):
    - Read TARGET_FEATURE → extract every Given/When/Then line of TARGET_SCENARIO
    - Read all features/api_steps/*.py → for each step line, check for a matching definition
    - Read features/api_steps/helpers/api_client.py — confirm it matches the mandatory contract
-   - Read features/support/context_init.py — confirm it exists
+   - Read features/api_steps/helpers/context_init.py — confirm it exists
    - Read features/api_environment.py — confirm artifact dump hooks are wired
    - Build gap list: steps without definitions + missing infrastructure files
 
-2. If infrastructure files (api_client.py, context_init.py, environment.py) are missing or
+2. If infrastructure files (api_client.py, context_init.py, api_environment.py) are missing or
    don't match the mandatory contract, CREATE/UPDATE them FIRST. Do not write any step
    that depends on missing infrastructure.
 
@@ -530,20 +528,20 @@ def _describe_failed_step(scenario):
 
      # A1: No direct HTTP library calls in step files (helpers/api_client.py excluded)
      grep -rnE '(requests|httpx|urllib)\.(get|post|put|delete|patch|request)\(' \
-       features/api_steps/ features/support/ \
+       features/api_steps/ \
        | grep -v 'features/api_steps/helpers/api_client.py' \
        && echo "VIOLATION A1: direct HTTP call in step/helper" \
        || echo "A1_OK"
 
      # A2: No hardcoded hosts (context_init.py and api_client.py excluded)
-     grep -rnE 'https?://[a-zA-Z0-9]' features/api_steps/ features/support/ \
+     grep -rnE 'https?://[a-zA-Z0-9]' features/api_steps/ \
        | grep -vE '(context_init\.py|api_client\.py)' \
        && echo "VIOLATION A2: hardcoded URL" \
        || echo "A2_OK"
 
      # A3: No hardcoded secrets (heuristic)
      grep -rniE '(token|password|secret|api_key|apikey)\s*=\s*["\x27][A-Za-z0-9_\-]{8,}' \
-       features/api_steps/ features/support/ \
+       features/api_steps/ \
        | grep -vE '(context_init|example|TODO)' \
        && echo "VIOLATION A3: possible hardcoded secret" \
        || echo "A3_OK"
@@ -577,7 +575,7 @@ def _describe_failed_step(scenario):
 | `404 Not Found` on correct path | Endpoint not implemented yet | OK — expected RED |
 | `500 Internal Server Error` | Endpoint exists, logic missing/broken | OK — expected RED |
 | `AttributeError: 'Context' object has no attribute 'env'` | `before_scenario` hook not wired or `init_env` not called | Verify `environment.py` matches mandatory contract |
-| `ModuleNotFoundError: features.support.context_init` | Missing `__init__.py` or wrong CWD | Add empty `features/__init__.py` and `features/support/__init__.py` |
+| `ModuleNotFoundError: features.api_steps.helpers.context_init` | Missing `__init__.py` or wrong CWD | Add empty `features/__init__.py`, `features/api_steps/__init__.py`, `features/api_steps/helpers/__init__.py` |
 | `AmbiguousStep` | Same step pattern defined twice | Find and remove the duplicate across `features/api_steps/*.py` |
 | `NotImplementedError` / "undefined step" | Step text doesn't match any decorator | Add the missing definition |
 | Step passes, scenario GREEN | You accidentally passed the test | Revert — scenario MUST be RED in this phase |
@@ -646,7 +644,7 @@ After step definitions are written and verified:
 
 ```bash
 git add features/api_steps/*.py features/api_steps/helpers/*.py \
-        features/support/*.py features/api_environment.py \
+        features/api_environment.py \
         features/api_steps/__init__.py features/api_steps/helpers/__init__.py
 git commit -m "test: add step definitions for {scenario_name}
 
@@ -675,7 +673,7 @@ After completion, return:
 - features/api_steps/{domain}_steps.py
 - features/api_steps/helpers/api_client.py ({created | unchanged})
 - features/api_steps/helpers/assertions.py ({created | unchanged})
-- features/support/context_init.py ({created | unchanged})
+- features/api_steps/helpers/context_init.py ({created | unchanged})
 - features/api_environment.py ({created | unchanged})
 
 ### Verification
@@ -730,13 +728,12 @@ The artifact is a debugging aid, not a secret store. `Authorization` / `Cookie` 
 stripped at log time to prevent secrets leaking into artifact files that may be shared,
 committed, or uploaded to failure dashboards.
 
-## Why context_init is in features/support, not features/api_steps/helpers
+## Why everything lives in api_steps/helpers/
 
-`steps/helpers/` is for things steps call *during* execution (api_client, assertions,
-builders). `support/` is for things the framework calls *around* steps (hooks,
-bootstrapping). Keeping these directories distinct matches behave's mental model and makes
-the import graph clean: hooks import from support; steps import from helpers. Never the
-other way.
+All infrastructure (api_client, assertions, context_init, data_builders) lives inside
+`api_steps/helpers/`. This keeps the stage self-contained: one directory to read, one
+directory to audit, no cross-directory import graph to trace. `api_environment.py` imports
+from `features.api_steps.helpers.context_init` — same helpers directory that steps use.
 
 ## Why the artifact schema is frozen
 
