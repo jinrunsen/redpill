@@ -1,11 +1,66 @@
 <purpose>
 Run BDD scenarios without phase context. Same RED/WORK/GREEN/REVIEW/REGRESSION/PERSIST loop as bdd-phase, but decoupled from the REDPILL phase pipeline. Scenarios are selected by feature file path, name, tag, or all features by default. Progress tracked in .redpill/bdd/. Updates STATE.md with metrics but skips ROADMAP.md and REQUIREMENTS.md.
 
+**Scope: API layer only.** This workflow drives backend development exclusively.
+It runs behave in `--stage=api` mode (steps in `features/api_steps/`, hooks in
+`features/api_environment.py`). UI testing is a separate concern and is NOT
+part of this workflow.
+
 **Your role:** Coordinate the BDD loop AND directly implement backend code.
 You run behave, parse output, dispatch step-writing/reviewing to teammates,
 and implement the backend yourself when a scenario needs code. You own the
 full RED → WORK → GREEN cycle in the current context.
 </purpose>
+
+<stage_config>
+
+## behave Stage — Why and How
+
+This workflow uses behave's `--stage=api` mechanism throughout. Understanding this
+prevents confusion when the project also has `features/ui_steps/` for UI testing.
+
+### How `--stage` works
+
+| behave invocation    | step directory loaded      | environment file              |
+|----------------------|---------------------------|-------------------------------|
+| `behave`             | `features/steps/`         | `features/environment.py`     |
+| `behave --stage=api` | `features/api_steps/`     | `features/api_environment.py` |
+| `behave --stage=ui`  | `features/ui_steps/`      | `features/ui_environment.py`  |
+
+Stage only affects which steps and environment file are loaded — feature files are shared.
+
+### Rule for this workflow
+
+**Every behave command in this workflow MUST include `--stage=api`.**
+
+This guarantees:
+- Only API step definitions are loaded (no AmbiguousStep collisions with UI steps)
+- `api_environment.py` hooks run (no browser, no Playwright)
+- Step writer writes to `features/api_steps/`, not `features/steps/`
+
+### Project behave.ini
+
+The project should have a `behave.ini` (or `setup.cfg`) that sets the default
+stage for normal development runs:
+
+```ini
+# behave.ini
+[behave]
+stage = api
+```
+
+When this ini is present, plain `behave features/` is equivalent to
+`behave --stage=api features/`. The workflow still passes `--stage=api` explicitly
+in all commands for portability — do not rely on the ini being present.
+
+### What NOT to do
+
+- Do NOT run `behave features/` without `--stage=api` — this loads `features/steps/`
+  which may not exist, or may conflict with stage-specific steps
+- Do NOT write steps to `features/steps/` — this workflow writes to `features/api_steps/`
+- Do NOT reference `features/environment.py` — use `features/api_environment.py`
+
+</stage_config>
 
 <required_reading>
 Read STATE.md before any operation to load project context (if it exists).
@@ -244,7 +299,7 @@ Create an agent team for this BDD run with 3 teammates:
 1. **step-writer** — Uses the redpill-step-writer agent definition.
    Model: {step_writer_model}.
    Role: Write BDD step definitions as thin glue calling backend API via HTTP.
-   Never write production code. Only work in features/steps/.
+   Never write production code. Only work in features/api_steps/.
 
 2. **step-reviewer** — Uses the redpill-step-reviewer agent definition.
    Model: {step_reviewer_model}.
@@ -270,7 +325,7 @@ Build the behave discovery command based on input:
 
 ```bash
 # Base command
-BEHAVE_CMD="behave --dry-run --no-capture --format json"
+BEHAVE_CMD="behave --stage=api --dry-run --no-capture --format json"
 
 # Add feature targets
 BEHAVE_CMD="$BEHAVE_CMD $FEATURE_TARGETS"
@@ -328,7 +383,7 @@ SCENARIO_START_COMMIT=$(git rev-parse --short HEAD)
 ### 7a. Check for undefined steps
 
 ```bash
-behave --dry-run --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --dry-run --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
 Undefined indicators (any one triggers):
@@ -363,8 +418,8 @@ TARGET_SCENARIO: {scenario_name}
 
 Read these files first:
 - {feature_file}
-- features/steps/ (Existing step definitions — reuse first)
-- features/environment.py
+- features/api_steps/ (Existing step definitions — reuse first)
+- features/api_environment.py
 - ./CLAUDE.md (Project instructions, if exists)
 
 <api_context>
@@ -384,7 +439,7 @@ Constraints:
 ### 7c. Verify steps defined
 
 ```bash
-behave --dry-run --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --dry-run --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
 If still undefined → retry step-writer once. Still fails → mark STUCK:
@@ -425,9 +480,9 @@ the scenario's behavioral intent.
 
 Read these files:
 - {feature_file} (Scenario — the only spec)
-- features/steps/ (Step definitions written by step-writer)
-- features/steps/helpers/ (Helpers the steps call through)
-- features/environment.py
+- features/api_steps/ (Step definitions written by step-writer)
+- features/api_steps/helpers/ (Helpers the steps call through)
+- features/api_environment.py
 {- DESIGN_PATH line if provided}
 - ./CLAUDE.md (Project instructions, if exists)
 
@@ -450,8 +505,8 @@ The step-reviewer rejected your previous step definitions for scenario:
 
 Read these files:
 - {feature_file}
-- features/steps/
-- features/steps/helpers/
+- features/api_steps/
+- features/api_steps/helpers/
 {- DESIGN_PATH line if provided}
 - ./CLAUDE.md (if exists)
 
@@ -460,7 +515,7 @@ Review defects to fix:
 
 Constraints:
 - Only fix the listed defects.
-- Verify with `behave --dry-run` that no steps are left undefined.
+- Verify with `behave --stage=api --dry-run` that no steps are left undefined.
 ```
 
 After the fix round, re-run the step-reviewer ONCE. If still `REJECTED` → mark STUCK:
@@ -489,14 +544,14 @@ Implement backend code directly in the current context to make the scenario pass
 
 Get latest failure output:
 ```bash
-behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
 Display: `◆ Implementing: {scenario_name}`
 
 **Read before writing:**
 - `{feature_file}` — understand expected behavior
-- `features/steps/` — understand the API calls the steps make
+- `features/api_steps/` — understand the API calls the steps make
 - `{DESIGN_PATH}` (if provided) — follow architecture decisions
 - `./CLAUDE.md` (if exists) — project conventions
 
@@ -509,7 +564,7 @@ Display: `◆ Implementing: {scenario_name}`
 ## 9. GREEN — Verify Scenario Passes
 
 ```bash
-behave --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
 echo "EXIT_CODE=$?"
 ```
 
@@ -580,7 +635,7 @@ Return ONE of:
 - **BLOCKING** → fix directly in the current context (max 1 fix round):
   - Apply fixes for the blocking issues listed by the reviewer
   - Do not change unrelated code
-  - Verify with: `behave --include {feature_file} -n '{scenario_name}'`
+  - Verify with: `behave --stage=api --include {feature_file} -n '{scenario_name}'`
 
 After fix, proceed to step 11 (no re-review to prevent infinite loops).
 
@@ -591,7 +646,7 @@ After fix, proceed to step 11 (no re-review to prevent infinite loops).
 **Skip if:** No previously passed scenarios (first iteration).
 
 ```bash
-behave --no-capture --format plain \
+behave --stage=api --no-capture --format plain \
   $(for s in {passed_scenarios}; do echo "-n \"$s\""; done) 2>&1
 echo "EXIT_CODE=$?"
 ```
