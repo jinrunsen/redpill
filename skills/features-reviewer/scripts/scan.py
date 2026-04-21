@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 """
-scan.py — Features 目录扫描器
+scan.py — Features 目录扫描器 (v2, 冒号格式)
 
 遍历一个 BDD features/ 目录，解析每个 .feature 文件的标签、scenario、
 Scenario Outline 及其 Examples，产出 JSON 形式的客观度量数据。
+
+本版本识别的标签维度：
+- @spec:*         需求视角 (互斥必备)
+- @test-layer:*   测试分层 (互斥必备)
+- @nfr:*          非功能性需求 (非互斥可选)
+- @by:*           作者来源 (互斥可选)
+- @status:*       生命周期状态 (互斥可选)
+- @exec:*         执行特征 (非互斥可选)
+- @story:* @epic:* @owner:* @risk:*   追溯 (非互斥可选)
+- @boundary       Marker (无前缀例外)
 
 评审时由 LLM 读取这份 JSON，基于 references/rules.md 的规则给出定性判断。
 脚本本身不做严重度判定，只做"可机械测量的事实采集"。
 
 用法：
     python scan.py <features-dir> [--output <path>]
-
-输出结构见文件末尾的 schema 注释。
 """
 
 from __future__ import annotations
@@ -25,7 +33,7 @@ from pathlib import Path
 from typing import Optional
 
 # ============================================================================
-# Gherkin 解析（轻量级，不依赖 gherkin 包；仅识别评审所需的结构）
+# Gherkin 解析
 # ============================================================================
 
 TAG_LINE = re.compile(r"^\s*(@[\w\-:]+(?:\s+@[\w\-:]+)*)\s*$")
@@ -45,12 +53,12 @@ class Scenario:
     name: str
     line: int
     is_outline: bool
-    tags: list[str] = field(default_factory=list)          # scenario 自己的标签
-    inherited_tags: list[str] = field(default_factory=list)  # 从 feature 级继承来的标签
+    tags: list[str] = field(default_factory=list)
+    inherited_tags: list[str] = field(default_factory=list)
     step_count: int = 0
     when_count: int = 0
     then_and_count: int = 0
-    examples_tables: list[dict] = field(default_factory=list)  # [{name, row_count, col_count}]
+    examples_tables: list[dict] = field(default_factory=list)
 
     @property
     def effective_tags(self) -> list[str]:
@@ -59,10 +67,10 @@ class Scenario:
 
 @dataclass
 class FeatureFile:
-    path: str                      # 相对于 features-root 的路径
+    path: str
     absolute_path: str
     feature_name: str = ""
-    feature_description: str = ""  # feature 行之后、第一个 Scenario/Background 之前的文本
+    feature_description: str = ""
     feature_tags: list[str] = field(default_factory=list)
     has_background: bool = False
     scenarios: list[Scenario] = field(default_factory=list)
@@ -70,10 +78,6 @@ class FeatureFile:
 
 
 def parse_feature_file(path: Path, root: Path) -> FeatureFile:
-    """
-    解析单个 .feature 文件。
-    策略：行扫描，维护"待挂载的标签缓冲区"——下一个 Feature/Scenario/Examples 消费它们。
-    """
     rel = str(path.relative_to(root))
     ff = FeatureFile(path=rel, absolute_path=str(path))
 
@@ -111,7 +115,6 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
         if COMMENT_LINE.match(line):
             continue
 
-        # Tag 行
         if TAG_LINE.match(line.strip()):
             if in_examples_table:
                 flush_examples()
@@ -119,7 +122,6 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
             pending_tags.extend(tags)
             continue
 
-        # Feature 行
         m = FEATURE_LINE.match(line)
         if m:
             ff.feature_name = m.group(1).strip()
@@ -128,53 +130,43 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
             in_description = True
             continue
 
-        # Background 行
         if BACKGROUND_LINE.match(line):
             if in_examples_table:
                 flush_examples()
             ff.has_background = True
             in_description = False
-            pending_tags = []  # background 前的 tag 不归属任何 scenario
+            pending_tags = []
             current_scenario = None
             continue
 
-        # Scenario Outline
         m = SCENARIO_OUTLINE_LINE.match(line)
         if m:
             if in_examples_table:
                 flush_examples()
             in_description = False
             s = Scenario(
-                name=m.group(1).strip(),
-                line=i,
-                is_outline=True,
-                tags=pending_tags[:],
-                inherited_tags=ff.feature_tags[:],
+                name=m.group(1).strip(), line=i, is_outline=True,
+                tags=pending_tags[:], inherited_tags=ff.feature_tags[:],
             )
             pending_tags = []
             ff.scenarios.append(s)
             current_scenario = s
             continue
 
-        # Scenario
         m = SCENARIO_LINE.match(line)
         if m:
             if in_examples_table:
                 flush_examples()
             in_description = False
             s = Scenario(
-                name=m.group(1).strip(),
-                line=i,
-                is_outline=False,
-                tags=pending_tags[:],
-                inherited_tags=ff.feature_tags[:],
+                name=m.group(1).strip(), line=i, is_outline=False,
+                tags=pending_tags[:], inherited_tags=ff.feature_tags[:],
             )
             pending_tags = []
             ff.scenarios.append(s)
             current_scenario = s
             continue
 
-        # Examples 行
         m = EXAMPLES_LINE.match(line)
         if m:
             if in_examples_table:
@@ -185,11 +177,9 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
             current_examples_rows = 0
             continue
 
-        # 表格行（可能是 Examples 表，也可能是 step 里的 data table）
         if TABLE_ROW.match(line):
             if in_examples_table:
                 if current_examples_header is None:
-                    # 第一行作为表头
                     current_examples_header = [
                         c.strip() for c in line.strip().strip("|").split("|")
                     ]
@@ -197,7 +187,6 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
                     current_examples_rows += 1
             continue
 
-        # Step 行
         m = STEP_LINE.match(line)
         if m:
             if in_examples_table:
@@ -212,16 +201,12 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
                     current_scenario.then_and_count += 1
             continue
 
-        # Description 收集
         if in_description and not EMPTY_LINE.match(line):
             description_lines.append(line.strip())
 
-        # 空行：如果在 Examples 区块，很多项目用空行终止表格
         if EMPTY_LINE.match(line) and in_examples_table:
-            # 仅当已有表头且至少一行数据时，遇空行不视为终止，继续等表格行
             pass
 
-    # 文件末尾的收尾
     if in_examples_table:
         flush_examples()
     ff.feature_description = " ".join(description_lines).strip()
@@ -230,27 +215,77 @@ def parse_feature_file(path: Path, root: Path) -> FeatureFile:
 
 
 # ============================================================================
-# 度量聚合
+# 标签常量 (v2)
 # ============================================================================
 
-LAYER_TAGS = ["@layer-api", "@layer-ui", "@layer-config", "@layer-e2e"]
-PERSPECTIVE_TAGS = ["@main", "@related", "@exception", "@technical"]
+LAYER_TAGS = [
+    "@test-layer:api", "@test-layer:ui",
+    "@test-layer:config", "@test-layer:e2e",
+]
+SPEC_TAGS = [
+    "@spec:main", "@spec:normal", "@spec:related",
+    "@spec:exception", "@spec:constraint",
+    "@spec:testability", "@spec:contract", "@spec:technical",
+]
+STATUS_TAGS = [
+    "@status:draft", "@status:review", "@status:pending",
+    "@status:impl", "@status:deprecated", "@status:blocked",
+]
+EXEC_TAGS = [
+    "@exec:smoke", "@exec:regression", "@exec:slow",
+    "@exec:flaky", "@exec:hard",
+]
+BY_TAGS = ["@by:dev", "@by:qa"]
+
+NFR_PREFIX = "@nfr:"
+STORY_PREFIX = "@story:"
+EPIC_PREFIX = "@epic:"
+OWNER_PREFIX = "@owner:"
+RISK_PREFIX = "@risk:"
+
 BAD_TOPLEVEL_DIRS = {
     "ui", "api", "e2e", "smoke", "regression", "integration", "unit",
     "frontend", "backend", "web", "mobile", "main", "exception",
     "happy", "negative", "positive", "test", "tests",
 }
 STORY_ID_PATTERN = re.compile(r"^(US|JIRA|STORY|TICKET|TASK)[\-_]?\d+", re.IGNORECASE)
+
 TECH_STACK_TAGS = {
     "@postgres", "@mysql", "@redis", "@kafka", "@rabbitmq", "@mongo",
     "@react", "@vue", "@angular", "@selenium", "@cypress", "@playwright",
     "@docker", "@kubernetes", "@aws", "@gcp", "@azure",
 }
 
+# 旧格式 → 新格式的迁移提示
+LEGACY_TAGS = {
+    "@main": "@spec:main",
+    "@normal": "@spec:normal",
+    "@exception": "@spec:exception",
+    "@constraint": "@spec:constraint",
+    "@testability": "@spec:testability",
+    "@contract": "@spec:contract",
+    "@related": "@spec:related",
+    "@technical": "@spec:technical",
+    "@layer-api": "@test-layer:api",
+    "@layer-ui": "@test-layer:ui",
+    "@layer-config": "@test-layer:config",
+    "@layer-e2e": "@test-layer:e2e",
+}
+LEGACY_PREFIX_MIGRATION = {
+    "@nfr-": "@nfr:",
+    "@status-": "@status:",
+    "@by-": "@by:",
+    "@exec-": "@exec:",
+    "@story-": "@story:",
+    "@epic-": "@epic:",
+    "@owner-": "@owner:",
+    "@risk-": "@risk:",
+}
 
-def classify_layer(tags: list[str]) -> tuple[str, int]:
-    """返回 (层级标签或 'unlabeled', 层级标签个数)"""
-    hits = [t for t in tags if t in LAYER_TAGS]
+
+def classify_single(tags: list[str], options: list[str]) -> tuple[str, int]:
+    """互斥维度分类：返回 (命中标签 / 'unlabeled' / 'conflict', 命中数量)"""
+    hits = [t for t in tags if t in options]
     if len(hits) == 0:
         return ("unlabeled", 0)
     if len(hits) == 1:
@@ -258,35 +293,46 @@ def classify_layer(tags: list[str]) -> tuple[str, int]:
     return ("conflict", len(hits))
 
 
-def classify_perspective(tags: list[str]) -> tuple[str, int]:
-    hits = [t for t in tags if t in PERSPECTIVE_TAGS]
-    if len(hits) == 0:
-        return ("unlabeled", 0)
-    if len(hits) == 1:
-        return (hits[0], 1)
-    return ("conflict", len(hits))
-
+# ============================================================================
+# 度量聚合
+# ============================================================================
 
 def aggregate(files: list[FeatureFile], root: Path) -> dict:
     total_scenarios = 0
     total_outlines = 0
+
     layer_counts = {t: 0 for t in LAYER_TAGS}
-    layer_counts["unlabeled"] = 0
-    layer_counts["conflict"] = 0
-    perspective_counts = {t: 0 for t in PERSPECTIVE_TAGS}
-    perspective_counts["unlabeled"] = 0
-    perspective_counts["conflict"] = 0
+    layer_counts.update({"unlabeled": 0, "conflict": 0})
+    spec_counts = {t: 0 for t in SPEC_TAGS}
+    spec_counts.update({"unlabeled": 0, "conflict": 0})
+    status_counts = {t: 0 for t in STATUS_TAGS}
+    status_counts.update({"unlabeled (default-impl)": 0, "conflict": 0})
+    by_counts = {t: 0 for t in BY_TAGS}
+    by_counts.update({"unlabeled": 0, "conflict": 0})
+
+    exec_counts = {t: 0 for t in EXEC_TAGS}
+    nfr_counts: dict[str, int] = {}
+    story_count = 0
+    epic_count = 0
+    owner_count = 0
+    risk_count = 0
 
     all_tags: dict[str, int] = {}
+
     scenarios_missing_layer: list[dict] = []
-    scenarios_missing_perspective: list[dict] = []
+    scenarios_missing_spec: list[dict] = []
     layer_conflicts: list[dict] = []
-    perspective_conflicts: list[dict] = []
-    tech_stack_tag_usages: list[dict] = []
-    long_examples: list[dict] = []      # Examples 行数 > 15 的警报
-    many_when: list[dict] = []          # when >= 2
-    long_steps: list[dict] = []         # 步骤 > 10
+    spec_conflicts: list[dict] = []
+    status_conflicts: list[dict] = []
+    by_conflicts: list[dict] = []
     technical_outside_tech_dir: list[dict] = []
+    tech_stack_tag_usages: list[dict] = []
+    long_examples: list[dict] = []
+    many_when: list[dict] = []
+    long_steps: list[dict] = []
+    nfr_without_exec: list[dict] = []
+    flaky_scenarios: list[dict] = []
+    legacy_tag_usages: list[dict] = []
 
     for ff in files:
         for s in ff.scenarios:
@@ -295,15 +341,12 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
                 total_outlines += 1
             tags = s.effective_tags
 
-            # 累积所有 tag 的使用情况
             for t in tags:
                 all_tags[t] = all_tags.get(t, 0) + 1
 
-            # 分层分类
-            layer, n = classify_layer(tags)
+            layer, _ = classify_single(tags, LAYER_TAGS)
             layer_counts[layer] = layer_counts.get(layer, 0) + 1
             if layer == "unlabeled":
-                # _technical/ 下可以豁免，但仍然记录
                 scenarios_missing_layer.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
                 })
@@ -313,33 +356,94 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
                     "tags": [t for t in tags if t in LAYER_TAGS],
                 })
 
-            # 视角分类
-            persp, n = classify_perspective(tags)
-            perspective_counts[persp] = perspective_counts.get(persp, 0) + 1
-            if persp == "unlabeled":
-                scenarios_missing_perspective.append({
+            spec, _ = classify_single(tags, SPEC_TAGS)
+            spec_counts[spec] = spec_counts.get(spec, 0) + 1
+            if spec == "unlabeled":
+                scenarios_missing_spec.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
                 })
-            elif persp == "conflict":
-                perspective_conflicts.append({
+            elif spec == "conflict":
+                spec_conflicts.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
-                    "tags": [t for t in tags if t in PERSPECTIVE_TAGS],
+                    "tags": [t for t in tags if t in SPEC_TAGS],
                 })
 
-            # @technical 在非 _technical/ 下
-            if "@technical" in tags and not ff.path.startswith("_technical"):
+            status, _ = classify_single(tags, STATUS_TAGS)
+            if status == "unlabeled":
+                status_counts["unlabeled (default-impl)"] += 1
+            elif status == "conflict":
+                status_counts["conflict"] += 1
+                status_conflicts.append({
+                    "file": ff.path, "scenario": s.name, "line": s.line,
+                    "tags": [t for t in tags if t in STATUS_TAGS],
+                })
+            else:
+                status_counts[status] = status_counts.get(status, 0) + 1
+
+            by, _ = classify_single(tags, BY_TAGS)
+            by_counts[by] = by_counts.get(by, 0) + 1
+            if by == "conflict":
+                by_conflicts.append({
+                    "file": ff.path, "scenario": s.name, "line": s.line,
+                    "tags": [t for t in tags if t in BY_TAGS],
+                })
+
+            has_nfr = False
+            has_exec = False
+            for t in tags:
+                if t in EXEC_TAGS:
+                    exec_counts[t] = exec_counts.get(t, 0) + 1
+                    has_exec = True
+                if t.startswith(NFR_PREFIX):
+                    nfr_counts[t] = nfr_counts.get(t, 0) + 1
+                    has_nfr = True
+                if t.startswith(STORY_PREFIX):
+                    story_count += 1
+                if t.startswith(EPIC_PREFIX):
+                    epic_count += 1
+                if t.startswith(OWNER_PREFIX):
+                    owner_count += 1
+                if t.startswith(RISK_PREFIX):
+                    risk_count += 1
+
+            if has_nfr and not has_exec:
+                nfr_without_exec.append({
+                    "file": ff.path, "scenario": s.name, "line": s.line,
+                    "nfr_tags": [t for t in tags if t.startswith(NFR_PREFIX)],
+                })
+
+            if "@exec:flaky" in tags:
+                flaky_scenarios.append({
+                    "file": ff.path, "scenario": s.name, "line": s.line,
+                })
+
+            if "@spec:technical" in tags and not ff.path.startswith("_technical"):
                 technical_outside_tech_dir.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
                 })
 
-            # 技术栈标签
             for t in tags:
                 if t in TECH_STACK_TAGS:
                     tech_stack_tag_usages.append({
                         "file": ff.path, "scenario": s.name, "line": s.line, "tag": t,
                     })
 
-            # Examples 表过长
+            for t in tags:
+                if t in LEGACY_TAGS:
+                    legacy_tag_usages.append({
+                        "file": ff.path, "scenario": s.name, "line": s.line,
+                        "legacy_tag": t, "migrate_to": LEGACY_TAGS[t],
+                    })
+                else:
+                    for old_prefix, new_prefix in LEGACY_PREFIX_MIGRATION.items():
+                        if t.startswith(old_prefix):
+                            legacy_tag_usages.append({
+                                "file": ff.path, "scenario": s.name, "line": s.line,
+                                "legacy_tag": t,
+                                "migrate_to": t.replace(old_prefix, new_prefix, 1),
+                            })
+                            break
+
             for ex in s.examples_tables:
                 if ex["row_count"] > 15:
                     long_examples.append({
@@ -348,21 +452,19 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
                         "col_count": ex["col_count"],
                     })
 
-            # 多 when
             if s.when_count >= 2:
                 many_when.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
                     "when_count": s.when_count,
                 })
 
-            # 长步骤链
             if s.step_count > 10:
                 long_steps.append({
                     "file": ff.path, "scenario": s.name, "line": s.line,
                     "step_count": s.step_count,
                 })
 
-    # 目录结构检查
+    # 目录层面
     top_level_dirs = set()
     bad_toplevel = []
     story_id_files = []
@@ -380,74 +482,68 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
             deepest_path = ff.path
         if len(parts) >= 1:
             top_level_dirs.add(parts[0])
-        # 目录文件数统计
         if len(parts) >= 2:
             dir_key = str(Path(*parts[:-1]))
             dir_file_counts[dir_key] = dir_file_counts.get(dir_key, 0) + 1
 
-        # 坏顶层目录
-        if len(parts) >= 2:  # 有顶层目录+文件
+        if len(parts) >= 2:
             top = parts[0].lower()
             if not top.startswith("_") and top in BAD_TOPLEVEL_DIRS:
                 bad_toplevel.append({"path": ff.path, "top_dir": parts[0]})
 
-        # Story ID 命名
         filename = Path(ff.path).stem
         if STORY_ID_PATTERN.match(filename):
             story_id_files.append(ff.path)
 
-        # _shared / _technical 收集
         if ff.path.startswith("_shared"):
             shared_files.append(ff.path)
         if ff.path.startswith("_technical"):
             technical_files.append(ff.path)
 
-    # 文件命名与内容一致性
     boundaries_without_outline = []
     boundaries_without_boundary_tag = []
     ui_files_without_ui_tag = []
 
     for ff in files:
         stem = Path(ff.path).stem
-        # _boundaries.feature 但没有 Scenario Outline
         if stem.endswith("_boundaries"):
             if not any(s.is_outline for s in ff.scenarios):
                 boundaries_without_outline.append(ff.path)
-            # 且没有一个 scenario 有 @boundary
-            has_boundary_tag = any(
+            feature_has_boundary = "@boundary" in ff.feature_tags
+            scenarios_have_boundary = all(
                 "@boundary" in s.effective_tags for s in ff.scenarios
-            )
-            if not has_boundary_tag:
+            ) if ff.scenarios else False
+            if not (feature_has_boundary or scenarios_have_boundary):
                 boundaries_without_boundary_tag.append(ff.path)
-        # _ui.feature 但没有 @layer-ui
         if stem.endswith("_ui"):
             missing = [
                 s.name for s in ff.scenarios
-                if "@layer-ui" not in s.effective_tags
+                if "@test-layer:ui" not in s.effective_tags
             ]
             if missing:
                 ui_files_without_ui_tag.append({
                     "file": ff.path, "scenarios_missing": missing,
                 })
 
-    # Feature 内 scenario 过多
     large_features = [
         {"file": ff.path, "scenario_count": len(ff.scenarios)}
         for ff in files if len(ff.scenarios) > 15
     ]
 
-    # 缺少 feature description
     missing_description = [
         ff.path for ff in files
         if ff.feature_name and not ff.feature_description
     ]
 
-    # 标签近似聚类（检测拼写不一致）
-    # 归一化策略：小写 + 去除所有 - 和 _，这样 @layer-api / @layerApi / @layer_api
-    # 都归一化为 @layerapi，若归一化后原形有多种，则报警。
+    # 标签近似聚类：去除所有分隔符后重合则提示
     tag_aliases: dict[str, list[str]] = {}
     for t in all_tags:
-        norm = t.lower().replace("_", "").replace("-", "")
+        norm = (
+            t.lower()
+            .replace("_", "")
+            .replace("-", "")
+            .replace(":", "")
+        )
         tag_aliases.setdefault(norm, [])
         if t not in tag_aliases[norm]:
             tag_aliases[norm].append(t)
@@ -456,7 +552,6 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
         if len(variants) > 1
     }
 
-    # 同一 feature 内的相似 scenario（简单检测：同步骤数同 when 数同 then_and 数）
     similar_scenario_groups: list[dict] = []
     for ff in files:
         signature_map: dict[tuple, list[str]] = {}
@@ -466,21 +561,24 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
             sig = (s.step_count, s.when_count, s.then_and_count)
             signature_map.setdefault(sig, []).append(s.name)
         for sig, names in signature_map.items():
-            if len(names) >= 3:  # 3 个以上结构相同的 scenario 极可能是可合并为 Outline
+            if len(names) >= 3:
                 similar_scenario_groups.append({
                     "file": ff.path,
-                    "signature": {"step_count": sig[0], "when_count": sig[1], "then_and_count": sig[2]},
+                    "signature": {
+                        "step_count": sig[0],
+                        "when_count": sig[1],
+                        "then_and_count": sig[2],
+                    },
                     "scenarios": names,
                 })
 
-    # 分层占比
     def pct(n: int, total: int) -> float:
         return round(100.0 * n / total, 2) if total else 0.0
 
-    api_n = layer_counts.get("@layer-api", 0)
-    ui_n = layer_counts.get("@layer-ui", 0)
-    config_n = layer_counts.get("@layer-config", 0)
-    e2e_n = layer_counts.get("@layer-e2e", 0)
+    api_n = layer_counts.get("@test-layer:api", 0)
+    ui_n = layer_counts.get("@test-layer:ui", 0)
+    e2e_n = layer_counts.get("@test-layer:e2e", 0)
+    flaky_n = exec_counts.get("@exec:flaky", 0)
 
     return {
         "summary": {
@@ -494,42 +592,74 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
             "shared_file_count": len(shared_files),
             "technical_file_count": len(technical_files),
             "technical_pct": pct(len(technical_files), len(files)),
+            "flaky_scenario_count": flaky_n,
+            "flaky_pct": pct(flaky_n, total_scenarios),
         },
         "layer_distribution": {
-            "@layer-api": {"count": api_n, "pct": pct(api_n, total_scenarios)},
-            "@layer-ui": {"count": ui_n, "pct": pct(ui_n, total_scenarios)},
-            "@layer-config": {"count": config_n, "pct": pct(config_n, total_scenarios)},
-            "@layer-e2e": {"count": e2e_n, "pct": pct(e2e_n, total_scenarios)},
-            "unlabeled": {
-                "count": layer_counts.get("unlabeled", 0),
-                "pct": pct(layer_counts.get("unlabeled", 0), total_scenarios),
-            },
-            "conflict": {
-                "count": layer_counts.get("conflict", 0),
-                "pct": pct(layer_counts.get("conflict", 0), total_scenarios),
+            **{
+                t: {
+                    "count": layer_counts.get(t, 0),
+                    "pct": pct(layer_counts.get(t, 0), total_scenarios),
+                }
+                for t in LAYER_TAGS + ["unlabeled", "conflict"]
             },
             "ui_to_api_ratio_pct": pct(ui_n, api_n) if api_n else None,
             "e2e_to_total_pct": pct(e2e_n, total_scenarios),
         },
-        "perspective_distribution": {
+        "spec_distribution": {
             t: {
-                "count": perspective_counts.get(t, 0),
-                "pct": pct(perspective_counts.get(t, 0), total_scenarios),
-            } for t in PERSPECTIVE_TAGS + ["unlabeled", "conflict"]
+                "count": spec_counts.get(t, 0),
+                "pct": pct(spec_counts.get(t, 0), total_scenarios),
+            }
+            for t in SPEC_TAGS + ["unlabeled", "conflict"]
+        },
+        "status_distribution": {
+            k: {"count": v, "pct": pct(v, total_scenarios)}
+            for k, v in status_counts.items()
+        },
+        "by_distribution": {
+            t: {
+                "count": by_counts.get(t, 0),
+                "pct": pct(by_counts.get(t, 0), total_scenarios),
+            }
+            for t in BY_TAGS + ["unlabeled", "conflict"]
+        },
+        "exec_distribution": {
+            t: {
+                "count": exec_counts.get(t, 0),
+                "pct": pct(exec_counts.get(t, 0), total_scenarios),
+            }
+            for t in EXEC_TAGS
+        },
+        "nfr_distribution": {
+            t: {"count": c, "pct": pct(c, total_scenarios)}
+            for t, c in sorted(nfr_counts.items(), key=lambda kv: -kv[1])
+        },
+        "traceability_summary": {
+            "story_tag_count": story_count,
+            "epic_tag_count": epic_count,
+            "owner_tag_count": owner_count,
+            "risk_tag_count": risk_count,
+            "story_coverage_pct": pct(story_count, total_scenarios),
         },
         "tag_usage": dict(sorted(all_tags.items(), key=lambda kv: -kv[1])),
         "findings": {
             "bad_toplevel_dirs": bad_toplevel,
             "story_id_filenames": story_id_files,
             "scenarios_missing_layer_tag": scenarios_missing_layer,
-            "scenarios_missing_perspective_tag": scenarios_missing_perspective,
+            "scenarios_missing_spec_tag": scenarios_missing_spec,
             "layer_tag_conflicts": layer_conflicts,
-            "perspective_tag_conflicts": perspective_conflicts,
+            "spec_tag_conflicts": spec_conflicts,
+            "status_tag_conflicts": status_conflicts,
+            "by_tag_conflicts": by_conflicts,
             "technical_tag_outside_technical_dir": technical_outside_tech_dir,
             "tech_stack_tag_usages": tech_stack_tag_usages,
+            "legacy_tag_usages": legacy_tag_usages,
             "long_examples_tables": long_examples,
             "scenarios_with_multiple_when": many_when,
             "scenarios_with_long_step_chain": long_steps,
+            "nfr_scenarios_without_exec_tag": nfr_without_exec,
+            "flaky_scenarios": flaky_scenarios,
             "boundaries_files_without_scenario_outline": boundaries_without_outline,
             "boundaries_files_missing_boundary_tag": boundaries_without_boundary_tag,
             "ui_files_with_scenarios_missing_ui_tag": ui_files_without_ui_tag,
@@ -548,7 +678,6 @@ def aggregate(files: list[FeatureFile], root: Path) -> dict:
 def asdict_file(ff: FeatureFile) -> dict:
     d = asdict(ff)
     d["scenarios"] = [asdict(s) for s in ff.scenarios]
-    # 补上 effective_tags（asdict 不会执行 property）
     for s_dict, s in zip(d["scenarios"], ff.scenarios):
         s_dict["effective_tags"] = s.effective_tags
     return d
@@ -559,7 +688,10 @@ def asdict_file(ff: FeatureFile) -> dict:
 # ============================================================================
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     ap.add_argument("features_dir", help="features/ 目录的路径")
     ap.add_argument("--output", "-o", default=None, help="输出 JSON 路径；默认 stdout")
     args = ap.parse_args()
@@ -586,72 +718,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# ============================================================================
-# 输出 Schema（评审时 LLM 据此消费）
-# ============================================================================
-# {
-#   "summary": {
-#     "features_root": str,
-#     "file_count": int,
-#     "total_scenarios": int,
-#     "total_outlines": int,
-#     "top_level_dirs": [str],
-#     "max_depth": int,
-#     "deepest_path": str,
-#     "shared_file_count": int,
-#     "technical_file_count": int,
-#     "technical_pct": float
-#   },
-#   "layer_distribution": {
-#     "@layer-api" | ... | "unlabeled" | "conflict": {"count": int, "pct": float},
-#     "ui_to_api_ratio_pct": float | null,  # UI 数 / API 数
-#     "e2e_to_total_pct": float
-#   },
-#   "perspective_distribution": { ... 同结构 },
-#   "tag_usage": { "@tag": count, ... 按 count 降序 },
-#   "findings": {
-#     "bad_toplevel_dirs": [{path, top_dir}],
-#     "story_id_filenames": [path],
-#     "scenarios_missing_layer_tag": [{file, scenario, line}],
-#     "scenarios_missing_perspective_tag": [...],
-#     "layer_tag_conflicts": [{file, scenario, line, tags}],
-#     "perspective_tag_conflicts": [...],
-#     "technical_tag_outside_technical_dir": [{file, scenario, line}],
-#     "tech_stack_tag_usages": [{file, scenario, line, tag}],
-#     "long_examples_tables": [{file, scenario, line, examples_name, row_count, col_count}],
-#     "scenarios_with_multiple_when": [{file, scenario, line, when_count}],
-#     "scenarios_with_long_step_chain": [{file, scenario, line, step_count}],
-#     "boundaries_files_without_scenario_outline": [path],
-#     "boundaries_files_missing_boundary_tag": [path],
-#     "ui_files_with_scenarios_missing_ui_tag": [{file, scenarios_missing}],
-#     "features_with_too_many_scenarios": [{file, scenario_count}],
-#     "features_missing_description": [path],
-#     "inconsistent_tag_spellings": {normalized_form: [variant1, variant2, ...]},
-#     "similar_scenario_groups_suggesting_outline": [
-#       {file, signature: {step_count, when_count, then_and_count}, scenarios: [names]}
-#     ],
-#     "dir_file_counts": {dir_path: int}
-#   },
-#   "files": [
-#     {
-#       "path": relative_path,
-#       "absolute_path": abs,
-#       "feature_name": str,
-#       "feature_description": str,
-#       "feature_tags": [tag],
-#       "has_background": bool,
-#       "scenarios": [
-#         {
-#           "name": str, "line": int, "is_outline": bool,
-#           "tags": [own_tags], "inherited_tags": [feature_tags],
-#           "effective_tags": [union],
-#           "step_count": int, "when_count": int, "then_and_count": int,
-#           "examples_tables": [{name, row_count, col_count}]
-#         }
-#       ],
-#       "parse_errors": [str]
-#     }
-#   ]
-# }
