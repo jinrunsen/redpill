@@ -66,6 +66,12 @@
  * Todos:
  *   todo complete <filename>           Move todo from pending to completed
  *
+ * Feature Review:
+ *   feature-review scan [<features-dir>]   Scan .feature files, output metrics JSON
+ *     [--dir <path>] [--output <path>]     (default dir: features/)
+ *   feature-review migrate [<features-dir>]  Migrate legacy tags to v2 colon format
+ *     [--dir <path>] [--dry-run]
+ *
  * UAT Audit:
  *   audit-uat                           Scan all phases for unresolved UAT/verification items
  *   uat render-checkpoint --file <path> Render the current UAT checkpoint block
@@ -158,6 +164,7 @@ const profileOutput = require('./lib/profile-output.cjs');
 const workstream = require('./lib/workstream.cjs');
 const docs = require('./lib/docs.cjs');
 const bdd = require('./lib/bdd.cjs');
+const featureReview = require('./lib/feature-review.cjs');
 
 // ─── Arg parsing helpers ──────────────────────────────────────────────────────
 
@@ -709,6 +716,25 @@ async function runCommand(command, args, cwd, raw) {
         bdd.cmdBddSummary(cwd, featuresDir, raw);
       } else {
         error('Unknown bdd subcommand. Available: summary');
+      }
+      break;
+    }
+
+    case 'feature-review': {
+      const subcommand = args[1];
+      if (subcommand === 'scan') {
+        const dirIdx = args.indexOf('--dir');
+        const outputIdx = args.indexOf('--output');
+        const featuresDir = dirIdx !== -1 ? args[dirIdx + 1] : (args[2] && !args[2].startsWith('--') ? args[2] : 'features');
+        const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
+        featureReview.cmdFeatureReviewScan(cwd, featuresDir, outputPath, raw);
+      } else if (subcommand === 'migrate') {
+        const dirIdx = args.indexOf('--dir');
+        const dryRun = args.includes('--dry-run');
+        const featuresDir = dirIdx !== -1 ? args[dirIdx + 1] : (args[2] && !args[2].startsWith('--') ? args[2] : 'features');
+        featureReview.cmdFeatureReviewMigrate(cwd, featuresDir, dryRun, raw);
+      } else {
+        error('Unknown feature-review subcommand. Available: scan, migrate');
       }
       break;
     }

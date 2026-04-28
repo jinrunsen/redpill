@@ -330,7 +330,10 @@ BEHAVE_CMD="behave --stage=api --dry-run --no-capture --format json"
 # Add feature targets
 BEHAVE_CMD="$BEHAVE_CMD $FEATURE_TARGETS"
 
-# Add tag filter if provided
+# Always exclude @pending scenarios — they are not yet ready to run
+BEHAVE_CMD="$BEHAVE_CMD --tags=~@pending"
+
+# Add user-supplied tag filter if provided (appended after pending exclusion)
 if [[ -n "$TAG_FILTER" ]]; then
   BEHAVE_CMD="$BEHAVE_CMD --tags=$TAG_FILTER"
 fi
@@ -544,7 +547,7 @@ Implement backend code directly in the current context to make the scenario pass
 
 Get latest failure output:
 ```bash
-behave --stage=api --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --no-capture --format plain --fail-focus --include {feature_file} -n "{scenario_name}" 2>&1
 ```
 
 Display: `◆ Implementing: {scenario_name}`
@@ -564,7 +567,7 @@ Display: `◆ Implementing: {scenario_name}`
 ## 9. GREEN — Verify Scenario Passes
 
 ```bash
-behave --stage=api --no-capture --format plain --include {feature_file} -n "{scenario_name}" 2>&1
+behave --stage=api --no-capture --format plain --fail-focus --include {feature_file} -n "{scenario_name}" 2>&1
 echo "EXIT_CODE=$?"
 ```
 
@@ -635,7 +638,7 @@ Return ONE of:
 - **BLOCKING** → fix directly in the current context (max 1 fix round):
   - Apply fixes for the blocking issues listed by the reviewer
   - Do not change unrelated code
-  - Verify with: `behave --stage=api --include {feature_file} -n '{scenario_name}'`
+  - Verify with: `behave --stage=api --fail-focus --include {feature_file} -n '{scenario_name}'`
 
 After fix, proceed to step 11 (no re-review to prevent infinite loops).
 
