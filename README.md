@@ -1,21 +1,12 @@
 <div align="center">
 
-# GET SHIT DONE
+# REDPILL
 
-**English** · [Português](README.pt-BR.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja-JP.md) · [한국어](README.ko-KR.md)
+**English** · [简体中文](README.zh-CN.md) 
 
-**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini CLI, Codex, Copilot, Cursor, Windsurf, Antigravity, and Augment.**
+**A light-weight and powerful meta-prompting, context engineering and behave-driven development system for Claude Code, OpenCode, Gemini CLI, Codex, Copilot, Cursor, Windsurf, Antigravity, and Augment.**
 
 **Solves context rot — the quality degradation that happens as Claude fills its context window.**
-
-[![npm version](https://img.shields.io/npm/v/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
-[![npm downloads](https://img.shields.io/npm/dm/redpill-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/redpill-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/redpill-build/redpill/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/redpill-build/redpill/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/redpill)
-[![X (Twitter)](https://img.shields.io/badge/X-@redpill_dev-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/redpill_dev)
-[![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/redpill-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/redpill-build/get-shit-done)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
@@ -25,11 +16,6 @@ npx redpill-cc@latest
 
 **Works on Mac, Windows, and Linux.**
 
-<br>
-
-![GSD Install](assets/terminal.svg)
-
-<br>
 
 *"If you know clearly what you want, this WILL build it for you. No bs."*
 
@@ -53,11 +39,11 @@ I'm a solo developer. I don't write code — Claude Code does.
 
 Other spec-driven development tools exist; BMAD, Speckit... But they all seem to make things way more complicated than they need to be (sprint ceremonies, story points, stakeholder syncs, retrospectives, Jira workflows) or lack real big picture understanding of what you're building. I'm not a 50-person software company. I don't want to play enterprise theater. I'm just a creative person trying to build great things that work.
 
-So I built GSD. The complexity is in the system, not in your workflow. Behind the scenes: context engineering, XML prompt formatting, subagent orchestration, state management. What you see: a few commands that just work.
+So I forked get-shit-done and built REDPILL. Same frictionless workflow — but with BDD at the core. Define behavior before you build. Let Claude implement against it. Behave verifies the result matches the spec. The complexity is still in the system, not in your workflow. What you see: a few commands that just work.
 
-The system gives Claude everything it needs to do the work *and* verify it. I trust the workflow. It just does a good job.
+The difference is confidence. BDD keeps AI and requirements in sync — not just that code was written, but that it does what you actually wanted.
 
-That's what this is. No enterprise roleplay bullshit. Just an incredibly effective system for building cool stuff consistently using Claude Code.
+That's what this is. No enterprise roleplay bullshit. Just an incredibly effective system for building the right thing correctly, consistently, using Claude Code.
 
 — **jinrunsen**
 

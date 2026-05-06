@@ -1,6 +1,6 @@
 <div align="center">
 
-# GET SHIT DONE
+# REDPILL
 
 **一个轻量级且强大的元提示、上下文工程和规格驱动开发系统，支持 Claude Code、OpenCode、Gemini CLI、Codex、Copilot、Cursor、Windsurf、Antigravity 和 Augment。**
 

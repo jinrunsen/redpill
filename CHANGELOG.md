@@ -1738,7 +1738,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.0] - 2025-12-14
 
 ### Added
-- Initial release of REDPILL (Get Shit Done) meta-prompting system
+- Initial release of REDPILL (REDPILL) meta-prompting system
 - Core slash commands: `/redpill:new-project`, `/redpill:discuss-phase`, `/redpill:plan-phase`, `/redpill:execute-phase`
 - PROJECT.md and STATE.md templates
 - Phase-based development workflow

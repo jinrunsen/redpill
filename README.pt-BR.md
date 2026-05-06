@@ -1,6 +1,6 @@
 <div align="center">
 
-# GET SHIT DONE
+# REDPILL
 
 [English](README.md) · **Português** · [简体中文](README.zh-CN.md) · [日本語](README.ja-JP.md)
 
